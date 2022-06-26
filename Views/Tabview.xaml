@@ -1,0 +1,1086 @@
+﻿<Window x:Class="NewWpfDev.Views.Tabview"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:NewWpfDev.Views"
+        xmlns:user="clr-namespace:NewWpfDev.UserControls"
+        xmlns:view="clr-namespace:NewWpfDev.ViewModels"
+        xmlns:conv="clr-namespace:NewWpfDev.Converts"
+        Loaded="Window_Loaded"
+        Closed="tabview_Closed"
+        Background="Cyan"
+        WindowChrome.ResizeGripDirection="BottomRight"
+        ResizeMode="CanResizeWithGrip"
+        x:Name="tabview"
+        Height="250" Width="500"
+        Title="Tabview" MinHeight="450" MinWidth="800"
+        mc:Ignorable="d">
+    
+    <Window.Resources>
+        <view:TabWinViewModel x:Key="TabWinViewModel"/>
+        <!--<local:ConditionalEventTrigger x:Key="ConditionalEventTrigger"/>-->
+        <conv:ReduceByParamValue x:Key="ReduceByParamValue"/>
+
+        <DataTemplate x:Key="NotificationTemplate">
+            <!--<Border Name="brd" Background="Transparent">
+                <TextBlock Text="{Binding Text}"/>
+            </Border>-->
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                    <DataTrigger.EnterActions>
+                        <BeginStoryboard Name="twinkleHeader">
+                            <Storyboard >
+                                <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(FontWeight)" 
+                                         Storyboard.TargetName="Tab1Header">
+                                    <DiscreteObjectKeyFrame KeyTime="0">
+                                        <DiscreteObjectKeyFrame.Value>
+                                            <FontWeight>Bold</FontWeight>
+                                        </DiscreteObjectKeyFrame.Value>
+                                    </DiscreteObjectKeyFrame>
+                                </ObjectAnimationUsingKeyFrames>
+                                <DoubleAnimation 
+                                            Storyboard.TargetName="Tab1Header"
+                                            Storyboard.TargetProperty="FontSize"
+                                            FillBehavior="HoldEnd"
+                                            To="16" Duration="0:0:0.2"/>
+                                <ColorAnimation 
+                                            Storyboard.TargetName="Tab1Header"
+                                            Storyboard.TargetProperty="(TextBlock.Foreground).(SolidColorBrush.Color)" 
+                                            From="Cyan"
+                                            To="White" 
+                                            FillBehavior="HoldEnd"
+                                            AccelerationRatio="0.4" DecelerationRatio="0.4" 
+                                            Duration="0:0:0.3"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </DataTrigger.EnterActions>
+                    <DataTrigger.ExitActions>
+                        <StopStoryboard BeginStoryboardName="highlight"/>
+                    </DataTrigger.ExitActions>
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
+
+        <!--#region colors-->
+        <SolidColorBrush x:Key="TabItem.Selected.Background" Color="{StaticResource ClrBlue2}"/>
+        <SolidColorBrush x:Key="TabItem.Selected.Border" Color="#ACACAC"/>
+
+        <LinearGradientBrush x:Key="TabItem.Static.Background" EndPoint="0,1" StartPoint="0,0">
+            <GradientStop Color="Green" Offset="0.0"/>
+            <GradientStop Color="Red" Offset="1.0"/>
+        </LinearGradientBrush>
+        <SolidColorBrush x:Key="TabItem.Static.Border" Color="#ACACAC"/>
+        <LinearGradientBrush x:Key="TabItem.MouseOver.Background" EndPoint="0,1" StartPoint="0,0">
+            <GradientStop Color="Orange" Offset="0.0"/>
+            <GradientStop Color="#DCECFC" Offset="1.0"/>
+        </LinearGradientBrush>
+        <SolidColorBrush x:Key="TabItem.MouseOver.Border" Color="#7EB4EA"/>
+        <SolidColorBrush x:Key="TabItem.Selected.Background1" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="TabItem.Selected.Border1" Color="#ACACAC"/>
+        <SolidColorBrush x:Key="TabItem.Disabled.Background" Color="#F0F0F0"/>
+        <SolidColorBrush x:Key="TabItem.Disabled.Border" Color="#D9D9D9"/>
+
+        <LinearGradientBrush x:Key="TabItemBackground" StartPoint="0,1" EndPoint="1,0">
+            <GradientStop Offset="1" Color="#FF0000FF" />
+            <GradientStop Offset="0.55" Color="#FF238A8F" />
+            <GradientStop Offset="0" Color="#FFFF0000" />
+        </LinearGradientBrush>
+
+        <!--#endregion colors-->
+
+
+        <!--// This is the one in use here-->
+        <Style x:Key="TabitemStyle1" TargetType="TabItem">
+            <!--Default layout-->
+            <Setter Property="OverridesDefaultStyle" Value="true" />
+            <Setter Property="Control.Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type TabItem}">
+                        <Border x:Name="border"
+						Background="{TemplateBinding Background}"
+						BorderBrush="{TemplateBinding BorderBrush}"
+						BorderThickness="{TemplateBinding BorderThickness}"
+						CornerRadius="5 5 0 0">
+
+                            <TextBlock HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                                       TextAlignment="Center"
+                                       Padding="{TemplateBinding Padding}"
+                                       FontSize="{TemplateBinding FontSize}"
+                                       Foreground="{TemplateBinding Foreground}"
+                                       FontWeight="DemiBold"
+                                       Text="{TemplateBinding Header}"></TextBlock>
+                            <!--Width="{Binding Path=Width, ElementName=border}"/>-->
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+            <!--Now to handle those pesky Triggers-->
+            <Style.Triggers>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="false"/>
+                    </MultiTrigger.Conditions>
+                    <MultiTrigger.Setters>
+                        <Setter Property="Background">
+                            <Setter.Value>
+                                <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
+                                    <GradientStop Offset="1" Color="#FF0000FF" />
+                                    <GradientStop Offset="0.55" Color="#FF238A8F" />
+                                    <GradientStop Offset="0" Color="#FFFF0000" />
+                                </LinearGradientBrush>
+                            </Setter.Value>
+                        </Setter>
+                        <Setter Property="Foreground" Value="White"/>
+                    </MultiTrigger.Setters>
+                </MultiTrigger>
+
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="true"/>
+                    </MultiTrigger.Conditions>
+                    <MultiTrigger.Setters>
+                        <Setter Property="Background">
+                            <Setter.Value>
+                                <LinearGradientBrush StartPoint="1,0" EndPoint="0,1">
+                                    <GradientStop Offset="1" Color="DarkOrange" />
+                                    <GradientStop Offset="0.55" Color="#C67928" />
+                                    <GradientStop Offset="0" Color="Yellow" />
+                                </LinearGradientBrush>
+                            </Setter.Value>
+                        </Setter>
+                        <Setter Property="Foreground" Value="White"/>
+                    </MultiTrigger.Setters>
+                </MultiTrigger>
+
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="false"/>
+                        <Condition Property="IsSelected" Value="true"/>
+                    </MultiTrigger.Conditions>
+                    <MultiTrigger.Setters>
+                        <Setter Property="Background">
+                            <Setter.Value>
+                                <LinearGradientBrush StartPoint="1,0" EndPoint="0,1">
+                                    <GradientStop Offset="1" Color="Yellow" />
+                                    <GradientStop Offset="0.55" Color="Orange" />
+                                    <GradientStop Offset="0" Color="Yellow" />
+                                </LinearGradientBrush>
+                            </Setter.Value>
+                        </Setter>
+                        <Setter Property="Foreground" Value="DarkRed"/>
+                    </MultiTrigger.Setters>
+                </MultiTrigger>
+                <!--// doesnt work !!!-->
+                <!--<DataTrigger Binding="{Binding ElementName=ListboxTab, Path=Content}" Value="null">
+                    <Setter Property="Background" Value="Orange"    />
+                </DataTrigger>-->
+
+                <!--<DataTrigger Binding="{Binding ElementName=ListboxTab, Path=Content}" Value="null">
+                    <Setter Property="Background" Value="Orange"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding ElementName=ListviewTab, Path=Content}" Value="null">
+                    <Setter Property="Background" Value="Orange"/>
+                </DataTrigger>-->
+            </Style.Triggers>
+        </Style>
+
+        <!--#region TabItem StoryBoards-->
+
+        <Storyboard x:Key="TabAnimationOn1">
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(FontWeight)" 
+                    Storyboard.TargetName="Tab1Header">
+                <DiscreteObjectKeyFrame KeyTime="0">
+                    <DiscreteObjectKeyFrame.Value>
+                        <FontWeight>Bold</FontWeight>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+            </ObjectAnimationUsingKeyFrames>
+            <DoubleAnimation 
+                    Storyboard.TargetName="Tab1Header"
+                    Storyboard.TargetProperty="FontSize"
+                    FillBehavior="HoldEnd"
+                    To="16" Duration="0:0:0.2"/>
+            <ColorAnimation 
+                    Storyboard.TargetName="Tab1Header"
+                    Storyboard.TargetProperty="(TextBlock.Foreground).(SolidColorBrush.Color)" 
+                    From="Cyan"
+                    To="White" 
+                    FillBehavior="HoldEnd"
+                    AccelerationRatio="0.4" DecelerationRatio="0.4" 
+                    Duration="0:0:0.3"/>
+        </Storyboard>
+
+        <Storyboard x:Key="TabAnimationOn2">
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(FontWeight)" 
+                    Storyboard.TargetName="Tab2Header">
+                <DiscreteObjectKeyFrame KeyTime="0">
+                    <DiscreteObjectKeyFrame.Value>
+                        <FontWeight>Bold</FontWeight>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+            </ObjectAnimationUsingKeyFrames>
+            <DoubleAnimation 
+                    Storyboard.TargetName="Tab2Header"
+                    Storyboard.TargetProperty="FontSize"
+                    FillBehavior="HoldEnd"
+                    To="16" Duration="0:0:0.2"/>
+            <ColorAnimation 
+                    Storyboard.TargetName="Tab2Header"
+                    Storyboard.TargetProperty="(TextBlock.Foreground).(SolidColorBrush.Color)" 
+                    From="Cyan"
+                    To="White" 
+                    FillBehavior="HoldEnd"
+                    AccelerationRatio="0.4" DecelerationRatio="0.4" 
+                    Duration="0:0:0.3"/>
+        </Storyboard>
+
+        <Storyboard x:Key="TabAnimationOn3">
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(FontWeight)" 
+                    Storyboard.TargetName="Tab3Header">
+                <DiscreteObjectKeyFrame KeyTime="0">
+                    <DiscreteObjectKeyFrame.Value>
+                        <FontWeight>Bold</FontWeight>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+            </ObjectAnimationUsingKeyFrames>
+            <DoubleAnimation 
+                    Storyboard.TargetName="Tab3Header"
+                    Storyboard.TargetProperty="FontSize"
+                    FillBehavior="HoldEnd"
+                    To="16" Duration="0:0:0.2"/>
+            <ColorAnimation 
+                    Storyboard.TargetName="Tab3Header"
+                    Storyboard.TargetProperty="(TextBlock.Foreground).(SolidColorBrush.Color)" 
+                    From="Cyan"
+                    To="White" 
+                    FillBehavior="HoldEnd"
+                    AccelerationRatio="0.4" DecelerationRatio="0.4" 
+                    Duration="0:0:0.3"/>
+        </Storyboard>
+
+        <Storyboard x:Key="TabAnimationOn4">
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(FontWeight)" 
+                    Storyboard.TargetName="Tab4Header">
+                <DiscreteObjectKeyFrame KeyTime="0">
+                    <DiscreteObjectKeyFrame.Value>
+                        <FontWeight>Bold</FontWeight>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+            </ObjectAnimationUsingKeyFrames>
+            <DoubleAnimation 
+                    Storyboard.TargetName="Tab4Header"
+                    Storyboard.TargetProperty="FontSize"
+                    FillBehavior="HoldEnd"
+                    To="16" Duration="0:0:0.2"/>
+            <ColorAnimation 
+                    Storyboard.TargetName="Tab4Header"
+                    Storyboard.TargetProperty="(TextBlock.Foreground).(SolidColorBrush.Color)" 
+                    From="Cyan"
+                    To="White" 
+                    FillBehavior="HoldEnd"
+                    AccelerationRatio="0.4" DecelerationRatio="0.4" 
+                    Duration="0:0:0.3"/>
+        </Storyboard>
+
+        <Storyboard x:Key="TabAnimationOn5">
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(FontWeight)" 
+                    Storyboard.TargetName="Tab5Header">
+                <DiscreteObjectKeyFrame KeyTime="0">
+                    <DiscreteObjectKeyFrame.Value>
+                        <FontWeight>Bold</FontWeight>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+            </ObjectAnimationUsingKeyFrames>
+            <DoubleAnimation 
+                    Storyboard.TargetName="Tab5Header"
+                    Storyboard.TargetProperty="FontSize"
+                    FillBehavior="HoldEnd"
+                    To="16" Duration="0:0:0.2"/>
+            <ColorAnimation 
+                    Storyboard.TargetName="Tab5Header"
+                    Storyboard.TargetProperty="(TextBlock.Foreground).(SolidColorBrush.Color)" 
+                    From="Cyan"
+                    To="White" 
+                    FillBehavior="HoldEnd"
+                    AccelerationRatio="0.4" DecelerationRatio="0.4" 
+                    Duration="0:0:0.3"/>
+        </Storyboard>
+
+        <Storyboard x:Key="TabAnimationOff1">
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(FontWeight)" 
+                 Storyboard.TargetName="Tab1Header">
+                <DiscreteObjectKeyFrame KeyTime="0">
+                    <DiscreteObjectKeyFrame.Value>
+                        <FontWeight>Normal</FontWeight>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+            </ObjectAnimationUsingKeyFrames>
+            <DoubleAnimation 
+                    Storyboard.TargetName="Tab1Header"
+                    Storyboard.TargetProperty="FontSize"
+                    FillBehavior="HoldEnd"
+                    To="14" Duration="0:0:0.2"/>
+            <ColorAnimation 
+                    Storyboard.TargetName="Tab1Header"
+                    Storyboard.TargetProperty="(TextBlock.Foreground).(SolidColorBrush.Color)" 
+                    From="White" 
+                    To="Cyan" 
+                    FillBehavior="HoldEnd"
+                    AccelerationRatio="0.4" DecelerationRatio="0.4" 
+                    Duration="0:0:0.3"/>
+        </Storyboard>
+
+        <Storyboard x:Key="TabAnimationOff2">
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(FontWeight)" 
+                 Storyboard.TargetName="Tab2Header">
+                <DiscreteObjectKeyFrame KeyTime="0">
+                    <DiscreteObjectKeyFrame.Value>
+                        <FontWeight>Normal</FontWeight>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+            </ObjectAnimationUsingKeyFrames>
+            <DoubleAnimation 
+                    Storyboard.TargetName="Tab2Header"
+                    Storyboard.TargetProperty="FontSize"
+                    FillBehavior="HoldEnd"
+                    To="14" Duration="0:0:0.2"/>
+            <ColorAnimation 
+                    Storyboard.TargetName="Tab2Header"
+                    Storyboard.TargetProperty="(TextBlock.Foreground).(SolidColorBrush.Color)" 
+                    From="White" 
+                    To="Cyan" 
+                    FillBehavior="HoldEnd"
+                    AccelerationRatio="0.4" DecelerationRatio="0.4" 
+                    Duration="0:0:0.3"/>
+        </Storyboard>
+
+        <Storyboard x:Key="TabAnimationOff3">
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(FontWeight)" 
+                 Storyboard.TargetName="Tab3Header">
+                <DiscreteObjectKeyFrame KeyTime="0">
+                    <DiscreteObjectKeyFrame.Value>
+                        <FontWeight>Normal</FontWeight>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+            </ObjectAnimationUsingKeyFrames>
+            <DoubleAnimation 
+                    Storyboard.TargetName="Tab3Header"
+                    Storyboard.TargetProperty="FontSize"
+                    FillBehavior="HoldEnd"
+                    To="14" Duration="0:0:0.2"/>
+            <ColorAnimation 
+                    Storyboard.TargetName="Tab3Header"
+                    Storyboard.TargetProperty="(TextBlock.Foreground).(SolidColorBrush.Color)" 
+                    From="White" 
+                    To="Cyan" 
+                    FillBehavior="HoldEnd"
+                    AccelerationRatio="0.4" DecelerationRatio="0.4" 
+                    Duration="0:0:0.3"/>
+        </Storyboard>
+
+        <Storyboard x:Key="TabAnimationOff4">
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(FontWeight)" 
+                 Storyboard.TargetName="Tab4Header">
+                <DiscreteObjectKeyFrame KeyTime="0">
+                    <DiscreteObjectKeyFrame.Value>
+                        <FontWeight>Normal</FontWeight>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+            </ObjectAnimationUsingKeyFrames>
+            <DoubleAnimation 
+                    Storyboard.TargetName="Tab4Header"
+                    Storyboard.TargetProperty="FontSize"
+                    FillBehavior="HoldEnd"
+                    To="14" Duration="0:0:0.2"/>
+            <ColorAnimation 
+                    Storyboard.TargetName="Tab4Header"
+                    Storyboard.TargetProperty="(TextBlock.Foreground).(SolidColorBrush.Color)" 
+                    From="White" 
+                    To="Cyan" 
+                    FillBehavior="HoldEnd"
+                    AccelerationRatio="0.4" DecelerationRatio="0.4" 
+                    Duration="0:0:0.3"/>
+        </Storyboard>
+
+        <Storyboard x:Key="TabAnimationOff5">
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(FontWeight)" 
+                 Storyboard.TargetName="Tab5Header">
+                <DiscreteObjectKeyFrame KeyTime="0">
+                    <DiscreteObjectKeyFrame.Value>
+                        <FontWeight>Normal</FontWeight>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+            </ObjectAnimationUsingKeyFrames>
+            <DoubleAnimation 
+                    Storyboard.TargetName="Tab5Header"
+                    Storyboard.TargetProperty="FontSize"
+                    FillBehavior="HoldEnd"
+                    To="14" Duration="0:0:0.2"/>
+            <ColorAnimation 
+                    Storyboard.TargetName="Tab5Header"
+                    Storyboard.TargetProperty="(TextBlock.Foreground).(SolidColorBrush.Color)" 
+                    From="White" 
+                    To="Cyan" 
+                    FillBehavior="HoldEnd"
+                    AccelerationRatio="0.4" DecelerationRatio="0.4" 
+                    Duration="0:0:0.3"/>
+        </Storyboard>
+
+        <!--#endregion TabItem StoryBoards-->
+
+        <!--// This is NOT the one in use here-->
+        <Style x:Key="TabItmStyle1" TargetType="{x:Type TabItem}">
+            <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Background" Value="{StaticResource TabItem.Static.Background}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource TabItem.Static.Border}"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Padding" Value="6,2,6,2"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type TabItem}">
+                        <Grid x:Name="templateRoot" SnapsToDevicePixels="true">
+                            <Border x:Name="mainBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1,1,1,0" Margin="0">
+                                <Border x:Name="innerBorder" Background="{StaticResource TabItem.Selected.Background1}" BorderBrush="{StaticResource TabItem.Selected.Border1}" BorderThickness="1,1,1,0" Margin="-1" Opacity="0">
+                                    <ContentPresenter x:Name="contentPresenter" ContentSource="Header" Focusable="False" HorizontalAlignment="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}">
+
+                                    </ContentPresenter>
+                                </Border>
+                            </Border>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter Property="Background" TargetName="mainBorder" Value="Red"/>
+                                <Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="White"/>
+                            </Trigger>
+                            <MultiDataTrigger>
+                                <!--// SELECTED, MOUSEOVER-->
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}" Value="true"/>
+                                    <Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource Self}}" Value="true"/>
+                                    <!--<Condition Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}}" Value="Top"/>-->
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Background" TargetName="mainBorder" Value="{StaticResource Yellow1}"/>
+                                <Setter Property="BorderBrush" TargetName="mainBorder" Value="{StaticResource Red5}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="Black"/>
+                                <Setter Property="BorderThickness" TargetName="innerBorder" Value="1,1,1,0"/>
+                                <Setter Property="BorderThickness" TargetName="mainBorder" Value="1,1,1,0"/>
+                            </MultiDataTrigger>
+
+                            <MultiDataTrigger>
+                                <!--// SELECTED, NO MOUSEOVER-->
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource Self}}" Value="true"/>
+                                    <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}" Value="false"/>
+                                    <!--<Condition Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}}" Value="Top"/>-->
+                                </MultiDataTrigger.Conditions>
+                                <!--<Setter Property="Background" TargetName="mainBorder" Value="{StaticResource Red4}"/>-->
+                                <!--<Setter Property="Panel.ZIndex" Value="1"/>
+                                <Setter Property="Margin" Value="-2,-2,-2,0"/>
+                                <Setter Property="Opacity" TargetName="innerBorder" Value="1"/>-->
+                                <!--<Setter Property="BorderThickness" TargetName="innerBorder" Value="1,1,1,0"/>
+                                <Setter Property="BorderThickness" TargetName="mainBorder" Value="1,1,1,0"/>-->
+                            </MultiDataTrigger>
+
+                            <MultiDataTrigger>
+                                <!--// NOT SELECTED, NO MOUSEOVER-->
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource Self}}" Value="false"/>
+                                    <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}" Value="false"/>
+                                    <!--<Condition Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}}" Value="Top"/>-->
+                                </MultiDataTrigger.Conditions>
+                                <!--<Setter Property="Background" TargetName="mainBorder" Value="{StaticResource Orange5}"/>-->
+                                <!--<Setter Property="BorderThickness" TargetName="innerBorder" Value="1,1,1,0"/>
+                                <Setter Property="BorderThickness" TargetName="mainBorder" Value="1,1,1,0"/>-->
+                            </MultiDataTrigger>
+
+
+                            <MultiDataTrigger>
+                                <!--//Disabled-->
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding IsEnabled, RelativeSource={RelativeSource Self}}" Value="false"/>
+                                    <!--<Condition Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}}" Value="Top"/>-->
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Opacity" TargetName="contentPresenter" Value="0.56"/>
+                                <Setter Property="Background" TargetName="mainBorder" Value="{StaticResource TabItem.Disabled.Background}"/>
+                                <Setter Property="BorderBrush" TargetName="mainBorder" Value="{StaticResource TabItem.Disabled.Border}"/>
+                                <!--<Setter Property="BorderThickness" TargetName="innerBorder" Value="1,1,1,0"/>
+                                <Setter Property="BorderThickness" TargetName="mainBorder" Value="1,1,1,0"/>-->
+                            </MultiDataTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <ContextMenu x:Key="ContextMenu" Width="350" HasDropShadow="True"  >
+
+
+            <MenuItem  Click="Serialize_DgUserControl" >
+                <MenuItem.Header>
+                    <TextBlock 
+                                Text="Serialize DgUserControl"
+                                FontSize="16"
+                                 Height="25"
+                                Padding="10 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="350"/>
+                </MenuItem.Header>
+            </MenuItem>
+            <MenuItem  Click="DeSerialize_DgUserControl" >
+                <MenuItem.Header>
+                    <TextBlock 
+                                Text="DeSerialize DgUserControl"
+                                FontSize="16"
+                                 Height="25"
+                                Padding="10 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="350"/>
+                </MenuItem.Header>
+            </MenuItem>
+            <MenuItem  Click="Serialize_LbUserControl" >
+                <MenuItem.Header>
+                    <TextBlock 
+                                Text="Serialize LbUserControl"
+                                FontSize="16"
+                                 Height="25"
+                                Padding="10 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="350"/>
+                </MenuItem.Header>
+            </MenuItem>
+            <MenuItem  Click="Serialize_LvUserControl" >
+                <MenuItem.Header>
+                    <TextBlock 
+                                Text="Serialize LvUserControl"
+                                FontSize="16"
+                                 Height="25"
+                                Padding="10 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="350"/>
+                </MenuItem.Header>
+            </MenuItem>
+        </ContextMenu>
+
+    </Window.Resources>
+
+    <!--//========================================================//-->
+
+    <Grid x:Name="TabViewGrid"  Margin="5 5 5 5"
+          ContextMenu="{StaticResource ContextMenu}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="45"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="45"/>
+        </Grid.RowDefinitions>
+
+
+        <!--#region buttons-->
+        <Canvas x:Name="canvas" Grid.Row="1" Grid.RowSpan="2"
+            Canvas.Left="0" Canvas.Top="0"
+				HorizontalAlignment="Stretch"
+				VerticalAlignment="Stretch"
+				Height="{Binding Path=Height, ElementName=MainGrid}"
+				Width="{Binding Path=Width, ElementName=MainGrid}"
+				Panel.ZIndex="1"
+				Background="Transparent"
+	            Visibility="Collapsed">
+
+            <user:FlowDoc x:Name="Flowdoc"
+				backGround="{StaticResource Gray5}"
+				borderColor="{StaticResource Orange1}"
+				Canvas.Left="45"
+				Canvas.Top="64"
+				Height="300"
+				Margin="0 0 0 0"
+				MouseLeftButtonUp="Flowdoc_MouseLeftButtonUp"
+				MouseMove="Flowdoc_MouseMove"
+				LostFocus="Flowdoc_LostFocus"
+				Opacity="1"
+				Panel.ZIndex="4"
+				PreviewMouseLeftButtonDown="LvFlowdoc_PreviewMouseLeftButtonDown"
+			    Visibility="Collapsed"
+				Width="520" />
+
+        </Canvas>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Grid.Row="0" Width="622">
+            <Button x:Name="Btn1" Width="80" Height="35" Margin="5" 
+                    Style="{StaticResource BtnStyle1}" 
+                    MouseEnter="Btn1_MouseEnter"
+                    MouseLeave="Btn1_MouseLeave"
+                    Foreground="Black" Command="{Binding LoadBankBtn}">
+                <Button.Content>
+                    <TextBlock Text="Load Bank">
+                        <TextBlock.Effect>
+                            <DropShadowEffect ShadowDepth="2" BlurRadius="0.5" Color="White" Direction="310"/>
+                            <!--<BlurEffect
+                                  Radius="1.0" KernelType="Box"/>-->
+                        </TextBlock.Effect>                        
+                        <!--<TextBlock.RenderTransform>
+                            <TranslateTransform X="3" Y="3" />
+                        </TextBlock.RenderTransform>-->
+                    </TextBlock>
+                </Button.Content>
+
+            </Button>
+            <Button  x:Name="Btn2" Width="100" Height="35" Margin="5"  
+                    Style="{StaticResource BtnStyle1}" 
+                    MouseEnter="Btn2_MouseEnter"
+                    MouseLeave="Btn2_MouseLeave"
+                    Foreground="Black" Command="{Binding LoadCustBtn}">
+                <Button.Content>
+                    <TextBlock Text="Load Customer">
+                        <TextBlock.Effect>
+                            <DropShadowEffect ShadowDepth="2" BlurRadius="0.5" Color="White" Direction="310"/>
+                        </TextBlock.Effect>
+                    </TextBlock>
+                </Button.Content>
+            </Button>
+            <Button  x:Name="Btn3" Width="100" Height="35"  Margin="5" 
+                    Style="{StaticResource BtnStyle1}" 
+                    Foreground="Black" Command="{Binding CloseWinBtn}">
+                <Button.Content>
+                    <TextBlock Text="Close Window">
+                        <TextBlock.Effect>
+                            <DropShadowEffect ShadowDepth="2" BlurRadius="0.5" Color="White" Direction="310"/>
+                        </TextBlock.Effect>
+                    </TextBlock>
+                </Button.Content>
+
+            </Button>
+            <Button  x:Name="Btn5" Width="80" Height="35"  Margin="5" 
+                    Style="{StaticResource BtnStyle1}" 
+                    Foreground="Black" Command="{Binding ShowInfo}">
+                <Button.Content>
+                    <TextBlock Text="Show Info">
+                        <TextBlock.Effect>
+                            <DropShadowEffect ShadowDepth="2" BlurRadius="0.5" Color="White" Direction="310"/>
+                        </TextBlock.Effect>
+                    </TextBlock>
+                </Button.Content>
+
+            </Button>
+            <Button  x:Name="Btn4" Width="80" Height="35"  Margin="5" 
+                    Style="{StaticResource BtnStyle1}" 
+                    Foreground="Black" Command="{Binding CloseAppBtn}">
+                <Button.Content>
+                    <TextBlock Text="Close App">
+                        <TextBlock.Effect>
+                            <DropShadowEffect ShadowDepth="2" BlurRadius="0.5" Color="White" Direction="310"/>
+                        </TextBlock.Effect>
+                    </TextBlock>
+                </Button.Content>
+
+            </Button>
+            <CheckBox x:Name="linkViewers" Content="Link viewer records" 
+                      Margin="0 15 0 0" FontSize="12" FontWeight="DemiBold" Click="Linkall"/>
+        </StackPanel>
+
+        <Border BorderBrush="Red" BorderThickness="2" Grid.Row="1" 
+                VerticalAlignment="Top" Margin="370,2,0  0" 
+                CornerRadius="10"
+                Panel.ZIndex="10"
+                Height="35" Width="200">
+            <Grid   >
+                <CheckBox x:Name="UseTask" Content="Use Task " 
+                  HorizontalAlignment="Right" VerticalAlignment="Top" Panel.ZIndex="5"
+                  Margin="0,7,120,0" Height="15" FontSize="12" FontWeight="DemiBold"
+                          IsChecked="false"   Click="usetask" HorizontalContentAlignment="Right" />
+                <CheckBox x:Name="UseWorker" Content="Use Worker" 
+                        HorizontalAlignment="Right" VerticalAlignment="Top" Panel.ZIndex="5"
+                        Margin="0,7,10,0" Height="15" FontSize="12" FontWeight="DemiBold" 
+                          IsChecked="false"   Click="usetask" HorizontalContentAlignment="Right" />
+            </Grid>
+        </Border>
+
+
+        <TextBlock  Text="{Binding DbType}" 
+                        Margin="0 5 5 0"
+                        Padding="0 0 0 0"
+                        Width="150"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top"
+                        Height="30"
+                        Background="{StaticResource Blue2}" 
+                        Foreground="White" 
+                        FontSize="18"
+                        TextAlignment="Center"/>
+        <TextBlock  Text="{Binding DbCount}"
+                    Margin="0 5 5 0"
+                        Height="30" Width="80"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                    Padding="0 0 0 0"
+                    Background="{StaticResource Blue2}" 
+                    Foreground="White" 
+                    FontSize="18"
+                    TextAlignment="Center" Grid.Row="1"/>
+        <!--#endregion buttons-->
+
+        <ListBox x:Name="Viewmodels" Grid.Row="1" Height="250" Width="300" Margin="100 100"                  
+                 Panel.ZIndex="10" Visibility="Collapsed" Background="Black" Foreground="White"/>
+
+        <TabControl  x:Name="Tabctrl" Grid.Row ="1" 
+                    >
+
+            <!--#region Tabitems-->
+
+            <!--Datagrid  control goes here-->
+            <TabItem x:Name="DgridTab" 
+                         Tag="grid1"
+                           DataContext="{DynamicResource TabWinViewModel}"
+                            Width="90" 
+                            Height="40"
+                            Padding="0 1 0 0"   
+                            BorderThickness="0"
+                            PreviewMouseDown="TabControl_PreviewMouseDown"
+                            Background="{StaticResource TabItemBackground}"  >
+                <TabItem.Header >
+                    <Border x:Name="Tab1Border"
+                            CornerRadius="5" 
+                            Width="90" Height="40" 
+                            HorizontalAlignment="Center"
+                            Padding=" 3 5 3 3"
+                            PreviewMouseRightButtonUp="Dg_PreviewMouseRightButtonUp"
+                            Background="{StaticResource TabItemBackground}" >
+                        <TextBlock x:Name="Tab1Header" 
+                               Width="85" Height="33"  
+                                FontSize="12" 
+                                Foreground="Cyan"
+                                TextAlignment="Center"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                PreviewMouseLeftButtonDown="GridMouseLeftButtonDown"
+                                Padding="0 5 0 0">
+                            <TextBlock Text="Data Grid">
+                                <TextBlock.Effect>
+                                    <DropShadowEffect ShadowDepth="3" BlurRadius="0.1" Color="Black" Direction="310"/>
+                                </TextBlock.Effect>                        
+                             </TextBlock>
+                            
+                            <TextBlock.Triggers>
+                                <EventTrigger RoutedEvent="TabItem.MouseEnter">
+                                    <EventTrigger.Actions>
+                                        <BeginStoryboard  Storyboard="{StaticResource TabAnimationOn1}"/>
+                                    </EventTrigger.Actions>
+                                </EventTrigger>
+                                <EventTrigger RoutedEvent="TabItem.MouseLeave">
+                                    <EventTrigger.Actions>
+                                        <BeginStoryboard  Storyboard="{StaticResource TabAnimationOff1}"/>
+                                    </EventTrigger.Actions>
+                                </EventTrigger>
+                            </TextBlock.Triggers>
+                            
+                        </TextBlock>
+
+                    </Border>
+
+                </TabItem.Header>
+            </TabItem>
+
+            <!--ListBox control goes here-->
+            <TabItem  x:Name="ListboxTab" IsEnabled="True" 
+                         Tag="listbox1"
+                         DataContext="{DynamicResource TabWinViewModel}"
+                            Background="{StaticResource TabItemBackground}" 
+                            Width="90" 
+                            Height="40"
+                            BorderThickness="0"
+                            Padding="0 1 0 0"                             >
+                <TabItem.Header>
+                    <Border CornerRadius="5" Width="90" Height="40" 
+                            Padding=" 3 5 3 3"
+                            HorizontalAlignment="Center"
+                            PreviewMouseRightButtonUp="Lb_PreviewMouseRightButtonUp"
+                            Background="{StaticResource TabItemBackground}" >
+                        <TextBlock x:Name="Tab2Header" 
+                               FontSize="12" Foreground="Cyan"
+                               Width="85" Height="33"  
+                               TextAlignment="Center"
+                                HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                                PreviewMouseLeftButtonDown="ListboxMouseLeftButtonDown"
+                                Padding="0 5 0 0">
+                            <TextBlock Text="List Box">
+                                <TextBlock.Effect>
+                                    <DropShadowEffect ShadowDepth="3" BlurRadius="0.1" Color="Black" Direction="310"/>
+                                </TextBlock.Effect>                        
+                             </TextBlock>
+                            <TextBlock.Triggers>
+                                <EventTrigger RoutedEvent="TabItem.MouseEnter">
+                                    <EventTrigger.Actions>
+                                        <BeginStoryboard  Storyboard="{StaticResource TabAnimationOn2}"/>
+                                    </EventTrigger.Actions>
+                                </EventTrigger>
+                                <EventTrigger RoutedEvent="TabItem.MouseLeave">
+                                    <EventTrigger.Actions>
+                                        <BeginStoryboard  Storyboard="{StaticResource TabAnimationOff2}"/>
+                                    </EventTrigger.Actions>
+                                </EventTrigger>
+                            </TextBlock.Triggers>
+                        </TextBlock>
+                    </Border>
+                </TabItem.Header>
+
+                <TabItem.Content>
+                    <Grid>
+                        <TextBlock Text=" Click Header to load data" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Grid>
+                </TabItem.Content>
+                <TabItem.Triggers>
+                </TabItem.Triggers>
+            </TabItem>
+
+            <!--ListView control goes here-->
+            <TabItem  x:Name="ListviewTab"  
+                        Tag="listview1"
+                        DataContext="{DynamicResource TabWinViewModel}"
+                            Background="{StaticResource TabItemBackground}" 
+                            Width="90" 
+                            Height="40"
+                            BorderThickness="0"
+                            Padding="0 1 0 0"   >
+                <TabItem.Header>
+                    <Border CornerRadius="5" Width="90" Height="40" 
+                            Padding=" 3 5 3 3"
+                            HorizontalAlignment="Center"
+                              PreviewMouseRightButtonUp="Lv_PreviewMouseRightButtonUp"
+                          Background="{StaticResource TabItemBackground}" >
+                        <TextBlock x:Name="Tab3Header" 
+                               FontSize="12" Foreground="Cyan"
+                               Width="85" Height="33"  
+                               TextAlignment="Center"
+                                HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                                PreviewMouseLeftButtonDown="ListviewMouseLeftButtonDown"
+                                Padding="0 5 0 0">
+                            <TextBlock Text="List View">
+                                <TextBlock.Effect>
+                                    <DropShadowEffect ShadowDepth="3" BlurRadius="0.1" Color="Black" Direction="310"/>
+                                </TextBlock.Effect>                        
+                             </TextBlock>
+
+                            <TextBlock.Triggers>
+                                <EventTrigger RoutedEvent="TabItem.MouseEnter">
+                                    <EventTrigger.Actions>
+                                        <BeginStoryboard  Storyboard="{StaticResource TabAnimationOn3}"/>
+                                    </EventTrigger.Actions>
+                                </EventTrigger>
+                                <EventTrigger RoutedEvent="TabItem.MouseLeave">
+                                    <EventTrigger.Actions>
+                                        <BeginStoryboard  Storyboard="{StaticResource TabAnimationOff3}"/>
+                                    </EventTrigger.Actions>
+                                </EventTrigger>
+                            </TextBlock.Triggers>
+                        </TextBlock>
+                    </Border>
+                </TabItem.Header>
+            </TabItem>
+
+            <!--logview control goes here-->
+            <TabItem  x:Name="LogviewTab"
+                      Tag="logview"
+                      DataContext="{DynamicResource TabWinViewModel}"
+                      Background="{StaticResource TabItemBackground}" 
+                      Width="90" 
+                      Height="40"
+                      BorderThickness="0"
+                      Padding="0 1 0 0"   >
+                <TabItem.Header>
+                    <Border CornerRadius="5" Width="90" Height="40" 
+                            Padding=" 3 5 3 3"
+                            HorizontalAlignment="Center"
+                            PreviewMouseRightButtonUp="Log_PreviewMouseRightButtonUp"
+                            Background="{StaticResource TabItemBackground}" >
+                        <TextBlock x:Name="Tab4Header" 
+                               FontSize="12" Foreground="Cyan"
+                               Width="85" Height="33"  
+                               TextAlignment="Center"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                PreviewMouseLeftButtonDown="LogviewMouseLeftButtonDown"
+                               Padding="0 5 0 0">
+                            <TextBlock Text="Log View">
+                                <TextBlock.Effect>
+                                    <DropShadowEffect ShadowDepth="3" BlurRadius="0.1" Color="Black" Direction="310"/>
+                                </TextBlock.Effect>                        
+                             </TextBlock>
+
+                            <TextBlock.Triggers>
+                                <EventTrigger RoutedEvent="TabItem.MouseEnter">
+                                    <EventTrigger.Actions>
+                                        <BeginStoryboard  Storyboard="{StaticResource TabAnimationOn4}"/>
+                                    </EventTrigger.Actions>
+                                </EventTrigger>
+                                <EventTrigger RoutedEvent="TabItem.MouseLeave">
+                                    <EventTrigger.Actions>
+                                        <BeginStoryboard  Storyboard="{StaticResource TabAnimationOff4}"/>
+                                    </EventTrigger.Actions>
+                                </EventTrigger>
+                            </TextBlock.Triggers>
+                        </TextBlock>
+                    </Border>
+                </TabItem.Header>
+
+                <!--<TabItem.Content >
+                   </TabItem.Content>-->
+            </TabItem>
+
+            <!--TreeView control goes here-->
+            <TabItem  x:Name="TreeviewTab"  
+                      Tag="treeview1"
+                      DataContext="{DynamicResource TabWinViewModel}"
+                      Background="{StaticResource TabItemBackground}" 
+                      Width="90" 
+                      Height="40"
+                      BorderThickness="0"
+                      Padding="0 1 0 0"   >
+                <TabItem.Header>
+                    <Border CornerRadius="5" Width="90" Height="40" 
+                            Padding=" 3 5 3 3"
+                            HorizontalAlignment="Center"
+                            PreviewMouseRightButtonUp="Tv_PreviewMouseRightButtonUp"
+                            Background="{StaticResource TabItemBackground}" >
+                        <TextBlock x:Name="Tab5Header" 
+                               FontSize="12" Foreground="Cyan"
+                               Width="85" Height="33"  
+                               TextAlignment="Center"
+                                HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                                PreviewMouseLeftButtonDown="TreeviewMouseLeftButtonDown"
+                                Padding="0 5 0 0">
+                            <TextBlock Text="Tree View" >
+                                <TextBlock.Effect>
+                                    <DropShadowEffect ShadowDepth="3" BlurRadius="0.1" Color="Black" Direction="310"/>
+                                </TextBlock.Effect>                        
+                             </TextBlock>
+
+                            <TextBlock.Triggers>
+                                <EventTrigger RoutedEvent="TabItem.MouseEnter">
+                                    <EventTrigger.Actions>
+                                        <BeginStoryboard  Storyboard="{DynamicResource TabAnimationOn5}"/>
+                                    </EventTrigger.Actions>
+                                </EventTrigger>
+                                <EventTrigger RoutedEvent="TabItem.MouseLeave">
+                                    <EventTrigger.Actions>
+                                        <BeginStoryboard  Storyboard="{DynamicResource TabAnimationOff5}"/>
+                                    </EventTrigger.Actions>
+                                </EventTrigger>
+                            </TextBlock.Triggers>
+                        </TextBlock>
+                    </Border>
+                </TabItem.Header>
+            </TabItem>
+
+            <!--#endregion Tabitems-->
+
+        </TabControl>
+
+        <!--#region lower controls-->
+
+        <TextBlock x:Name="InfoPanel" Grid.Row="2" Background="Red" Foreground="White"
+                   VerticalAlignment="Bottom"
+                   HorizontalAlignment="Stretch"
+                   FontSize="18" Padding="0 5 0 0" 
+                   Visibility="Collapsed"
+                   TextAlignment="Center" Margin="0,0,230,5" ></TextBlock>
+        <Button x:Name="clearbtn" Background="Red" Foreground="White" Content=" ClearTabs" 
+                   VerticalAlignment="Bottom"
+                   HorizontalAlignment="Right"
+                Height="30"
+                Width="77"
+                Style="{StaticResource BtnStyle1}" 
+                Margin="0,0,3,5" Grid.Row="2" Click="clearTabs">
+        </Button>
+
+
+        <Button x:Name="MsgBtn" 
+                   HorizontalAlignment="Right"
+                Width="130"
+                Style="{StaticResource BtnStyle1}" Margin="0,3,87,0" Grid.Row="2" Click="SendWinMsg">
+            <Button.Background>
+                <SolidColorBrush x:Name="BackgroundBrush" Color="Green"/>
+            </Button.Background>
+            <Button.Foreground>
+                <SolidColorBrush x:Name="ForegroundBrush" Color="White"/>
+            </Button.Foreground>
+            <Button.Content>
+                <StackPanel>
+                    <TextBlock Text="Broadcast Message" FontSize="12" TextAlignment="Center"/>
+                    <TextBlock Text="(to InterWinComms)" FontSize="12" TextAlignment="Center"/>
+                </StackPanel>
+            </Button.Content>
+            <Button.Triggers>
+                <EventTrigger RoutedEvent="Button.MouseEnter">
+                    <EventTrigger.Actions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <ColorAnimation Storyboard.TargetName="BackgroundBrush" 
+                                                Storyboard.TargetProperty="Color"
+                                                From="Green"
+                                                To="Orange" 
+                                                FillBehavior="HoldEnd"
+                                                AccelerationRatio="0.4" DecelerationRatio="0.4"
+                                                Duration="0:0:1"/>
+                                <ColorAnimation Storyboard.TargetName="ForegroundBrush" 
+                                                Storyboard.TargetProperty="Color"
+                                                From="White"
+                                                To="Black" 
+                                                FillBehavior="HoldEnd"
+                                                AccelerationRatio="0.4" DecelerationRatio="0.4" 
+                                                Duration="0:0:0.3"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger.Actions>
+                </EventTrigger>
+                <EventTrigger RoutedEvent="Button.MouseLeave">
+                    <EventTrigger.Actions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <ColorAnimation Storyboard.TargetName="BackgroundBrush" 
+                                                Storyboard.TargetProperty="Color"
+                                                From="Orange"
+                                                FillBehavior="HoldEnd"
+                                                AccelerationRatio="0.4" DecelerationRatio="0.4"
+                                                To="Green" Duration="0:0:0.5"/>
+                                <ColorAnimation Storyboard.TargetName="ForegroundBrush" 
+                                                Storyboard.TargetProperty="Color"
+                                                From="Black"
+                                                To="White" 
+                                                FillBehavior="HoldEnd"
+                                                AccelerationRatio="0.4" DecelerationRatio="0.4"                                                
+                                                Duration="0:0:0.3"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger.Actions>
+                </EventTrigger>
+            </Button.Triggers>
+        </Button>
+
+        <Button x:Name="Button_Start" Background="Yellow" 
+                Grid.Row="2" Grid.Column="0" Click="Button_Click" 
+                Style="{StaticResource BtnStyle1}" 
+                Visibility="Collapsed"
+                Margin="0,10,287,5" HorizontalAlignment="Right" Width="57">Start</Button>
+        <!--<Button x:Name="tooglelview" Background="Yellow" 
+                Grid.Row="2" Grid.Column="0" Click="Toggle_Click" 
+                Style="{StaticResource BtnStyle1}" 
+                Visibility="Visible"
+                Margin="0,10,287,5" HorizontalAlignment="Right" Width="57">Toggle</Button>-->
+        <ProgressBar x:Name="ProgressBar_Progress" Grid.Row="2" Grid.Column="0"  Maximum="100"  
+                     Value="{Binding ProgressValue}" Margin="2,11,0,9" Width="425" HorizontalAlignment="Left"/>
+        <TextBlock x:Name="LoadName" Grid.Row="2" Grid.Column="0"  Margin="35,11,0,9" Width="355" HorizontalAlignment="Left"
+                   Padding="0 3 0 0" TextAlignment="Center" Background="Transparent" Foreground="Black" Panel.ZIndex="5"/>
+        <Button x:Name="Button_Cancel" Background="GreenYellow" HorizontalAlignment="Right" 
+                Grid.Row="2" Grid.Column="0"  Click="Button_Cancel_Click" 
+                Style="{StaticResource BtnStyle1}" 
+                Margin="0,10,221,5"  Width="60">Cancel</Button>
+        <!--#endregion lower controls-->
+
+    </Grid>
+</Window>

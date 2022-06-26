@@ -1,0 +1,145 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+
+	<!--Standard menu item seperator-->
+	<Style x:Key="Menu_Separator" TargetType="{x:Type Separator}">
+		<Setter Property="Margin" Value="0,0,0,0" />
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="{x:Type Separator}">
+					<Grid>
+						<Rectangle Height="3" 
+								     Stroke="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Menu}}}" 
+								     Fill="{Binding Path=Background, RelativeSource={RelativeSource AncestorType={x:Type Menu}}}" />
+					</Grid>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+	
+	<Style x:Key="MenuItemRed2" TargetType="{x:Type MenuItem}">
+		<Setter Property="Background" Value="Transparent" />
+		<Setter Property="Foreground" Value="Black" />
+		<!--<Setter Property="BorderBrush" Value="{StaticResource HeaderBorderBrushYellow}" />-->
+		<Setter Property="BorderThickness" Value="1" />
+		<Setter Property="SnapsToDevicePixels" Value="True" />
+		<Setter Property="HorizontalContentAlignment" Value="Center" />
+		<Setter Property="VerticalAlignment" Value="Bottom" />
+		<Setter Property="VerticalContentAlignment" Value="Center" />
+		<Setter Property="MinHeight" Value="25" />
+		<!--<Setter Property="Cursor" Value="Hand" />-->
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="{x:Type MenuItem}">
+                    <Border x:Name="Bd" 
+							  Padding="17,0,17,0" 
+							  BorderBrush="{TemplateBinding BorderBrush}" 
+							  BorderThickness="{TemplateBinding BorderThickness}" 
+							  Background="{TemplateBinding Background}" 
+							  SnapsToDevicePixels="True" 
+							  Uid="Border_38">
+                        <ContentPresenter x:Name="ContentPresenter"  
+										Content="{TemplateBinding Header}" 
+										Grid.Column="1" 
+										ContentSource="Header" 
+										Margin="{TemplateBinding Padding}" 
+										RecognizesAccessKey="True"
+										SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+										Uid="ContentPresenter_33"/>
+                    </Border>
+                    <!--// RED BACKGROUND-->
+                    <ControlTemplate.Triggers>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsHighlighted" Value="False"/>
+                            </MultiTrigger.Conditions>
+                            <MultiTrigger.Setters>
+                                <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource Black0}"/>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Red3}"/>
+                                <Setter Property="Padding" TargetName="Bd"  Value="2,0,5,5"/>
+                                <Setter Property="MenuItem.Foreground" TargetName="Bd" Value="{StaticResource Yellow1}"/>
+                                <Setter Property="Padding" TargetName="Bd"  Value="22,3,0,0"/>
+                            </MultiTrigger.Setters>
+                        </MultiTrigger>
+
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsHighlighted" Value="True"/>
+                            </MultiTrigger.Conditions>
+                            <MultiTrigger.Setters>
+                                <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource Red0}"/>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Yellow1}"/>
+                                <Setter Property="Padding" TargetName="Bd"  Value="2,0,5,5"/>
+                                <Setter Property="MenuItem.Foreground" TargetName="Bd" Value="{StaticResource Red5}"/>
+                                <Setter Property="Padding" TargetName="Bd"  Value="22,3,0,0"/>
+                            </MultiTrigger.Setters>
+                        </MultiTrigger>
+                    </ControlTemplate.Triggers>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+
+	<Style x:Key="MenuItemGreen2" TargetType="{x:Type MenuItem}">
+		<Setter Property="Background" Value="Transparent" />
+		<Setter Property="Foreground" Value="Black" />
+		<!--<Setter Property="BorderBrush" Value="{StaticResource HeaderBorderBrushYellow}" />-->
+		<Setter Property="BorderThickness" Value="1" />
+		<Setter Property="SnapsToDevicePixels" Value="True" />
+		<Setter Property="HorizontalContentAlignment" Value="left" />
+		<Setter Property="VerticalAlignment" Value="Bottom" />
+		<Setter Property="VerticalContentAlignment" Value="Bottom" />
+		<Setter Property="MinHeight" Value="25" />
+		<!--<Setter Property="Cursor" Value="Hand" />-->
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="{x:Type MenuItem}">
+					<Border x:Name="Bd" 
+							  Padding="17,0,17,0" 
+							  BorderBrush="{TemplateBinding BorderBrush}" 
+							  BorderThickness="{TemplateBinding BorderThickness}" 
+							  Background="{TemplateBinding Background}" 
+							  SnapsToDevicePixels="True" 
+							  Uid="Border_38">
+						<ContentPresenter x:Name="ContentPresenter"  
+										Content="{TemplateBinding Header}" 
+										Grid.Column="1" 
+										ContentSource="Header" 
+										Margin="{TemplateBinding Padding}" 
+										RecognizesAccessKey="True"
+										SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+										Uid="ContentPresenter_33"/>
+					</Border>
+					<ControlTemplate.Triggers>
+                        <!--// GREEN BACKGROUND-->
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsHighlighted" Value="False"/>
+                            </MultiTrigger.Conditions>
+                            <MultiTrigger.Setters>
+                                <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource White0}"/>
+                                <Setter Property="Background" TargetName="Bd" Value="Green"/>
+                                <Setter Property="MenuItem.Foreground" TargetName="Bd" Value="{StaticResource Black0}"/>
+                                <Setter Property="Padding" TargetName="Bd"  Value="22,3,0,0"/>
+                            </MultiTrigger.Setters>
+                        </MultiTrigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsHighlighted" Value="True"/>
+                            </MultiTrigger.Conditions>
+                            
+                            <MultiTrigger.Setters>
+								<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource Green0}"/>
+								<Setter Property="Background" TargetName="Bd" Value="{StaticResource Yellow1}"/>
+								<Setter Property="MenuItem.Foreground" TargetName="Bd" Value="{StaticResource Red5}"/>
+                                <Setter Property="Padding" TargetName="Bd"  Value="22,3,0,0"/>
+                            </MultiTrigger.Setters>
+                        </MultiTrigger>
+                    </ControlTemplate.Triggers>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+
+</ResourceDictionary>

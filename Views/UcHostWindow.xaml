@@ -1,0 +1,22 @@
+﻿<Window x:Class="NewWpfDev.Views.UcHostWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:NewWpfDev.Views"
+        mc:Ignorable="d"
+        Background="Gray"
+        WindowChrome.ResizeGripDirection="BottomRight"
+	    ResizeMode="CanResizeWithGrip"
+        MinHeight="550" MinWidth="600"
+        Closing="Window_Closing"
+        Loaded="Window_Loaded"
+        SizeChanged="Window_SizeChanged"
+        Title="User controls Host Window" Height="450" Width="800">
+    <Grid>
+        <!--// This holds the actual Generic UserControl that will be modified from it's own button controls-->
+        <ContentControl x:Name="UCHostContent"  
+                        Margin="0 0 0 0" 
+                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+    </Grid>
+</Window>

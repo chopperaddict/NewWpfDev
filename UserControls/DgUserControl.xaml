@@ -1,0 +1,72 @@
+﻿<UserControl x:Class="NewWpfDev.UserControls.DgUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:NewWpfDev.UserControls"
+                xmlns:user="clr-namespace:NewWpfDev.UserControls"
+             mc:Ignorable="d" 
+             x:Name="DataGridUserctrl"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!--<Popup x:Name="popup" Placement="Center" PlacementTarget="{Binding redspinner}" StaysOpen="False"
+               IsOpen="true" Height="200" Width="200">
+            <Grid>
+                <user:SpinnerControl x:Name="redspinner"     
+                       </user:SpinnerControl>
+            </Grid>
+        </Popup>-->
+
+        <!--Loaded="grid1_Loaded"-->
+        <DataGrid x:Name="grid1" 
+                VerticalAlignment="Stretch"
+                FocusVisualStyle="{x:Null}"
+                SelectionMode="Single"
+                CanUserAddRows="False"
+                CellStyle="{StaticResource MAINBankAccountGridStyle}"
+                CanUserResizeRows="true"
+                IsSynchronizedWithCurrentItem="false"
+                IsHitTestVisible="true"
+                Focusable="true"
+                IsEnabled="True"
+                IsReadOnly="true"
+                IsTabStop="False"
+                AutoGenerateColumns="false"                                   
+                AlternatingRowBackground="Beige"
+                MouseEnter="PART_MouseEnter"
+                MouseLeave="PART_MouseLeave"
+                Background="Black"  
+                Margin="5 5 0 0">
+            <DataGrid.ItemsPanel>
+                <!--// Saves memory and loads much faster-->
+                <ItemsPanelTemplate>
+                    <VirtualizingStackPanel>
+                        <!--// saves loads of memroy-->
+                    </VirtualizingStackPanel>
+                </ItemsPanelTemplate>
+            </DataGrid.ItemsPanel>
+
+            <DataGrid.Resources>
+                <Style x:Key="NotFocusable" TargetType="{x:Type DataGridCell}">
+                    <Setter Property="Focusable" Value="False"/>
+                </Style>
+            </DataGrid.Resources>
+            <DataGrid.Columns>
+                <DataGridTemplateColumn>
+                    <DataGridTemplateColumn.CellStyle>
+                        <Style TargetType="{x:Type DataGridCell}" BasedOn="{StaticResource NotFocusable}"/>
+                    </DataGridTemplateColumn.CellStyle>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+
+        </DataGrid>
+
+    </Grid>
+</UserControl>

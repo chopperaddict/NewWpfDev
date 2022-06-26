@@ -1,0 +1,80 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+
+    <DataTemplate x:Key="GenericTemplate">
+        <Border x:Name="GenDataTemplateBorder1" Height="{Binding Path=ItemsHeight,RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}">
+            <StackPanel Orientation="Horizontal" >
+                <TextBlock Text="{Binding field1}" Width="{Binding field1.ActualWidth}" Height="{Binding ItemHeight}"  Padding="2" x:Name="field1"/>
+                <TextBlock Text="{Binding field2}" Width="{Binding field2.ActualWidth}" Height="{Binding ItemHeight}" Padding="2" x:Name="field2"/>
+                <TextBlock Text="{Binding field3}" Width="{Binding field3.ActualWidth}" Height="{Binding ItemHeight}" Padding="2" x:Name="field3"/>
+                <TextBlock Text="{Binding field4}" Width="{Binding field4.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field4"/>
+                <TextBlock Text="{Binding field5}" Width="{Binding field5.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field5"/>
+                <TextBlock Text="{Binding field6 }" Width="{Binding field6.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field6"/>
+                <TextBlock Text="{Binding field7}" Width="{Binding field7.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field7"/>
+                <TextBlock Text="{Binding field8}" Width="{Binding field8.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field8"/>
+                <TextBlock Text="{Binding field9}" Width="{Binding field9.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field9"/>
+                <TextBlock Text="{Binding field10}" Width="{Binding field10.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field10"/>
+                <TextBlock Text="{Binding field11}" Width="{Binding field11.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field11"/>
+                <TextBlock Text="{Binding field12}" Width="{Binding field12.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field12"/>
+                <TextBlock Text="{Binding field13}" Width="{Binding field13.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field13"/>
+                <TextBlock Text="{Binding field14}" Width="{Binding field14.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field14"/>
+                <TextBlock Text="{Binding field15}" Width="{Binding field15.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field15"/>
+                <TextBlock Text="{Binding field16}" Width="{Binding field16.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field16"/>
+                <TextBlock Text="{Binding field17}" Width="{Binding field17.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field17"/>
+                <TextBlock Text="{Binding field18}" Width="{Binding field18.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field18"/>
+                <TextBlock Text="{Binding field19}" Width="{Binding field19.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field19"/>
+                <TextBlock Text="{Binding field20}" Width="{Binding field20.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field20"/>
+            </StackPanel>
+        </Border>
+    </DataTemplate>
+
+    <DataTemplate x:Key="GenDataTemplate1">
+		<Border x:Name="GenDataTemplateBorder1" Height="{Binding Path=ItemsHeight,RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}">
+			<StackPanel Orientation="Horizontal" >
+				<TextBlock Text="{Binding field1}" Width="{Binding field1.ActualWidth}" Height="{Binding ItemHeight}"  Padding="2" x:Name="field1"/>
+				<TextBlock Text="{Binding field2}" Width="{Binding field2.ActualWidth}" Height="{Binding ItemHeight}" Padding="2" x:Name="field2"/>
+				<TextBlock Text="{Binding field3}" Width="{Binding field3.ActualWidth}" Height="{Binding ItemHeight}" Padding="2" x:Name="field3"/>
+				<TextBlock Text="{Binding field4}" Width="{Binding field4.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field4"/>
+				<TextBlock Text="{Binding field5}" Width="{Binding field5.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field5"/>
+				<TextBlock Text="{Binding field6 }" Width="{Binding field6.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field6"/>
+				<TextBlock Text="{Binding field7}" Width="{Binding field7.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field7"/>
+				<TextBlock Text="{Binding field8}" Width="{Binding field8.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field8"/>
+				<TextBlock Text="{Binding field9}" Width="{Binding field9.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field9"/>
+				<TextBlock Text="{Binding field10}" Width="{Binding field10.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field10"/>
+				<TextBlock Text="{Binding field11}" Width="{Binding field11.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field11"/>
+				<TextBlock Text="{Binding field12}" Width="{Binding field12.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field12"/>
+				<TextBlock Text="{Binding field13}" Width="{Binding field13.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field13"/>
+				<TextBlock Text="{Binding field14}" Width="{Binding field14.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field14"/>
+				<TextBlock Text="{Binding field15}" Width="{Binding field15.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field15"/>
+				<TextBlock Text="{Binding field16}" Width="{Binding field16.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field16"/>
+				<TextBlock Text="{Binding field17}" Width="{Binding field17.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field17"/>
+				<TextBlock Text="{Binding field18}" Width="{Binding field18.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field18"/>
+				<TextBlock Text="{Binding field19}" Width="{Binding field19.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field19"/>
+				<TextBlock Text="{Binding field20}" Width="{Binding field20.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field20"/>
+			</StackPanel>
+		</Border>
+	</DataTemplate>
+
+
+	<DataTemplate x:Key="GenDataTemplate2">
+		<Border x:Name="NwCustomerDataTemplateBorder1" Height="{Binding Path=ItemsHeight,RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}">
+			<StackPanel Orientation="Horizontal" >
+				<TextBlock Text="{Binding field5}" Width="{Binding field5.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"  x:Name="field5"/>
+				<TextBlock Text="{Binding field4}" Width="{Binding field4.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"  x:Name="field4"/>
+				<TextBlock Text="{Binding field3}" Width="{Binding field3.ActualWidth}" Height="{Binding ItemHeight}" Padding="5" x:Name="field3"/>
+				<TextBlock Text="{Binding field2}" Width="{Binding field2.ActualWidth}" Height="{Binding ItemHeight}" Padding="5" x:Name="field2"/>
+				<TextBlock Text="{Binding field1}" Width="{Binding field1.ActualWidth}" Height="{Binding ItemHeight}"  Padding="5" x:Name="field1"/>
+				<TextBlock Text="{Binding field6 }" Width="{Binding field6.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"  x:Name="field6"/>
+				<TextBlock Text="{Binding field7}" Width="{Binding field7.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"  x:Name="field7"/>
+				<TextBlock Text="{Binding field8}" Width="{Binding field8.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"  x:Name="field8"/>
+				<TextBlock Text="{Binding field9}" Width="{Binding field9.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"  x:Name="field9"/>
+				<TextBlock Text="{Binding field10}" Width="{Binding field10.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"  x:Name="field10"/>
+				</StackPanel>
+		</Border>
+	</DataTemplate>
+
+	<!--#endregion NW Customers Db templates-->
+
+	<!--#endregion DataTemplates-->
+</ResourceDictionary>

@@ -1,0 +1,24 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+
+    <!--<DataTemplate x:Key="RedScreen" DataType="{x:Type Rectangle}" >
+        <Grid>
+            <Rectangle Fill="Red"/>
+        </Grid>
+    </DataTemplate>
+
+    <DataTemplate x:Key="GreenScreen" DataType="{x:Type Rectangle}" >
+        <Grid>
+            <Rectangle Fill="Green"/>
+        </Grid>
+    </DataTemplate>
+
+    <DataTemplate x:Key="BlueScreen" DataType="{x:Type Rectangle}" >
+        <Grid>
+            <Rectangle Fill="Blue"/>
+        </Grid>
+    </DataTemplate>-->
+
+        
+</ResourceDictionary>

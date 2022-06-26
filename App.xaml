@@ -1,0 +1,36 @@
+﻿<Application x:Class="NewWpfDev.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:NewWpfDev"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <ResourceDictionary >
+
+            <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Dicts\MainMenu.xaml" />
+                <ResourceDictionary Source="Dicts\ColorsDictionary.xaml" />
+                <ResourceDictionary Source="Dicts\ButtonsMaster.xaml" />
+                <ResourceDictionary Source="Dicts\AppButtonsDictionary.xaml"/>
+                <ResourceDictionary Source="Dicts\ComboBoxStyles.xaml"/>
+                <ResourceDictionary Source="Dicts\Storyboards.xaml"/>
+                <ResourceDictionary Source="Dicts\TreeViewDictionary.xaml"/>
+                <ResourceDictionary Source="DataTemplates\ContextMenuResources.xaml" />
+                <!--<ResourceDictionary Source="\DataTemplates\BankDataStyleTemplateSelector.xaml"/>-->
+                <!--<ResourceDictionary Source="\DataTemplates\BankDataTemplateSelector.xaml"/>-->
+                <ResourceDictionary Source="DataTemplates\CustomerDataTemplates.xaml"/>
+                <ResourceDictionary Source="DataTemplates\BankDataTemplates.xaml"/>
+                <ResourceDictionary Source="DataTemplates\GenericDataTemplates.xaml"/>
+                <ResourceDictionary Source="DataTemplates\NWDataTemplates.xaml"/>
+                <ResourceDictionary Source="DataTemplates\PublishersTemplates.xaml"/>
+                <ResourceDictionary Source="DataTemplates\NWDataTemplates.xaml"/>
+                <ResourceDictionary Source="Menus\ContextMenuTemplates.xaml"/>
+                <ResourceDictionary Source="ViewModels\ListBoxViewStyles.xaml"/>
+                <ResourceDictionary Source="ViewModels\MenuStyles.xaml"/>
+                <ResourceDictionary Source="ViewModels\MvvmStyles.xaml"/>
+                <ResourceDictionary Source="\Styles\StylesDictonary.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary >
+    </Application.Resources>
+</Application>

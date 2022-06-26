@@ -1,0 +1,378 @@
+﻿using System;
+using System . Collections . Generic;
+using System . Diagnostics;
+using System . Linq;
+using System . Text;
+using System . Threading . Tasks;
+using System . Windows . Controls;
+using System . Windows . Input;
+using System . Windows;
+
+using static NewWpfDev. Views . DragDropClient;
+using System . IO;
+
+namespace NewWpfDev. Views
+{
+	public class SupportMethods
+	{
+		/// <summary>
+		/// Implementation of a Delegate provided to pass to FindExecutePath() 
+		/// below to extend the search process in Utils.ProcessExecuteRequest() as required. it includes a List[string]
+		/// holding various  different paths to be searched in addition to the defaults
+		/// providedby [Environment . SpecialFolder. xxxxxx ]in the application
+		/// </summary>
+		/// <param name="possiblefolders"></param>
+		/// <param name="filename"></param>
+		/// <returns></returns>
+		public static string qualifiers ( string Filename )
+		{
+			string result = "";
+			// Get the search paths from disk file
+			List<string> AdditionalFolders = new List<string> ( );
+			// Get searchpaths files own path
+			string Str = ( string ) Properties . Settings . Default [ "SearchPathFile" ];
+
+			//Read in our search strings list into string[]
+			string [ ] paths = File . ReadAllLines ( Str );
+			// now put them into List<string> collection
+			foreach ( var item in paths )
+			{
+				char tmp = item [ item . Length - 1 ];
+				if ( tmp != '\\' )
+					AdditionalFolders . Add ( item + "@\\" );
+				else
+					AdditionalFolders . Add ( item );
+			}
+
+			// Finally - Search these paths for our selected file to be executed
+			foreach ( var path in AdditionalFolders )
+			{
+				if ( File . Exists ( path + $"{Filename}" ) )
+				{
+					result = path + $"{Filename}";
+					break;
+				}
+			}
+			return result;
+		}
+
+		/// <summary>
+		/// Executes any file path/name double clicked in the Textbox of the DRag/Drop Window
+		/// or from a string (command) received if possible.
+		/// All Strings passed directly need to include a fully qualified path where relevant.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		/// <param name="command"></param>
+		/// <returns></returns>
+		/// The normal input control is a WPF Textbox, but you can pass a String as a 
+		/// command line instead of the method processing the Textbox to obtain 
+		/// the selected string for execution
+		/// So only sender and either Textbox or Command string are needed
+		public static bool ProcessExecuteRequest ( object sender , MouseButtonEventArgs e = null , TextBox control = null , string command = "" )
+		{
+			bool result = false;
+			int linelen = 0;
+			string controlcontent = "";
+			string currentline = "";
+			string linetext = "";
+			TextBox textBox = control;
+			string argument = textBox . Text . Trim ( );
+			argument = ParseFileName ( argument );
+			//Using a TextBox as input ?
+			if ( command == "" )
+			{
+				if ( textBox == null )
+				{
+					MessageBox . Show ( $"Please enter a file name to be executed ?" , "Input data Invalid" );
+					return false;
+				}
+				// YES - so Parse the line that was dbl.clicked in the Textbox to get the command to be executed
+				int caretpos = textBox . CaretIndex;
+				var line = textBox . GetLineIndexFromCharacterIndex ( caretpos );
+				linelen = textBox . GetLineLength ( line );
+				// This gets me the complete line, including \n
+				linetext = textBox . GetLineText ( line );
+				linetext = linetext . Substring ( 0 , linelen - 1 );
+				// Check for line endings \r and \n and remove them if found
+				if ( linetext . Contains ( "\r" ) )
+					linetext = linetext . Substring ( 0 , linetext . Length - 1 );
+				if ( linetext . Contains ( "\n" ) )
+					linetext = linetext . Substring ( 0 , linetext . Length - 1 );
+				controlcontent = textBox . Text;
+				currentline = controlcontent;
+				// We should now have a clean, complete command line to extract from the TextBox text 
+				for ( int indx = 0 ; indx < controlcontent . Length - 1 ; indx++ )
+				{
+					currentline = controlcontent . Substring ( indx );
+					if ( currentline . Contains ( linetext ) == false )
+					{
+						currentline = controlcontent . Substring ( 0 , ( indx - 2 ) < 0 ? 0 : indx - 2 );
+						if ( currentline . Length == 0 )
+							currentline = controlcontent;
+						// now got the full command string alone
+						textBox . CaretIndex = indx - 1;
+						textBox . SelectionLength = linelen;
+						break;
+					}
+				}
+			}
+			else
+			{
+				//No - so use the string sent to us
+				//				int caretpos = 0;
+				var line = command;
+				linelen = command . Length;
+				// This gets me the complete line, including \n
+				linetext = command;
+				if ( linetext . Contains ( "\r" ) )
+					linetext = linetext . Substring ( 0 , linetext . Length - 1 );
+				if ( linetext . Contains ( "\n" ) )
+					linetext = linetext . Substring ( 0 , linetext . Length - 1 );
+				currentline = linetext;
+				controlcontent = linetext;
+			}
+			if ( currentline . Length == 0 )
+				return false;
+
+			// how to save the user specified search paths to settings.settings
+			//WpfLib1 . Utils .SaveProperty ( "SearchPathFile", Environment . GetFolderPath ( Environment . SpecialFolder . MyDocuments ) );
+			//ConfigurationManager . RefreshSection ( "SearchPathStringFileName" );
+
+			string test = "";
+			if ( Flags . SingleSearchPath != "" )
+			{
+				test = Flags . SingleSearchPath + linetext;
+			}
+			else
+			{
+				// Get searchpaths files own path
+				string Str = ( string ) Properties . Settings . Default [ "SearchPathFile" ];
+
+				//Read in our search strings list into string[]
+				string [ ] paths = File . ReadAllLines ( Str );
+
+				//Get this apps current directory
+				string fullPath = GetCurrentApplicationFullPath ( );
+				//Add current App Path to our list as well.  gotta increase the array by 1 element first !
+				Array . Resize ( ref paths , paths . Length + 1 );
+				paths [ paths . Length - 1 ] = fullPath;
+
+				test = linetext;
+				//check for path backslashes. If none found, we use our path search
+				//function to try to identify the path automaticlly - Clever eh ?
+				if ( linetext . Contains ( "\\" ) == false )
+				{
+					// Add it to our search string collection
+					try
+					{
+						//Setup our delegate
+						Delegates . QualifyingFileLocations FindPathHandler = SupportMethods . qualifiers;
+						// pass the delegate method thru to our search for executable path method
+						// It contains all the specialist paths we want to have searched
+						// WORKS VERY WELL 15/6/21
+						test = FindExecutePath ( linetext , SupportMethods . qualifiers );
+					}
+					catch ( Exception ex )
+					{
+						Debug . WriteLine ( $"Failure in Utils.FindExecutePath()\n{ex . Message}, {ex . Data}" );
+						return false;
+					}
+				}
+				// if only original string is returned, we just execute that and hope....
+				// otherwise, we use the qualified path we have found for the user
+				if ( test == "" )
+					test = linetext;
+			}
+			// check to see if we actually have a file of some sort
+			if ( test . Contains ( "." ) == false )
+				return false;
+			Type t = test . GetType ( );
+			//Check the fle suffix
+			string [ ] suffixes = test . Split ( '.' );
+			if ( ValidateFileType ( suffixes [ 1 ] ) == false )
+				return false;
+			// Finally, lets try to execute the command received
+			// Clever stuff here  :-
+			// See if any args have been passed, and split the off the command line
+			//and send them as Args
+			string  args = "";
+			string root = "";
+
+			root = test;
+
+			bool UseProcess = true;
+
+			if ( UseProcess )
+			{
+
+				Process ExternalProcess = new Process ( );
+				ExternalProcess . StartInfo . FileName = test . Trim ( );
+				ExternalProcess . StartInfo . Arguments = args . Trim ( );
+				if ( ExternalProcess . StartInfo . Arguments == "" && argument != "" )
+					ExternalProcess . StartInfo . Arguments = argument;
+					try
+				{
+					ExternalProcess . Start ( );
+					//					ExternalProcess . WaitForExit ( );
+				}
+				catch ( Exception ex )
+				{
+					Debug . WriteLine ( $"ExternalProcess error : {ex . Message}, {ex . Data}" );
+					if ( ex . Message . Contains ( "cannot find the file" ) )
+					{
+						if ( Flags . SingleSearchPath != "" )
+							MessageBox . Show ( $"Error executing the (Full specified command) \n \"{ test}\"\n\nThe System was unable to Execute this file." , "File Execution Error !" );
+						else
+							MessageBox . Show ( $"Error executing the (command) shown below\n \"{ linetext }\"\n\nThe System was unable to Execute this file." , "File Execution Error !" );
+					}
+					else
+						MessageBox . Show ( $"Error executing the (Command) shown below\n \"{ linetext }\"\n\nSee the Debug output for more information." , "File Execution Error !" );
+
+				}
+				finally
+				{
+					ExternalProcess . Close ( );
+					result = true;
+				}
+			}
+			else
+			{
+				Process p = null;
+				try
+				{
+					if ( args . Trim ( ) . Length > 0 )
+					{
+						p = Process . Start ( root , args );
+					}
+					else
+					{
+						p = Process . Start ( root );
+					}
+				}
+
+				catch ( Exception ex )
+				{
+					string s = args . Length > 0 ? $"Args =  [{ args} ] failed..." : " failed...";
+					Debug . WriteLine ( $"Execute process of [{root}]{s}\nErro info is shown below :\n" );
+					Debug . WriteLine ( $"Process failed :- {ex . Message}, {ex . Data}" );
+				}
+			}
+			return result;
+		}
+		private static bool ValidateFileType ( string suffix )
+		{
+			switch ( suffix . ToUpper ( ) )
+			{
+				case "DLL":
+					return false;
+				case "EXE":
+					return false;
+				case "OBJ":
+					return false;
+				case "BAK":
+					return false;
+				case "COM":
+					return false;
+				case "ILK":
+					return false;
+				case "RESX":
+					return false;
+			}
+			return true;
+		}
+		public static string GetCurrentApplicationFullPath ( )
+		{
+			var process = Process . GetCurrentProcess ( ); // Or whatever method you are using
+			string fullPath = process . MainModule . FileName;
+			int len = fullPath . Length;
+			var name = process . ProcessName + ".exe";
+			if ( fullPath . Contains ( name ) )
+			{
+				fullPath = fullPath . Substring ( 0 , len - ( name . Length ) );
+				//We now have a full current path with trailing slash \\
+			}
+			return fullPath;
+		}
+
+		public static string FindExecutePath ( string filename , Delegates . QualifyingFileLocations qualifiers = null )
+		{
+			string Fullpath = "";
+			if ( qualifiers != null )
+			{
+				Fullpath = qualifiers ( filename );
+				if ( Fullpath != "" )
+					return Fullpath;
+			}
+
+			if ( File . Exists ( Environment . GetFolderPath ( Environment . SpecialFolder . CommonProgramFiles ) + $"\\{filename}" ) )
+				return Environment . GetFolderPath ( Environment . SpecialFolder . CommonProgramFiles ) + $"\\{filename}";
+			else if ( File . Exists ( Environment . GetFolderPath ( Environment . SpecialFolder . Windows ) + $"\\{filename}" ) )
+				return Environment . GetFolderPath ( Environment . SpecialFolder . Windows ) + $"\\{filename}";  // Current User's Application Data
+			else if ( File . Exists ( Environment . GetFolderPath ( Environment . SpecialFolder . ApplicationData ) + $"\\{filename}" ) )
+				return Environment . GetFolderPath ( Environment . SpecialFolder . ApplicationData ) + $"\\{filename}";  // Current User's Application Data
+			else if ( File . Exists ( Environment . GetFolderPath ( Environment . SpecialFolder . CommonApplicationData ) + $"\\{filename}" ) ) // All User's Application Data
+				return Environment . GetFolderPath ( Environment . SpecialFolder . CommonApplicationData ) + $"\\{filename}";
+			else if ( File . Exists ( Environment . GetFolderPath ( Environment . SpecialFolder . CommonProgramFiles ) + $"\\{filename}" ) ) // Program Files
+				return Environment . GetFolderPath ( Environment . SpecialFolder . CommonProgramFiles ) + $"\\{filename}";
+			else if ( File . Exists ( Environment . GetFolderPath ( Environment . SpecialFolder . Cookies ) + $"\\{filename}" ) ) // Internet Cookie
+				return Environment . GetFolderPath ( Environment . SpecialFolder . Cookies ) + $"\\{filename}";
+			else if ( File . Exists ( Environment . GetFolderPath ( Environment . SpecialFolder . Desktop ) + $"\\{filename}" ) )  // Logical Desktop
+				return Environment . GetFolderPath ( Environment . SpecialFolder . Desktop ) + $"\\{filename}";
+			else if ( File . Exists ( Environment . GetFolderPath ( Environment . SpecialFolder . DesktopDirectory ) + $"\\{filename}" ) ) // Physical Desktop
+				return Environment . GetFolderPath ( Environment . SpecialFolder . DesktopDirectory ) + $"\\{filename}";
+			else if ( File . Exists ( Environment . GetFolderPath ( Environment . SpecialFolder . Favorites ) + $"\\{filename}" ) ) // Favorites
+				return Environment . GetFolderPath ( Environment . SpecialFolder . Favorites ) + $"\\{filename}";
+			else if ( File . Exists ( Environment . GetFolderPath ( Environment . SpecialFolder . MyComputer ) + $"\\{filename}" ) ) // "My Computer" Folder
+				return Environment . GetFolderPath ( Environment . SpecialFolder . MyComputer ) + $"\\{filename}";
+			else if ( File . Exists ( Environment . GetFolderPath ( Environment . SpecialFolder . MyDocuments ) + $"\\{filename}" ) ) // "My Computer" Folder
+				return Environment . GetFolderPath ( Environment . SpecialFolder . MyDocuments ) + $"\\{filename}";
+			else if ( File . Exists ( Environment . GetFolderPath ( Environment . SpecialFolder . MyMusic ) + $"\\{filename}" ) ) // "My Music" Folder
+				return Environment . GetFolderPath ( Environment . SpecialFolder . MyMusic ) + $"\\{filename}";
+			else if ( File . Exists ( Environment . GetFolderPath ( Environment . SpecialFolder . MyPictures ) + $"\\{filename}" ) ) // "My Pictures" Folder
+				return Environment . GetFolderPath ( Environment . SpecialFolder . MyPictures ) + $"\\{filename}"; // "My Pictures" Folder
+			else if ( File . Exists ( Environment . GetFolderPath ( Environment . SpecialFolder . Personal ) + $"\\{filename}" ) ) // "My Document" Folder
+				return Environment . GetFolderPath ( Environment . SpecialFolder . Personal ) + $"\\{filename}"; // "My Document" Folder
+			else if ( File . Exists ( Environment . GetFolderPath ( Environment . SpecialFolder . ProgramFiles ) + $"\\{filename}" ) ) // Program files Folder
+				return Environment . GetFolderPath ( Environment . SpecialFolder . ProgramFiles ) + $"\\{filename}";  // Program files Folder
+			else if ( File . Exists ( Environment . GetFolderPath ( Environment . SpecialFolder . Programs ) + $"\\{filename}" ) ) // Programs Folder
+				return Environment . GetFolderPath ( Environment . SpecialFolder . Programs ) + $"\\{filename}"; // Programs Folder
+			else if ( File . Exists ( Environment . GetFolderPath ( Environment . SpecialFolder . Recent ) + $"\\{filename}" ) ) // Recent Folder
+				return Environment . GetFolderPath ( Environment . SpecialFolder . Recent ) + $"\\{filename}"; // Recent Folder
+			else if ( File . Exists ( Environment . GetFolderPath ( Environment . SpecialFolder . SendTo ) + $"\\{filename}" ) ) // "Sent to" Folder
+				return Environment . GetFolderPath ( Environment . SpecialFolder . SendTo ) + $"\\{filename}"; // "Sent to" Folder
+			else if ( File . Exists ( Environment . GetFolderPath ( Environment . SpecialFolder . StartMenu ) + $"\\{filename}" ) ) // Start Menu
+				return Environment . GetFolderPath ( Environment . SpecialFolder . StartMenu ) + $"\\{filename}"; // Start Menu
+			else if ( File . Exists ( Environment . GetFolderPath ( Environment . SpecialFolder . Startup ) + $"\\{filename}" ) ) // Startup
+				return Environment . GetFolderPath ( Environment . SpecialFolder . Startup ) + $"\\{filename}"; // Startup
+			else if ( File . Exists ( Environment . GetFolderPath ( Environment . SpecialFolder . System ) + $"\\{filename}" ) ) // System Folder
+				return Environment . GetFolderPath ( Environment . SpecialFolder . System ) + $"\\{filename}"; // System Folder
+			else if ( File . Exists ( Environment . GetFolderPath ( Environment . SpecialFolder . Templates ) + $"\\{filename}" ) ) // Document Templates		}
+				return Environment . GetFolderPath ( Environment . SpecialFolder . Templates ) + $"\\{filename}"; // Document Templates		}
+			return "";
+		}
+
+		public static string ParseFileName ( string path )
+		{
+			//create valid file path/name argument in quotes
+			string output = "";
+			int count = 0;
+			string [ ] parse = path . Split ( '\\' );
+			foreach ( var item in parse )
+			{
+				if ( count == 0 )
+					output = $"\"{item}\\";
+				else if(count < parse.Length)
+					output += $"{item}\\";
+				else
+					output += $"{item}\"";
+				count++;
+			}
+			output = output . Substring ( 0 , output . Length - 1 );
+            output +=$"\"" ;
+            Debug. WriteLine (output);
+			return output;
+		}
+
+	}
+}

@@ -1,0 +1,79 @@
+﻿<UserControl x:Class="NewWpfDev.UserControls.ApTestingControlAP"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:NewWpfDev.UserControls"
+             mc:Ignorable="d" 
+             xmlns:att="clr-namespace:NewWpfDev.Views" 
+             xmlns:views="clr-namespace:NewWpfDev.Views" 
+             DataContext="att:ListBoxColorCtrlAP"
+             x:Name="aptest"
+             Background="Transparent" d:DesignWidth="400" Height="303">
+
+
+
+	<StackPanel
+                  Orientation="Vertical" 
+                  Margin="4,6,6,0"
+                  Background="DarkTurquoise" Height="291" VerticalAlignment="Top" RenderTransformOrigin="0.52,-0.164">
+
+		<!--// This is a Standard FULL Property-->
+		<TextBlock x:Name="tb2"
+                       Margin="5"
+                       Text=""  
+                       Panel.ZIndex="4"
+                       Foreground="Blue" Background="YellowGreen"
+                      />
+
+
+		<!--// This is an  ATTACHED Property-->
+		<TextBlock x:Name="tb1"
+                       Background="Fuchsia"                       
+                       Text=""  
+                       Panel.ZIndex="1"
+                       Margin="5" 
+                       Height="47" 
+                       />
+		<!--// This 'stdproperty' is a LOCAL FULL property,but it is not read during run time,
+                  Text="{Binding Path=stdproperty, ElementName=aptest}"
+                  but it is read if called from code behind
+                  using xxx.text = stdproperty;-->
+
+		<!--// This is a Standard FULL Property-->
+		<TextBlock x:Name="tb3"                                   
+                       Text=""  
+                       Height="41" 
+                       Background="Green" 
+                       Panel.ZIndex="1"
+                       Foreground="White" 
+                             Margin="5,0,0,0" 
+                       />
+		<!--//Gets text from Fuschia label above by cross binding-->
+		<TextBlock x:Name="tb4"
+                       Margin="5"
+                       Text="{Binding Path=Text, ElementName=tb1}"  
+                       Panel.ZIndex="4"
+                       Foreground="Blue" 
+                       Background="Yellow" 
+                       Height="41"
+                      />
+		<TextBlock x:Name="tb5"
+                       Margin="5"
+                       Text=""  
+                       Panel.ZIndex="4"
+                       Background="Blue" 
+                       Foreground="White"  Height="41"
+                      />
+
+		<Button
+                        Background="DarkKhaki" 
+                        Foreground="White" 
+                        Margin="5" 
+                        Content="Click me" 
+                        Click="Button_Click"
+                        Panel.ZIndex="1" Height="39"/>
+
+	</StackPanel>
+
+</UserControl>

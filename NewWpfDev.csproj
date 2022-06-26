@@ -1,0 +1,438 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <StartupObject>NewWpfDev.App</StartupObject>
+    <ApplicationIcon>docs.ico</ApplicationIcon>
+    <Platforms>AnyCPU;x64</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="ViewModels\DatagridUserControlViewModel.cs" />
+    <Compile Remove="Views\UserCtrlHost.xaml.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Icons\3d green tick base.png" />
+    <None Remove="Icons\3d red cross.png" />
+    <None Remove="Icons\3d-red-shriek.png" />
+    <None Remove="Icons\3d-yellow-shriek.png" />
+    <None Remove="Icons\blackcross.png" />
+    <None Remove="Icons\blackwhite document.png" />
+    <None Remove="Icons\blackyellow document.png" />
+    <None Remove="Icons\blank doc.png" />
+    <None Remove="Icons\blank trasparent icon.psd" />
+    <None Remove="Icons\blue folder open.png" />
+    <None Remove="Icons\blue info.png" />
+    <None Remove="Icons\blue triangle left.png" />
+    <None Remove="Icons\blue triangle right.png" />
+    <None Remove="Icons\blue-info-icon.png" />
+    <None Remove="Icons\bluecross.png" />
+    <None Remove="Icons\blue_download_alt_folder_12391.png" />
+    <None Remove="Icons\CallDirectory.ico" />
+    <None Remove="Icons\calls-record.png" />
+    <None Remove="Icons\check-mark-icon-5375.png" />
+    <None Remove="Icons\checkmark-no.png" />
+    <None Remove="Icons\checkmark-yes.png" />
+    <None Remove="Icons\checkmark2.png" />
+    <None Remove="Icons\cloud.png" />
+    <None Remove="Icons\cloud_fld_w10.ico" />
+    <None Remove="Icons\CoffeeShop0.ico" />
+    <None Remove="Icons\Cube.ico" />
+    <None Remove="Icons\cursor-arrow.png" />
+    <None Remove="Icons\database.Ico" />
+    <None Remove="Icons\DatabaseProject.ico" />
+    <None Remove="Icons\delete-text-message.png" />
+    <None Remove="Icons\delete-text-message2.png" />
+    <None Remove="Icons\Delete.ico" />
+    <None Remove="Icons\delete2.ico" />
+    <None Remove="Icons\desktop.ico" />
+    <None Remove="Icons\DocGenericLRRed.ico" />
+    <None Remove="Icons\docs.ico" />
+    <None Remove="Icons\document-delete_48x48.png" />
+    <None Remove="Icons\Documents1.png" />
+    <None Remove="Icons\Documents2.png" />
+    <None Remove="Icons\down arroiw red.png" />
+    <None Remove="Icons\download-to-laptop.png" />
+    <None Remove="Icons\error-red.png" />
+    <None Remove="Icons\error-red.psd" />
+    <None Remove="Icons\Error.PNG" />
+    <None Remove="Icons\Error2.png" />
+    <None Remove="Icons\errstop.png" />
+    <None Remove="Icons\ex1.png" />
+    <None Remove="Icons\exclaim1.png" />
+    <None Remove="Icons\exclamation.png" />
+    <None Remove="Icons\Exclamation2.png" />
+    <None Remove="Icons\exclm-1.png" />
+    <None Remove="Icons\exclm-1.psd" />
+    <None Remove="Icons\exhibitor_30px.png" />
+    <None Remove="Icons\Export.Ico" />
+    <None Remove="Icons\fax.png" />
+    <None Remove="Icons\files.png" />
+    <None Remove="Icons\folder opening.png" />
+    <None Remove="Icons\folder with docs.png" />
+    <None Remove="Icons\folder-open.png" />
+    <None Remove="Icons\folder.gif" />
+    <None Remove="Icons\folder.ico" />
+    <None Remove="Icons\folder2.png" />
+    <None Remove="Icons\folder3.png" />
+    <None Remove="Icons\folderwithdocs.png" />
+    <None Remove="Icons\Grabimage.png" />
+    <None Remove="Icons\green-tick.png" />
+    <None Remove="Icons\greencross.png" />
+    <None Remove="Icons\GreenTick.png" />
+    <None Remove="Icons\harddrive.png" />
+    <None Remove="Icons\HPScan.ico" />
+    <None Remove="Icons\icons8-wrench-24.png" />
+    <None Remove="Icons\idle.icns" />
+    <None Remove="Icons\Information.PNG" />
+    <None Remove="Icons\Information2.png" />
+    <None Remove="Icons\Information3.png" />
+    <None Remove="Icons\laptop-wifi.png" />
+    <None Remove="Icons\laptop-wifi2.png" />
+    <None Remove="Icons\large redcross.png" />
+    <None Remove="Icons\large-dark-msgbox.PNG" />
+    <None Remove="Icons\large-light-msgbox.png" />
+    <None Remove="Icons\large-light-msgbox.psd" />
+    <None Remove="Icons\left arroiw red.png" />
+    <None Remove="Icons\left-arrow.png" />
+    <None Remove="Icons\Lrg ltrt arrow red copy.png" />
+    <None Remove="Icons\Lrg updown arrow red copy.png" />
+    <None Remove="Icons\magnify copy.png" />
+    <None Remove="Icons\magnify minus.png" />
+    <None Remove="Icons\magnify plus.png" />
+    <None Remove="Icons\magnify.png" />
+    <None Remove="Icons\mailbox-receive-message.png" />
+    <None Remove="Icons\mailbox-receive-message2.png" />
+    <None Remove="Icons\mailbox.png" />
+    <None Remove="Icons\maximize-red.png" />
+    <None Remove="Icons\maximize2-red.png" />
+    <None Remove="Icons\message.png" />
+    <None Remove="Icons\messageboxalert.ico" />
+    <None Remove="Icons\minusnode.gif" />
+    <None Remove="Icons\mydialog1.PNG" />
+    <None Remove="Icons\mydialog11.png" />
+    <None Remove="Icons\mydialog2.PNG" />
+    <None Remove="Icons\mydialog3.PNG" />
+    <None Remove="Icons\Myexclaim1.png" />
+    <None Remove="Icons\MYSL.ICO" />
+    <None Remove="Icons\NaPali.bmp" />
+    <None Remove="Icons\Networkdrive.png" />
+    <None Remove="Icons\new-text-message.png" />
+    <None Remove="Icons\new-text-message2.png" />
+    <None Remove="Icons\New.ico" />
+    <None Remove="Icons\olwen outline jan22-Edit.tif" />
+    <None Remove="Icons\open folder with pages.png" />
+    <None Remove="Icons\openfolder.gif" />
+    <None Remove="Icons\orangecross.png" />
+    <None Remove="Icons\phone-lock.png" />
+    <None Remove="Icons\phone-wifi.png" />
+    <None Remove="Icons\phone-wifi2.png" />
+    <None Remove="Icons\plusnode.gif" />
+    <None Remove="Icons\ProgressSkip.ico" />
+    <None Remove="Icons\ProgressWarn.ico" />
+    <None Remove="Icons\python.gif" />
+    <None Remove="Icons\receive-text-message.png" />
+    <None Remove="Icons\received-calls.png" />
+    <None Remove="Icons\red magnify.png" />
+    <None Remove="Icons\red-cross-icon.png" />
+    <None Remove="Icons\redcross.png" />
+    <None Remove="Icons\right arroiw red.png" />
+    <None Remove="Icons\right-arrow.png" />
+    <None Remove="Icons\rss.png" />
+    <None Remove="Icons\ScriptFile.ico" />
+    <None Remove="Icons\send-message.png" />
+    <None Remove="Icons\send-message2.png" />
+    <None Remove="Icons\send-text-message.png" />
+    <None Remove="Icons\sent-calls.png" />
+    <None Remove="Icons\shared_fld_w7.ico" />
+    <None Remove="Icons\show-text-message.png" />
+    <None Remove="Icons\small magnify.png" />
+    <None Remove="Icons\small-dark-msgbox.PNG" />
+    <None Remove="Icons\small-light-msgbox.PNG" />
+    <None Remove="Icons\SMS.png" />
+    <None Remove="Icons\SMS2.png" />
+    <None Remove="Icons\SMS3.png" />
+    <None Remove="Icons\SMSL.ICO" />
+    <None Remove="Icons\square.png" />
+    <None Remove="Icons\ssms.ico" />
+    <None Remove="Icons\symlink_directory_30px.png" />
+    <None Remove="Icons\sync.ico" />
+    <None Remove="Icons\target-green-center.png" />
+    <None Remove="Icons\TemplateIcon.ico" />
+    <None Remove="Icons\test.png" />
+    <None Remove="Icons\text-message.png" />
+    <None Remove="Icons\TextFile.ico" />
+    <None Remove="Icons\TextFile.png" />
+    <None Remove="Icons\TextService.ico" />
+    <None Remove="Icons\transaction_logfile.ico" />
+    <None Remove="Icons\transparent checkmark.png" />
+    <None Remove="Icons\transparent.png" />
+    <None Remove="Icons\transparent1.png" />
+    <None Remove="Icons\transparentcheckmark.png" />
+    <None Remove="Icons\TSSource.ico" />
+    <None Remove="Icons\Untitled-2.png" />
+    <None Remove="Icons\up arroiw red.png" />
+    <None Remove="Icons\Up.ico" />
+    <None Remove="Icons\updown arrow red copy.png" />
+    <None Remove="Icons\Warning.PNG" />
+    <None Remove="Icons\warning2.png" />
+    <None Remove="Icons\white-tick-ongreen.png" />
+    <None Remove="Icons\whitecross.png" />
+    <None Remove="Icons\whiteticktrans.png" />
+    <None Remove="Icons\wifi.png" />
+    <None Remove="Icons\wifi2.png" />
+    <None Remove="Icons\Wrench.png" />
+    <None Remove="Icons\WSS_DocLib.ico" />
+    <None Remove="Icons\xml.ico" />
+    <None Remove="Icons\XSLTFile.ico" />
+    <None Remove="Icons\yellow-shriek-icon.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Remove="Views\UserCtrlHost.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="docs.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Dicts\" />
+    <Folder Include="AttachedProperties\" />
+    <Folder Include="Models\" />
+    <Folder Include="Dapper\" />
+    <Folder Include="Converts\" />
+    <Folder Include="DataTemplates\" />
+    <Folder Include="Menus\" />
+    <Folder Include="Behaviors\" />
+    <Folder Include="Extensions\" />
+    <Folder Include="Styles\" />
+    <Folder Include="Sql\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.0.123" />
+    <PackageReference Include="DocumentFormat.OpenXml" Version="2.16.0" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="4.1.0" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1245.22" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.39" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="ServiceStack.Interfaces" Version="6.1.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WpfLib1\WpfLib1.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Icons\3d green tick base.png" />
+    <Resource Include="Icons\3d red cross.png" />
+    <Resource Include="Icons\3d-red-shriek.png" />
+    <Resource Include="Icons\3d-yellow-shriek.png" />
+    <Resource Include="Icons\blackcross.png" />
+    <Resource Include="Icons\blackwhite document.png" />
+    <Resource Include="Icons\blackyellow document.png" />
+    <Resource Include="Icons\blank doc.png" />
+    <Resource Include="Icons\blank trasparent icon.psd" />
+    <Resource Include="Icons\blue folder open.png" />
+    <Resource Include="Icons\blue info.png" />
+    <Resource Include="Icons\blue triangle left.png" />
+    <Resource Include="Icons\blue triangle right.png" />
+    <Resource Include="Icons\blue-info-icon.png" />
+    <Resource Include="Icons\bluecross.png" />
+    <Resource Include="Icons\blue_download_alt_folder_12391.png" />
+    <Resource Include="Icons\CallDirectory.ico" />
+    <Resource Include="Icons\calls-record.png" />
+    <Resource Include="Icons\check-mark-icon-5375.png" />
+    <Resource Include="Icons\checkmark-no.png" />
+    <Resource Include="Icons\checkmark-yes.png" />
+    <Resource Include="Icons\checkmark2.png" />
+    <Resource Include="Icons\cloud.png" />
+    <Resource Include="Icons\cloud_fld_w10.ico" />
+    <Resource Include="Icons\CoffeeShop0.ico" />
+    <Resource Include="Icons\Cube.ico" />
+    <Resource Include="Icons\cursor-arrow.png" />
+    <Resource Include="Icons\database.Ico" />
+    <Resource Include="Icons\DatabaseProject.ico" />
+    <Resource Include="Icons\delete-text-message.png" />
+    <Resource Include="Icons\delete-text-message2.png" />
+    <Resource Include="Icons\Delete.ico" />
+    <Resource Include="Icons\delete2.ico" />
+    <Resource Include="Icons\desktop.ico" />
+    <Resource Include="Icons\DocGenericLRRed.ico" />
+    <Resource Include="Icons\docs.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Icons\document-delete_48x48.png" />
+    <Resource Include="Icons\Documents1.png" />
+    <Resource Include="Icons\Documents2.png" />
+    <Resource Include="Icons\down arroiw red.png" />
+    <Resource Include="Icons\download-to-laptop.png" />
+    <Resource Include="Icons\error-red.png" />
+    <Resource Include="Icons\error-red.psd" />
+    <Resource Include="Icons\Error.PNG" />
+    <Resource Include="Icons\Error2.png" />
+    <Resource Include="Icons\errstop.png" />
+    <Resource Include="Icons\ex1.png" />
+    <Resource Include="Icons\exclaim1.png" />
+    <Resource Include="Icons\exclamation.png" />
+    <Resource Include="Icons\Exclamation2.png" />
+    <Resource Include="Icons\exclm-1.png" />
+    <Resource Include="Icons\exclm-1.psd" />
+    <Resource Include="Icons\exhibitor_30px.png" />
+    <Resource Include="Icons\Export.Ico" />
+    <Resource Include="Icons\fax.png" />
+    <Resource Include="Icons\files.png" />
+    <Resource Include="Icons\folder opening.png" />
+    <Resource Include="Icons\folder with docs.png" />
+    <Resource Include="Icons\folder-open.png" />
+    <Resource Include="Icons\folder.gif" />
+    <Resource Include="Icons\folder.ico" />
+    <Resource Include="Icons\folder2.png" />
+    <Resource Include="Icons\folder3.png" />
+    <Resource Include="Icons\folderwithdocs.png" />
+    <Resource Include="Icons\Grabimage.png" />
+    <Resource Include="Icons\green-tick.png" />
+    <Resource Include="Icons\greencross.png" />
+    <Resource Include="Icons\GreenTick.png" />
+    <Resource Include="Icons\harddrive.png" />
+    <Resource Include="Icons\HPScan.ico" />
+    <Resource Include="Icons\icons8-wrench-24.png" />
+    <Resource Include="Icons\idle.icns" />
+    <Resource Include="Icons\Information.PNG" />
+    <Resource Include="Icons\Information2.png" />
+    <Resource Include="Icons\Information3.png" />
+    <Resource Include="Icons\laptop-wifi.png" />
+    <Resource Include="Icons\laptop-wifi2.png" />
+    <Resource Include="Icons\large redcross.png" />
+    <Resource Include="Icons\large-dark-msgbox.PNG" />
+    <Resource Include="Icons\large-light-msgbox.png" />
+    <Resource Include="Icons\large-light-msgbox.psd" />
+    <Resource Include="Icons\left arroiw red.png" />
+    <Resource Include="Icons\left-arrow.png" />
+    <Resource Include="Icons\Lrg ltrt arrow red copy.png" />
+    <Resource Include="Icons\Lrg updown arrow red copy.png" />
+    <Resource Include="Icons\magnify copy.png" />
+    <Resource Include="Icons\magnify minus.png" />
+    <Resource Include="Icons\magnify plus.png" />
+    <Resource Include="Icons\magnify.png" />
+    <Resource Include="Icons\mailbox-receive-message.png" />
+    <Resource Include="Icons\mailbox-receive-message2.png" />
+    <Resource Include="Icons\mailbox.png" />
+    <Resource Include="Icons\maximize-red.png" />
+    <Resource Include="Icons\maximize2-red.png" />
+    <Resource Include="Icons\message.png" />
+    <Resource Include="Icons\messageboxalert.ico" />
+    <Resource Include="Icons\minusnode.gif" />
+    <Resource Include="Icons\mydialog1.PNG" />
+    <Resource Include="Icons\mydialog11.png" />
+    <Resource Include="Icons\mydialog2.PNG" />
+    <Resource Include="Icons\mydialog3.PNG" />
+    <Resource Include="Icons\Myexclaim1.png" />
+    <Resource Include="Icons\MYSL.ICO" />
+    <Resource Include="Icons\NaPali.bmp" />
+    <Resource Include="Icons\Networkdrive.png" />
+    <Resource Include="Icons\new-text-message.png" />
+    <Resource Include="Icons\new-text-message2.png" />
+    <Resource Include="Icons\New.ico" />
+    <Resource Include="Icons\olwen outline jan22-Edit.tif" />
+    <Resource Include="Icons\open folder with pages.png" />
+    <Resource Include="Icons\openfolder.gif" />
+    <Resource Include="Icons\orangecross.png" />
+    <Resource Include="Icons\phone-lock.png" />
+    <Resource Include="Icons\phone-wifi.png" />
+    <Resource Include="Icons\phone-wifi2.png" />
+    <Resource Include="Icons\plusnode.gif" />
+    <Resource Include="Icons\ProgressSkip.ico" />
+    <Resource Include="Icons\ProgressWarn.ico" />
+    <Resource Include="Icons\python.gif" />
+    <Resource Include="Icons\receive-text-message.png" />
+    <Resource Include="Icons\received-calls.png" />
+    <Resource Include="Icons\red magnify.png" />
+    <Resource Include="Icons\red-cross-icon.png" />
+    <Resource Include="Icons\redcross.png" />
+    <Resource Include="Icons\right arroiw red.png" />
+    <Resource Include="Icons\right-arrow.png" />
+    <Resource Include="Icons\rss.png" />
+    <Resource Include="Icons\ScriptFile.ico" />
+    <Resource Include="Icons\send-message.png" />
+    <Resource Include="Icons\send-message2.png" />
+    <Resource Include="Icons\send-text-message.png" />
+    <Resource Include="Icons\sent-calls.png" />
+    <Resource Include="Icons\shared_fld_w7.ico" />
+    <Resource Include="Icons\show-text-message.png" />
+    <Resource Include="Icons\small magnify.png" />
+    <Resource Include="Icons\small-dark-msgbox.PNG" />
+    <Resource Include="Icons\small-light-msgbox.PNG" />
+    <Resource Include="Icons\SMS.png" />
+    <Resource Include="Icons\SMS2.png" />
+    <Resource Include="Icons\SMS3.png" />
+    <Resource Include="Icons\SMSL.ICO" />
+    <Resource Include="Icons\square.png" />
+    <Resource Include="Icons\ssms.ico" />
+    <Resource Include="Icons\symlink_directory_30px.png" />
+    <Resource Include="Icons\sync.ico" />
+    <Resource Include="Icons\target-green-center.png" />
+    <Resource Include="Icons\TemplateIcon.ico" />
+    <Resource Include="Icons\test.png" />
+    <Resource Include="Icons\text-message.png" />
+    <Resource Include="Icons\TextFile.ico" />
+    <Resource Include="Icons\TextFile.png" />
+    <Resource Include="Icons\TextService.ico" />
+    <Resource Include="Icons\transaction_logfile.ico" />
+    <Resource Include="Icons\transparent checkmark.png" />
+    <Resource Include="Icons\transparent.png" />
+    <Resource Include="Icons\transparent1.png" />
+    <Resource Include="Icons\transparentcheckmark.png" />
+    <Resource Include="Icons\TSSource.ico" />
+    <Resource Include="Icons\Untitled-2.png" />
+    <Resource Include="Icons\up arroiw red.png" />
+    <Resource Include="Icons\Up.ico" />
+    <Resource Include="Icons\updown arrow red copy.png" />
+    <Resource Include="Icons\Warning.PNG" />
+    <Resource Include="Icons\warning2.png" />
+    <Resource Include="Icons\white-tick-ongreen.png" />
+    <Resource Include="Icons\whitecross.png" />
+    <Resource Include="Icons\whiteticktrans.png" />
+    <Resource Include="Icons\wifi.png" />
+    <Resource Include="Icons\wifi2.png" />
+    <Resource Include="Icons\Wrench.png" />
+    <Resource Include="Icons\WSS_DocLib.ico" />
+    <Resource Include="Icons\xml.ico" />
+    <Resource Include="Icons\XSLTFile.ico" />
+    <Resource Include="Icons\yellow-shriek-icon.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+</Project>

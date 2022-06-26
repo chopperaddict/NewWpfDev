@@ -1,0 +1,201 @@
+﻿<UserControl x:Class="NewWpfDev.UserControls.Ucontrol1"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:NewWpfDev.UserControls"
+             xmlns:conv="clr-namespace:NewWpfDev.Converts"
+             mc:Ignorable="d" 
+		 Loaded="U1Ctrl_Loaded"
+		 x:Name="U1Ctrl"			 
+		 Height="570"
+		 Width="900" >
+	<UserControl.Background>
+		<LinearGradientBrush  StartPoint="0,0" EndPoint="1,0">
+			<GradientStop Offset="0" Color="#FFAAAAAA" />
+			<GradientStop Offset="0.3" Color="#FF6B8E95" />
+			<GradientStop Offset="0.609" Color="#FF6B8E95" />
+			<GradientStop Offset="1" Color="#FF14A7C1" />
+			<!--<GradientStop Offset="0" Color="#FF193A44" />-->
+		</LinearGradientBrush>
+	</UserControl.Background>
+
+	<UserControl.Resources>
+		<conv:ReduceByParamValue x:Key="ReduceByParamValue"/>
+	</UserControl.Resources>
+
+	<Grid x:Name="MainGrid"
+		Height="{Binding ElementName=U1Ctrl, Path=ActualHeight,
+			Converter={StaticResource ReduceByParamValue},ConverterParameter=10}"
+		Width="{Binding ElementName=U1Ctrl, Path=ActualWidth,
+			Converter={StaticResource ReduceByParamValue},ConverterParameter=0}"
+		HorizontalAlignment="Stretch"
+		VerticalAlignment="Stretch">
+
+		<Grid.RowDefinitions>
+			<!--<RowDefinition Height="0"/>
+			<RowDefinition Height="*"/>-->
+		</Grid.RowDefinitions>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition  x:Name="col1" Width="*" />
+			<ColumnDefinition x:Name="col2" Width="270" />
+		</Grid.ColumnDefinitions>
+
+		<Canvas x:Name="uccanvas"
+				Grid.Row="0"
+				Grid.Column="0"
+				Grid.ColumnSpan="1"
+			     Margin="0 -10 0 0 "
+				HorizontalAlignment="Left"
+				VerticalAlignment="Top"
+				Height="{Binding ElementName=MainGrid, Path=ActualHeight,
+					Converter={StaticResource ReduceByParamValue},
+					ConverterParameter=0}"	
+				Width="{Binding ElementName=MainGrid, Path=ActualWidth,
+					Converter={StaticResource ReduceByParamValue},
+					ConverterParameter=270}"	>
+
+			<TextBlock x:Name="Caption"
+				Canvas.Left="0"
+				Canvas.Top="0"
+			     Height="25"
+			     Margin="0 0 0 0 "
+			     Padding="0 4 0 0"
+			     Text="   ListBox for Text Files - "
+			     Width="{Binding Path=ActualWidth, ElementName=MainGrid}"
+			     HorizontalAlignment="Left"
+			     TextAlignment="Left"
+			     VerticalAlignment="Top"
+			     FontWeight="DemiBold"
+			     Background="{StaticResource Orange3}"
+			     Foreground="{StaticResource Black0}"/>
+
+			<ListBox x:Name="listbox1"
+				Canvas.Top="25"
+				BorderThickness="2"
+				BorderBrush="{StaticResource Black0}"
+				Margin="0 0 0 0"
+				IsSynchronizedWithCurrentItem="True"
+                    ItemsSource="{Binding Path=strings, ElementName=U1Ctrl}"
+				Background="{StaticResource Orange6}"
+				Foreground="{StaticResource Blue3}"
+				Width="662" 
+				Height="520"
+				ScrollViewer.HorizontalScrollBarVisibility="Auto">
+				<ListBoxItem 
+					FontSize="20"
+					Style="{Binding GenericListBoxItemStyle1}">
+				</ListBoxItem>
+			</ListBox>
+
+			<Image x:Name="image1"
+				Canvas.Top="45"
+				Canvas.Left="0"
+				Margin="0 0 0 0"
+				Source="C:\\users\\Ianch\\Pictures\\2020-07-11_132836.jpg"
+				Width="662" 
+				Height="500"
+				HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+				Visibility="visible">
+			</Image>
+			<Border x:Name="UiButtons"
+			  Background="{StaticResource Orange2}"
+				Canvas.Left ="{Binding Path=ActualWidth, ElementName=listbox1}"
+				Canvas.Top="25"
+				Margin="0,0,0,0"
+				BorderBrush="{StaticResource Black0}"
+				BorderThickness="0"
+				Width="245"
+				VerticalAlignment="Top" 
+				Height="{Binding Path=ActualHeight, ElementName=listbox1}">
+
+					<!--Height="252"-->  
+				<Grid 
+					Height="{Binding Path=ActualHeight,ElementName=UiButtons}"
+					Width="250"
+					VerticalAlignment="Bottom" Margin="0,0,-12,0">
+					<Grid.RowDefinitions>
+						<RowDefinition Height="46" />
+						<RowDefinition Height="46" />
+						<RowDefinition Height="46" />
+						<RowDefinition Height="46" />
+						<RowDefinition Height="46" />
+						<RowDefinition Height="46" />
+						<!--<RowDefinition Height="35" />
+					<RowDefinition Height="35" />-->
+					</Grid.RowDefinitions>
+
+					<TextBlock 
+						Text="Options"
+						FontWeight="Bold"
+						TextAlignment="Center"
+						Margin="-5 0 0 0"
+						Grid.Row="0"
+						Height="35"
+						Width="245"
+						Padding="0 6 0 0 "
+						HorizontalAlignment="Left"
+						VerticalAlignment="Top"
+						Foreground="{StaticResource White0}"
+						Background="{StaticResource Blue5}"	/>
+
+					<Button x:Name="Btn1"
+						Click="Btn1_Click"
+						Grid.Row="1"
+						Height="48"
+						Width="245"
+						Margin="-5 0 0 0"
+						HorizontalAlignment="Left"
+						Background="{StaticResource Green5}"
+						Foreground="{StaticResource Red5}"
+						Content="Clear Grid"/>
+
+					<Button x:Name="Btn2"
+						Grid.Row="2"
+						Margin="-5 0 0 0"
+						Height="48"
+						Width="245"
+						HorizontalAlignment="Left"
+						Background="{StaticResource Green5}"
+						Foreground="{StaticResource Black1}"
+						Content="Print Grid"/>
+
+					<Button x:Name="Btn3"
+						  Click="Btn3_Click"
+						Margin="-5 0 0 0"
+						Grid.Row="3"
+						Height="48"
+						Width="245"
+						HorizontalAlignment="Left"
+						Background="{StaticResource Green5}"
+						Foreground="{StaticResource Black1}"
+						Content="Reload Grid"/>
+					<Button x:Name="Btn4"
+						  Click="Btn4_Click"
+						Margin="-5 0 0 0"
+						Grid.Row="4"
+						Height="48"
+						Width="245"
+						HorizontalAlignment="Left"
+						Background="{StaticResource Green5}"
+						Foreground="{StaticResource Black1}"
+						Content="Select File to load"/>
+					<Button x:Name="Btn5"
+						  Click="Btn5_Click"
+						Margin="-5 0 0 0"
+						Grid.Row="5"
+						Height="48"
+						Width="245"
+						HorizontalAlignment="Left"
+						Background="{StaticResource Green5}"
+						Foreground="{StaticResource Black1}"
+						Content="Toggle Image/Listbox Display"/>
+
+				</Grid>
+			</Border>
+
+		</Canvas>
+	</Grid>
+
+</UserControl>

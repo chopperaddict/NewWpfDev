@@ -1,0 +1,86 @@
+﻿<Window x:Class="NewWpfDev.Views.DataErrorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:model="clr-namespace:NewWpfDev.Models"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:NewWpfDev.Views"
+        xmlns:user="clr-namespace:NewWpfDev.UserControls"
+        xmlns:conv="clr-namespace:NewWpfDev.Converts"
+        mc:Ignorable="d"
+        Closing="Window_Closing"
+        Title="DataErrorWindow" Height="390" Width="800">
+
+    <!--Basic datacontext  for testing urposes-->
+    <Window.DataContext>
+        <model:Person />
+    </Window.DataContext>
+    
+    <Window.Resources>
+        <model:Person x:Key="data"/>
+        <conv:SetBoolRedBlack x:Key="SetBoolRedBlack"/>
+
+        <!--NOT USED-->
+        <!--The tool tip for the"Age"TextBox to display the validation error message in aTooltip.-->
+        <!--<Style x:Key="textBoxInError" TargetType="TextBox">
+            <Style.Triggers>
+                <Trigger Property="Validation.HasError" Value="true">
+                    <Setter Property="ToolTip"
+                            Value="{Binding RelativeSource={x:Static RelativeSource.Self},
+                        Path=(Validation.Errors)[0].ErrorContent}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>-->
+
+        <!--<Style TargetType="{x:Type TextBox}">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="0,2,40,2" />
+            <Setter Property="Validation.ErrorTemplate">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <DockPanel LastChildFill="true">
+                            <Border Background="OrangeRed" DockPanel.Dock="right" Margin="5,0,0,0" 
+                                Width="20" Height="25" CornerRadius="15"
+                                ToolTip="{Binding ElementName=customAdorner, 
+                                          Path=AdornedElement.(Validation.Errors)[0].ErrorContent}">
+                                <TextBlock Text="!" VerticalAlignment="center" HorizontalAlignment="center" 
+                                   FontWeight="Bold" Foreground="white" />
+                            </Border>
+                            <AdornedElementPlaceholder Name="customAdorner" VerticalAlignment="Center" >
+                                <Border BorderBrush="red" BorderThickness="1" />
+                            </AdornedElementPlaceholder>
+                        </DockPanel>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>-->
+        
+    </Window.Resources>
+
+        <StackPanel x:Name="spanel" Margin="20">
+        <TextBlock Text="These fields are each seperate UserControls (TextBoxWithDataError) that in their turn use various ViewModels to handle the control of the data entered." TextWrapping="Wrap" Width="700"/>
+        <TextBlock Text="EG: The User name field only accepts entries that have at most 2 words, and they cannot contain any non alpaha Characters." TextWrapping="Wrap" Width="700"/>
+        <TextBlock Text="this is controlled by the ValidateUsernameClass ViewModel.  This class is also inherited by ValidateCounty() but naturally it provides a different validation string to be used by the inherited CheckforValidChars() method that is in the ValidateUsernameClass()" TextWrapping="Wrap" Width="700"/>
+        <!--<TextBlock Text="Mouse-over Age field to see the validation error message"/>-->
+
+        <WrapPanel Orientation="Horizontal">
+            <user:TextBoxwithDataError x:Name="secondtextbox" Width="180" HorizontalAlignment="Left"  Margin="0 0 0 0"/>
+            <user:TextBoxwithDataError x:Name="thirdtextbox" Width="170" HorizontalAlignment="Left" Margin="20 0 0 0"/>
+        </WrapPanel>
+            <user:TextBoxwithDataError x:Name="countytextbox" Width="259" HorizontalAlignment="Left" Margin="0 15 0 0"/>
+        <!--<Button Content="send message" Click="Button_Click" Height="60"/>-->
+        <WrapPanel Orientation="Horizontal">
+            <TextBlock x:Name="result1" Height="35" Width="180" Background="Blue" Foreground="White" HorizontalAlignment="Left" Margin="0 0 0 0 " />
+            <TextBlock x:Name="result2"  Height="35" Width="180" Background="Red" Foreground="White" HorizontalAlignment="Left" Margin="90 0 0 0 " />
+        </WrapPanel>
+        <WrapPanel Orientation="Horizontal" Margin="0 20 0 0">
+            <TextBlock x:Name="result3"  Height="35" Width="180" Background="Yellow" Foreground="Black" HorizontalAlignment="Left" Margin="0 15 0 0 " />
+        <Button x:Name="Closebtn" Content="Close" Click="CloseBtn"  Margin="120 0 0 0"
+                Background="Red" Foreground="White" Height="45" Width="120" HorizontalAlignment="Right">
+            <!--<Button.DataContext>
+                 <model:ValidateUsernameClass/>
+            </Button.DataContext>-->
+        </Button>
+        </WrapPanel>
+    </StackPanel>
+</Window>

@@ -1,0 +1,320 @@
+﻿<UserControl x:Class="NewWpfDev.UserControls.LbUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:NewWpfDev.UserControls"
+            xmlns:user="clr-namespace:NewWpfDev.UserControls"
+            xmlns:views="clr-namespace:NewWpfDev.Views"
+             mc:Ignorable="d" 
+             Loaded="UserControl_Loaded"
+             d:DesignHeight="450" d:DesignWidth="800">
+
+    <UserControl.Resources>
+
+        <Style x:Key="_ColumnsListBoxItemStyle" TargetType="ListBoxItem">
+            <!--<Setter Property="Border.Background" Value="{TemplateBinding Background}"/>-->
+            <!--<Setter Property="Foreground" Value="{TemplateBinding Foreground}"/>
+			<Setter Property="BorderBrush" Value="{TemplateBinding BorderBrush}"/>
+			<Setter Property="BorderThickness" Value="{TemplateBinding BorderThickness}"/>-->
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border Name="_Border"	 			
+							  Padding="2"
+							  SnapsToDevicePixels="true">
+                            <ContentPresenter />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="false">
+                                <Setter TargetName="_Border" Property="Background" Value="{StaticResource Blue0}"/>
+                                <Setter Property="TextElement.Foreground" Value="White"/>
+                                <Setter Property="TextElement.FontWeight" Value="Medium"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="true">
+                                <Setter TargetName="_Border" Property="Background" Value="{StaticResource Red5}"/>
+                                <Setter Property="TextElement.Foreground" Value="White"/>
+                                <Setter Property="TextElement.FontWeight" Value="Bold"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter TargetName="_Border" Property="Background" Value="{StaticResource Cyan5}"/>
+                                <Setter Property="TextElement.Foreground" Value="Black"/>
+                                <Setter Property="TextElement.FontWeight" Value="Bold"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+
+        <Style x:Key="ListBoxItemStyle1" TargetType="{x:Type ListBoxItem}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                        <Border x:Name="Bd" SnapsToDevicePixels="true">
+
+                            <ContentPresenter x:Name="Contentpresenter" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                                SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="False"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Blue6}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Contentpresenter" Value="{StaticResource White0}"/>
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="true"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Red5}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{StaticResource White0}"/>
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                        <!--more ....-->
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="XListBoxItemStyle1" TargetType="{x:Type ListBoxItem}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <TextBlock Text="{Binding}">
+                            <TextBlock.Style>
+                                <Style TargetType="{x:Type TextBlock}">
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="false">
+                                            <Setter Property="Background" Value="Cyan"></Setter>
+                                            <Setter Property="Foreground" Value="Black"></Setter>
+                                        </Trigger>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="Red"></Setter>
+                                            <Setter Property="Foreground" Value="White"></Setter>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+
+                    </ControlTemplate>
+
+
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!--// This ia good working listbox/view item control style 
+            that has DataTemplate for the***  NW Customer Db ***
+            and uses the AP AttachedProperties Class internally for all color control-->
+        <Style x:Key="XListBoxColorControlTemplate" TargetType="{x:Type ListBoxItem}">
+            <Setter Property="Height" Value="{Binding (views:ListboxColorCtrlAP.ItemHeight),  RelativeSource={RelativeSource AncestorType=ListBox}}"/>
+            <!--<Setter Property="DropShadow.Color" Value="{Binding (views:ListboxColorCtrlAP.Background),  RelativeSource={RelativeSource AncestorType=ListBox}}"/>-->
+
+            <Setter Property="Template">
+
+                <Setter.Value>
+
+                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                        <!--//++++++++++++++++++++++++++++++++//-->
+                        <!--// Control Template for NW Customer Db-->
+                        <!--//++++++++++++++++++++++++++++++++//-->
+                        <Border x:Name="Bd" 
+                                            BorderBrush="{TemplateBinding BorderBrush}" 
+                                            BorderThickness="{TemplateBinding BorderThickness}"                                             
+                                            Padding="{TemplateBinding Padding}" 
+                                            SnapsToDevicePixels="true" >
+                            <!--Height="{Binding Path=ItemHeight, ElementName=contentpresenter}">-->
+                            <Border.Background>
+                                <SolidColorBrush x:Name="borderbckgrnd" Color="{TemplateBinding Background}" />
+                            </Border.Background>
+                            <ContentPresenter x:Name="contentpresenter"                                                            
+                                                Height="{Binding ActualHeight, ElementName=Bd}"                                                
+                                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"   
+                                                SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"   
+                                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+                            </ContentPresenter>
+                        </Border>
+
+                        <!--#region Triggers-->
+                        <ControlTemplate.Triggers>
+                            <!--The TextElement.Foreground is the magic line to get the text color under control-->
+                            <!--// These only work on TextBlocks, and NOT on TextBoxes for some reason-->
+
+                            <!--NOT Selected, No Mouse-->
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="false"/>
+                                    <Condition Property="IsSelected" Value="false"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{Binding (views:ListboxColorCtrlAP.Background), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                                <Setter Property="BorderBrush" TargetName="Bd" Value="{Binding (views:ListboxColorCtrlAP.Background), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                                <Setter Property="TextElement.Foreground" Value="{Binding (views:ListboxColorCtrlAP.Foreground), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                                <Setter Property="TextElement.FontWeight" Value="{Binding Path=(views:ListboxColorCtrlAP.FontWeight), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                                <Setter Property="TextElement.FontSize" Value="{Binding Path=(views:ListboxColorCtrlAP.FontSize), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                            </MultiTrigger>
+                            <!--NOT Selected, Mouse OVER-->
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="true"/>
+                                    <Condition Property="IsSelected" Value="false"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{Binding (views:ListboxColorCtrlAP.MouseoverBackground), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                                <Setter Property="BorderBrush" TargetName="Bd" Value="{Binding (views:ListboxColorCtrlAP.MouseoverBackground), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                                <Setter Property="TextElement.Foreground" Value="{Binding (views:ListboxColorCtrlAP.MouseoverForeground), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                                <Setter Property="TextElement.FontWeight" Value="{Binding Path=(views:ListboxColorCtrlAP.FontWeight), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                                <Setter Property="TextElement.FontSize" Value="{Binding Path=(views:ListboxColorCtrlAP.FontSize), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                            </MultiTrigger>
+
+                            <!--IS Selected, No Mouse-->
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="false"/>
+                                    <Condition Property="IsSelected" Value="true"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{Binding (views:ListboxColorCtrlAP.SelectionBackground), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                                <Setter Property="BorderBrush" TargetName="Bd" Value="{Binding (views:ListboxColorCtrlAP.SelectionBackground), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                                <Setter Property="TextElement.Foreground" Value="{Binding (views:ListboxColorCtrlAP.SelectionForeground), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                                <Setter Property="TextElement.FontWeight" Value="{Binding Path=(views:ListboxColorCtrlAP.FontWeightSelected), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                                <Setter Property="TextElement.FontSize" Value="{Binding Path=(views:ListboxColorCtrlAP.FontSize), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+
+                            </MultiTrigger>
+
+                            <!--IS Selected, Mouse OVER-->
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True"/>
+                                    <Condition Property="IsSelected" Value="true"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{Binding (views:ListboxColorCtrlAP.MouseoverSelectedBackground), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                                <Setter Property="BorderBrush" TargetName="Bd" Value="{Binding (views:ListboxColorCtrlAP.MouseoverSelectedBackground), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                                <Setter Property="TextElement.Foreground" Value="{Binding (views:ListboxColorCtrlAP.MouseoverSelectedForeground), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                                <Setter Property="TextElement.FontWeight" Value="{Binding Path=(views:ListboxColorCtrlAP.FontWeightSelected), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                                <Setter Property="TextElement.FontSize" Value="{Binding Path=(views:ListboxColorCtrlAP.FontSize), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                            </MultiTrigger>
+
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                            </Trigger>
+
+
+                        </ControlTemplate.Triggers>
+
+                        <!--#endregion Triggers-->
+
+                    </ControlTemplate>
+
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <DataTemplate x:Key="LbGenericTemplate" >
+            <Border x:Name="GenDataTemplateBorder1" Height="{Binding Path=ItemsHeight,RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}">
+                <StackPanel Orientation="Horizontal" >
+                    <TextBlock Text="{Binding field1}" Width="200" Height="{Binding ItemHeight}"  Padding="2" x:Name="field1"
+                               Background="{StaticResource Blue5}" Foreground="White"/>
+                    <TextBlock Text="{Binding field2}" Width="200" Height="{Binding ItemHeight}" Padding="2" x:Name="field2"/>
+                    <TextBlock Text="{Binding field3}" Width="{Binding field3.ActualWidth}" Height="{Binding ItemHeight}" Padding="2" x:Name="field3"/>
+                    <TextBlock Text="{Binding field4}" Width="{Binding field4.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field4"/>
+                    <TextBlock Text="{Binding field5}" Width="{Binding field5.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field5"/>
+                    <TextBlock Text="{Binding field6 }" Width="{Binding field6.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field6"/>
+                    <TextBlock Text="{Binding field7}" Width="{Binding field7.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field7"/>
+                    <TextBlock Text="{Binding field8}" Width="{Binding field8.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field8"/>
+                    <TextBlock Text="{Binding field9}" Width="{Binding field9.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field9"/>
+                    <TextBlock Text="{Binding field10}" Width="{Binding field10.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field10"/>
+                    <TextBlock Text="{Binding field11}" Width="{Binding field11.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field11"/>
+                    <TextBlock Text="{Binding field12}" Width="{Binding field12.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field12"/>
+                    <TextBlock Text="{Binding field13}" Width="{Binding field13.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field13"/>
+                    <TextBlock Text="{Binding field14}" Width="{Binding field14.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field14"/>
+                    <TextBlock Text="{Binding field15}" Width="{Binding field15.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field15"/>
+                    <TextBlock Text="{Binding field16}" Width="{Binding field16.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field16"/>
+                    <TextBlock Text="{Binding field17}" Width="{Binding field17.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field17"/>
+                    <TextBlock Text="{Binding field18}" Width="{Binding field18.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field18"/>
+                    <TextBlock Text="{Binding field19}" Width="{Binding field19.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field19"/>
+                    <TextBlock Text="{Binding field20}" Width="{Binding field20.ActualWidth}" Height="{Binding ItemHeight}" Padding="2"  x:Name="field20"/>
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+
+    </UserControl.Resources>
+    <Grid x:Name="LbGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <!--<RowDefinition Height="55"/>-->
+        </Grid.RowDefinitions>
+
+        <!--All listboxItem colors are controlled by the ATTACHED Properties-->
+        <!--These  are set on a caller by caller basis, so each control has potentially different color schemes
+        despite there only being ONE set of attached Properties in ListboxColorCtrlAP.cs-->
+        <ListBox x:Name="listbox1"                  
+                 SelectionChanged="listbox1_SelectionChanged"                 
+                 IsSynchronizedWithCurrentItem="True"
+                 VirtualizingPanel.IsVirtualizing="True"
+                 IsHitTestVisible="True"
+                 PreviewMouseMove="listbox1_PreviewMouseMove"
+                 Margin="0 0 0 0"    
+                 LostFocus="listbox1_LostFocus"
+                 GotFocus="listbox1_GotFocus"
+                 Loaded="ttloaded"
+                 MaxHeight="2000"
+                 Background="{StaticResource Cyan1}"
+                 Foreground="White"
+                 Height="{Binding ActualHeight, ElementName=LbGrid}"
+                 Width="{Binding ActualWidth, ElementName=LbGrid}"
+                ToolTipService.ShowDuration="5000"   
+                 ToolTipService.HasDropShadow="True"                 
+                 MouseEnter="PART_MouseEnter"
+                 MouseLeave="PART_MouseLeave"
+                 PreviewMouseRightButtonDown="ttSp_PreviewMouseRightButtonDown"
+                ItemContainerStyle="{StaticResource _ListBoxItemStyle1}">
+            <ListBox.ItemsPanel>
+                <!--// Saves memory and loads much faster-->
+                <ItemsPanelTemplate>
+                    <VirtualizingStackPanel>
+                        <!--// saves loads of memroy-->
+                    </VirtualizingStackPanel>
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+
+
+            <ListBox.ToolTip                >
+                <StackPanel  >
+                    <TextBlock Text="{Binding underlinetext}" HorizontalAlignment="Center"/>
+                    <TextBlock Text="to allow personalization of this control." HorizontalAlignment="Center"/>
+                </StackPanel>
+            </ListBox.ToolTip>
+
+
+        </ListBox>
+        <!--PopupAnimation="Fade"-->
+        <!--<Popup  x:Name="TooltipPopup" Placement="Center"  AllowsTransparency="True" StaysOpen="true" Height="200" Width="300" Panel.ZIndex="20"
+                 MouseLeave="listbox1_MouseLeave"
+                 MouseMove="listbox1_IsMouseDirectlyOver"-->
+
+        <Border x:Name="TooltipPopup" Background="AntiqueWhite" BorderBrush="Bisque" CornerRadius="3" BorderThickness="1"
+                HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed" MouseLeave="listbox1_MouseLeave">
+            <StackPanel x:Name="ttSp" IsHitTestVisible="True" MouseDown="ttSp_PreviewMouseRightButtonDown" PreviewMouseRightButtonDown="ttSp_PreviewMouseRightButtonDown">
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="Save to clipboard" Background="Green" Foreground="White" Width="120" Height="35" Click="Button_Click"  HorizontalAlignment="Right"/>
+                    <Button Content="Close Tooltip" Background="Red" Foreground="White" Width="120" Height="35" Click="Hidepopup_Click"  HorizontalAlignment="Right" Margin="0 0 10 0"/>
+                </StackPanel>
+                <TextBlock Text="ItemBackground = SolidColorBrush" PreviewMouseRightButtonDown="ttSp_PreviewMouseRightButtonDown"/>
+                <TextBlock Text="ItemForeground = SolidColorBrush" PreviewMouseRightButtonDown="ttSp_PreviewMouseRightButtonDown"/>
+                <TextBlock Text="SelectedBackground = SolidColorBrush" PreviewMouseRightButtonDown="ttSp_PreviewMouseRightButtonDown"/>
+                <TextBlock Text="SelectedForeground = SolidColorBrush" PreviewMouseRightButtonDown="ttSp_PreviewMouseRightButtonDown"/>
+                <TextBlock Text="MouseoverBackground = SolidColorBrush" PreviewMouseRightButtonDown="ttSp_PreviewMouseRightButtonDown"/>
+                <TextBlock Text="MouseoverForeground = SolidColorBrush" PreviewMouseRightButtonDown="ttSp_PreviewMouseRightButtonDown"/>
+                <TextBlock Text="MouseoverSelectedBackground = SolidColorBrush" PreviewMouseRightButtonDown="ttSp_PreviewMouseRightButtonDown"/>
+                <TextBlock Text="MouseoverSelectedForeground = SolidColorBrush" PreviewMouseRightButtonDown="ttSp_PreviewMouseRightButtonDown"/>
+                <TextBlock Text="Click buton at top to save to ClipBoard...." TextAlignment="Center" FontSize="18" 
+                               PreviewMouseRightButtonDown="ttSp_PreviewMouseRightButtonDown"/>
+            </StackPanel>
+        </Border>
+        <!--</Popup>-->
+    </Grid>
+</UserControl>

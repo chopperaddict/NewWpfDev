@@ -1,0 +1,234 @@
+﻿<UserControl x:Class="NewWpfDev.UserControls.LvUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:NewWpfDev.UserControls"
+                xmlns:user="clr-namespace:NewWpfDev.UserControls"
+             xmlns:views="clr-namespace:NewWpfDev.Views"
+             mc:Ignorable="d" 
+             Loaded="UserControl_Loaded"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <Style x:Key="ListBoxItemStyle1" TargetType="{x:Type ListBoxItem}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                        <Border x:Name="Bd" SnapsToDevicePixels="true">
+
+                            <ContentPresenter x:Name="Contentpresenter" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                                SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="False"/>
+                                    <Condition Property="IsSelected" Value="false"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Blue6}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Contentpresenter" Value="{StaticResource White0}"/>
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="true"/>
+                                    <Condition Property="IsSelected" Value="true"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Red5}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{StaticResource White0}"/>
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="False"/>
+                                    <Condition Property="IsSelected" Value="true"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Blue0}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Contentpresenter" Value="{StaticResource White0}"/>
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="true"/>
+                                    <Condition Property="IsSelected" Value="false"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Orange4}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Contentpresenter" Value="{StaticResource Black0}"/>
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                        <!--more ....-->
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!--// This ia good working listbox/view item control style 
+            that has DataTemplate for the***  NW Customer Db ***
+            and uses the AP AttachedProperties Class internally for all color control-->
+        <Style x:Key="ListViewColorControlTemplate" TargetType="{x:Type ListViewItem}">
+            <Setter Property="Height" Value="{Binding (views:ListboxColorCtrlAP.ItemHeight),  RelativeSource={RelativeSource AncestorType=ListView}}"/>
+            <!--<Setter Property="DropShadow.Color" Value="{Binding (views:ListboxColorCtrlAP.Background),  RelativeSource={RelativeSource AncestorType=ListBox}}"/>-->
+
+            <Setter Property="Template">
+
+                <Setter.Value>
+
+                    <ControlTemplate TargetType="{x:Type ListViewItem}">
+                        <!--//++++++++++++++++++++++++++++++++//-->
+                        <!--// Control Template for NW Customer Db-->
+                        <!--//++++++++++++++++++++++++++++++++//-->
+                        <Border x:Name="Bd" 
+                                            BorderBrush="{TemplateBinding BorderBrush}" 
+                                            BorderThickness="{TemplateBinding BorderThickness}"                                             
+                                            Padding="{TemplateBinding Padding}" 
+                                            SnapsToDevicePixels="true" >
+                            <!--Height="{Binding Path=ItemHeight, ElementName=listviewcontrol}">-->
+                            <Border.Background>
+                                <SolidColorBrush x:Name="borderbckgrnd" Color="{TemplateBinding Background}" />
+                            </Border.Background>
+                            <ContentPresenter x:Name="contentpresenter"                                                            
+                                                Height="{Binding ActualHeight, ElementName=Bd}"                                                
+                                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"   
+                                                SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"   
+                                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+                            </ContentPresenter>
+                        </Border>
+
+                        <!--#region Triggers-->
+                        <ControlTemplate.Triggers>
+                            <!--The TextElement.Foreground is the magic line to get the text color under control-->
+                            <!--// These only work on TextBlocks, and NOT on TextBoxes for some reason-->
+
+                            <!--NOT Selected, No Mouse-->
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="false"/>
+                                    <Condition Property="IsSelected" Value="false"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{Binding (views:ListboxColorCtrlAP.Background), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                                <Setter Property="BorderBrush" TargetName="Bd" Value="{Binding (views:ListboxColorCtrlAP.Background), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                                <Setter Property="TextElement.Foreground" Value="{Binding (views:ListboxColorCtrlAP.Foreground), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                                <Setter Property="TextElement.FontWeight" Value="{Binding Path=(views:ListboxColorCtrlAP.FontWeight), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                                <Setter Property="TextElement.FontSize" Value="{Binding Path=(views:ListboxColorCtrlAP.FontSize), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                            </MultiTrigger>
+                            <!--NOT Selected, Mouse OVER-->
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="true"/>
+                                    <Condition Property="IsSelected" Value="false"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{Binding (views:ListboxColorCtrlAP.MouseoverBackground), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                                <Setter Property="BorderBrush" TargetName="Bd" Value="{Binding (views:ListboxColorCtrlAP.MouseoverBackground), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                                <Setter Property="TextElement.Foreground" Value="{Binding (views:ListboxColorCtrlAP.MouseoverForeground), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                                <Setter Property="TextElement.FontWeight" Value="{Binding Path=(views:ListboxColorCtrlAP.FontWeight), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                                <Setter Property="TextElement.FontSize" Value="{Binding Path=(views:ListboxColorCtrlAP.FontSize), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                            </MultiTrigger>
+
+                            <!--IS Selected, No Mouse-->
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="false"/>
+                                    <Condition Property="IsSelected" Value="true"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{Binding (views:ListboxColorCtrlAP.SelectionBackground), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                                <Setter Property="BorderBrush" TargetName="Bd" Value="{Binding (views:ListboxColorCtrlAP.SelectionBackground), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                                <Setter Property="TextElement.Foreground" Value="{Binding (views:ListboxColorCtrlAP.SelectionForeground), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                                <Setter Property="TextElement.FontWeight" Value="{Binding Path=(views:ListboxColorCtrlAP.FontWeightSelected), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                                <Setter Property="TextElement.FontSize" Value="{Binding Path=(views:ListboxColorCtrlAP.FontSize), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+
+                            </MultiTrigger>
+
+                            <!--IS Selected, Mouse OVER-->
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True"/>
+                                    <Condition Property="IsSelected" Value="true"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{Binding (views:ListboxColorCtrlAP.MouseoverSelectedBackground), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                                <Setter Property="BorderBrush" TargetName="Bd" Value="{Binding (views:ListboxColorCtrlAP.MouseoverSelectedBackground), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                                <Setter Property="TextElement.Foreground" Value="{Binding (views:ListboxColorCtrlAP.MouseoverSelectedForeground), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                                <Setter Property="TextElement.FontWeight" Value="{Binding Path=(views:ListboxColorCtrlAP.FontWeightSelected), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                                <Setter Property="TextElement.FontSize" Value="{Binding Path=(views:ListboxColorCtrlAP.FontSize), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                            </MultiTrigger>
+
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                            </Trigger>
+
+
+                        </ControlTemplate.Triggers>
+
+                        <!--#endregion Triggers-->
+
+                    </ControlTemplate>
+
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <!--<RowDefinition Height="55"/>-->
+        </Grid.RowDefinitions>
+
+        <!--All listviewItem colors are controlled by the ATTACHED Properties-->
+        <!--<ListView x:Name="listview2" Margin="5 5 0 0" SelectionChanged="listview1_SelectionChanged" 
+                views:ListboxColorCtrlAP.ItemHeight="28"
+                 views:ListboxColorCtrlAP.Background="{StaticResource Cyan2}"
+                 views:ListboxColorCtrlAP.Foreground="Black"
+                 views:ListboxColorCtrlAP.SelectionBackground="{StaticResource Red8}"
+                 views:ListboxColorCtrlAP.SelectionForeground="White"
+                 views:ListboxColorCtrlAP.MouseoverBackground="{StaticResource Cyan2}"
+                 views:ListboxColorCtrlAP.MouseoverForeground="Black"
+                 views:ListboxColorCtrlAP.MouseoverSelectedBackground="Green"
+                 views:ListboxColorCtrlAP.MouseoverSelectedForeground="Black"
+                  MaxHeight="1000"
+                IsSynchronizedWithCurrentItem="True"
+                 IsHitTestVisible="True"
+                  PreviewMouseMove="listview1_PreviewMouseMove"
+                  MouseEnter="PART_MouseEnter"
+                  MouseLeave="PART_MouseLeave"
+                  Visibility="Visible"
+            ItemContainerStyle="{StaticResource ListViewColorControlTemplate}">
+                 -->
+        <!--ItemContainerStyle="{StaticResource ListBoxItemStyle1}">-->
+        <!--
+            <ListView.ItemsPanel>
+                -->
+        <!--// Saves memory and loads much faster-->
+        <!--
+                <ItemsPanelTemplate>
+                    <VirtualizingStackPanel>
+                        -->
+        <!--// saves loads of memroy-->
+        <!--
+                    </VirtualizingStackPanel>
+                </ItemsPanelTemplate>
+            </ListView.ItemsPanel>
+         </ListView>-->
+
+        <!--MaxHeight="1200"-->
+        <ListView x:Name="listview1" Margin="5 5 0 0" SelectionChanged="listview1_SelectionChanged" 
+                IsSynchronizedWithCurrentItem="True"
+                 IsHitTestVisible="True"
+                  PreviewMouseMove="listview1_PreviewMouseMove"
+                  PreviewMouseLeftButtonUp="listview1_PreviewMouseLeftButtonUp"
+                  MouseEnter="PART_MouseEnter"
+                  MouseLeave="PART_MouseLeave"
+                  Visibility="Visible"
+                  LostFocus="listview1_LostFocus"
+                  GotFocus="listview1_GotFocus"
+            ItemContainerStyle="{StaticResource ListBoxItemStyle1}">
+            <!--ItemContainerStyle="{StaticResource ListBoxItemStyle1}">-->
+            <ListView.ItemsPanel>
+                <!--// Saves memory and loads much faster-->
+                <ItemsPanelTemplate>
+                    <VirtualizingStackPanel>
+                        <!--// saves loads of memroy-->
+                    </VirtualizingStackPanel>
+                </ItemsPanelTemplate>
+            </ListView.ItemsPanel>
+        </ListView>
+    </Grid>
+</UserControl>

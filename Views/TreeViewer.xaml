@@ -1,0 +1,360 @@
+﻿<Window x:Class="NewWpfDev.Views.TreeViewer"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:NewWpfDev.Views"
+        mc:Ignorable="d"
+        xmlns:att="clr-namespace:NewWpfDev.AttachedProperties"
+        xmlns:userctrl="clr-namespace:NewWpfDev.UserControls"
+        xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
+          xmlns:model="clr-namespace:NewWpfDev.ViewModels"
+          xmlns:conv="clr-namespace:NewWpfDev.Converts"
+        xmlns:views="clr-namespace:NewWpfDev.Views"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        Loaded="Window_Loaded"
+        Title="TreeViewer" Height="850" Width="900">
+         <!--xmlns:behave="clr-namespace:NewWpfDev.Behaviors"-->
+    <Window.Resources>
+
+        <conv:HeaderToImageConverter x:Key="HeaderToImageConverter"/>
+        
+        <Style x:Key="Expansion" TargetType="{x:Type TreeViewItem}">
+            <!--This Setter applies an attached behavior to all TreeViewItems.-->
+            <!--<Setter Property="behave:TreeViewItemBehavior.IsBroughtIntoViewWhenSelected"  Value="True" />-->
+
+            <!-- These Setters bind a TreeViewItem to a PersonViewModel.-->
+            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+            <Setter Property="FontWeight" Value="Normal" />
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="FontWeight" Value="Bold" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="StackPanelStyle1" TargetType="{x:Type StackPanel}">
+            <Style.Triggers>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="false"/>
+                    </MultiTrigger.Conditions>
+                    <MultiTrigger.Setters>
+                        <Setter Property="Background" Value="{StaticResource Red5}"/>
+                        <Setter Property="TextElement.Foreground"  Value="{StaticResource White0}"/>
+                        <Setter Property="Height" Value="25"/>
+                    </MultiTrigger.Setters>
+                </MultiTrigger>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="True"/>
+                    </MultiTrigger.Conditions>
+                    <MultiTrigger.Setters>
+                        <Setter Property="Background" Value="{StaticResource Yellow1}"/>
+                        <Setter Property="TextElement.Foreground"  Value="{StaticResource Black0}"/>
+                        <Setter Property="Height" Value="25"/>
+                    </MultiTrigger.Setters>
+                </MultiTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <ContextMenu x:Key="TVContextMenu" Width="350" HasDropShadow="True"  >
+
+            <MenuItem  Click="CboxExactMatch_Click" >
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                Text="Match Search Term Exactly"
+                                FontSize="16"
+                                 Height="25"
+                                Padding="10 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="350"/>
+                    </StackPanel>
+                </MenuItem.Header>
+                <MenuItem.Icon>
+                    <Image Source="/Icons/progressSkip.ico" Height="15" Width="25" />
+                </MenuItem.Icon>
+            </MenuItem>
+
+            <MenuItem Click="TriggerExpand0" >
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                Text="Open Top Level of Current Selection"
+                                FontSize="16"
+                                 Height="25"
+                                Padding="10 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="350"/>
+                    </StackPanel>
+                </MenuItem.Header>
+                <MenuItem.Icon>
+                    <Image Source="/Icons/down arroiw red.png" Height="15" Width="25" />
+                </MenuItem.Icon>
+            </MenuItem>
+
+            <MenuItem Click="TriggerExpand1" >
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                Text="Open 2 Levels down from Current Selection" 
+                                FontSize="16"
+                                 Height="25"
+                                Padding="10 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="350"/>
+                    </StackPanel>
+                </MenuItem.Header>
+                <MenuItem.Icon>
+                    <Image Source="/Icons/updown arrow red copy.png" Height="15" Width="25" />
+                </MenuItem.Icon>
+            </MenuItem>
+
+            <MenuItem Click="TriggerExpand2" >
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                Text="Open 3 Levels down from Current Selection" 
+                                FontSize="16"
+                                 Height="25"
+                                Padding="10 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="350"/>
+                    </StackPanel>
+                </MenuItem.Header>
+                <MenuItem.Icon>
+                    <Image Source="/Icons/updown arrow red copy.png" Height="15" Width="25" />
+                </MenuItem.Icon>
+            </MenuItem>
+
+            <MenuItem Click="TriggerExpand3" >
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                Text="Open 4 Levels down from Current Selection"
+                                FontSize="16"
+                                 Height="25"
+                                Padding="10 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="350"/>
+                    </StackPanel>
+                </MenuItem.Header>
+                <MenuItem.Icon>
+                    <Image Source="/Icons/updown arrow red copy.png" Height="15" Width="25" />
+                </MenuItem.Icon>
+            </MenuItem>
+
+            <MenuItem Click="TriggerExpand4" >
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                Text="Open ALL Levels down from Current Selection"
+                                FontSize="16"
+                                 Height="25"
+                                Padding="10 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="350"/>
+                    </StackPanel>
+                </MenuItem.Header>
+                <MenuItem.Icon>
+                    <Image Source="/Icons/updown arrow red copy.png" Height="15" Width="25" />
+                </MenuItem.Icon>
+            </MenuItem>
+
+            <MenuItem Click="ShowFullPath" >
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                Text="Show Full Path for current item"
+                                FontSize="16"
+                                 Height="25"
+                                Padding="10 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="350"/>
+                    </StackPanel>
+                </MenuItem.Header>
+                <MenuItem.Icon>
+                    <Image Source="/Icons/small magnify.png"     Height="15" Width="15"/>
+                </MenuItem.Icon>
+            </MenuItem>
+
+            <MenuItem Click="CollapseCurrent" >
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                Text="Collapse current Drive"
+                                FontSize="16"
+                                 Height="25"
+                                Padding="10 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="350"/>
+                    </StackPanel>
+                </MenuItem.Header>
+                <MenuItem.Icon>
+                    <Image Source="/Icons/down arroiw red.png" Height="15" Width="25" />
+                </MenuItem.Icon>
+            </MenuItem>
+
+
+            <MenuItem Click="CollapseAll" >
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                Text="Collapse All Drives"
+                                FontSize="16"
+                                 Height="25"
+                                Padding="10 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="350"/>
+                    </StackPanel>
+                </MenuItem.Header>
+                <MenuItem.Icon>
+                    <Image Source="/Icons/down arroiw red.png" Height="15" Width="25" />
+                </MenuItem.Icon>
+            </MenuItem>
+
+            <!--<MenuItem Click="TreeOptions">
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                Text="TreeView Options"
+                                FontSize="16"
+                                 Height="25"
+                                Padding="10 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="350"/>
+                    </StackPanel>
+                </MenuItem.Header>
+                <MenuItem.Icon>
+                    <Image Source="/Icons/blank doc.png"   Height="15" Width="15"/>
+                </MenuItem.Icon>
+            </MenuItem>-->
+        </ContextMenu>
+
+    </Window.Resources>
+
+    <!--// Window start-->
+
+
+    <Grid x:Name="MainGrid" Background="Beige">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="60"/>
+        </Grid.RowDefinitions>
+        
+        <TreeView  x:Name="TestTree"
+                Grid.Row="0"
+                Margin="0,0,0,0" 
+                Background="{StaticResource Cyan0}"
+                Grid.RowSpan="1"
+                FontFamily="Lucida Sans"
+                FontSize="14" 
+                FontWeight="Normal"
+                Height="{Binding row1.ActualHeight}"                              
+                Panel.ZIndex="6"
+                SelectedItemChanged="TestTree_SelectedItemChanged"
+                RequestBringIntoView="TreeViewItem_RequestBringIntoView"
+                PreviewMouseLeftButtonDown="TreeViewItem_PreviewMouseLeftButtonDown"
+                TreeViewItem.Collapsed="TestTree_Collapsed"  
+                ContextMenu="{StaticResource TVContextMenu}"
+                ToolTipService.HasDropShadow="True"
+                ToolTipService.InitialShowDelay="1500"
+                ToolTipService.BetweenShowDelay="5000"
+                ToolTipService.ShowDuration="2000"
+                TreeViewItem.Expanded="TestTree_Expanded"   
+                Visibility="Visible"
+                Width="{Binding Path=Width, ElementName=TopGrid}">
+                <!--Style="{StaticResource TreeViewItemMainStyle}"-->
+            <!--TreeViewItem.Expanded="TestTree_Expanded"-->
+
+            <TreeView.Resources>
+
+                <Style TargetType="{x:Type TreeViewItem}"> 
+                    <Setter Property="HeaderTemplate">
+                        <Setter.Value>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Name="img"
+                                   Width="20"
+                                   Height="20"
+                                   Stretch="Fill"
+                                           Source="icons\blue folder open.png"/>
+                                    <TextBlock Text="{Binding}" Margin="0,0" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </TreeView.Resources>
+            <!--Source="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
+                                            AncestorType={x:Type TreeViewItem}},
+                                            Path=Header,
+                                            Converter={x:Static conv:HeaderToImageConverter.Instance}}"/>-->
+
+            <TreeViewItem
+                            MouseDoubleClick="TestTree_MouseDoubleClick"
+                            MouseEnter="TestTree_MouseEnter"    
+                            MouseMove="TREEViews_MouseMove"
+                            PreviewMouseLeftButtonDown="TreeViewItem_PreviewMouseLeftButtonDown"
+                              IsMouseDirectlyOverChanged="TREEViews_IsMouseDirectlyOverChanged">
+                <!--Style="{StaticResource Expansion}"-->
+            </TreeViewItem>
+
+            <TreeView.ItemContainerStyle>
+                <Style TargetType="TreeViewItem" >
+                    <Setter Property="IsSelected" Value="{Binding IsSelected}" />
+                    <Setter Property="IsExpanded" Value="{Binding IsExpanded}" />
+                    <!--<EventSetter Event="TreeViewItem.Expanded" Handler="OnTreeExpanded" />-->
+                </Style>
+            </TreeView.ItemContainerStyle>
+        </TreeView>
+        
+        
+        
+        <StackPanel Orientation="Horizontal" 
+						Grid.Row="1"
+                    Width="{Binding ActualWidth, ElementName=MainGrid}">
+            <TextBlock x:Name="InfoPanel" Grid.Row="1"
+                    Background="{StaticResource Red5}"
+                   Foreground="{StaticResource White0}"
+                   Text="testing............"
+                   FontSize="18"
+                   HorizontalAlignment="Center"
+                   TextAlignment="Center"
+                   Padding="0 20 0 0"
+                   Width="580"/>
+
+            <TextBox x:Name="Expandcount" Height="35" Width="55" Foreground="Black" Background="LightGreen"
+						Grid.Row="1"
+                     Text="1"
+                     FontSize="20"
+                     TextAlignment="Center"
+						Margin="20,5,10,10" 
+                    HorizontalAlignment="Right"/>
+            <Button x:Name="AllCloseBtn" 
+						Grid.Row="1"
+						Margin="20,0,10,10" 
+						 Click="App_Close"
+						 Content="Close App"
+						 Foreground="{StaticResource ResourceKey=White0}"
+						 Height="40" 
+						 HorizontalAlignment="Right"
+						 Template="{StaticResource HorizontalGradientTemplateRed}"
+						 VerticalAlignment="Bottom"
+						 Width="93" />
+            <Button x:Name="Close_Copy" 
+						Grid.Row="1"
+						Margin="0,0,120,10" 
+					  Click="Close_Btn"
+					  Content="Close"
+					  Foreground="{StaticResource ResourceKey=White0}"
+					  Height="40" 
+					  HorizontalAlignment="Right"
+					  Template="{StaticResource HorizontalGradientTemplateGreen}"
+					  VerticalAlignment="Bottom"
+					  Width="93"  />
+        </StackPanel>
+    </Grid>
+</Window>

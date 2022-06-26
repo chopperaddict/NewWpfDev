@@ -1,0 +1,24 @@
+﻿<UserControl x:Class="NewWpfDev.UserControls.UCListBox"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:NewWpfDev.UserControls"
+             xmlns:models="clr-namespace:NewWpfDev.ViewModels"
+             mc:Ignorable="d" 
+            MinHeight="470" MinWidth="260"
+             d:DesignHeight="450" d:DesignWidth="400">
+    
+    <!--Listbox for Image files-->
+    <Grid>
+        <ListBox x:Name="UClistbox" Background="{StaticResource Gray1}"
+                 Foreground="{StaticResource White0 }"
+                 FontSize="18"
+                 SelectionChanged="UClistbox_SelectionChanged"
+                 MouseDoubleClick="Command3_MouseDoubleClick"
+                 HorizontalAlignment="Stretch"
+                 VerticalAlignment="Stretch"
+                 ItemContainerStyle="{StaticResource _ListBoxItemStyle1}"
+                 />
+    </Grid>
+</UserControl>

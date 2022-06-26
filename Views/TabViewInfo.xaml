@@ -1,0 +1,71 @@
+﻿<Window x:Class="NewWpfDev.Views.TabViewInfo"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:NewWpfDev.Views"
+        mc:Ignorable="d"
+        WindowChrome.ResizeGripDirection="BottomRight"
+        ResizeMode="CanResizeWithGrip"
+        WindowStartupLocation="CenterScreen"
+        Title="TabViewInfo" MinHeight="450" MinWidth="750"
+        Height="250" Width="400"
+        >
+        <!--xmlns:custctrl="clr-namespace:NewWpfDev.CustomControls"-->
+    <Grid Background="{StaticResource Cyan3}" >
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!--<custctrl:CustomWindow x:Name="CustCtrl" Grid.Row="1" Height="200" Width="500" Background="Yellow" Margin="40,33 0,17"/>-->
+        <!--<Grid.DataContext>
+            <local:TabViewInfo/>
+        </Grid.DataContext>-->
+        <TextBlock Grid.Row="0" Foreground="White" Background="{StaticResource Red5}"
+                   Text="Information about this Tabbed Window" FontSize="16" TextAlignment="Center" Padding="5"/>
+        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto"
+                      VerticalScrollBarVisibility="Visible">
+            <StackPanel Orientation="Vertical">
+            <TextBlock x:Name="dataBlock" Foreground="{StaticResource White0}"
+                       FontSize="16"
+                       Text="{Binding Path=TabbedWindowText}"/>        
+            </StackPanel>
+        </ScrollViewer>
+
+        <Grid Background="Blue" Grid.Row="2" >
+        <Button Foreground="{StaticResource Black1}" 
+                   Content="Close Window" FontSize="16" 
+                Width="150"
+                HorizontalAlignment="Right"
+                HorizontalContentAlignment="center" 
+                Margin="5 3 15 3"
+                Padding="5 5 5 5" 
+                Background="{StaticResource Green5}"
+                Click="Closewin"
+                Height="35"/>
+        <Button Foreground="{StaticResource White1}" 
+                   Content="Show Options" FontSize="16" 
+                Width="150"
+                HorizontalAlignment="Right"
+                HorizontalContentAlignment="center" 
+                Margin="0 3 170 3"
+                Padding="5 5 5 5" 
+                Background="{StaticResource Yellow5}"
+                Click="ShowOption"
+                Height="35"/>
+        <ComboBox x:Name="DataFiles"  Foreground="{StaticResource Black0}" 
+                FontSize="16" 
+                Width="250"
+                HorizontalAlignment="Right"
+                HorizontalContentAlignment="center" 
+                Margin="0 3 330 3"
+                SelectedItem="0"
+                  SelectionChanged="DataFiles_SelectionChanged"
+                Padding="5 5 5 5" 
+                Background="{StaticResource Cyan3}">              
+        </ComboBox >
+        </Grid>
+    </Grid>
+</Window>

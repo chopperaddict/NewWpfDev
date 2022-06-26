@@ -1,0 +1,39 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="NewWpfDev.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="xBankSysConnectionString" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Data Source=DINO-PC;Initial Catalog="C:\USERS\IANCH\APPDATA\LOCAL\MICROSOFT\MICROSOFT SQL SERVER LOCAL DB\INSTANCES\MSSQLLOCALDB\IAN1.MDF";Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False</Value>
+    </Setting>
+    <Setting Name="NorthwindConnectionString" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Data Source=DINO-PC;Initial Catalog=Northwind;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False</Value>
+    </Setting>
+    <Setting Name="NewBanksys" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Data Source=DINO-PC;Initial Catalog="IAN1";Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False</Value>
+    </Setting>
+    <Setting Name="BankSysConnectionString" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Data Source=DINO-PC;Initial Catalog="IAN1";Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False</Value>
+    </Setting>
+    <Setting Name="AdventureWorks2019" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Data Source=DINO-PC;Initial Catalog="ADVENTUREWORKS2019";Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False</Value>
+    </Setting>
+    <Setting Name="PubsConnectionString" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Data Source=DINO-PC;Initial Catalog="PUBS";Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False</Value>
+    </Setting>
+    <Setting Name="UseScrollViewer" Type="System.String" Scope="User">
+      <Value Profile="(Default)">TRUE</Value>
+    </Setting>
+    <Setting Name="ReplaceFldNames" Type="System.String" Scope="User">
+      <Value Profile="(Default)">TRUE</Value>
+    </Setting>
+    <Setting Name="UseFlowDoc" Type="System.String" Scope="User">
+      <Value Profile="(Default)">TRUE</Value>
+    </Setting>
+    <Setting Name="UseMagnify" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="AppRootPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">W:\\NewWpfDev\\bin\\Debug\\</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

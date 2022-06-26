@@ -1,0 +1,90 @@
+﻿<UserControl x:Class="NewWpfDev.UserControls.UserControlsViewer"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:NewWpfDev.UserControls"
+             xmlns:vm="clr-namespace:NewWpfDev.ViewModels"
+             mc:Ignorable="d" 
+             HorizontalAlignment="Stretch"
+             VerticalAlignment="Stretch"
+            MinHeight="480" MinWidth="600"    
+             SizeChanged="UserControl_SizeChanged"
+             Height="520" Width="800">
+    <UserControl.Resources>
+        <Style TargetType="ContentControl">
+            <Style.Triggers>
+                <Trigger Property="Validation.HasError" Value="True">
+                    <Setter Property="ToolTip" 
+                            Value="{Binding RelativeSource={RelativeSource Self},Path=(Validation.Errors)[0].ErrorContent}"/>
+                </Trigger>
+                         
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid DataContext="{Binding UserControlsViewer}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25"/>
+            <RowDefinition x:Name="row1" Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition x:Name="col1" Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <TextBlock x:Name="InfoPanel" Grid.Row="0" Grid.ColumnSpan="2"
+                   Background="{StaticResource Gray4}" Foreground="WhiteSmoke"
+                   HorizontalAlignment="Stretch"
+                   TextAlignment="Center"/>
+        <StackPanel Orientation="Vertical" Grid.Row="1" Grid.Column="0" DataContext="{Binding UserControlsViewer}" 
+                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Button x:Name="Command1" Height="45" Background="Yellow" Foreground="Black" Content="Clear Viewer Panel" Click="Command1_Click" />
+            <!--DataContext="{Binding UserControlsViewer}" Command="{Binding ClearPanel}"/>-->
+            <Button  x:Name="UCList" Height="45" Background="{StaticResource Green6}" Foreground="Black" Content="List of User Controls " Click="ShowUserControls" />
+            <Button x:Name="Command2"  Height="45" Background="Yellow" Foreground="Black" Content="List of Images" Click="Command2_Click" />
+            <!--Command="{Binding ShowListbox}"/>-->
+            <!--<Button  x:Name="Command3" Height="45" Background="{StaticResource Green5}" Foreground="Black" Content="View Selected Image" Click="Command3_Click"  />-->
+            <!--Command="{Binding LoadImage}"/>-->
+
+            <Button  x:Name="PreviousImage" Height="45" Background="{StaticResource Cyan4}" Foreground="White" Content="Previous Image" Click="ShowPrevious" />
+            <Button  x:Name="NextImage" Height="45" Background="{StaticResource Cyan4}" Foreground="White" Content="Next Image" Click="ShowNextImage" />
+            <Button  x:Name="MultiView" Height="55" Background="{StaticResource Green6}" Foreground="Black" Click="ShowMultiView" >
+                <Button.Content>
+                    <StackPanel>
+                    <TextBlock Text="View ALL in Multi image panel" Foreground="Black" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Click to start the loading process..." Foreground="Red" HorizontalAlignment="Center" Margin="0 8 0 0"/>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+            <Button  x:Name="WebView" Height="45" Background="{StaticResource Green6}" Foreground="Black" Content="Web Browser" Click="ShowBrowser" />
+
+            <Button  x:Name="Command4" Height="45" Background="{StaticResource Orange2}" Foreground="White" Content="Close Viewer" Click="Command4_Click" />
+            <!--<Button  x:Name="Command4" Height="45" Background="{StaticResource Orange2}" Foreground="White" Content="Close Viewer" Command="{Binding CloseWindow}"/>-->
+            <Button  x:Name="Command5" Height="45" Background="Red" Foreground="White" Content="Close Application" Click="Command5_Click" />
+            <!--Command="{Binding CloseApp}"/>-->
+            
+            <TextBlock x:Name="Loadcounter" Text="Loading progress ...." Height="75" 
+                       Foreground="Black" Background="{StaticResource Orange5}" 
+                       TextAlignment="Center" VerticalAlignment="Center" 
+                       TextWrapping="Wrap"
+                       FontSize="14" Padding="0 28 0 0"/>
+        </StackPanel>
+        
+        <ContentControl x:Name="Contentctrl" Grid.Row="1" Grid.Column="1" Background="{StaticResource Green5}" Margin="5 0 5 5 "
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        Visibility="Visible"
+                       />
+
+        <ContentControl x:Name="WrapPanelImages" Grid.Row="1" Grid.Column="1" Margin="5 0 5 5 "
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        Opacity="0"
+                        Visibility="Visible"/>
+                        <!--Height="{Binding ActualHeight, ElementName=row1}"
+                        Width="{Binding ActualWidth, ElementName=col1}"-->
+        <!--Height="{Binding ActualHeight, ElementName=row1, ValidatesOnDataErrors=True}"
+                        Width="{Binding ActualWidth, ElementName=col1,ValidatesOnDataErrors=True}"-->
+    </Grid>
+</UserControl>

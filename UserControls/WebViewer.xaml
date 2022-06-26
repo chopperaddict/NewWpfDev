@@ -1,0 +1,92 @@
+﻿<UserControl x:Class="NewWpfDev.UserControls.WebViewer"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+            xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+             xmlns:local="clr-namespace:NewWpfDev.UserControls"
+             mc:Ignorable="d" 
+             d:DesignHeight="400" d:DesignWidth="500"
+            Loaded="Window_Loaded"
+            >
+    <Grid x:Name="outergrid">
+        <Grid x:Name="innergrid">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="35"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="1"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="80"/>
+                <ColumnDefinition x:Name="BrowserColumn" Width="*"/>
+                <ColumnDefinition Width="80"/>
+                <ColumnDefinition Width="80"/>
+            </Grid.ColumnDefinitions>
+
+            <Button x:Name="ButtonBack"
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    DockPanel.Dock="Right"
+                    Click="ButtonBack_Click"
+                    Content="Back"
+                    Height="35"
+                    Width="80"
+                    FontSize="22"
+                    Background="Orange"
+                    Foreground="White"/>
+
+            <TextBox Name="xaddressBar"
+                        Grid.Column="1"
+                        PreviewKeyDown="addressBar_PreviewKeyDown"
+                        Height="45"
+                        FontSize="22"/>
+
+            <ComboBox x:Name="addressBar"
+                    Grid.Row="0"
+                      Grid.Column="1"
+                      Grid.ColumnSpan="1"
+                    PreviewKeyDown="addressBar_PreviewKeyDown"
+                    SelectionChanged="addressBar_SelectionChanged"
+                    DropDownOpened="addressBar_DropDownOpened"
+                      Height="35"
+                    FontSize="22"
+                    IsEditable="True"/>
+
+            <Button x:Name="ButtonGo"
+                    Grid.Row="0"
+                    Grid.Column="2"
+                    DockPanel.Dock="Right"
+                    Click="ButtonGo_Click"
+                    Content="Go"
+                    Height="35"
+                    Width="80"
+                    FontSize="22"
+                    Background="Green"
+                    Foreground="White"/>
+
+
+            <Button x:Name="ButtonFed"
+                    Grid.Row="0"
+                    Grid.Column="3"
+                    DockPanel.Dock="Right"
+                    Click="ButtonFwd_Click"
+                    Content="Fwd"
+                    Height="35"
+                    Width="80"
+                    FontSize="22"
+                    Background="Orange"
+                    Foreground="White"/>
+
+            <wv2:WebView2 Name="webView"
+                    Grid.Row="1" Grid.Column="0"
+                              Grid.ColumnSpan="4"
+                              Margin="0 0 0 0"
+                          Width="{Binding Width, ElementName=outergrid}"
+                          HorizontalAlignment="Stretch"
+                    Source="https://www.microsoft.com"/>
+
+        </Grid>
+
+    </Grid>
+
+</UserControl>

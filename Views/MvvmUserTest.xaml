@@ -1,0 +1,198 @@
+﻿<Window x:Class="NewWpfDev.Views.MvvmUserTest"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:local="clr-namespace:NewWpfDev.Views"
+	xmlns:conv="clr-namespace:NewWpfDev.Converts"
+	xmlns:userctrl="clr-namespace:NewWpfDev.UserControls"
+	mc:Ignorable="d"
+	Title="User Controls Demonstration System" 
+	WindowChrome.ResizeGripDirection="BottomRight"
+	ResizeMode="CanResizeWithGrip"
+	Height="425" Width="1200"
+	MinHeight="525" MinWidth="900"
+	  x:Name="UserTestWindow"
+	  Loaded="UserTestWindow_Loaded"
+	Background="{StaticResource Orange4}">
+
+	<Window.Resources>
+		<conv:ReduceByParamValue x:Key="ReduceByParamValue"/>
+	</Window.Resources>
+
+	<Grid x:Name="Grid1" Visibility="Visible" Margin="0,0,0,0"
+					Height="{Binding ElementName=UserTestWindow, Path=ActualHeight	 ,
+						Converter={StaticResource ReduceByParamValue}, 
+						ConverterParameter=0}"
+					Width="{Binding Path=ActualWidth, ElementName=UserTestWindow,
+						Converter={StaticResource ReduceByParamValue}, 
+						ConverterParameter=0}">
+
+		<!--#region Screen s/ Canvas etup-->
+		<Canvas x:Name="canvas"
+			  Background="Transparent"
+					HorizontalAlignment="Left"
+					VerticalAlignment="Top"
+					Height="{Binding ElementName=Grid1, Path=Height	 ,
+						Converter={StaticResource ReduceByParamValue}, 
+						ConverterParameter=0}"
+					Width="{Binding Path=ActualWidth, ElementName=Grid1,
+						Converter={StaticResource ReduceByParamValue}, 
+						ConverterParameter=280}">
+
+			<userctrl:Ucontrol1 x:Name="Ucontrol1"
+					Canvas.Left="0"
+					Canvas.Top="0"
+					HorizontalAlignment="Stretch"
+					VerticalAlignment="Stretch"
+					Visibility="Hidden"
+					Height="{Binding ActualHeight, ElementName=canvas, 
+						Converter={StaticResource ReduceByParamValue}, 
+						ConverterParameter=50}"
+					Width="{Binding ActualWidth, ElementName=canvas, 
+						Converter={StaticResource ReduceByParamValue}, 
+						ConverterParameter=20}"
+					/>
+
+			<userctrl:MulltiDbUserControl
+					x:Name="Multigrid"
+					Visibility="Hidden" 
+					HorizontalAlignment="Stretch"
+					VerticalAlignment="Stretch"
+					Height="{Binding ActualHeight, ElementName=canvas, 
+						Converter={StaticResource ReduceByParamValue}, 
+						ConverterParameter=50}"
+					Width="{Binding ActualWidth, ElementName=canvas, 
+						Converter={StaticResource ReduceByParamValue}, 
+						ConverterParameter=180}"
+					Canvas.Top="0"
+					Canvas.Left="0"/>
+
+			<userctrl:StdDataUserControl x:Name="stddatagrid"
+					HorizontalAlignment="Stretch"
+					VerticalAlignment="Stretch"
+					Visibility="Hidden" 
+					Canvas.Top="0"
+					Canvas.Left="0"
+					Width="{Binding ElementName=canvas, Path=ActualWidth,
+						Converter={StaticResource ReduceByParamValue},ConverterParameter=20}"	/>
+
+			<userctrl:ListBoxUserControl x:Name="listboxCtrl"
+					HorizontalAlignment="Stretch"
+					VerticalAlignment="Stretch"
+					Visibility="Hidden" 
+					Canvas.Top="0"
+					Canvas.Left="0"></userctrl:ListBoxUserControl>
+					<!--Width="{Binding ElementName=canvas, Path=ActualWidth,
+						Converter={StaticResource ReduceByParamValue},ConverterParameter=20}"	/>-->
+			<!--#endregion Screen setup-->
+
+			<!--#region Buttons panel-->
+			<Border x:Name="ButtonPanel"
+				  Background="{StaticResource Green4}"
+				BorderThickness="1" BorderBrush="Black" 
+				  Height="{Binding Path=Height, ElementName=canvas,
+					Converter={StaticResource ReduceByParamValue}, ConverterParameter=20}" 
+				  Margin="0,0,0,0"
+				  Canvas.Top="0"
+				  HorizontalAlignment="Right"
+				  Canvas.Right="{Binding ActualWidth, ElementName=canvas,
+					Converter={StaticResource ReduceByParamValue}, ConverterParameter=1180}" 
+				  Canvas.Bottom="{Binding Path=ActualHeight, ElementName=canvas,
+				Converter={StaticResource ReduceByParamValue},ConverterParameter=-50}" 
+				  Canvas.Left="954" 
+				  Width="245">
+
+				<!--Canvas.Top="{Binding ActualHeight,ElementName=Grid1,Converter={StaticResource ReduceByParamValue}, ConverterParameter=300}"-->
+				<Grid x:Name="BtnPanelGrid" Margin="0,0,0,0" 
+					Height="{Binding Path=ActualHeight, ElementName=Grid1,
+						Converter={StaticResource ReduceByParamValue},ConverterParameter=10}"
+					Width="{Binding Path=Width, ElementName=ButtonPanel,
+						Converter={StaticResource ReduceByParamValue},ConverterParameter=20}">
+
+
+					<!--<WrapPanel Orientation="Vertical" Margin="0,0,4,0">-->
+						<!--<WrapPanel Orientation="Horizontal" 
+							     Width="{Binding Path=Width, ElementName=ButtonPanel}">-->
+							<Button x:Name="OpengridViewer"
+								Content="Multi Db Viewer"
+								BorderBrush="{StaticResource Black0}"
+								BorderThickness="1"
+								Foreground="Black" 
+								VerticalAlignment="Top"
+								Margin="0 0 0 0"
+								Style="{StaticResource StandardWtoGGradientButton}"
+								FontSize="14"
+								  Height="55"
+								HorizontalAlignment="Stretch"
+								Width="{Binding Path=Width, ElementName=BtnPanelGrid,
+								ConverterParameter=0}"
+								Click="OpenMultiDbControl" />
+							<!--<Image Source="\icons\blue folder open.png" Height="30" Width="30" Margin="20 10 0 0"/>-->
+
+							<Button x:Name="dummyViewer"
+								Content="Dummy  Viewer"
+								  Margin="0 55 0 0"
+								Style="{StaticResource StandardWtoGGradientButton}"
+								BorderBrush="{StaticResource Black0}"
+								  VerticalAlignment="Top"
+								BorderThickness="1"
+								Foreground="Black" 
+								FontSize="14"
+								Click="OpenDummy" 
+								Width="{Binding Path=Width, ElementName=BtnPanelGrid,
+								ConverterParameter=0}"
+								Height="55"/>
+							<!--<Image Source="\icons\ProgressSkip.ico" Height="30" Width="30" Margin="20 10 0 0"/>-->
+
+							<!--<WrapPanel Orientation="Horizontal" Width="218"-->
+							<Button x:Name="OpenDataGridViewer"
+							     Margin="0 110 0 0"
+								Content="Std Db's Viewer"
+								  VerticalAlignment="Top"
+								Style="{StaticResource StandardWtoGGradientButton}"
+								BorderBrush="{StaticResource Black0}"
+								BorderThickness="1"
+								Foreground="Black" 
+								FontSize="14"
+								Click="OpenStdControl" 
+								Width="{Binding Path=Width, ElementName=BtnPanelGrid,
+								ConverterParameter=0}"
+								Height="55"/>
+
+					<Button x:Name="OpenListBoxViewer"
+							     Margin="0 165 0 0"
+								Content="ListBox Db's Viewer"
+								  VerticalAlignment="Top"
+								Style="{StaticResource StandardWtoGGradientButton}"
+								BorderBrush="{StaticResource Black0}"
+								BorderThickness="1"
+								Foreground="Black" 
+								FontSize="14"
+								Click="OpenListboxControl" 
+								Width="{Binding Path=Width, ElementName=BtnPanelGrid,
+								ConverterParameter=0}"
+								Height="55"/>
+					<Button 	x:Name="CloseBtn"
+								Content="Close Window" 
+								FontSize="14"
+								FontWeight="Bold"
+								Foreground="White"
+								BorderBrush="{StaticResource Black0}"
+								BorderThickness="1"
+								VerticalAlignment="Top"
+								Click="CloseThisWindow" 
+								Height="55"
+								Width="{Binding Path=Width, ElementName=BtnPanelGrid,
+								ConverterParameter=0}"
+								Style="{StaticResource StandardYtoRGradientButton}"
+								Padding="0 0  0 0"
+								Margin="0,445,0,0" />
+
+				</Grid>
+			</Border>
+			<!--#endregion Buttons panel-->
+		</Canvas>
+
+	</Grid>
+</Window>
