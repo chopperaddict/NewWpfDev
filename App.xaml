@@ -29,7 +29,7 @@
                 <ResourceDictionary Source="ViewModels\ListBoxViewStyles.xaml"/>
                 <ResourceDictionary Source="ViewModels\MenuStyles.xaml"/>
                 <ResourceDictionary Source="ViewModels\MvvmStyles.xaml"/>
-                <ResourceDictionary Source="\Styles\StylesDictonary.xaml"/>
+                <ResourceDictionary Source="Styles\StylesDictonary.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary >
     </Application.Resources>

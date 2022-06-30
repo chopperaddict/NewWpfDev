@@ -6,9 +6,11 @@ using System . Threading . Tasks;
 using System . Windows;
 using System . Windows . Controls;
 
-namespace NewWpfDev. DataTemplates
+using NewWpfDev . ViewModels;
+
+namespace NewWpfDev . DataTemplates
 {
-	class DataTemplateSelectors : DataTemplateSelector
+    class DataTemplateSelectors : DataTemplateSelector
 	{
 		public override DataTemplate SelectTemplate ( object item , DependencyObject container )
 		{
@@ -24,6 +26,12 @@ namespace NewWpfDev. DataTemplates
 				return elemnt . FindResource ( "Actype4DataTemplate" ) as DataTemplate;
 			return null;
 		}
+        public  static DataTemplate SelectDataTemplate (string item , DependencyObject container)
+        {
+            FrameworkElement elemnt = container as FrameworkElement;
+            return elemnt? . FindResource(item) as DataTemplate;
+            return null;
+        }
 
-	}
+    }
 }

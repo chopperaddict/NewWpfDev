@@ -150,10 +150,10 @@ namespace NewWpfDev. ViewModels
                 // This is ONLY called  if a requestor specifies the file wide variable argument as TRUE
                 if ( UserControlDataAccess . Notify )
                 {
-                    $"Dispatcher on UI thread =  {Application . Current . Dispatcher . CheckAccess ( )}" . CW ( );
+                   // $"Dispatcher on UI thread =  {Application . Current . Dispatcher . CheckAccess ( )}" . CW ( );
                     //if ( Application . Current . Dispatcher . CheckAccess ( ) == false )
                     //{
-                    "Triggeriing BankDataLoaded inside a new App Dispatcher..." . CW ( );
+                    //"Triggeriing BankDataLoaded inside a new App Dispatcher..." . CW ( );
                     //Application . Current . Dispatcher . Invoke ( ( ) =>
                     EventControl . TriggerBankDataLoaded ( null ,
                         new LoadedEventArgs
@@ -178,7 +178,7 @@ namespace NewWpfDev. ViewModels
                 //    //} );
                 //}
             }
-            Debug. WriteLine ( $"Data Loaded for: [{Caller}], Records = {bcollection . Count}" );
+            //Debug. WriteLine ( $"Data Loaded for: [{Caller}], Records = {bcollection . Count}" );
 
             return true;
         }
@@ -275,7 +275,7 @@ namespace NewWpfDev. ViewModels
                     try
                     {
                         if ( SqlCommand == "" )
-                            cvmlist = db . Query<CustomerViewModel> ( "Select * From Customer" ) . ToList ( );
+                            cvmlist = db . Query<CustomerViewModel> ( "Select * From Customer order  by CustNo, BankNo" ) . ToList ( );
                         else
                             cvmlist = db . Query<CustomerViewModel> ( SqlCommand ) . ToList ( );
 

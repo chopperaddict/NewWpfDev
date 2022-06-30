@@ -129,7 +129,7 @@ namespace NewWpfDev . UserControls
         private void InterWinComms_WindowMessage (object sender , InterWindowArgs e)
         {
             string msg = e . message;
-            Debug. WriteLine($"Tabview : System data transmission system message received : Sender was {e . window?.ToString()}, \nMessage : {e . message} :int :  {e . intvalue}");
+            //Debug. WriteLine($"Tabview : System data transmission system message received : Sender was {e . window?.ToString()}, \nMessage : {e . message} :int :  {e . intvalue}");
             this . treeview1 . Items . Add(msg);
         }
     }

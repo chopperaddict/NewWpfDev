@@ -6,11 +6,110 @@
              xmlns:local="clr-namespace:NewWpfDev.UserControls"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+             <!--xmlns:styles="clr-namespace:NewWpfDev.Styles"-->
+    <UserControl.Resources>
+        <!--<styles:_ListBoxItemStyle1 x:Key="_ListBoxItemStyle1"/>-->
+        
+            <Style x:Key="_ListBoxItemStyle1" TargetType="ListBoxItem" >
+            <Setter Property="FontWeight" Value="Normal" />
+            <Setter Property="TextElement.Foreground" Value="White" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="Width" Value="{Binding Path=Width}" />
+
+            <!--Remove focus rectangle - IT WORKS-->
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+
+            <!--<Setter Property="_Border" Value="{TemplateBinding Background}" />-->
+            <!--<Setter Property="TextElement.Foreground" Value="{TemplateBinding Foreground}" />-->
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border
+							x:Name="_Border"
+							Padding="3"
+							Width="{Binding Path=ActualWidth, RelativeSource={RelativeSource AncestorType=ListBox}}"
+							HorizontalAlignment="Stretch">
+                            <ContentPresenter  
+								HorizontalAlignment="Left"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <!--Normal, UnSelected-->
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="false" />
+                                    <Condition Property="IsSelected" Value="False" />
+                                </MultiTrigger.Conditions>
+                                <MultiTrigger.Setters>
+                                    <Setter Property="HorizontalAlignment" Value="Stretch" />
+                                    <Setter Property="HorizontalAlignment" Value="Left" />
+                                    <Setter Property="TextElement.Foreground" Value="{StaticResource White0}" />
+                                    <Setter TargetName="_Border" Property="Background" Value="{StaticResource Gray0}" />
+                                    <Setter Property="FontSize" Value="{Binding Path=Fontsize,RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"/>
+                                    <Setter Property="FontWeight" Value="Regular" />
+                                </MultiTrigger.Setters>
+                            </MultiTrigger>
+
+                            <!--Normal, Selected-->
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="false" />
+                                    <Condition Property="IsSelected" Value="True" />
+                                </MultiTrigger.Conditions>
+                                <MultiTrigger.Setters>
+                                    <Setter Property="HorizontalAlignment" Value="Stretch" />
+                                    <Setter Property="HorizontalAlignment" Value="Left" />
+                                    <Setter Property="TextElement.Foreground" Value="{StaticResource Black1}" />
+                                    <Setter TargetName="_Border" Property="Background" Value="{StaticResource Cyan1}" />
+                                    <Setter Property="FontSize" Value="{Binding Path=Fontsize,RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"/>
+                                    <Setter Property="FontWeight" Value="DemiBold" />
+                                </MultiTrigger.Setters>
+                            </MultiTrigger>
+
+                            <!--Mouseover, UnSelected-->
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="true" />
+                                    <Condition Property="IsSelected" Value="False" />
+                                </MultiTrigger.Conditions>
+                                <MultiTrigger.Setters>
+                                    <Setter Property="HorizontalAlignment" Value="Stretch" />
+                                    <Setter Property="HorizontalAlignment" Value="Left" />
+                                    <Setter Property="FontSize" Value="{Binding Path=Fontsize,RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"/>
+                                    <Setter Property="TextElement.Foreground" Value="{StaticResource White0}" />
+                                    <Setter TargetName="_Border" Property="Background" Value="{StaticResource Red5}" />
+                                    <Setter Property="FontWeight" Value="DemiBold" />
+                                </MultiTrigger.Setters>
+                            </MultiTrigger>
+
+                            <!--Moiuseover, Selected-->
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="true" />
+                                    <Condition Property="IsSelected" Value="true" />
+                                </MultiTrigger.Conditions>
+                                <MultiTrigger.Setters>
+                                    <Setter Property="HorizontalAlignment" Value="Stretch" />
+                                    <Setter Property="HorizontalContentAlignment" Value="Left" />
+                                    <Setter Property="FontSize" Value="{Binding Path=Fontsize,RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"/>
+                                    <Setter Property="TextElement.Foreground" Value="{StaticResource White0}" />
+                                    <Setter TargetName="_Border" Property="Background" Value="{StaticResource Green2}" />
+                                    <!--<Setter Property="FontSize" Value="{Binding Fontsize}"/>-->
+                                    <Setter Property="FontWeight" Value="DemiBold" />
+                                </MultiTrigger.Setters>
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </UserControl.Resources>
     <Grid>
         <ListBox x:Name="logview" Margin="5 5 5 5" Background="BlueViolet" Foreground="White" FontSize="16"
                  PreviewMouseMove="logview_PreviewMouseMove"
                   MouseEnter="PART_MouseEnter"
                   MouseLeave="PART_MouseLeave"
-                 />
+                 ItemContainerStyle="{StaticResource _ListBoxItemStyle1}"/>
     </Grid>
 </UserControl>

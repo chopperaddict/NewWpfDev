@@ -51,6 +51,7 @@ namespace NewWpfDev. Views
         }
         public TabViewInfo (string datafile= "TabbedDataInfo.txt" )
         {
+            int index = 0;
             InitializeComponent ( );
             this . DataContext = this;
             if ( File . Exists ( datafile ) == false )
@@ -64,6 +65,12 @@ namespace NewWpfDev. Views
             if ( TabbedWindowText . Length == 0 )
                 MessageBox . Show ( "Could  not find the source text file...." , "Missing Data" );
             ShowOption ( null , null );
+            foreach ( string item in DataFiles.Items ) {
+                if(item.ToUpper() == datafile.ToUpper()) {
+                    DataFiles . SelectedIndex = index;                    
+                    break;
+                }
+                index++;           }
         }
 
         private void Closewin ( object sender , RoutedEventArgs e )

@@ -7,18 +7,31 @@
         xmlns:user="clr-namespace:NewWpfDev.UserControls"
         xmlns:view="clr-namespace:NewWpfDev.ViewModels"
         xmlns:conv="clr-namespace:NewWpfDev.Converts"
+        xmlns:templates="clr-namespace:NewWpfDev.DataTemplates"
         Loaded="Window_Loaded"
         Closed="tabview_Closed"
         Background="Cyan"
         WindowChrome.ResizeGripDirection="BottomRight"
-        ResizeMode="CanResizeWithGrip"
+        ResizeMode="CanResizeWithGrip"        
         x:Name="tabview"
         Height="250" Width="500"
         Title="Tabview" MinHeight="450" MinWidth="800"
         mc:Ignorable="d">
-    
+   
+        <!--<Window.Effect>
+            <DropShadowEffect ShadowDepth="35" 
+								BlurRadius="1.5" 
+								Color="Red" 
+								Direction="310"/>
+
+            --><!--<BlurEffect Radius="1.0" KernelType="Box"/>--><!--
+        </Window.Effect>-->
+
+
     <Window.Resources>
         <view:TabWinViewModel x:Key="TabWinViewModel"/>
+        <templates:DataTemplateSelectors x:Key="myDataTemplateSelector"/>
+
         <!--<local:ConditionalEventTrigger x:Key="ConditionalEventTrigger"/>-->
         <conv:ReduceByParamValue x:Key="ReduceByParamValue"/>
 
@@ -505,8 +518,8 @@
                                     <Condition Binding="{Binding IsEnabled, RelativeSource={RelativeSource Self}}" Value="false"/>
                                     <!--<Condition Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}}" Value="Top"/>-->
                                 </MultiDataTrigger.Conditions>
-                                <Setter Property="Opacity" TargetName="contentPresenter" Value="0.56"/>
-                                <Setter Property="Background" TargetName="mainBorder" Value="{StaticResource TabItem.Disabled.Background}"/>
+                                <Setter Property="Opacity" TargetName="contentPresenter" Value="0.76"/>
+                                <Setter Property="Background" TargetName="mainBorder" Value="{StaticResource Gray3}"/>
                                 <Setter Property="BorderBrush" TargetName="mainBorder" Value="{StaticResource TabItem.Disabled.Border}"/>
                                 <!--<Setter Property="BorderThickness" TargetName="innerBorder" Value="1,1,1,0"/>
                                 <Setter Property="BorderThickness" TargetName="mainBorder" Value="1,1,1,0"/>-->
@@ -609,13 +622,13 @@
         </Canvas>
 
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Grid.Row="0" Width="622">
-            <Button x:Name="Btn1" Width="80" Height="35" Margin="5" 
+            <Button x:Name="Btn1" Width="70" Height="35" Margin="5" 
                     Style="{StaticResource BtnStyle1}" 
                     MouseEnter="Btn1_MouseEnter"
                     MouseLeave="Btn1_MouseLeave"
                     Foreground="Black" Command="{Binding LoadBankBtn}">
                 <Button.Content>
-                    <TextBlock Text="Load Bank">
+                    <TextBlock Text="Bank">
                         <TextBlock.Effect>
                             <DropShadowEffect ShadowDepth="2" BlurRadius="0.5" Color="White" Direction="310"/>
                             <!--<BlurEffect
@@ -628,20 +641,45 @@
                 </Button.Content>
 
             </Button>
-            <Button  x:Name="Btn2" Width="100" Height="35" Margin="5"  
+            <Button  x:Name="Btn2" Width="70" Height="35" Margin="5"  
                     Style="{StaticResource BtnStyle1}" 
                     MouseEnter="Btn2_MouseEnter"
                     MouseLeave="Btn2_MouseLeave"
                     Foreground="Black" Command="{Binding LoadCustBtn}">
                 <Button.Content>
-                    <TextBlock Text="Load Customer">
+                    <TextBlock Text="Customer">
                         <TextBlock.Effect>
                             <DropShadowEffect ShadowDepth="2" BlurRadius="0.5" Color="White" Direction="310"/>
                         </TextBlock.Effect>
                     </TextBlock>
                 </Button.Content>
             </Button>
-            <Button  x:Name="Btn3" Width="100" Height="35"  Margin="5" 
+            <Button  x:Name="Btn6" Width="70" Height="35" Margin="5"  
+                    Style="{StaticResource BtnStyle1}" 
+                    MouseEnter="Btn6_MouseEnter"
+                    MouseLeave="Btn6_MouseLeave"
+                    Foreground="Black" Command="{Binding LoadGenBtn}">
+                <Button.Content>
+                    <TextBlock Text="Generic">
+                        <TextBlock.Effect>
+                            <DropShadowEffect ShadowDepth="2" BlurRadius="0.5" Color="White" Direction="310"/>
+                        </TextBlock.Effect>
+                    </TextBlock>
+                </Button.Content>
+            </Button>
+            <Button  x:Name="Btn5" Width="70" Height="35"  Margin="5" 
+                    Style="{StaticResource BtnStyle1}" 
+                    Foreground="Black" Command="{Binding ShowInfo}">
+                <Button.Content>
+                    <TextBlock Text="Info">
+                        <TextBlock.Effect>
+                            <DropShadowEffect ShadowDepth="2" BlurRadius="0.5" Color="White" Direction="310"/>
+                        </TextBlock.Effect>
+                    </TextBlock>
+                </Button.Content>
+
+            </Button>
+            <Button  x:Name="Btn3" Width="auto" Height="35"  Margin="5" 
                     Style="{StaticResource BtnStyle1}" 
                     Foreground="Black" Command="{Binding CloseWinBtn}">
                 <Button.Content>
@@ -653,19 +691,7 @@
                 </Button.Content>
 
             </Button>
-            <Button  x:Name="Btn5" Width="80" Height="35"  Margin="5" 
-                    Style="{StaticResource BtnStyle1}" 
-                    Foreground="Black" Command="{Binding ShowInfo}">
-                <Button.Content>
-                    <TextBlock Text="Show Info">
-                        <TextBlock.Effect>
-                            <DropShadowEffect ShadowDepth="2" BlurRadius="0.5" Color="White" Direction="310"/>
-                        </TextBlock.Effect>
-                    </TextBlock>
-                </Button.Content>
-
-            </Button>
-            <Button  x:Name="Btn4" Width="80" Height="35"  Margin="5" 
+            <Button  x:Name="Btn4" Width="auto" Height="35"  Margin="5" 
                     Style="{StaticResource BtnStyle1}" 
                     Foreground="Black" Command="{Binding CloseAppBtn}">
                 <Button.Content>
@@ -988,7 +1014,9 @@
                    HorizontalAlignment="Stretch"
                    FontSize="18" Padding="0 5 0 0" 
                    Visibility="Collapsed"
-                   TextAlignment="Center" Margin="0,0,230,5" ></TextBlock>
+                   TextAlignment="Center" Margin="0,0,230,5" >
+
+        </TextBlock>
         <Button x:Name="clearbtn" Background="Red" Foreground="White" Content=" ClearTabs" 
                    VerticalAlignment="Bottom"
                    HorizontalAlignment="Right"
@@ -998,8 +1026,25 @@
                 Margin="0,0,3,5" Grid.Row="2" Click="clearTabs">
         </Button>
 
+        <ComboBox x:Name="TemplatesCb" MinWidth="200" Width="auto" Height="35"
+                  Grid.Row="2" 
+                  Background="Gray"
+                  Foreground="Red"
+                  SelectedIndex="0"
+                   FontSize="18" 
+                  HorizontalAlignment="Right"
+                  Margin="0,5,85,5"
+                    Visibility="Visible">
+            <!--SelectionChanged="TemplatesCb_SelectionChanged"-->
+            <!--ItemTemplateSelector="{StaticResource myDataTemplateSelector}"-->
+            <!--Tag="{Binding DbType}"-->
+            <!--<ComboBoxItem>ffdddddddfggg</ComboBoxItem>
+            <ComboBoxItem>ffdddddddfggg</ComboBoxItem>
+            <ComboBoxItem>ffdddddddfggg</ComboBoxItem/>-->
+        </ComboBox>
 
-        <Button x:Name="MsgBtn" 
+
+        <!--<Button x:Name="MsgBtn" 
                    HorizontalAlignment="Right"
                 Width="130"
                 Style="{StaticResource BtnStyle1}" Margin="0,3,87,0" Grid.Row="2" Click="SendWinMsg">
@@ -1060,7 +1105,7 @@
                     </EventTrigger.Actions>
                 </EventTrigger>
             </Button.Triggers>
-        </Button>
+        </Button>-->
 
         <Button x:Name="Button_Start" Background="Yellow" 
                 Grid.Row="2" Grid.Column="0" Click="Button_Click" 
@@ -1076,10 +1121,10 @@
                      Value="{Binding ProgressValue}" Margin="2,11,0,9" Width="425" HorizontalAlignment="Left"/>
         <TextBlock x:Name="LoadName" Grid.Row="2" Grid.Column="0"  Margin="35,11,0,9" Width="355" HorizontalAlignment="Left"
                    Padding="0 3 0 0" TextAlignment="Center" Background="Transparent" Foreground="Black" Panel.ZIndex="5"/>
-        <Button x:Name="Button_Cancel" Background="GreenYellow" HorizontalAlignment="Right" 
+        <!--<Button x:Name="Button_Cancel" Background="GreenYellow" HorizontalAlignment="Right" 
                 Grid.Row="2" Grid.Column="0"  Click="Button_Cancel_Click" 
                 Style="{StaticResource BtnStyle1}" 
-                Margin="0,10,221,5"  Width="60">Cancel</Button>
+                Margin="0,10,221,5"  Width="60">Cancel</Button>-->
         <!--#endregion lower controls-->
 
     </Grid>

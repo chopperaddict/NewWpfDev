@@ -1773,8 +1773,8 @@ namespace NewWpfDev
             //Dgrid . ScrollIntoView ( Dgrid . SelectedIndex );
             //ScrollRowInGrid ( Dgrid , Convert.ToInt16(row) );
             Dgrid . UpdateLayout();
-            if ( CurrentRecord == 0 )
-                Debug. WriteLine($"DataGrid Scroll is selecting record ZERO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            //if ( CurrentRecord == 0 )
+               // Debug. WriteLine($"DataGrid Scroll is selecting record ZERO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             //Dgrid . Refresh ( );
             //} );
             //TRANSFER			Flags . CurrentSqlViewer?.SetScrollVariables ( Dgrid );

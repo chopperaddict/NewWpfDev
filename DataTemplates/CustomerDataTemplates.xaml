@@ -2,31 +2,82 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 	<!--Data Template for ListBox/Views-->
 
-	<DataTemplate x:Key="CustomersDbTemplate1">
-		<Border x:Name="CustomersTemplateBorder1" Height="{Binding Path=ItemsHeight,RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}">
-			<StackPanel x:Name="CustTemplateStackpanel" Orientation="Horizontal" >
-				<TextBlock Text="{Binding Id}" Width="{Binding Id.ActualWidth}" Height="{Binding ItemHeight}" Padding="5" />
-				<TextBlock Text="{Binding CustNo}" Width="{Binding CustNo.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"/>
-				<TextBlock Text="{Binding BankNo}" Width="{Binding BankNo.ActualWidth}" Height="{Binding ItemHeight}" Padding="5" />
-				<TextBlock Text="{Binding AcType}" Width="{Binding AcType.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"  />
-				<TextBlock Text="{Binding FName}" Width="{Binding FName.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"  />
-				<TextBlock Text="{Binding LName}" Width="{Binding LName.ActualWidth}" Height="{Binding ItemHeight}" Padding="5" />
-				<TextBlock Text="{Binding Addr1}" Width="{Binding Addr1.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"  />
-				<TextBlock Text="{Binding Addr2}" Width="{Binding Addr2.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"  />
-				<TextBlock Text="{Binding Town}" Width="{Binding Town.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"  />
-				<TextBlock Text="{Binding County}" Width="{Binding County.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"  />
-				<TextBlock Text="{Binding PCode}" Width="{Binding PCode.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"  />
-				<TextBlock Text="{Binding Phone}" Width="{Binding Phone.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"  />
-				<TextBlock Text="{Binding Mobile}" Width="{Binding Mobile.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"  />
-				<TextBlock Text="{Binding Dob, StringFormat=dd/MM/yyyy}" Width="{Binding Dob.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"  />
-				<TextBlock Text="{Binding ODate, StringFormat=dd/MM/yyyy}" Width="{Binding ODate.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"  />
-				<TextBlock Text="{Binding CDate, StringFormat=dd/MM/yyyy}" Width="{Binding CDate.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"  />
-			</StackPanel>
-		</Border>
-	</DataTemplate>
+    <DataTemplate x:Key="CustomersDbTemplate1">
+        <Border x:Name="CustomersTemplateBorder1" Height="{Binding Path=ItemsHeight,RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}">
+            <StackPanel x:Name="CustTemplateStackpanel" Orientation="Horizontal" >
+                <TextBlock Text="{Binding Id}" Width="{Binding Id.ActualWidth}" Height="{Binding ItemHeight}" Padding="5" />
+                <TextBlock Text="{Binding CustNo}" Width="{Binding CustNo.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"/>
+                <TextBlock Text="{Binding BankNo}" Width="{Binding BankNo.ActualWidth}" Height="{Binding ItemHeight}" Padding="5" />
+                <TextBlock Text="{Binding AcType}" Width="{Binding AcType.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"  />
+                <TextBlock Text="{Binding FName}" Width="{Binding FName.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"  />
+                <TextBlock Text="{Binding LName}" Width="{Binding LName.ActualWidth}" Height="{Binding ItemHeight}" Padding="5" />
+                <TextBlock Text="{Binding Addr1}" Width="{Binding Addr1.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"  />
+                <TextBlock Text="{Binding Addr2}" Width="{Binding Addr2.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"  />
+                <TextBlock Text="{Binding Town}" Width="{Binding Town.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"  />
+                <TextBlock Text="{Binding County}" Width="{Binding County.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"  />
+                <TextBlock Text="{Binding PCode}" Width="{Binding PCode.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"  />
+                <TextBlock Text="{Binding Phone}" Width="{Binding Phone.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"  />
+                <TextBlock Text="{Binding Mobile}" Width="{Binding Mobile.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"  />
+                <TextBlock Text="{Binding Dob, StringFormat=dd/MM/yyyy}" Width="{Binding Dob.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"  />
+                <TextBlock Text="{Binding ODate, StringFormat=dd/MM/yyyy}" Width="{Binding ODate.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"  />
+                <TextBlock Text="{Binding CDate, StringFormat=dd/MM/yyyy}" Width="{Binding CDate.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"  />
+            </StackPanel>
+        </Border>
+    </DataTemplate>
 
 
-	<DataTemplate x:Key="CustomersDbTemplate2">
+    <DataTemplate x:Key="CustomersDbTemplateComplex">
+        <Border x:Name="CustomersTemplateBorder1" Height="{Binding Path=ItemsHeight,RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}">
+            <StackPanel x:Name="CustTemplateStackpanel" Orientation="Horizontal" >
+                <StackPanel Orientation="Vertical">
+                     <TextBlock Text="-------------------------------------------------------------------------------------------------------------" Width="auto" Height="15" Padding="0  5  5 0" />
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding Id}" Width="{Binding Id.ActualWidth}" Height="{Binding ItemHeight}"   Padding="10 8 5 5"/>
+                        <TextBlock Text="{Binding AcType}" Width="{Binding AcType.ActualWidth}" Height="{Binding ItemHeight}" Padding="10 8 5 5"  />
+                        <TextBlock Text="Customer #" Width="{Binding AcType.ActualWidth}" Height="{Binding ItemHeight}" Padding="10 8 5 5"  />
+                        <TextBlock Text="{Binding CustNo}" Width="{Binding CustNo.ActualWidth}" Height="{Binding ItemHeight}" Padding="5 3 0 0" FontSize="18" Foreground="{StaticResource Cyan0}"/>
+                        <TextBlock Text="Bank A/C #" Width="{Binding AcType.ActualWidth}" Height="{Binding ItemHeight}" Padding="10 8 5 5"  />
+                        <TextBlock Text="{Binding BankNo}" Width="{Binding BankNo.ActualWidth}" Height="{Binding ItemHeight}" Padding="5 3 0 0" FontSize="18" Foreground="{StaticResource Cyan0}"/>                    
+                </StackPanel>
+                
+                <StackPanel Orientation="Vertical">               
+                    <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding FName}" Width="{Binding FName.ActualWidth}" Height="{Binding ItemHeight}" Padding=" 0 5 0 0"  Foreground="{StaticResource Yellow2}" />
+                            <TextBlock Text="{Binding LName}" Width="{Binding LName.ActualWidth}" Height="{Binding ItemHeight}" Padding="4 5 0 5" Foreground="{StaticResource Yellow2}"/>
+                            <TextBlock Text=", " Width="auto" Height="{Binding ItemHeight}" Padding="0 5 0 5" />
+                            <TextBlock Text="{Binding Addr1}" Width="{Binding Addr1.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"  />
+                            <TextBlock Text=", " Width="auto" Height="{Binding ItemHeight}" Padding="0 5 0 5" />
+                            <TextBlock Text="{Binding Addr2}" Width="{Binding Addr2.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"  />
+                            <TextBlock Text=", " Width="auto" Height="{Binding ItemHeight}" Padding="0 5 0 5" />
+                             <TextBlock Text="{Binding Town}" Width="{Binding Town.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"  />
+                            <TextBlock Text=", " Width="auto" Height="{Binding ItemHeight}" Padding="0 5 0 5" />
+                            <TextBlock Text="{Binding County}" Width="{Binding County.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"  />
+                            <TextBlock Text=", " Width="auto" Height="{Binding ItemHeight}" Padding="0 5 0 5" />
+                            <TextBlock Text="{Binding PCode}" Width="{Binding PCode.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"  />
+                            <TextBlock Text="." Width="auto" Height="{Binding ItemHeight}" Padding="0 5 0 5" />
+                        </StackPanel>
+                        <StackPanel Orientation="Vertical">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Phone #" Width="auto" Height="{Binding ItemHeight}" Padding="0 5 5 5"  />
+                                <TextBlock Text="{Binding Phone}" Width="{Binding Phone.ActualWidth}" Height="{Binding ItemHeight}" Padding="0 5"  />
+                                <TextBlock Text="Cell #" Width="auto" Height="{Binding ItemHeight}" Padding="10 5 5 5"  />
+                                <TextBlock Text="{Binding Mobile}" Width="{Binding Mobile.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"  />
+                            </StackPanel>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Dob : " Width="auto" Height="{Binding ItemHeight}" Padding="0 5 5 5"  />
+                            <TextBlock Text="{Binding Dob, StringFormat=dd/MM/yyyy}" Width="{Binding Dob.ActualWidth}" Height="{Binding ItemHeight}" Padding="0 5 0 0"  />
+                            <TextBlock Text="A/c Opened" Width="auto" Height="{Binding ItemHeight}" Padding="10 5 5 5"  />
+                            <TextBlock Text="{Binding ODate, StringFormat=dd/MM/yyyy}" Width="{Binding ODate.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"  />
+                            <TextBlock Text="A/c Closed" Width="auto" Height="{Binding ItemHeight}" Padding="10 5 5 5"  />
+                            <TextBlock Text="{Binding CDate, StringFormat=dd/MM/yyyy}" Width="{Binding CDate.ActualWidth}" Height="{Binding ItemHeight}" Padding="5"  />
+                </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+                </StackPanel>
+        </Border>
+    </DataTemplate>
+    <DataTemplate x:Key="CustomersDbTemplate2">
 		<Border x:Name="CustomersTemplateBorder1" Height="{Binding Path=ItemsHeight,RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}">
 			<StackPanel x:Name="CustTemplateStackpanel" Orientation="Horizontal" >
 				<TextBlock Text="{Binding Id}" Width="{Binding Id.ActualWidth}" Height="{Binding ItemHeight}" Padding="5" />

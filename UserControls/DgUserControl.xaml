@@ -4,11 +4,13 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:NewWpfDev.UserControls"
+             xmlns:templates="clr-namespace:NewWpfDev.DataTemplates"
                 xmlns:user="clr-namespace:NewWpfDev.UserControls"
              mc:Ignorable="d" 
              x:Name="DataGridUserctrl"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
+        <templates:TvDataTemplateSelectors x:Key="myDataTemplateSelector"/>
     </UserControl.Resources>
 
     <Grid>
@@ -25,12 +27,12 @@
         </Popup>-->
 
         <!--Loaded="grid1_Loaded"-->
+                <!--CellStyle="{StaticResource MAINBankAccountGridStyle}"-->
         <DataGrid x:Name="grid1" 
                 VerticalAlignment="Stretch"
                 FocusVisualStyle="{x:Null}"
                 SelectionMode="Single"
                 CanUserAddRows="False"
-                CellStyle="{StaticResource MAINBankAccountGridStyle}"
                 CanUserResizeRows="true"
                 IsSynchronizedWithCurrentItem="false"
                 IsHitTestVisible="true"
@@ -40,10 +42,11 @@
                 IsTabStop="False"
                 AutoGenerateColumns="false"                                   
                 AlternatingRowBackground="Beige"
-                MouseEnter="PART_MouseEnter"
+                  MouseEnter="PART_MouseEnter"
                 MouseLeave="PART_MouseLeave"
                 Background="Black"  
                 Margin="5 5 0 0">
+                <!--ItemTemplateSelector="{StaticResource myDataTemplateSelector}"-->
             <DataGrid.ItemsPanel>
                 <!--// Saves memory and loads much faster-->
                 <ItemsPanelTemplate>
