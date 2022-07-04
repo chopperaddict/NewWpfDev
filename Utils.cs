@@ -308,7 +308,7 @@ namespace NewWpfDev {
                 dict . Remove ( value );
             }
             catch ( Exception ex ) {
-                Debug . WriteLine ( $"Unable to access Dictionary {dict} to delete key value [{value}]\n{ex . Message}" ); " );
+                Debug . WriteLine ( $"Unable to access Dictionary {dict} to delete key value [{value}]\n{ex . Message}" ); 
                 WpfLib1 . Utils . DoErrorBeep ( 250 , 50 , 1 );
                 return false;
             }
