@@ -8,13 +8,220 @@
             Loaded="TreeviewViiewer_Loaded"
              x:Name="TreeviewViiewer"
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <Style x:Key="TreeViewItemStyle" TargetType="{x:Type TreeViewItem}">
+            <Setter Property="TextElement.Foreground" Value="{StaticResource Black0}"/>
+            <!--<Setter Property="FontSize" Value="16"/>-->
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type TreeViewItem}">
+                        <Border x:Name="Bd" SnapsToDevicePixels="true">
+                            <ContentPresenter x:Name="Contentpresenter" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                                SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"                                              
+                                                Content="{Binding}"
+                                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="False"/>
+                                    <Condition Property="IsSelected" Value="false"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Blue6}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Contentpresenter" Value="{StaticResource White0}"/>
+                                <!--<Setter Property="TextElement.FontSize" TargetName="Contentpresenter" Value="{Binding Fontsize}"/>-->
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="true"/>
+                                    <Condition Property="IsSelected" Value="true"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Red5}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{StaticResource White0}"/>
+                                <Setter Property="TextElement.FontSize" TargetName="Contentpresenter" Value="{Binding Fontsize}"/>
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="False"/>
+                                    <Condition Property="IsSelected" Value="true"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Blue0}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Contentpresenter" Value="{StaticResource White0}"/>
+                                <!--<Setter Property="TextElement.FontSize" TargetName="Contentpresenter" Value="{Binding Fontsize}"/>-->
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="true"/>
+                                    <Condition Property="IsSelected" Value="false"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Orange4}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Contentpresenter" Value="{StaticResource Black0}"/>
+                                <!--<Setter Property="TextElement.FontSize" TargetName="Contentpresenter" Value="{Binding Fontsize}"/>-->
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                        <!--more ....-->
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="MenuItemBlue" TargetType="{x:Type MenuItem}">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="Black" />
+            <!--<Setter Property="BorderBrush" Value="{StaticResource HeaderBorderBrushYellow}" />-->
+            <Setter Property="BorderThickness" Value="1.5" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="HorizontalContentAlignment" Value="left" />
+            <Setter Property="VerticalAlignment" Value="Bottom" />
+            <Setter Property="VerticalContentAlignment" Value="Bottom" />
+            <Setter Property="MinHeight" Value="25" />
+            <!--<Setter Property="Cursor" Value="Hand" />-->
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type MenuItem}">
+                        <Border x:Name="Bd" 
+							  Padding="17,0,17,0" 
+							  BorderBrush="{TemplateBinding BorderBrush}" 
+							  BorderThickness="{TemplateBinding BorderThickness}" 
+							  Background="{TemplateBinding Background}" 
+							  SnapsToDevicePixels="True" 
+							  Uid="Border_38">
+                            <ContentPresenter x:Name="ContentPresenter"  
+										Content="{TemplateBinding Header}" 
+										Margin="{TemplateBinding Padding}" 
+										RecognizesAccessKey="True" 
+										SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+										Uid="ContentPresenter_33"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter Property="Height" TargetName="Bd" Value="25"/>
+                                <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource Blue2}"/>
+                                <!--<Setter Property="Padding" TargetName="Bd"  Value="5,0,5,5"/>-->
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Blue2}"/>
+                                <Setter Property="MenuItem.Foreground"  Value="{StaticResource White0}"/>
+                            </Trigger>
+                            <Trigger Property="IsHighlighted" Value="False">
+                                <Setter Property="Height" TargetName="Bd" Value="25"/>
+                                <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource Orange4}"/>
+                                <!--<Setter Property="Padding" TargetName="Bd"  Value="5,0,5,5"/>-->
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Orange4}"/>
+                                <Setter Property="MenuItem.Foreground" TargetName="ContentPresenter" Value="{StaticResource Black0}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <ContextMenu x:Key="ContextMenu" Width="350" HasDropShadow="True">
+
+            <ContextMenu.Resources>
+                <!--<local:CanMagnify x:Key="CanMagnify"/>-->
+            </ContextMenu.Resources>
+            <!--IsEnabled="{Binding CanExpand}"-->
+            <MenuItem Style="{StaticResource MenuItemBlue}">
+                <MenuItem.Header>
+                    <TextBlock 
+                                Text="Close Context Menu"
+                                FontSize="16"
+                                 Height="25"
+                                Padding="10 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="350"/>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <MenuItem  x:Name="Expand2" Click="Magnifyplus2"
+                 Style="{StaticResource MenuItemBlue}">
+                <MenuItem.Header>
+                    <TextBlock 
+                                DataContext="Tabview"
+                                Text="Magnify +2"
+                                FontSize="16"
+                                 Height="25"
+                                Padding="10 0 0 0"
+                                Margin="0 0 0 0"                                
+                                Width="350"/>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <MenuItem   x:Name="Colpapse2" Click="Magnifyminus2" 
+                    Style="{StaticResource MenuItemBlue}">
+                <MenuItem.Header>
+                    <TextBlock 
+                                Text="Magnify -2"
+                                FontSize="16"
+                                 Height="25"
+                                Padding="10 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="350"/>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <!--<MenuItem  Click="Serialize_DgUserControl"
+                    Style="{StaticResource MenuItemBlue}">
+                <MenuItem.Header>
+                    <TextBlock 
+                                Text="Serialize DgUserControl"
+                                FontSize="16"
+                                 Height="25"
+                                Padding="10 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="350"/>
+                </MenuItem.Header>
+            </MenuItem>
+            <MenuItem  Click="DeSerialize_DgUserControl"
+                    Style="{StaticResource MenuItemBlue}">
+                <MenuItem.Header>
+                    <TextBlock 
+                                Text="DeSerialize DgUserControl"
+                                FontSize="16"
+                                 Height="25"
+                                Padding="10 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="350"/>
+                </MenuItem.Header>
+            </MenuItem>
+            <MenuItem  Click="Serialize_LbUserControl"
+                    Style="{StaticResource MenuItemBlue}">
+                <MenuItem.Header>
+                    <TextBlock 
+                                Text="Serialize LbUserControl"
+                                FontSize="16"
+                                 Height="25"
+                                Padding="10 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="350"/>
+                </MenuItem.Header>
+            </MenuItem>
+            <MenuItem  Click="Serialize_LvUserControl"
+                    Style="{StaticResource MenuItemBlue}">
+                <MenuItem.Header>
+                    <TextBlock 
+                                Text="Serialize LvUserControl"
+                                FontSize="16"
+                                 Height="25"
+                                Padding="10 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="350"/>
+                </MenuItem.Header>
+            </MenuItem>-->
+
+        </ContextMenu>
+
+    </UserControl.Resources>
+    
     <Grid>
-        <TreeView x:Name="treeview1" Background="{StaticResource Orange1}"
-                      Foreground="White"
+        <TreeView x:Name="treeview1" Background="{StaticResource Orange5}"
+                ContextMenu="{StaticResource ContextMenu}"
+                  ItemContainerStyle="{StaticResource TreeViewItemStyle}"
+                      Foreground="Black"
                     PreviewMouseMove="treeview1_PreviewMouseMove"
                     MouseEnter="PART_MouseEnter"
                     MouseLeave="PART_MouseLeave">
-            <TreeViewItem Foreground="White"  FontSize="16" FontWeight="Normal"/>
+                  <!--FontSize="{Binding Fontsize}"-->
+            <TreeViewItem Foreground="White"  FontWeight="Normal"/>
         </TreeView>
     </Grid>
 </UserControl>

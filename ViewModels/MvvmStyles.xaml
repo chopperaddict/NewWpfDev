@@ -57,8 +57,9 @@
 				</MultiDataTrigger.Conditions>
 				<MultiDataTrigger.Setters>
 					<Setter Property="Background" Value="{Binding Converter={StaticResource UniversalConvert}, ConverterParameter=Blue3}" />
-					<Setter Property="Foreground" Value="{StaticResource White0}" />
-				</MultiDataTrigger.Setters>
+                    <Setter Property="Foreground" Value="{StaticResource White0}" />
+                    <!--<Setter Property="TextElement.FontSize" Value="{Binding Fontsize}" />-->
+                </MultiDataTrigger.Setters>
 			</MultiDataTrigger>
 
 			<!--#### ACTYPE = 1 ####-->

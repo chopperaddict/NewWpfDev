@@ -957,16 +957,14 @@ namespace NewWpfDev. Dapper
 
 
 		#region Bank loading methods
-#pragma warning disable CS1998 // This async method lacks 'await' operators and will run synchronously. Consider using the 'await' operator to await non-blocking API calls, or 'await Task.Run(...)' to do CPU-bound work on a background thread.
 		public async static Task<bool> GetBankObsCollectionAsync ( ObservableCollection<BankAccountViewModel> collection ,
-#pragma warning restore CS1998 // This async method lacks 'await' operators and will run synchronously. Consider using the 'await' operator to await non-blocking API calls, or 'await Task.Run(...)' to do CPU-bound work on a background thread.
 			string SqlCommand = "" ,
 			string DbNameToLoad = "" ,
 			string Orderby = "" ,
 			string Conditions = "" ,
 			bool wantSort = false ,
 			bool wantDictionary = false ,
-			bool Notify = false ,
+			bool Notify = true ,
 			string Caller = "" ,
 			int [ ] args = null )
 		{
@@ -1218,14 +1216,15 @@ namespace NewWpfDev. Dapper
 					}
 				}
 			}
-			EventControl . TriggerBankDataLoaded ( null ,
-				new LoadedEventArgs
-				{
-					CallerType = "SQLSERVER" ,
-					CallerDb = Caller ,
-					DataSource = bvmcollection ,
-					RowCount = bvmcollection . Count
-				} );
+            if ( Notify ) {
+                EventControl . TriggerBankDataLoaded ( null ,
+                    new LoadedEventArgs {
+                        CallerType = "SQLSERVER" ,
+                        CallerDb = Caller ,
+                        DataSource = bvmcollection ,
+                        RowCount = bvmcollection . Count
+                    } );
+            }
 			return true;
 		}
 

@@ -313,7 +313,8 @@ namespace NewWpfDev. Sql
 					gc = collection [ 0 ] as GenericClass;
 				else
 					gc = gcc;
-
+                if ( gc.field1  == null )
+                    return 0;
 				if ( gc . field20 != null  && gc.field20 != "")
 				{ return 20; }
 				else if ( gc . field19 != null && gc . field19 != "" )

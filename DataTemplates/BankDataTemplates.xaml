@@ -6,7 +6,7 @@
     <conv:IncreaseByParamValue x:Key="IncreaseSize"/>
     <local:SetAcToText x:Key="SetActoText"/>
 
-    <DataTemplate x:Key="BankDataTemplate1">
+    <DataTemplate x:Key="BankDataTemplate1" >
         <Border x:Name="BankDataTemplateBorder" >
             <StackPanel Orientation="Horizontal" Width="Auto">
                 <!--//<TextBlock Text="{Binding Id}" Width="Auto" Height="{Binding ItemsHeight}"  Padding="5" x:Name="Id" FocusManager.FocusedElement="{Binding RelativeSource={RelativeSource Self}}" />-->

@@ -25,10 +25,16 @@
         </Grid.DataContext>-->
         <TextBlock Grid.Row="0" Foreground="White" Background="{StaticResource Red5}"
                    Text="Information about this Tabbed Window" FontSize="16" TextAlignment="Center" Padding="5"/>
-        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto"
-                      VerticalScrollBarVisibility="Visible">
+        <ScrollViewer 
+            Grid.Row="1" 
+            Margin="10  10 10 10"
+            HorizontalScrollBarVisibility="Auto"
+            VerticalScrollBarVisibility="Visible">
             <StackPanel Orientation="Vertical">
-            <TextBlock x:Name="dataBlock" Foreground="{StaticResource White0}"
+            <TextBlock x:Name="dataBlock" 
+                       Background="BlanchedAlmond"
+                       Foreground="{StaticResource Black0}"
+                        Padding="15 15 5 5"
                        FontSize="16"
                        Text="{Binding Path=TabbedWindowText}"/>        
             </StackPanel>

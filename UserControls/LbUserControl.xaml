@@ -48,31 +48,55 @@
         </Style>
 
 
-        <Style x:Key="ListBoxItemStyle1" TargetType="{x:Type ListBoxItem}">
+        <Style x:Key="_ListBoxItemStyle1" TargetType="ListBoxItem">
+            <!--<Setter Property="FontSize" Value="16" />-->
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type ListBoxItem}">
                         <Border x:Name="Bd" SnapsToDevicePixels="true">
 
                             <ContentPresenter x:Name="Contentpresenter" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
-                                                SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
-                                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                              SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+                             </ContentPresenter>
 
                         </Border>
                         <ControlTemplate.Triggers>
                             <MultiTrigger>
                                 <MultiTrigger.Conditions>
+                                    <Condition Property="IsSelected" Value="False"/>
                                     <Condition Property="IsMouseOver" Value="False"/>
                                 </MultiTrigger.Conditions>
                                 <Setter Property="Background" TargetName="Bd" Value="{StaticResource Blue6}"/>
                                 <Setter Property="TextElement.Foreground" TargetName="Contentpresenter" Value="{StaticResource White0}"/>
+                                <!--<Setter Property="TextElement.FontSize" TargetName="Contentpresenter" Value="{Binding Fontsize}"/>-->
                             </MultiTrigger>
                             <MultiTrigger>
                                 <MultiTrigger.Conditions>
+                                    <Condition Property="IsSelected" Value="False"/>
                                     <Condition Property="IsMouseOver" Value="true"/>
                                 </MultiTrigger.Conditions>
                                 <Setter Property="Background" TargetName="Bd" Value="{StaticResource Red5}"/>
                                 <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{StaticResource White0}"/>
+                                <!--<Setter Property="TextElement.FontSize" TargetName="Contentpresenter" Value="{Binding Fontsize}"/>-->
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsSelected" Value="true"/>
+                                    <Condition Property="IsMouseOver" Value="false"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Green5}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{StaticResource Black0}"/>
+                                <!--<Setter Property="TextElement.FontSize" TargetName="Contentpresenter" Value="{Binding Fontsize}"/>-->
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsSelected" Value="true"/>
+                                    <Condition Property="IsMouseOver" Value="true"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Orange5}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{StaticResource Red1}"/>
+                                <!--<Setter Property="TextElement.FontSize" TargetName="Contentpresenter" Value="{Binding Fontsize}"/>-->
                             </MultiTrigger>
                         </ControlTemplate.Triggers>
                         <!--more ....-->
@@ -241,6 +265,151 @@
             </Border>
         </DataTemplate>
 
+        <Style x:Key="MenuItemBlue" TargetType="{x:Type MenuItem}">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="Black" />
+            <!--<Setter Property="BorderBrush" Value="{StaticResource HeaderBorderBrushYellow}" />-->
+            <Setter Property="BorderThickness" Value="1.5" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="HorizontalContentAlignment" Value="left" />
+            <Setter Property="VerticalAlignment" Value="Bottom" />
+            <Setter Property="VerticalContentAlignment" Value="Bottom" />
+            <Setter Property="MinHeight" Value="25" />
+            <!--<Setter Property="Cursor" Value="Hand" />-->
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type MenuItem}">
+                        <Border x:Name="Bd" 
+							  Padding="17,0,17,0" 
+							  BorderBrush="{TemplateBinding BorderBrush}" 
+							  BorderThickness="{TemplateBinding BorderThickness}" 
+							  Background="{TemplateBinding Background}" 
+							  SnapsToDevicePixels="True" 
+							  Uid="Border_38">
+                            <ContentPresenter x:Name="ContentPresenter"  
+										Content="{TemplateBinding Header}" 
+										Margin="{TemplateBinding Padding}" 
+										RecognizesAccessKey="True" 
+										SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+										Uid="ContentPresenter_33"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter Property="Height" TargetName="Bd" Value="25"/>
+                                <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource Blue2}"/>
+                                <!--<Setter Property="Padding" TargetName="Bd"  Value="5,0,5,5"/>-->
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Blue2}"/>
+                                <Setter Property="MenuItem.Foreground"  Value="{StaticResource White0}"/>
+                            </Trigger>
+                            <Trigger Property="IsHighlighted" Value="False">
+                                <Setter Property="Height" TargetName="Bd" Value="25"/>
+                                <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource Orange4}"/>
+                                <!--<Setter Property="Padding" TargetName="Bd"  Value="5,0,5,5"/>-->
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Orange4}"/>
+                                <Setter Property="MenuItem.Foreground" TargetName="ContentPresenter" Value="{StaticResource Black0}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <ContextMenu x:Key="ContextMenu" Width="350" HasDropShadow="True">
+
+            <ContextMenu.Resources>
+                <!--<local:CanMagnify x:Key="CanMagnify"/>-->
+            </ContextMenu.Resources>
+            <!--IsEnabled="{Binding CanExpand}"-->
+            <MenuItem Style="{StaticResource MenuItemBlue}">
+                <MenuItem.Header>
+                    <TextBlock 
+                                Text="Close Context Menu"
+                                FontSize="16"
+                                 Height="25"
+                                Padding="10 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="350"/>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <MenuItem  x:Name="Expand2" Click="Magnifyplus2"
+                 Style="{StaticResource MenuItemBlue}">
+                <MenuItem.Header>
+                    <TextBlock 
+                                DataContext="Tabview"
+                                Text="Magnify +2"
+                                FontSize="16"
+                                 Height="25"
+                                Padding="10 0 0 0"
+                                Margin="0 0 0 0"                                
+                                Width="350"/>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <MenuItem   x:Name="Colpapse2" Click="Magnifyminus2" 
+                    Style="{StaticResource MenuItemBlue}">
+                <MenuItem.Header>
+                    <TextBlock 
+                                Text="Magnify -2"
+                                FontSize="16"
+                                 Height="25"
+                                Padding="10 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="350"/>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <!--<MenuItem  Click="Serialize_DgUserControl"
+                    Style="{StaticResource MenuItemBlue}">
+                <MenuItem.Header>
+                    <TextBlock 
+                                Text="Serialize DgUserControl"
+                                FontSize="16"
+                                 Height="25"
+                                Padding="10 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="350"/>
+                </MenuItem.Header>
+            </MenuItem>
+            <MenuItem  Click="DeSerialize_DgUserControl"
+                    Style="{StaticResource MenuItemBlue}">
+                <MenuItem.Header>
+                    <TextBlock 
+                                Text="DeSerialize DgUserControl"
+                                FontSize="16"
+                                 Height="25"
+                                Padding="10 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="350"/>
+                </MenuItem.Header>
+            </MenuItem>
+            <MenuItem  Click="Serialize_LbUserControl"
+                    Style="{StaticResource MenuItemBlue}">
+                <MenuItem.Header>
+                    <TextBlock 
+                                Text="Serialize LbUserControl"
+                                FontSize="16"
+                                 Height="25"
+                                Padding="10 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="350"/>
+                </MenuItem.Header>
+            </MenuItem>
+            <MenuItem  Click="Serialize_LvUserControl"
+                    Style="{StaticResource MenuItemBlue}">
+                <MenuItem.Header>
+                    <TextBlock 
+                                Text="Serialize LvUserControl"
+                                FontSize="16"
+                                 Height="25"
+                                Padding="10 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="350"/>
+                </MenuItem.Header>
+            </MenuItem>-->
+
+        </ContextMenu>
+
     </UserControl.Resources>
     <Grid x:Name="LbGrid">
         <Grid.RowDefinitions>
@@ -252,6 +421,7 @@
         <!--These  are set on a caller by caller basis, so each control has potentially different color schemes
         despite there only being ONE set of attached Properties in ListboxColorCtrlAP.cs-->
         <ListBox x:Name="listbox1"                  
+                ContextMenu="{StaticResource ContextMenu}"
                  SelectionChanged="listbox1_SelectionChanged"                 
                  IsSynchronizedWithCurrentItem="True"
                  VirtualizingPanel.IsVirtualizing="True"
@@ -263,24 +433,36 @@
                  Loaded="ttloaded"
                  MaxHeight="2000"
                  Background="{StaticResource Cyan1}"
-                 Foreground="White"
+                 Foreground="Black"
                  Height="{Binding ActualHeight, ElementName=LbGrid}"
                  Width="{Binding ActualWidth, ElementName=LbGrid}"
                 ToolTipService.ShowDuration="5000"   
-                 ToolTipService.HasDropShadow="True"                 
+                 ToolTipService.HasDropShadow="True"    
                  MouseEnter="PART_MouseEnter"
                  MouseLeave="PART_MouseLeave"
-                 PreviewMouseRightButtonDown="ttSp_PreviewMouseRightButtonDown"
-                ItemContainerStyle="{StaticResource _ListBoxItemStyle1}">
-            <ListBox.ItemsPanel>
-                <!--// Saves memory and loads much faster-->
+                ItemContainerStyle="{StaticResource _ListBoxItemStyle1}"
+                PreviewMouseRightButtonDown="ttSp_PreviewMouseRightButtonDown">
+
+            <!--<ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding}"
+                               FontSize="{Binding Fontsize}"/>
+                </DataTemplate>
+            </ListBox.ItemTemplate>-->
+
+            <!--<DataTemplate>
+                <TextBlock Text="{Binding}" FontSize="{Binding Fontsize}" />
+            </DataTemplate>
+            </ListBox.ItemTemplate>-->
+            <!--<ListBoxItem FontSize="{Binding Fontsize}"/>-->
+            <!--<ListBox.ItemsPanel>
+                --><!--// Saves memory and loads much faster--><!--
                 <ItemsPanelTemplate>
                     <VirtualizingStackPanel>
-                        <!--// saves loads of memroy-->
+                        --><!--// saves loads of memroy--><!--
                     </VirtualizingStackPanel>
                 </ItemsPanelTemplate>
-            </ListBox.ItemsPanel>
-
+            </ListBox.ItemsPanel>-->
 
             <ListBox.ToolTip                >
                 <StackPanel  >
@@ -288,9 +470,8 @@
                     <TextBlock Text="to allow personalization of this control." HorizontalAlignment="Center"/>
                 </StackPanel>
             </ListBox.ToolTip>
-
-
         </ListBox>
+        
         <!--PopupAnimation="Fade"-->
         <!--<Popup  x:Name="TooltipPopup" Placement="Center"  AllowsTransparency="True" StaysOpen="true" Height="200" Width="300" Panel.ZIndex="20"
                  MouseLeave="listbox1_MouseLeave"

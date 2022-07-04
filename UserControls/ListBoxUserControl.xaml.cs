@@ -206,7 +206,7 @@ namespace NewWpfDev . UserControls
 				// This creates and loads a GenericClass table if data is found in the selected table
 				string ResultString="";
 				string tablename = DbListbox . SelectedItem . ToString ( );
-				SqlCommand = $"Select *from {tablename}";
+				SqlCommand = $"Select * from {tablename}";
 				genaccts = SqlSupport . LoadGeneric ( SqlCommand , out ResultString , 0 , true );
 				if ( genaccts . Count > 0 )
 				{
@@ -241,9 +241,6 @@ namespace NewWpfDev . UserControls
 		}
 		private void LoadGrid ( object obj = null )
 		{
-
-			//			ShowLoadtime ( );
-
 			// Load whatever data we have received into DataGrid
 			if ( CurrentTableName . ToUpper ( ) == "BANKACCOUNT" )
 			{
@@ -256,18 +253,7 @@ namespace NewWpfDev . UserControls
 				// This returns a Dictionary<sting,string> PLUS a collection  and a List<string> passed by ref....
 				List<int> VarCharLength  = new List<int>();
 				dict = GenericDbUtilities . GetDbTableColumns ( ref gc , ref list , "BankAccount" , "IAN1", ref VarCharLength );
-				//foreach ( var item in dict )
-				//{
-				//	gc.
-				//}
-				//TextBlock tb = CreateItemLayout ( "gc.",dict );
-				//LbDataTemplate = tb;
-				listbox1 . ItemsSource = bankaccts;
-				//DbCount = bankaccts . Count;
-				//ShowInfo ( line1: $"The requested table [{CurrentType}] was loaded successfully, and the {DbCount} records returned are displayed in the table below" , clr1: "Black0" ,
-				//	line2: $"The command line used was" , clr2: "Red2" ,
-				//	line3: $"{SqlCommand . ToUpper ( )}" , clr3: "Blue4" ,
-				//	header: "Bank Accounts data table" , clr4: "Red5" );
+    			listbox1 . ItemsSource = bankaccts;
 				listbox1 . SelectedIndex = 0;
 				listbox1 . Focus ( );
 				RecordsCount = listbox1 . Items . Count;
@@ -277,11 +263,6 @@ namespace NewWpfDev . UserControls
 				if ( custaccts == null )
 					return;
 				listbox1 . ItemsSource = custaccts;
-				//DbCount = custaccts . Count;
-				//ShowInfo ( line1: $"The requested table [{CurrentType}] was loaded successfully, and the {DbCount} records returned are displayed in the table below" , clr1: "Black0" ,
-				//	line2: $"The command line used was" , clr2: "Red2" ,
-				//	line3: $"{SqlCommand . ToUpper ( )}" , clr3: "Blue4" ,
-				//	header: "All Customers data table" , clr4: "Red5" );
 				listbox1 . SelectedIndex = 0;
 				listbox1 . Focus ( );
 				RecordsCount = listbox1 . Items . Count;
@@ -291,11 +272,6 @@ namespace NewWpfDev . UserControls
 				if ( detaccts == null )
 					return;
 				listbox1 . ItemsSource = detaccts;
-				//				DbCount = detaccts . Count;
-				//				ShowInfo ( line1: $"The requested table [{CurrentType}] was loaded successfully, and the {DbCount} records returned are displayed in the table below" , clr1: "Black0" ,
-				//					line2: $"The command line used was" , clr2: "Red2" ,
-				//					line3: $"{SqlCommand . ToUpper ( )}" , clr3: "Blue4" ,
-				//					header: "Secondary Accounts data table" );
 				listbox1 . SelectedIndex = 0;
 				listbox1 . Focus ( );
 				RecordsCount = listbox1 . Items . Count;
@@ -304,7 +280,6 @@ namespace NewWpfDev . UserControls
 			{
 				if ( genaccts . Count == 0 )
 				{
-					//ShowInfo ( line1: $"The requested table [ {CurrentType} ] succeeded, but returned Zero rows of data." , clr1: "Green5" , header: "It is quite likely that the table is actually empty !" , clr4: "Cyan1" );
 					listbox1 . ItemsSource = null;
 					listbox1 . Refresh ( );
 					RecordsCount = listbox1 . Items . Count;
@@ -314,18 +289,6 @@ namespace NewWpfDev . UserControls
 				// //visible in the grid so do NOT repopulate the grid after making this call
 				//				SqlServerCommands sqlc = new SqlServerCommands();
 				listbox1 . ItemsSource = genaccts;
-				//				SqlServerCommands . LoadActiveRowsOnlyInGrid ( listbox1 , genaccts , SqlServerCommands . GetGenericColumnCount ( genaccts ) );
-				//if ( Flags . ReplaceFldNames )
-				//{
-				//	GenericDbHandlers . ReplaceDataGridFldNames ( CurrentType , ref listbox1 );
-				//}
-				//				Grid1 . ItemsSource = genaccts;
-				//				DbCount = genaccts . Count;
-				//				ShowInfo ( header: "Unrecognised table accessed successfully" , clr4: "Red5" ,
-				//					line1: $"Request made was completed succesfully!" , clr1: "Red3" ,
-				//					line2: $"the table [{CurrentType}] that was queried returned a record count of {DbCount}.\nThe structure of this data is not recognised, so a generic structure has been used..." ,
-				//					line3: $"{SqlCommand . ToUpper ( )}" , clr3: "Blue4"
-				//					);
 				listbox1 . SelectedIndex = 0;
 				listbox1 . Focus ( );
 				RecordsCount = listbox1 . Items . Count;

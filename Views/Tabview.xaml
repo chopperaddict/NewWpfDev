@@ -7,7 +7,7 @@
         xmlns:user="clr-namespace:NewWpfDev.UserControls"
         xmlns:view="clr-namespace:NewWpfDev.ViewModels"
         xmlns:conv="clr-namespace:NewWpfDev.Converts"
-        xmlns:templates="clr-namespace:NewWpfDev.DataTemplates"
+        xmlns:templates="clr-namespace:NewWpfDev.DataTemplates" d:DataContext="{d:DesignInstance Type=view:TabWinViewModel}"
         Loaded="Window_Loaded"
         Closed="tabview_Closed"
         Background="Cyan"
@@ -15,16 +15,18 @@
         ResizeMode="CanResizeWithGrip"        
         x:Name="tabview"
         Height="250" Width="500"
-        Title="Tabview" MinHeight="450" MinWidth="800"
+        Title="Tabview" MinHeight="470" MinWidth="800"
         mc:Ignorable="d">
-   
-        <!--<Window.Effect>
+
+    <!--<Window.Effect>
             <DropShadowEffect ShadowDepth="35" 
 								BlurRadius="1.5" 
 								Color="Red" 
 								Direction="310"/>
 
-            --><!--<BlurEffect Radius="1.0" KernelType="Box"/>--><!--
+            -->
+    <!--<BlurEffect Radius="1.0" KernelType="Box"/>-->
+    <!--
         </Window.Effect>-->
 
 
@@ -34,6 +36,105 @@
 
         <!--<local:ConditionalEventTrigger x:Key="ConditionalEventTrigger"/>-->
         <conv:ReduceByParamValue x:Key="ReduceByParamValue"/>
+
+        <Style x:Key="MenuItemBlue" TargetType="{x:Type MenuItem}">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="Black" />
+            <!--<Setter Property="BorderBrush" Value="{StaticResource HeaderBorderBrushYellow}" />-->
+            <Setter Property="BorderThickness" Value="1.5" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="HorizontalContentAlignment" Value="left" />
+            <Setter Property="VerticalAlignment" Value="Bottom" />
+            <Setter Property="VerticalContentAlignment" Value="Bottom" />
+            <Setter Property="MinHeight" Value="25" />
+            <!--<Setter Property="Cursor" Value="Hand" />-->
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type MenuItem}">
+                        <Border x:Name="Bd" 
+							  Padding="17,0,17,0" 
+							  BorderBrush="{TemplateBinding BorderBrush}" 
+							  BorderThickness="{TemplateBinding BorderThickness}" 
+							  Background="{TemplateBinding Background}" 
+							  SnapsToDevicePixels="True" 
+							  Uid="Border_38">
+                            <ContentPresenter x:Name="ContentPresenter"  
+										Content="{TemplateBinding Header}" 
+										Margin="{TemplateBinding Padding}" 
+										RecognizesAccessKey="True" 
+										SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+										Uid="ContentPresenter_33"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter Property="Height" TargetName="Bd" Value="25"/>
+                                <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource Blue2}"/>
+                                <!--<Setter Property="Padding" TargetName="Bd"  Value="5,0,5,5"/>-->
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Blue2}"/>
+                                <Setter Property="MenuItem.Foreground"  Value="{StaticResource White0}"/>
+                            </Trigger>
+                            <Trigger Property="IsHighlighted" Value="False">
+                                <Setter Property="Height" TargetName="Bd" Value="25"/>
+                                <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource Orange4}"/>
+                                <!--<Setter Property="Padding" TargetName="Bd"  Value="5,0,5,5"/>-->
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Orange4}"/>
+                                <Setter Property="MenuItem.Foreground" TargetName="ContentPresenter" Value="{StaticResource Black0}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!--<Style x:Key="MenuItemBlue" TargetType="{x:Type MenuItem}">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="Black" />
+            --><!--<Setter Property="BorderBrush" Value="{StaticResource HeaderBorderBrushYellow}" />--><!--
+            <Setter Property="BorderThickness" Value="1.5" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="HorizontalContentAlignment" Value="left" />
+            <Setter Property="VerticalAlignment" Value="Bottom" />
+            <Setter Property="VerticalContentAlignment" Value="Bottom" />
+            <Setter Property="MinHeight" Value="25" />
+            -->
+        <!--<Setter Property="Cursor" Value="Hand" />--><!--
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type MenuItem}">
+                        <Border x:Name="Bd" 
+								  BorderBrush="{TemplateBinding BorderBrush}" 
+							  BorderThickness="{TemplateBinding BorderThickness}" 
+							  Background="{TemplateBinding Background}" 
+							  SnapsToDevicePixels="True" 
+							  Uid="Border_38">
+										--><!--Content="{Binding MenuItem.Header}"--><!-- 
+                            <ContentPresenter x:Name="ContentPresenter"  
+										Margin="{TemplateBinding Padding}" 
+										RecognizesAccessKey="True" 
+										SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+										Uid="ContentPresenter_33"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver"  Value="false">
+                                <Setter Property="Height" TargetName="Bd" Value="25"/>
+                                <Setter Property="BorderBrush"  TargetName="Bd" Value="{StaticResource Blue2}"/>
+                                <Setter Property="Padding"  TargetName="Bd" Value="5,0,5,5"/>
+                                <Setter Property="Background"  TargetName="Bd" Value="{StaticResource Blue2}"/>
+                                <Setter Property="MenuItem.Foreground"   TargetName="ContentPresenter" Value="{StaticResource White0}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Height" TargetName="Bd" Value="25"/>
+                                <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource Orange3}"/>
+                                <Setter Property="Padding" TargetName="Bd"  Value="5,0,5,5"/>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Orange3}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="ContentPresenter" Value="{StaticResource White0}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>-->
+
 
         <DataTemplate x:Key="NotificationTemplate">
             <!--<Border Name="brd" Background="Transparent">
@@ -530,10 +631,53 @@
             </Setter>
         </Style>
 
-        <ContextMenu x:Key="ContextMenu" Width="350" HasDropShadow="True"  >
+        <ContextMenu x:Key="ContextMenu" Width="350" HasDropShadow="True">
 
+            <ContextMenu.Resources>
+                <!--<local:CanMagnify x:Key="CanMagnify"/>-->
+            </ContextMenu.Resources>
+            <!--IsEnabled="{Binding CanExpand}"-->
+            <MenuItem Style="{StaticResource MenuItemBlue}">
+                <MenuItem.Header>
+                    <TextBlock 
+                                Text="Close Context Menu"
+                                FontSize="16"
+                                 Height="25"
+                                Padding="10 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="350"/>
+                </MenuItem.Header>
+            </MenuItem>
+            
+            <MenuItem  x:Name="Expand2" Click="Magnifyplus2"
+                 Style="{StaticResource MenuItemBlue}">
+                <MenuItem.Header>
+                    <TextBlock 
+                                DataContext="Tabview"
+                                Text="Magnify +2"
+                                FontSize="16"
+                                 Height="25"
+                                Padding="10 0 0 0"
+                                Margin="0 0 0 0"                                
+                                Width="350"/>
+                </MenuItem.Header>
+            </MenuItem>
 
-            <MenuItem  Click="Serialize_DgUserControl" >
+            <MenuItem   x:Name="Colpapse2" Click="Magnifyminus2" 
+                    Style="{StaticResource MenuItemBlue}">
+                <MenuItem.Header>
+                    <TextBlock 
+                                Text="Magnify -2"
+                                FontSize="16"
+                                 Height="25"
+                                Padding="10 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="350"/>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <MenuItem  Click="Serialize_DgUserControl"
+                    Style="{StaticResource MenuItemBlue}">
                 <MenuItem.Header>
                     <TextBlock 
                                 Text="Serialize DgUserControl"
@@ -544,7 +688,8 @@
                                 Width="350"/>
                 </MenuItem.Header>
             </MenuItem>
-            <MenuItem  Click="DeSerialize_DgUserControl" >
+            <MenuItem  Click="DeSerialize_DgUserControl"
+                    Style="{StaticResource MenuItemBlue}">
                 <MenuItem.Header>
                     <TextBlock 
                                 Text="DeSerialize DgUserControl"
@@ -555,7 +700,8 @@
                                 Width="350"/>
                 </MenuItem.Header>
             </MenuItem>
-            <MenuItem  Click="Serialize_LbUserControl" >
+            <MenuItem  Click="Serialize_LbUserControl"
+                    Style="{StaticResource MenuItemBlue}">
                 <MenuItem.Header>
                     <TextBlock 
                                 Text="Serialize LbUserControl"
@@ -566,7 +712,8 @@
                                 Width="350"/>
                 </MenuItem.Header>
             </MenuItem>
-            <MenuItem  Click="Serialize_LvUserControl" >
+            <MenuItem  Click="Serialize_LvUserControl"
+                    Style="{StaticResource MenuItemBlue}">
                 <MenuItem.Header>
                     <TextBlock 
                                 Text="Serialize LvUserControl"
@@ -577,18 +724,18 @@
                                 Width="350"/>
                 </MenuItem.Header>
             </MenuItem>
-        </ContextMenu>
+
+         </ContextMenu>
 
     </Window.Resources>
 
     <!--//========================================================//-->
 
-    <Grid x:Name="TabViewGrid"  Margin="5 5 5 5"
-          ContextMenu="{StaticResource ContextMenu}">
+    <Grid x:Name="TabViewGrid"  Margin="5 5 5 5" >
         <Grid.RowDefinitions>
-            <RowDefinition Height="45"/>
+           <RowDefinition Height="45"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="45"/>
+            <RowDefinition Height="65"/>
         </Grid.RowDefinitions>
 
 
@@ -654,7 +801,7 @@
                     </TextBlock>
                 </Button.Content>
             </Button>
-            <Button  x:Name="Btn6" Width="70" Height="35" Margin="5"  
+            <!--<Button  x:Name="Btn6" Width="70" Height="35" Margin="5"  
                     Style="{StaticResource BtnStyle1}" 
                     MouseEnter="Btn6_MouseEnter"
                     MouseLeave="Btn6_MouseLeave"
@@ -666,7 +813,7 @@
                         </TextBlock.Effect>
                     </TextBlock>
                 </Button.Content>
-            </Button>
+            </Button>-->
             <Button  x:Name="Btn5" Width="70" Height="35"  Margin="5" 
                     Style="{StaticResource BtnStyle1}" 
                     Foreground="Black" Command="{Binding ShowInfo}">
@@ -726,6 +873,7 @@
 
 
         <TextBlock  Text="{Binding DbType}" 
+                        Name="DbTypeFld"
                         Margin="0 5 5 0"
                         Padding="0 0 0 0"
                         Width="150"
@@ -737,6 +885,7 @@
                         FontSize="18"
                         TextAlignment="Center"/>
         <TextBlock  Text="{Binding DbCount}"
+                    Name="DbCount"
                     Margin="0 5 5 0"
                         Height="30" Width="80"
                         HorizontalAlignment="Right"
@@ -751,8 +900,7 @@
         <ListBox x:Name="Viewmodels" Grid.Row="1" Height="250" Width="300" Margin="100 100"                  
                  Panel.ZIndex="10" Visibility="Collapsed" Background="Black" Foreground="White"/>
 
-        <TabControl  x:Name="Tabctrl" Grid.Row ="1" 
-                    >
+        <TabControl  x:Name="Tabctrl" Grid.Row ="1" >            
 
             <!--#region Tabitems-->
 
@@ -1026,106 +1174,45 @@
                 Margin="0,0,3,5" Grid.Row="2" Click="clearTabs">
         </Button>
 
-        <ComboBox x:Name="TemplatesCb" MinWidth="200" Width="auto" Height="35"
+        <ComboBox x:Name="TemplatesCb" MinWidth="200" Width="auto"
                   Grid.Row="2" 
                   Background="Gray"
                   Foreground="Red"
                   SelectedIndex="0"
-                   FontSize="18" 
+                   FontSize="14" 
                   HorizontalAlignment="Right"
-                  Margin="0,5,85,5"
-                    Visibility="Visible">
-            <!--SelectionChanged="TemplatesCb_SelectionChanged"-->
-            <!--ItemTemplateSelector="{StaticResource myDataTemplateSelector}"-->
-            <!--Tag="{Binding DbType}"-->
-            <!--<ComboBoxItem>ffdddddddfggg</ComboBoxItem>
-            <ComboBoxItem>ffdddddddfggg</ComboBoxItem>
-            <ComboBoxItem>ffdddddddfggg</ComboBoxItem/>-->
-        </ComboBox>
-
-
-        <!--<Button x:Name="MsgBtn" 
-                   HorizontalAlignment="Right"
-                Width="130"
-                Style="{StaticResource BtnStyle1}" Margin="0,3,87,0" Grid.Row="2" Click="SendWinMsg">
-            <Button.Background>
-                <SolidColorBrush x:Name="BackgroundBrush" Color="Green"/>
-            </Button.Background>
-            <Button.Foreground>
-                <SolidColorBrush x:Name="ForegroundBrush" Color="White"/>
-            </Button.Foreground>
-            <Button.Content>
-                <StackPanel>
-                    <TextBlock Text="Broadcast Message" FontSize="12" TextAlignment="Center"/>
-                    <TextBlock Text="(to InterWinComms)" FontSize="12" TextAlignment="Center"/>
-                </StackPanel>
-            </Button.Content>
-            <Button.Triggers>
-                <EventTrigger RoutedEvent="Button.MouseEnter">
-                    <EventTrigger.Actions>
-                        <BeginStoryboard>
-                            <Storyboard>
-                                <ColorAnimation Storyboard.TargetName="BackgroundBrush" 
-                                                Storyboard.TargetProperty="Color"
-                                                From="Green"
-                                                To="Orange" 
-                                                FillBehavior="HoldEnd"
-                                                AccelerationRatio="0.4" DecelerationRatio="0.4"
-                                                Duration="0:0:1"/>
-                                <ColorAnimation Storyboard.TargetName="ForegroundBrush" 
-                                                Storyboard.TargetProperty="Color"
-                                                From="White"
-                                                To="Black" 
-                                                FillBehavior="HoldEnd"
-                                                AccelerationRatio="0.4" DecelerationRatio="0.4" 
-                                                Duration="0:0:0.3"/>
-                            </Storyboard>
-                        </BeginStoryboard>
-                    </EventTrigger.Actions>
-                </EventTrigger>
-                <EventTrigger RoutedEvent="Button.MouseLeave">
-                    <EventTrigger.Actions>
-                        <BeginStoryboard>
-                            <Storyboard>
-                                <ColorAnimation Storyboard.TargetName="BackgroundBrush" 
-                                                Storyboard.TargetProperty="Color"
-                                                From="Orange"
-                                                FillBehavior="HoldEnd"
-                                                AccelerationRatio="0.4" DecelerationRatio="0.4"
-                                                To="Green" Duration="0:0:0.5"/>
-                                <ColorAnimation Storyboard.TargetName="ForegroundBrush" 
-                                                Storyboard.TargetProperty="Color"
-                                                From="Black"
-                                                To="White" 
-                                                FillBehavior="HoldEnd"
-                                                AccelerationRatio="0.4" DecelerationRatio="0.4"                                                
-                                                Duration="0:0:0.3"/>
-                            </Storyboard>
-                        </BeginStoryboard>
-                    </EventTrigger.Actions>
-                </EventTrigger>
-            </Button.Triggers>
-        </Button>-->
-
+                  Margin="0,6,85,32"
+                    Visibility="Visible"/>
+        <ComboBox x:Name="DbnamesCb" MinWidth="200" Width="auto"
+                  Grid.Row="2" 
+                  Background="Gray"
+                  Foreground="Red"
+                  SelectedIndex="0"
+                   FontSize="14" 
+                  HorizontalAlignment="Right"
+                  Margin="0,38,85,2"
+                    Visibility="Visible" >
+            <ComboBox.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform ScaleY="1"/>
+                    <SkewTransform/>
+                    <RotateTransform/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </ComboBox.RenderTransform>
+           </ComboBox>
+   
         <Button x:Name="Button_Start" Background="Yellow" 
                 Grid.Row="2" Grid.Column="0" Click="Button_Click" 
                 Style="{StaticResource BtnStyle1}" 
                 Visibility="Collapsed"
                 Margin="0,10,287,5" HorizontalAlignment="Right" Width="57">Start</Button>
-        <!--<Button x:Name="tooglelview" Background="Yellow" 
-                Grid.Row="2" Grid.Column="0" Click="Toggle_Click" 
-                Style="{StaticResource BtnStyle1}" 
-                Visibility="Visible"
-                Margin="0,10,287,5" HorizontalAlignment="Right" Width="57">Toggle</Button>-->
+   
         <ProgressBar x:Name="ProgressBar_Progress" Grid.Row="2" Grid.Column="0"  Maximum="100"  
                      Value="{Binding ProgressValue}" Margin="2,11,0,9" Width="425" HorizontalAlignment="Left"/>
+        
         <TextBlock x:Name="LoadName" Grid.Row="2" Grid.Column="0"  Margin="35,11,0,9" Width="355" HorizontalAlignment="Left"
                    Padding="0 3 0 0" TextAlignment="Center" Background="Transparent" Foreground="Black" Panel.ZIndex="5"/>
-        <!--<Button x:Name="Button_Cancel" Background="GreenYellow" HorizontalAlignment="Right" 
-                Grid.Row="2" Grid.Column="0"  Click="Button_Cancel_Click" 
-                Style="{StaticResource BtnStyle1}" 
-                Margin="0,10,221,5"  Width="60">Cancel</Button>-->
-        <!--#endregion lower controls-->
-
+        
     </Grid>
 </Window>

@@ -1,5 +1,7 @@
 ﻿using Dapper;
 
+using Microsoft . VisualBasic;
+
 using NewWpfDev. Dapper;
 using NewWpfDev. Models;
 using NewWpfDev. ViewModels;
@@ -53,7 +55,19 @@ namespace NewWpfDev. SQL
 			"" ,
 			null ,
 			false );
-			return generics;
+            //No data available ...
+//            if ( Notify )
+//{
+//                EventControl . TriggerGenDataLoaded ( null ,
+//                    new LoadedEventArgs {
+//                        CallerType = "GENERICDATA" ,
+//                        CallerDb = "",
+//                        DataSource = generics,
+//                        RowCount = generics . Count
+//                    } );
+
+//            }
+            return generics;
 		}
 		#endregion Wrapper methods to Fetch data & load into collections
 

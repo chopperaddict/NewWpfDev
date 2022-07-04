@@ -2,7 +2,9 @@
 using System . Collections . Generic;
 using System . Collections . ObjectModel;
 using System . ComponentModel;
+using System . Data;
 using System . Diagnostics;
+using System . Text;
 using System . Threading;
 using System . Threading . Tasks;
 using System . Windows;
@@ -11,6 +13,9 @@ using System . Windows . Input;
 using System . Windows . Media;
 using System . Windows . Media . Animation;
 using System . Windows . Media . Effects;
+using System . Windows . Threading;
+
+using Microsoft . VisualBasic;
 
 //using DocumentFormat . OpenXml . Wordprocessing;
 
@@ -22,9 +27,7 @@ using NewWpfDev . ViewModels;
 using static NewWpfDev . Views . Tabview;
 
 namespace NewWpfDev . Views {
-    /// <summary>
-    /// Interaction logic for Tabview.xaml
-    /// </summary>
+
     public partial class Tabview : Window {
 
         #region NotifyPropertyChanged
@@ -38,6 +41,10 @@ namespace NewWpfDev . Views {
 
         #region Declarations
 
+        // Critical object variable
+        public dynamic CtrlPtr;
+
+        public bool IsLoading { get; set; } = true;
         DatagridUserControlViewModel dgvm {
             get; set;
         }
@@ -59,49 +66,40 @@ namespace NewWpfDev . Views {
         FlowdocLib fdl = new FlowdocLib ( );
 
         #region Tab CONTROL STRUCTURES
-
-        /*
-         * struct Tabcntrl :
-            Tabview . Tabcntrl .  tabView
-            Tabview . Tabcntrl .  twVModel
-            Tabview . Tabcntrl . CurrentTypeDg
-            Tabview . Tabcntrl . CurrentTypeLb
-            Tabview . Tabcntrl . CurrentTypeLv 
-            Tabview . Tabcntrl . dguserctrl
-            Tabview . Tabcntrl . lbuserctrl 
-            Tabview . Tabcntrl . lvuserctrl 
-            Tabview . Tabcntrl . DtTemplates
-            DtTemplates . TemplateIndexDg 
-            DtTemplates . TemplateIndexLb
-            DtTemplates . TemplateIndexLv 
-            DtTemplates . TemplateListDg 
-            DtTemplates . TemplateListLb
-            DtTemplates . TemplateListLb
-            DtTemplates . TemplatesCombo 
-        * */
         public struct DataTemplates {
             // A sole instance of this Structure is contained as DtTemplates in TabController struct - as Tabcntrl
             public ComboBox TemplatesCombo { get; set; }
             public int TemplateIndexDg { get; set; }
             public int TemplateIndexLb { get; set; }
             public int TemplateIndexLv { get; set; }
-            public string TemplateListDg { get; set; }
-            public string TemplateListLb { get; set; }
-            public string TemplateListLv { get; set; }
+            public string TemplateNameDg { get; set; }
+            public string TemplateNameLb { get; set; }
+            public string TemplateNameLv { get; set; }
         }
         public struct TabController {
             //
             // Main Control structure for the TabView Tab Controls windows
             //
             public DataTemplates DtTemplates;
+
+            public dynamic Ctrlptr;
+
             public object ActiveControlType { get; set; }
             public DgUserControl dgUserctrl { get; set; }
             public LbUserControl lbUserctrl { get; set; }
             public LvUserControl lvUserctrl { get; set; }
+            public LogUserControl lgUserctrl { get; set; }
+            public TvUserControl tvUserctrl { get; set; }
             public string CurrentTypeDg { get; set; }
             public string CurrentTypeLb { get; set; }
             public string CurrentTypeLv { get; set; }
             public string CurrentTabName { get; set; }
+            public string DbNameDg { get; set; }
+            public string DbNameLb { get; set; }
+            public string DbNameLv { get; set; }
+            public int DbNameIndexDg { get; set; }
+            public int DbNameIndexLb { get; set; }
+            public int DbNameIndexLv { get; set; }
             public TabControl tabControl { get; set; }
             public Tabview tabView { get; set; }
             public TabItem tabItem { get; set; }
@@ -121,18 +119,18 @@ namespace NewWpfDev . Views {
         }
         private CancellationTokenSource currentCancellationSource;
         private int msgcounter { get; set; } = 1;
-        public static Tabview tabvw {
-            get; set;
+        public static Tabview tabvw { get; set; }
+        public static TabItem tabitem { get; set; }
+        public static TabWinViewModel ControllerVm { get; set; }
+        public static TabControl currenttab { get; set; }
+
+        private int bankindex;
+        public int BankIndex {
+            get => bankindex;
+            set { bankindex = value; NotifyPropertyChanged ( nameof ( BankIndex ) ); }
         }
-        public static TabItem tabitem {
-            get; set;
-        }
-        public static TabWinViewModel ControllerVm {
-            get; set;
-        }
-        public static TabControl currenttab {
-            get; set;
-        }
+
+
         #endregion properties
 
         #region ALL Dependency Properties
@@ -145,14 +143,12 @@ namespace NewWpfDev . Views {
         public static readonly DependencyProperty ComboboxProperty =
             DependencyProperty . Register ( "Combobox" , typeof ( ComboBox ) , typeof ( Tabview ) , new PropertyMetadata ( ( ComboBox ) null ) );
 
-
         public bool ViewersLinked {   // DP VIEWERSLINKED
             get {
                 return ( bool ) GetValue ( ViewersLinkedProperty );
             }
             set {
                 SetValue ( ViewersLinkedProperty , value );
-                /////Debug . WriteLine ( "Viewer Linkage changed" );
             }
         }
         public static readonly DependencyProperty ViewersLinkedProperty =
@@ -166,7 +162,7 @@ namespace NewWpfDev . Views {
             set {
                 SetValue ( DbTypeProperty , value );
                 NotifyPropertyChanged ( nameof ( DbType ) );
-                SetDbType ( value );
+                Tabview . SetDbType ( value );
             }
         }
         public static readonly DependencyProperty DbTypeProperty =
@@ -261,8 +257,6 @@ namespace NewWpfDev . Views {
         public static readonly DependencyProperty LVControlProperty =
             DependencyProperty . RegisterAttached ( "LVControl" , typeof ( ListView ) , typeof ( Tabview ) , new PropertyMetadata ( ( ListView ) null ) );
 
-
-
         #endregion Attached properties
 
         #endregion Declarations
@@ -274,6 +268,7 @@ namespace NewWpfDev . Views {
             TabViewWin = this;
             CreateControlStructs ( );
             InitializeComponent ( );
+            LoadDbTables ( null );
             Combobox = this . TemplatesCb;
             Tabview . Tabcntrl . tabControl = this . Tabctrl;
             Tabview . Tabcntrl . tabView = this;
@@ -297,14 +292,205 @@ namespace NewWpfDev . Views {
             Flowdoc . ExecuteFlowDocMaxmizeMethod += new EventHandler ( MaximizeFlowDoc );
             FlowDoc . FlowDocClosed += Flowdoc_FlowDocClosed;
             TemplatesCb . SelectionChanged += TemplatesCb_SelectionChanged;
+            DbnamesCb . SelectionChanged += DbNamesCb_SelectionChanged;
             TemplatesCb . UpdateLayout ( );
-            dgvm = new DatagridUserControlViewModel ( );
-            Bvm = dgvm . Bvm;
-            Cvm = dgvm . Cvm;
+            //dgvm = new DatagridUserControlViewModel ( );
+            Bvm = DatagridUserControlViewModel . Bvm;
+            Cvm = DatagridUserControlViewModel . Cvm;
             Tabview . Tabcntrl . DtTemplates . TemplatesCombo . ItemsSource = DataTemplatesBank;
             Tabview . Tabcntrl . DtTemplates . TemplatesCombo . SelectedIndex = 0;
             Mouse . OverrideCursor = Cursors . Arrow;
+            IsLoading = false;
         }
+        public static int FindDbName ( string dbname ) {
+            int count = 0;
+            foreach ( string item in Tabview . Tabcntrl . tabView . DbnamesCb . Items ) {
+                if ( item . ToUpper ( ) == dbname . ToUpper ( ) )
+                    break;
+                count++;
+            }
+            return count;
+        }
+        private async void DbNamesCb_SelectionChanged ( object sender , SelectionChangedEventArgs e ) {
+            if ( IsLoading ) return;
+            string selitem = DbnamesCb . SelectedItem . ToString ( );
+            if ( selitem . ToUpper ( ) == "BANKACCOUNT" ) {
+                if ( Tabview . Tabcntrl . ActiveControlType . GetType ( ) == typeof ( DgUserControl ) ) {
+                    Tabview . Tabcntrl . DtTemplates . TemplateNameDg = "BANKACCOUNT";
+                    Tabview . Tabcntrl . CurrentTypeDg = "BANKACCOUNT";
+                    Tabview . Tabcntrl . DbNameIndexDg = DbnamesCb . SelectedIndex;
+                    Tabview . Tabcntrl . DbNameDg = DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( );
+                    await Task . Run ( ( ) => Tabview . Tabcntrl . dgUserctrl . LoadBank ( ) );
+                }
+                else if ( Tabview . Tabcntrl . ActiveControlType . GetType ( ) == typeof ( LbUserControl ) ) {
+                    Tabview . Tabcntrl . DtTemplates . TemplateNameLb = "BANKACCOUNT";
+                    Tabview . Tabcntrl . CurrentTypeLb = "BANKACCOUNT";
+                    Tabview . Tabcntrl . DbNameIndexLb = DbnamesCb . SelectedIndex;
+                    Tabview . Tabcntrl . DbNameLb = DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( );
+                    await Task . Run ( async ( ) => {
+                        Application . Current . Dispatcher . Invoke (
+                                        ( ) => Tabview . Tabcntrl . lbUserctrl . LoadBank ( )
+                                );
+                    }
+                        );
+
+                    //    Application . Current . Dispatcher . Invoke ( async ( ) => {
+                    //        await Task . Run ( ( ) => Tabview . Tabcntrl . lbUserctrl . LoadBank ( ) );
+                    //    } );
+                }
+                else if ( Tabview . Tabcntrl . ActiveControlType . GetType ( ) == typeof ( LvUserControl ) ) {
+                    Tabview . Tabcntrl . DtTemplates . TemplateNameLv = "BANKACCOUNT";
+                    Tabview . Tabcntrl . CurrentTypeLv = "BANKACCOUNT";
+                    Tabview . Tabcntrl . DbNameIndexLv = DbnamesCb . SelectedIndex;
+                    Tabview . Tabcntrl . DbNameLv = DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( );
+                    Tabview . Tabcntrl . lvUserctrl . LoadBank ( );
+                    //await Application . Current . Dispatcher . Invoke ( async ( ) => {
+                    //        await Task . Run ( ( ) => Tabview . Tabcntrl . lvUserctrl . LoadBank ( ));
+                    //   } );
+                }
+                Tabview . SetDbType ( "BANK" );
+            }
+            else if ( selitem . ToUpper ( ) == "CUSTOMER" ) {
+                if ( Tabview . Tabcntrl . ActiveControlType . GetType ( ) == typeof ( DgUserControl ) ) {
+                    Tabview . Tabcntrl . DtTemplates . TemplateNameDg = "CUSTOMER";
+                    Tabview . Tabcntrl . CurrentTypeDg = "CUSTOMER";
+                    Tabview . Tabcntrl . DbNameIndexDg = DbnamesCb . SelectedIndex;
+                    Tabview . Tabcntrl . DbNameDg = DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( );
+                    await Application . Current . Dispatcher . Invoke ( async ( ) => {
+                        await Task . Run ( ( ) => Tabview . Tabcntrl . dgUserctrl . LoadCustomer ( ) );
+                    } );
+                }
+                else if ( Tabview . Tabcntrl . ActiveControlType . GetType ( ) == typeof ( LbUserControl ) ) {
+                    Tabview . Tabcntrl . DtTemplates . TemplateNameLb = "CUSTOMER";
+                    Tabview . Tabcntrl . CurrentTypeLb = "CUSTOMER";
+                    Tabview . Tabcntrl . DbNameIndexLb = DbnamesCb . SelectedIndex;
+                    Tabview . Tabcntrl . DbNameLb = Tabview . Tabcntrl . tabView . DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( );
+                    await Application . Current . Dispatcher . Invoke ( async ( ) => {
+                        await Task . Run ( ( ) => Tabview . Tabcntrl . lbUserctrl . LoadCustomer ( ) );
+                    } );
+                }
+                else if ( Tabview . Tabcntrl . ActiveControlType . GetType ( ) == typeof ( LvUserControl ) ) {
+                    Tabview . Tabcntrl . DtTemplates . TemplateNameLv = "CUSTOMER";
+                    Tabview . Tabcntrl . CurrentTypeLv = "CUSTOMER";
+                    Tabview . Tabcntrl . DbNameIndexLv = DbnamesCb . SelectedIndex;
+                    Tabview . Tabcntrl . DbNameLv = Tabview . Tabcntrl . tabView . DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( );
+                    await Application . Current . Dispatcher . Invoke ( async ( ) => {
+                        await Task . Run ( ( ) => Tabview . Tabcntrl . lvUserctrl . LoadCustomer ( ) );
+                    } );
+                }
+                Tabview . SetDbType ( "CUSTOMER" );
+            }
+            else {
+                if ( Tabview . Tabcntrl . ActiveControlType . GetType ( ) == typeof ( DgUserControl ) ) {
+                    // a GENERIC table  has been selected in Datagrid
+                    Tabview . Tabcntrl . CurrentTypeDg = "GEN";
+                    Tabview . Tabcntrl . DbNameIndexDg = DbnamesCb . SelectedIndex;
+                    Tabview . Tabcntrl . DtTemplates . TemplateNameDg = "GEN";
+                    Tabview . Tabcntrl . DbNameDg = DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( );
+                    var Task = Tabview . Tabcntrl . dgUserctrl . LoadGeneric ( e . AddedItems [ 0 ] . ToString ( ) );
+                    Task . Wait ( );
+                    //if ( Task.Result == false) {
+                    //    Debug . WriteLine ( $"No records returned for {DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( )}\nso BankAccount will be (re)loaded  by default" );
+                    //    MessageBox . Show ( $"the Db [{DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( )}] returned ZERO records.\n\nTherefore the DataGrid will now reload the \n\"default\" BankAccount Table for you. " , "Table requested returned No Data " );
+                    //    // Reload Bankaccount as default
+                    //    Tabview . Tabcntrl . dgUserctrl . LoadBank( );
+                    //}
+                }
+                else if ( Tabview . Tabcntrl . ActiveControlType . GetType ( ) == typeof ( LbUserControl ) ) {
+                    // a GENERIC table  has been selected in ListBox
+                    Tabview . Tabcntrl . CurrentTypeLb = "GEN";
+                    Tabview . Tabcntrl . DbNameIndexLb = DbnamesCb . SelectedIndex;
+                    Tabview . Tabcntrl . DtTemplates . TemplateNameLb = DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( );
+                    Tabview . Tabcntrl . DtTemplates . TemplateNameLb = "GEN";
+                    Tabview . Tabcntrl . DbNameLb = Tabview . Tabcntrl . tabView . DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( );
+                    int count = Tabview . Tabcntrl . lbUserctrl . LoadGeneric ( e . AddedItems [ 0 ] . ToString ( ) );
+                    if ( count == 0 ) {
+                        Debug . WriteLine ( $"No records returned for {DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( )}\nso BankAccount will be (re)loaded  by default" );
+                        MessageBox . Show ( $"the Db [{DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( )}] returned ZERO records.\n\nTherefore the ListBox will now reload the \n\"default\" BankAccount Table for you. " , "Table requested returned No Data " );
+                        // Reload Bankaccount as default
+                        Tabview . Tabcntrl . lbUserctrl . LoadBank ( );
+                    }
+                    //await Application . Current . Dispatcher . Invoke ( async ( ) => {
+                    //    await Task . Run ( ( ) => Tabview . Tabcntrl . lbUserctrl . LoadGeneric ( e . AddedItems [ 0 ] . ToString ( ) ));
+                    //} );
+                }
+                else if ( Tabview . Tabcntrl . ActiveControlType . GetType ( ) == typeof ( LvUserControl ) ) {
+                    // a GENERIC table  has been selected in Listview
+                    Tabview . Tabcntrl . CurrentTypeLv = "GEN";
+                    Tabview . Tabcntrl . DbNameIndexLv = DbnamesCb . SelectedIndex;
+                    Tabview . Tabcntrl . DtTemplates . TemplateNameLv = DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( );
+                    Tabview . Tabcntrl . DbNameLv = Tabview . Tabcntrl . tabView . DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( );
+                    int count = Tabview . Tabcntrl . lvUserctrl . LoadGeneric ( e . AddedItems [ 0 ] . ToString ( ) );
+                    if ( count == 0 ) {
+                        Debug . WriteLine ( $"No records returned for {DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( )}\nso BankAccount will be (re)loaded  by default" );
+                        MessageBox . Show ( $"the Db [{DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( )}] returned ZERO records.\n\nTherefore the ListView will now reload the \n\"default\" BankAccount Table for you. " , "Table requested returned No Data " );
+                        // Reload Bankaccount as default
+                        Thread . Sleep ( 250 );
+                        Debug . WriteLine ( $"Reloading Bank Data because previous Generic type failed to load any records" );
+                        Application . Current . Dispatcher . Invoke ( async ( ) =>
+                            Task . Run ( ( ) => Tabview . Tabcntrl . lvUserctrl . LoadBank ( ) )
+                            );
+                    }
+                    //await Application . Current . Dispatcher . Invoke ( async ( ) => {
+                    //    await Task . Run ( ( ) => Tabview . Tabcntrl . lvUserctrl . LoadGeneric ( e . AddedItems [ 0 ] . ToString ( ) ));
+                    //} );
+                }
+                Tabview . SetDbType ( "GEN" );
+            }
+        }
+
+        //Get list of all Tables in currently selected Db 
+        public bool LoadDbTables ( string DbName ) {
+            int listindex = 0, count = 0;
+            List<string> list = new List<string> ( );
+            DbName = DbName == null ? "Ian1" : DbName;
+            DbName = DbName . ToUpper ( );
+            if ( Utils . CheckResetDbConnection ( DbName , out string constr ) == false )
+                Debug . WriteLine ( $"Failed to set connection string for {DbName} Db" );
+            // All Db's have their own version of this SP.....
+            string SqlCommand = "spGetTablesList";
+
+            Datagrids . CallStoredProcedure ( list , SqlCommand );
+            //This call returns us a DataTable
+            DataTable dt = DataLoadControl . GetDataTable ( SqlCommand );
+            // This how to access Row data from  a grid the easiest way.... parsed into a List <xxxxx>
+            if ( dt != null ) {
+                DbnamesCb . Items . Clear ( );
+                list = WpfLib1 . Utils . GetDataDridRowsAsListOfStrings ( dt );
+                if ( DbName == "NORTHWIND" ) {
+                    foreach ( string row in list ) {
+                        DbnamesCb . Items . Add ( row );
+                        count++;
+                    }
+                }
+                else if ( DbName == "IAN1" ) {
+                    foreach ( string row in list ) {
+                        DbnamesCb . Items . Add ( row );
+                        if ( row . ToUpper ( ) == "BANKACCOUNT" )
+                            BankIndex = count;
+                        count++;
+                    }
+                    DbnamesCb . SelectedIndex = bankindex;
+                }
+                else if ( DbName == "PUBS" ) {
+                    foreach ( string row in list ) {
+                        DbnamesCb . Items . Add ( row );
+                        count++;
+                    }
+                }
+                DbnamesCb . SelectedIndex = listindex;
+                if ( count > 0 )
+                    return true;
+                else
+                    return false;
+            }
+            else {
+                MessageBox . Show ( $"SQL comand {SqlCommand} Failed..." );
+                WpfLib1 . Utils . DoErrorBeep ( 125 , 55 , 1 );
+                return false;
+            }
+        }
+
         public static Tabview GetTabview ( ) {   // Return  pointer to ourselves (TABVIEW)
             return tabvw;
         }
@@ -326,7 +512,9 @@ namespace NewWpfDev . Views {
         private async void Window_Loaded ( object sender , RoutedEventArgs e ) {
             Tabctrl . SelectedIndex = 0;
             TabWinViewModel . IsLoadingDb = false;
-            await ControllerVm . SetCurrentTab ( this , "DgridTab" );
+            Application . Current . Dispatcher . Invoke ( async () =>
+                ControllerVm . SetCurrentTab ( this , "DgridTab" )
+            );
         }
         #endregion Startup
 
@@ -439,24 +627,25 @@ namespace NewWpfDev . Views {
             Tabview . Tabcntrl . lvUserctrl . listview1 . UpdateLayout ( );
         }
         public static void ResizeTreeviewTab ( ) {
-            TabWinViewModel . tvUserctrl . Width = TabWinViewModel . Tabcontrol . ActualWidth;// - 5;
-            TabWinViewModel . tvUserctrl . Height = TabWinViewModel . Tabcontrol . ActualHeight - 20;
+            if ( Tabview . Tabcntrl . tvUserctrl == null ) return;
+            Tabview . Tabcntrl . tvUserctrl . Width = TabWinViewModel . Tabcontrol . ActualWidth;// - 5;
+            Tabview . Tabcntrl . tvUserctrl . Height = TabWinViewModel . Tabcontrol . ActualHeight - 20;
             Thickness th = new Thickness ( 0 , 0 , 0 , 0 );
-            th = TabWinViewModel . tvUserctrl . Margin;
+            th = Tabview . Tabcntrl . tvUserctrl . Margin;
             th . Left = 0;
             th . Right = 10;
             th . Top = 0;
-            TabWinViewModel . tvUserctrl . Margin = th;
-            th = TabWinViewModel . tvUserctrl . treeview1 . Margin;
+            Tabview . Tabcntrl . tvUserctrl . Margin = th;
+            th = Tabview . Tabcntrl . tvUserctrl . treeview1 . Margin;
             th . Left = 5;
             th . Top = 5;
             th . Right = 20;
             th . Bottom = 0;
-            TabWinViewModel . tvUserctrl . treeview1 . Margin = th;
-            TabWinViewModel . tvUserctrl . treeview1 . Height = TabWinViewModel . tvUserctrl . Height - 35;
-            TabWinViewModel . tvUserctrl . treeview1 . Width = TabWinViewModel . tvUserctrl . Width - 25;
-            TabWinViewModel . tvUserctrl . treeview1 . VerticalAlignment = VerticalAlignment . Top;
-            TabWinViewModel . tvUserctrl . treeview1 . UpdateLayout ( );
+            Tabview . Tabcntrl . tvUserctrl . treeview1 . Margin = th;
+            Tabview . Tabcntrl . tvUserctrl . treeview1 . Height = Tabview . Tabcntrl . tvUserctrl . Height - 35;
+            Tabview . Tabcntrl . tvUserctrl . treeview1 . Width = Tabview . Tabcntrl . tvUserctrl . Width - 25;
+            Tabview . Tabcntrl . tvUserctrl . treeview1 . VerticalAlignment = VerticalAlignment . Top;
+            Tabview . Tabcntrl . tvUserctrl . treeview1 . UpdateLayout ( );
         }
 
         #endregion resizing
@@ -471,19 +660,22 @@ namespace NewWpfDev . Views {
 
         #region Left Mouse Ckick on tabs Trigger Methods
         private void GridMouseLeftButtonDown ( object sender , MouseButtonEventArgs e ) {
-            ControllerVm . SetCurrentTab ( this , "DgridTab" );
+           Application . Current . Dispatcher . Invoke ( ( ) => ControllerVm . SetCurrentTab ( this , "DgridTab" ));
+           // ControllerVm . SetCurrentTab ( this , "DgridTab" );
         }
         private async void ListboxMouseLeftButtonDown ( object sender , MouseButtonEventArgs e ) {
-            await ControllerVm . SetCurrentTab ( this , "ListboxTab" );
+            Application . Current . Dispatcher . Invoke ( ( ) => ControllerVm . SetCurrentTab ( this , "ListboxTab" ) );
         }
         private async void ListviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e ) {
-            await ControllerVm . SetCurrentTab ( this , "ListviewTab" );
+            Application . Current . Dispatcher . Invoke ( ( ) => ControllerVm . SetCurrentTab ( this , "ListviewTab" ));
         }
         private async void LogviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e ) {
-            await ControllerVm . SetCurrentTab ( this , "LogviewTab" );
+            Application . Current . Dispatcher . Invoke ( ( ) => ControllerVm . SetCurrentTab ( this , "LogviewTab" ));
         }
         private async void TreeviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e ) {
-            await ControllerVm . SetCurrentTab ( this , "TreeviewTab" );
+            SerializeTestBank ( );
+            Application . Current . Dispatcher . Invoke ( ( ) => ControllerVm . SetCurrentTab ( this , "TreeviewTab" ));
+
         }
 
         #endregion Left Mouse Ckick on Tabs
@@ -502,54 +694,34 @@ namespace NewWpfDev . Views {
                 Tabview . Tabcntrl . dgUserctrl . grid1 . ItemsSource = null;
                 Tabview . Tabcntrl . dgUserctrl . grid1 . Items . Clear ( );
                 Tabview . Tabcntrl . dgUserctrl . UpdateLayout ( );
-                //DgridTab . Content = null;
-                //Tabview . Tabcntrl . dgUserctrl = null;
-                //Tabview tview = TabWinViewModel . SendTabview ( );
-                //ControllerVm . SetCurrentTab ( tview , "DgridTab" );
             }
             else if ( type . Name == "LbUserControl" ) {
                 Tabview . Tabcntrl . lbUserctrl . listbox1 . ItemsSource = null;
                 Tabview . Tabcntrl . lbUserctrl . listbox1 . Items . Clear ( );
                 Tabview . Tabcntrl . lbUserctrl . UpdateLayout ( );
-                //ListboxTab . Content = null;
-                //                Tabview . Tabcntrl . lbUserctrl = null;
-                //Tabview tview = TabWinViewModel . SendTabview ( );
-                //ControllerVm . SetCurrentTab ( tview , "ListboxTab" );
             }
             else if ( type . Name == "LvUserControl" ) {
                 Tabview . Tabcntrl . lvUserctrl . listview1 . ItemsSource = null;
                 Tabview . Tabcntrl . lvUserctrl . listview1 . Items . Clear ( );
                 Tabview . Tabcntrl . lvUserctrl . UpdateLayout ( );
-                //ListviewTab . Content = null;
-                //             Tabview . Tabcntrl . lvUserctrl = null;
-                //Tabview tview = TabWinViewModel . SendTabview ( );
-                //ControllerVm . SetCurrentTab ( tview , "ListviewTab" );
             }
         }
         private void clearTabs ( object sender , RoutedEventArgs e ) {
             if ( Tabview . Tabcntrl . lbUserctrl != null ) {
                 Tabview . Tabcntrl . lbUserctrl . listbox1 . ItemsSource = null;
                 Tabview . Tabcntrl . lbUserctrl . listbox1 . Items . Clear ( );
-                //ListboxTab . Content = null;
-                //Tabview . Tabcntrl . lbUserctrl = null;
             }
             if ( Tabview . Tabcntrl . lvUserctrl != null ) {
                 Tabview . Tabcntrl . lvUserctrl . listview1 . ItemsSource = null;
                 Tabview . Tabcntrl . lvUserctrl . listview1 . Items . Clear ( );
-                //ListviewTab . Content = null;
-                //Tabview . Tabcntrl . lvUserctrl = null;
             }
             if ( Tabview . Tabcntrl . dgUserctrl != null ) {
                 Tabview . Tabcntrl . dgUserctrl . grid1 . ItemsSource = null;
                 Tabview . Tabcntrl . dgUserctrl?.grid1 . Items . Clear ( );
-                //DgridTab . Content = null;
-                //Tabview . Tabcntrl . dgUserctrl = null;
             }
             if ( TabWinViewModel . logUserctrl != null ) {
                 TabWinViewModel . logUserctrl?.logview . Items . Clear ( );
                 TabWinViewModel . logUserctrl?.logview . UpdateLayout ( );
-                //LogviewTab . Content = null;
-                //TabWinViewModel . logUserctrl = null;
             }
             if ( TabWinViewModel . tvUserctrl != null ) {
                 TabWinViewModel . tvUserctrl . treeview1 . ItemsSource = null;
@@ -565,34 +737,6 @@ namespace NewWpfDev . Views {
             DbCountArgs args = new DbCountArgs ( );
             args . Dbcount = 0;
             TabWinViewModel . TriggerBankDbCount ( this , args );
-            //var v = sender . GetType ( );
-            //if ( v == typeof ( Button ) ) {
-            //    Dictionary<string , object> dict = ViewModel . GetAllViewModels ( );
-            //    if ( Viewmodels . Visibility == Visibility . Visible ) {
-            //        Viewmodels . Visibility = Visibility . Collapsed;
-            //        ViewModel . ClearDictionary ( );
-            //    }
-            //    else {
-            //        Viewmodels . Items . Clear ( );
-            //        foreach ( KeyValuePair<string , object> entry in dict ) {
-            //            Viewmodels . Items . Add ( entry . Key );
-            //            var type = entry . Value . GetType ( );
-            //            switch ( type . Name ) {
-            //                case "DGUSERCONTROL":
-            //                    break;
-            //                case "LBUSERCONTROL":
-            //                    break;
-            //                case "LVUSERCONTROL":
-            //                    break;
-            //                case "LOGUSERCONTROL":
-            //                    break;
-            //                case "TVUSERCONTROL":
-            //                    break;
-            //            }
-            //        }
-            //        Viewmodels . Visibility = Visibility . Visible;
-            //    }
-            //}
         }
 
         #endregion Tab Cleanup
@@ -806,8 +950,6 @@ namespace NewWpfDev . Views {
                     var con = Tabctrl . SelectedContent;//as TreeView;
                     if ( con == null ) return;
                     ClearTab ( ( UIElement ) TabWinViewModel . logUserctrl );
-                    //                    Type type = con . GetType ( );
-                    //                    if ( type . Name != "LogUserControl" ) return;
                     ListBox lb = TabWinViewModel . logUserctrl . logview;
                     lb . Items . Clear ( );
                 }
@@ -856,16 +998,13 @@ namespace NewWpfDev . Views {
             tabview . Btn1 . FontSize = 14;
             tabview . Btn1 . Content = "Bank";
             tabview . Btn1 . Foreground = FindResource ( "Black0" ) as SolidColorBrush;
-
         }
-
         private void Btn2_MouseEnter ( object sender , MouseEventArgs e ) {
             Tabview . TriggerStoryBoardOn ( 4 );
             tabview . Btn2 . FontSize = 18;
             tabview . Btn2 . Content = "LOAD";
             tabview . Btn2 . Foreground = FindResource ( "Green5" ) as SolidColorBrush;
             tabview . Btn2 . ToolTip = "Load/Reload Customers Account Data";
-
         }
         private void Btn2_MouseLeave ( object sender , MouseEventArgs e ) {
             Tabview . TriggerStoryBoardOn ( 4 );
@@ -873,7 +1012,6 @@ namespace NewWpfDev . Views {
             tabview . Btn2 . Content = "Customer";
             tabview . Btn2 . Foreground = FindResource ( "Black0" ) as SolidColorBrush;
             tabview . Btn2 . ToolTip = "Load/Reload Customers Account Data";
-
         }
 
         #region FlowDoc support
@@ -895,7 +1033,6 @@ namespace NewWpfDev . Views {
         private void Flowdoc_PreviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e ) {
             //In this event, we get current mouse position on the control to use it in the MouseMove event.
             MovingObject = fdl . Flowdoc_PreviewMouseLeftButtonDown ( sender , Flowdoc , e );
-            //Debug . WriteLine ( $"MvvmDataGrid Btn down {MovingObject}" );
         }
         private void Flowdoc_MouseMove ( object sender , MouseEventArgs e ) {
             // We are Resizing the Flowdoc using the mouse on the border  (Border.Name=FdBorder)
@@ -929,15 +1066,8 @@ namespace NewWpfDev . Views {
 
         #region  Doesnt help datagrid going into edit mode
         private void TabControl_PreviewMouseDown ( object sender , MouseButtonEventArgs e ) {
-            //if ( IsUnderTabHeader ( e . OriginalSource as DependencyObject ) )
-            //    CommitTables ( Tabctrl );
         }
         private bool IsUnderTabHeader ( DependencyObject control ) {
-            //if ( control is TabItem )
-            //    return true;
-            //DependencyObject parent = VisualTreeHelper . GetParent ( control );
-            //if ( parent == null ) return false;
-            //return IsUnderTabHeader ( parent );
             return false;
         }
         private void CommitTables ( DependencyObject control ) {
@@ -955,16 +1085,29 @@ namespace NewWpfDev . Views {
         #region Serialization
         private void Serialize_LvUserControl ( object sender , RoutedEventArgs e ) {
             LvUserControl . WriteSerializedObject ( );
-
         }
 
         private void Serialize_LbUserControl ( object sender , RoutedEventArgs e ) {
             LbUserControl . WriteSerializedObject ( );
-
         }
 
         private void Serialize_DgUserControl ( object sender , RoutedEventArgs e ) {
-            Tabview . Tabcntrl . dgUserctrl . WriteSerializedObject ( );
+            //      serialize ( );
+            //DgUserControl dgobj = Tabview . Tabcntrl . dgUserctrl . ReadSerializedObject ( );
+            //WpfLib1 . Utils . IsReferenceEqual ( dgobj , Tabview . Tabcntrl . dgUserctrl , "dgobj" , "Tabview.Tabcntrl.dgUserctrl" , true );
+
+
+        }
+        private void SerializeTestBank ( ) {
+            //This Works !!!! - XAML file created from Db data as a collection
+            //creates a JSON output file as JSONTEXT.json of entire BANKACCOUNT Db contents
+            WpfLib1 . Utils . WriteSerializedCollectionJSON ( DatagridUserControlViewModel . Bvm , @"C:\users\ianch\BankAccountCollection.json" );
+            // Read it back in to check....
+            string str = WpfLib1 . Utils . ReadSerializedCollectionJson ( @"C:\users\ianch\BankAccountCollection.json" );
+            // returns as a string formatted as "xxxxx,yyyy\n" so we need to convert it back to our collection type
+            // Thiis creates a new Bvm correctly from our JSON output
+            Bvm = Utils . CreateBankAccountFromJson ( str );
+            Debug . WriteLine ( str );
         }
 
         private void DeSerialize_DgUserControl ( object sender , RoutedEventArgs e ) {
@@ -973,6 +1116,9 @@ namespace NewWpfDev . Views {
         #endregion Serializatio
 
         public void LoadTemplates ( ) {
+            DataTemplatesBank . Clear ( );
+            DataTemplatesCust . Clear ( );
+            DataTemplatesGen . Clear ( );
             DataTemplatesBank . Add ( "BankDataTemplate1" );
             DataTemplatesBank . Add ( "BankDataTemplate2" );
             DataTemplatesBank . Add ( "BankDataTemplateComplex" );
@@ -980,26 +1126,28 @@ namespace NewWpfDev . Views {
             DataTemplatesCust . Add ( "CustomersDbTemplate2" );
             DataTemplatesCust . Add ( "CustomersDbTemplateComplex" );
             DataTemplatesGen . Add ( "GenericTemplate" );
-            DataTemplatesGen . Add ( "GenericTemplate1" );
             DataTemplatesGen . Add ( "GenDataTemplate1" );
             DataTemplatesGen . Add ( "GenDataTemplate2" );
+            DataTemplatesGen . Add ( "GenDataTemplateReversed" );
         }
         public void CreateControlStructs ( ) {
             DtTemplates . TemplatesCombo = Combobox;
             DtTemplates . TemplateIndexDg = 0;
             DtTemplates . TemplateIndexLb = 0;
             DtTemplates . TemplateIndexLv = 0;
-            DtTemplates . TemplateListDg = "BANK";
-            DtTemplates . TemplateListLb = "BANK";
-            DtTemplates . TemplateListLv = "BANK";
+            DtTemplates . TemplateNameDg = "BANKACCOUNT";
+            DtTemplates . TemplateNameLb = "BANKACCOUNT";
+            DtTemplates . TemplateNameLv = "BANKACCOUNT";
             DtTemplates . TemplatesCombo = TemplatesCb;
-            Tabview . Tabcntrl . CurrentTypeDg = "BANK";
-            Tabview . Tabcntrl . CurrentTypeLb = "BANK";
-            Tabview . Tabcntrl . CurrentTypeLv = "BANK";
+            Tabview . Tabcntrl . CurrentTypeDg = "BANKACCOUNT";
+            Tabview . Tabcntrl . CurrentTypeLb = "BANKACCOUNT";
+            Tabview . Tabcntrl . CurrentTypeLv = "BANKACCOUNT";
             Tabview . Tabcntrl . CurrentTabName = "DgridTab";
             Tabview . Tabcntrl . dgUserctrl = new DgUserControl ( );
             Tabview . Tabcntrl . lbUserctrl = new LbUserControl ( );
             Tabview . Tabcntrl . lvUserctrl = new LvUserControl ( );
+            Tabview . Tabcntrl . lgUserctrl = new LogUserControl ( );
+            Tabview . Tabcntrl . tvUserctrl = new TvUserControl ( );
             Tabview . Tabcntrl . DtTemplates = DtTemplates;
             Tabview . Tabcntrl . twVModel = ControllerVm;
         }
@@ -1020,39 +1168,90 @@ namespace NewWpfDev . Views {
                 dtemp = elemnt . FindResource ( e . AddedItems [ 0 ] . ToString ( ) ) as DataTemplate;
                 Tabview . Tabcntrl . dgUserctrl . grid1 . ItemTemplate = dtemp;
                 Tabview . Tabcntrl . dgUserctrl . grid1 . UpdateLayout ( );
-                //Debug . WriteLine ( $"swiitched DgUserctrl ItemTemplate to  {e . AddedItems [ 0 ] . ToString ( )}" );
             }
             else if ( type == typeof ( LbUserControl ) ) {
                 Tabview . Tabcntrl . ActiveControlType = Tabview . Tabcntrl . lbUserctrl;
                 Tabview . Tabcntrl . DtTemplates . TemplateIndexLb = cb . SelectedIndex;
-                FrameworkElement elemnt = Tabview . Tabcntrl . lbUserctrl . listbox1 as FrameworkElement;
                 DataTemplate dtemp = new DataTemplate ( );
                 dtemp . Seal ( );
+                FrameworkElement elemnt = Tabview . Tabcntrl . lbUserctrl . listbox1 as FrameworkElement;
                 dtemp = elemnt . FindResource ( e . AddedItems [ 0 ] . ToString ( ) ) as DataTemplate;
                 Tabview . Tabcntrl . lbUserctrl . listbox1 . ItemTemplate = dtemp;
                 Tabview . Tabcntrl . lbUserctrl . listbox1 . UpdateLayout ( );
             }
             else if ( type == typeof ( LvUserControl ) ) {
-                if ( Tabview . Tabcntrl . lvUserctrl != null && Tabview . Tabcntrl . tabItem . Content . GetType ( ) == typeof ( LvUserControl ) ) {
-                    Tabview . Tabcntrl . ActiveControlType = Tabview . Tabcntrl . lvUserctrl;
-                    Tabview . Tabcntrl . DtTemplates . TemplateIndexLv = cb . SelectedIndex;
-                    FrameworkElement elemnt = Tabview . Tabcntrl . lvUserctrl . listview1 as FrameworkElement;
-                    DataTemplate dtemp = new DataTemplate ( );
-                    dtemp . Seal ( );
-                    dtemp = elemnt . FindResource ( e . AddedItems [ 0 ] . ToString ( ) ) as DataTemplate;
-                    Tabview . Tabcntrl . lvUserctrl . listview1 . ItemTemplate = dtemp;
-                    Tabview . Tabcntrl . lvUserctrl . listview1 . UpdateLayout ( );
-                }
+                //if ( Tabview . Tabcntrl . lvUserctrl != null && Tabview . Tabcntrl . tabItem . Content . GetType ( ) == typeof ( LvUserControl ) ) {
+                Tabview . Tabcntrl . ActiveControlType = Tabview . Tabcntrl . lvUserctrl;
+                Tabview . Tabcntrl . DtTemplates . TemplateIndexLv = cb . SelectedIndex;
+                DataTemplate dtemp = new DataTemplate ( );
+                dtemp . Seal ( );
+                FrameworkElement elemnt = Tabview . Tabcntrl . lvUserctrl . listview1 as FrameworkElement;
+                dtemp = elemnt . FindResource ( e . AddedItems [ 0 ] . ToString ( ) ) as DataTemplate;
+                Tabview . Tabcntrl . lvUserctrl . listview1 . ItemTemplate = dtemp;
+                Tabview . Tabcntrl . lvUserctrl . listview1 . UpdateLayout ( );
+                // }
             }
             TemplatesCb . UpdateLayout ( );
         }
 
         private void Btn6_MouseEnter ( object sender , MouseEventArgs e ) {
-
         }
 
         private void Btn6_MouseLeave ( object sender , MouseEventArgs e ) {
+        }
 
+        private void Magnifyplus2 ( object sender , RoutedEventArgs e ) {
+            if ( Tabview . Tabcntrl . ActiveControlType . GetType ( ) == typeof ( DgUserControl ) ) {
+                Tabview . Tabcntrl . dgUserctrl . grid1 . FontSize += 2;
+                Tabview . Tabcntrl . dgUserctrl . UpdateLayout ( );
+            }
+            else if ( Tabview . Tabcntrl . ActiveControlType . GetType ( ) == typeof ( LbUserControl ) ) {
+                // This will NOT WORK if the listbox has an ItemContainerStyle that specifies a Fontsize in it,
+                // otherwise it does work
+                // set Listbox font size
+                Tabview . Tabcntrl . lbUserctrl . listbox1 . FontSize += 2;
+                Tabview . Tabcntrl . lbUserctrl . listbox1 . UpdateLayout ( );
+            }
+            else if ( Tabview . Tabcntrl . ActiveControlType . GetType ( ) == typeof ( LvUserControl ) ) {
+                Tabview . Tabcntrl . lvUserctrl . listview1 . FontSize += 2;
+                Tabview . Tabcntrl . tabView . ListviewTab . FontSize += 2;
+                Tabview . Tabcntrl . lvUserctrl . UpdateLayout ( );
+            }
+            else if ( Tabview . Tabcntrl . ActiveControlType . GetType ( ) == typeof ( LogUserControl ) ) {
+                //Tabview . Tabcntrl . lgUserctrl . SetFontSize ( ( int ) Tabview . Tabcntrl . lgUserctrl . logview . FontSize + 2 );
+                Tabview . Tabcntrl . tabView . LogviewTab . FontSize += 2;
+                Tabview . Tabcntrl . lgUserctrl . UpdateLayout ( );
+            }
+            else if ( Tabview . Tabcntrl . ActiveControlType . GetType ( ) == typeof ( TvUserControl ) ) {
+                Tabview . Tabcntrl . tvUserctrl . Fontsize += 2;
+                //Tabview . Tabcntrl . tvUserctrl . treeview1 . FontSize = Tabview . Tabcntrl . tvUserctrl . Fontsize;
+                //tabview . TreeviewTab . FontSize += Tabview . Tabcntrl . tvUserctrl . Fontsize;
+                tabview . TreeviewTab . UpdateLayout ( );
+                Tabview . Tabcntrl . tvUserctrl . treeview1 . UpdateLayout ( );
+            }
+        }
+        private void Magnifyminus2 ( object sender , RoutedEventArgs e ) {
+            if ( Tabview . Tabcntrl . ActiveControlType . GetType ( ) == typeof ( DgUserControl ) ) {
+                Tabview . Tabcntrl . dgUserctrl . grid1 . FontSize = Tabview . Tabcntrl . dgUserctrl . grid1 . FontSize - 2;
+            }
+            else if ( Tabview . Tabcntrl . ActiveControlType . GetType ( ) == typeof ( LbUserControl ) ) {
+                Tabview . Tabcntrl . lbUserctrl . listbox1 . FontSize -= 2;
+                var props = Tabview . Tabcntrl . lbUserctrl . listbox1 . GetType ( ) . GetProperties ( );
+                //                props . SetValue ( item , operation , Item . PropertyType );
+            }
+            else if ( Tabview . Tabcntrl . ActiveControlType . GetType ( ) == typeof ( LvUserControl ) ) {
+                Tabview . Tabcntrl . lvUserctrl . listview1 . FontSize -= 2;
+            }
+            else if ( Tabview . Tabcntrl . ActiveControlType . GetType ( ) == typeof ( LogUserControl ) ) {
+                Tabview . Tabcntrl . lgUserctrl . logview . FontSize -= 2;
+                tabview . LogviewTab . FontSize -= 2;
+                Tabview . Tabcntrl . lgUserctrl . UpdateLayout ( );
+            }
+            else if ( Tabview . Tabcntrl . ActiveControlType . GetType ( ) == typeof ( TvUserControl ) ) {
+                Tabview . Tabcntrl . tvUserctrl . treeview1 . FontSize -= 2;
+                tabview . TreeviewTab . FontSize -= 2;
+                Tabview . Tabcntrl . tvUserctrl . UpdateLayout ( );
+            }
         }
     }
 }

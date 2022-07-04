@@ -14,16 +14,15 @@ using System . Windows . Input;
 using System . Windows . Media;
 using System . Windows . Threading;
 
+using NewWpfDev . Dapper;
 using NewWpfDev . SQL;
 using NewWpfDev . ViewModels;
 using NewWpfDev . Views;
 
 namespace NewWpfDev . UserControls {
-    /// <summary>
-    /// Interaction logic for LbUserControl.xaml
-    /// </summary>
 
-    public partial class LbUserControl : UserControl {
+    public partial class LbUserControl : UserControl, ITabViewer {
+
         const string FileName = @"LbUserControl.bin";
 
         public object Viewmodel {
@@ -41,6 +40,16 @@ namespace NewWpfDev . UserControls {
             get; private set;
         }
         #endregion Data structure declarations
+
+        #region OnPropertyChanged
+        [field: NonSerialized ( )]
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void OnPropertyChanged ( string propertyName ) {
+            if ( PropertyChanged != null ) {
+                PropertyChanged ( this , new PropertyChangedEventArgs ( propertyName ) );
+            }
+        }
+        #endregion OnPropertyChanged
 
         #region variable declarations
         public string CurrentType {
@@ -65,24 +74,10 @@ namespace NewWpfDev . UserControls {
 
         private const int MAXTOOLTIPSECS = 5;
         #endregion declarations
-        #region OnPropertyChanged
-        [field: NonSerialized ( )]
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void OnPropertyChanged ( string propertyName ) {
-            if ( PropertyChanged != null ) {
-                PropertyChanged ( this , new PropertyChangedEventArgs ( propertyName ) );
-            }
-        }
-        #endregion OnPropertyChanged
+
 
         #region Full Properties
-        protected  bool  SelectionInAction;
-
-        //public bool SelectionInAction {
-        //    get { return selectionInAction; }
-        //    set { selectionInAction = value; OnPropertyChanged ( nameof ( SelectionInAction ) ); }
-        //}
-
+        protected bool SelectionInAction;
         private bool isToolTipOpen;
         private bool isToolTipClosed;
         private bool useToolTip;
@@ -103,16 +98,20 @@ namespace NewWpfDev . UserControls {
             }
         }
         public bool UseToolTip {
-            get {
-                return useToolTip;
-            }
-            set {
-                useToolTip = value;
-            }
+            get => useToolTip;
+            set => useToolTip = value;
         }
         #endregion Full Properties
 
         #region  Dependency View properties for listbox
+
+
+        public double Fontsize {
+            get => ( double ) GetValue ( FontsizeProperty );
+            set => SetValue ( FontsizeProperty , value );
+        }
+        public static readonly DependencyProperty FontsizeProperty =
+            DependencyProperty . Register ( "Fontsize" , typeof ( double ) , typeof ( LbUserControl ) , new PropertyMetadata ( ( double ) 16 ) );
 
         #region ItemBackground
         public Brush ItemBackground {
@@ -123,7 +122,6 @@ namespace NewWpfDev . UserControls {
                 SetValue ( ItemBackgroundProperty , value );
             }
         }
-
         public static readonly DependencyProperty ItemBackgroundProperty =
                 DependencyProperty . Register ( "ItemBackground" , typeof ( Brush ) , typeof ( LbUserControl ) , new PropertyMetadata ( Brushes . LightBlue ) );
         #endregion ItemBackground
@@ -230,34 +228,30 @@ namespace NewWpfDev . UserControls {
                 Task . Run ( async ( ) => await LoadBank ( true ) );
             }
             else
-                Task . Run ( ( ) => LoadCustomer ( true ) );
+                Task . Run ( async ( ) => await LoadCustomer ( true ) );
         }
 
         //Constructor
         public LbUserControl ( ) {
             InitializeComponent ( );
-            //Debug . WriteLine ( $"'Creating 'LbUserControl' User Control  ......" );
             ThisWin = this;
-              Tabview . Tabcntrl . lbUserctrl = this;
+            Tabview . Tabcntrl . lbUserctrl = this;
             SelectionInAction = false;
             // setup DP pointer in Tabview to LbUserControl using shortcut command line !
             Tabview . GetTabview ( ) . Lbusercontrol = this;
-
-            //Set ListBox  AP pointer in Tabview
- //           Tabview . SetListBox ( this , listbox1 );
-
+            Fontsize = 14;
+            listbox1 . FontSize = Fontsize; ;
             // setup local data collections
             Bvm = new ObservableCollection<BankAccountViewModel> ( );
             Cvm = new ObservableCollection<CustomerViewModel> ( );
             EventControl . BankDataLoaded += EventControl_BankDataLoaded;
             EventControl . CustDataLoaded += EventControl_CustDataLoaded;
+            EventControl . GenDataLoaded += EventControl_GenericDataLoaded;
             EventControl . ListSelectionChanged += SelectionHasChanged;
             TabWinViewModel . LoadDb += LoadDb;
             InterWinComms . Tooltipshown += LbUserControl_Tooltipshown;
             timer . Interval = new TimeSpan ( 0 , 0 , 1 );
             timer . Tick += Timer_Tick;
-  //          EventControl . TriggerWindowMessage ( this , new InterWindowArgs { message = "LbUserControl  loaded..." , listbox = listbox1 } );
-            //Debug . WriteLine ( "LbUserControl  loaded..." );
             this . DataContext = this;
         }
         public static void SetListSelectionChanged ( bool arg ) {
@@ -268,7 +262,6 @@ namespace NewWpfDev . UserControls {
             Stream openFileStream = File . OpenRead ( FileName );
             BinaryFormatter deserializer = new BinaryFormatter ( );
             Tabview . Tabcntrl . lbUserctrl = ( LbUserControl ) deserializer . Deserialize ( openFileStream );
-            //TestLoan . TimeLastLoaded = DateTime . Now;
             openFileStream . Close ( );
         }
         public static void WriteSerializedObject ( ) {
@@ -333,21 +326,63 @@ namespace NewWpfDev . UserControls {
             return lb;
         }
 
-        private void EventControl_BankDataLoaded ( object sender , LoadedEventArgs e ) {
-            if ( e . CallerType != "LbUserControl" ) return;
+        #region Bank Data Loading methods
+        public async  Task LoadBank ( bool update = true ) {
+            CurrentType = "BANK";
+            //            WpfLib1 . Utils . IsReferenceEqual ( Tabview . Tabcntrl . lbUserctrl. listbox1, this.listbox1, "Tabview . Tabcntrl . lbUserctrl. listbox1" , "this.listbox1" , true );
+            //WpfLib1 . Utils . IsHashEqual ( Tabview . Tabcntrl . lbUserctrl . listbox1 , this . listbox1 , "Tabview . Tabcntrl . lbUserctrl. listbox1" , "this.listbox1" , true ); 
+            TabWinViewModel . TriggerDbType ( CurrentType );
+            Tabview . Tabcntrl . ActiveControlType = Tabview . Tabcntrl . lbUserctrl;
+            Tabview . Tabcntrl . DtTemplates . TemplateNameLb = "BANKACCOUNT";
+            Tabview . Tabcntrl . CurrentTypeLb = "BANKACCOUNT";
+            Tabview . SetDbType ( "BANK" );
+            // now load the data
+            await Task . Run ( async ( ) => {
+                Application . Current . Dispatcher . Invoke ( ( Action ) ( async ( ) => {
+                    // does NOT use BankDataLoaded messaging
+                   await  LoadBankDb ( update );
+                } ) );
+            } );
+            Mouse . OverrideCursor = Cursors . Arrow;
+            return;
+        }
+        private async Task LoadBankDb ( bool notify ) {
+            //Works  well - Fast too 1//7/2022
+            Bvm = new ObservableCollection<BankAccountViewModel> ( );
             this . listbox1 . ItemsSource = null;
-            Grid v = listbox1 . Parent as Grid;
-            TabItem y = v . Parent as TabItem;
+            this . listbox1 . Items . Clear ( );
+            CurrentType = "BANK";
+            Tabview . tabvw . DbTypeFld . Background = FindResource ( "Blue5" ) as SolidColorBrush;
+            Tabview . tabvw . DbCount . Background = Application . Current . FindResource ( "Blue5" ) as SolidColorBrush;
+            TabWinViewModel . TriggerDbType ( CurrentType );
+            // uses BankDataLoadedto load data indirectly
+            await Task . Run ( ( ) => {
+                int [ ] args = { 0 , 0 , 0 };
+                Application . Current . Dispatcher . Invoke ( ( Action ) ( ( ) => {
+                    DapperSupport . GetBankObsCollectionAsync ( Bvm , "" , "BankAccount" , "" , "" , false , false , notify , "LbUserControl" , args );
+                } ) );
+            } );
+            return;
+        }
+
+        private void EventControl_BankDataLoaded ( object sender , LoadedEventArgs e ) {
+            if ( e . CallerDb != "LbUserControl" ) return;
+            this . listbox1 . ItemsSource = null;
             this . listbox1 . Items . Clear ( );
             Bvm = e . DataSource as ObservableCollection<BankAccountViewModel>;
             this . listbox1 . ItemsSource = Bvm;
-            //Debug . WriteLine ( $"Loaded Bank data in LbUserControl, REcords = {Bvm . Count}" );
+            Debug . WriteLine ( ( Bvm . Count > 0 ? $"Received {Bvm . Count} " : "Failed to receive " ) + "BankAccount Table Records in LbUserControl" );
             CurrentType = "BANK";
             TabWinViewModel . TriggerDbType ( CurrentType );
             // load / Reload theTemplates Combo & set to index 0
             Application . Current . Dispatcher . Invoke ( ( ) => {
                 Tabview . Tabcntrl . DtTemplates . TemplatesCombo . ItemsSource = Tabview . DataTemplatesBank;
                 Tabview . Tabcntrl . DtTemplates . TemplateIndexLb = 0;
+                Tabview . Tabcntrl . tabView . IsLoading = true;
+                Tabview . Tabcntrl . tabView . DbnamesCb . SelectedIndex = Tabview . FindDbName ( "BANKACCOUNT" );
+                Tabview . Tabcntrl . DbNameIndexLb = Tabview . Tabcntrl . tabView . DbnamesCb . SelectedIndex;
+                Tabview . Tabcntrl . DbNameLb = Tabview . Tabcntrl . tabView . DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( );
+                Tabview . Tabcntrl . tabView . IsLoading = false;
                 Tabview . Tabcntrl . DtTemplates . TemplatesCombo . SelectedIndex = 0;
             } );
             // Set ListBox to the new Data Template
@@ -360,15 +395,26 @@ namespace NewWpfDev . UserControls {
             Tabview . Tabcntrl . DtTemplates . TemplatesCombo . SelectedIndex = Tabview . Tabcntrl . DtTemplates . TemplateIndexLb;
             Tabview . Tabcntrl . lbUserctrl . listbox1 . UpdateLayout ( );
 
+            Tabview . Tabcntrl . tabView . TemplatesCb . Foreground = FindResource ( "Black0" ) as SolidColorBrush;
+            Tabview . Tabcntrl . tabView . TemplatesCb . UpdateLayout ( );
+            Tabview . Tabcntrl . tabView . DbnamesCb . Foreground = FindResource ( "Black0" ) as SolidColorBrush;
+            Tabview . Tabcntrl . tabView . DbnamesCb . UpdateLayout ( );
+
+            Tabview . Tabcntrl . twVModel . ProgressValue = 0;
+            Tabview . Tabcntrl . tabView . ProgressBar_Progress . UpdateLayout ( );
             Utils . ScrollLBRecordIntoView ( this . listbox1 , 0 );
             this . listbox1 . Refresh ( );
             Tabview . GetTabview ( ) . TabSizeChanged ( null , null );
             Mouse . OverrideCursor = Cursors . Arrow;
             DbCountArgs args = new DbCountArgs ( );
             args . Dbcount = Bvm?.Count ?? -1;
-            args . sender = "dgUserctrl";
+            args . sender = "lbUserctrl";
+
             TabWinViewModel . TriggerBankDbCount ( this , args );
         }
+
+        #endregion Bank Data Loading methods
+
         private void EventControl_CustDataLoaded ( object sender , LoadedEventArgs e ) {
             if ( e . CallerType != "LbUserControl" ) return;
             this . listbox1 . ItemsSource = null;
@@ -383,6 +429,11 @@ namespace NewWpfDev . UserControls {
             Application . Current . Dispatcher . Invoke ( ( ) => {
                 Tabview . Tabcntrl . DtTemplates . TemplatesCombo . ItemsSource = Tabview . DataTemplatesCust;
                 Tabview . Tabcntrl . DtTemplates . TemplateIndexLb = 0;
+                Tabview . Tabcntrl . tabView . IsLoading = true;
+                Tabview . Tabcntrl . tabView . DbnamesCb . SelectedIndex = Tabview . FindDbName ( "CUSTOMER" );
+                Tabview . Tabcntrl . DbNameIndexLb = Tabview . Tabcntrl . tabView . DbnamesCb . SelectedIndex;
+                Tabview . Tabcntrl . DbNameLb = Tabview . Tabcntrl . tabView . DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( );
+                Tabview . Tabcntrl . tabView . IsLoading = false;
                 Tabview . Tabcntrl . DtTemplates . TemplatesCombo . SelectedIndex = 0;
             } );
             // Set Data Template
@@ -395,17 +446,21 @@ namespace NewWpfDev . UserControls {
             Tabview . Tabcntrl . DtTemplates . TemplatesCombo . SelectedIndex = 0;
             Tabview . Tabcntrl . lbUserctrl . listbox1 . UpdateLayout ( );
 
-             Utils . ScrollLBRecordIntoView ( this . listbox1 , 0 );
+            Tabview . Tabcntrl . tabView . TemplatesCb . Foreground = FindResource ( "Black0" ) as SolidColorBrush;
+            Tabview . Tabcntrl . tabView . TemplatesCb . UpdateLayout ( );
+            Tabview . Tabcntrl . tabView . DbnamesCb . Foreground = FindResource ( "Black0" ) as SolidColorBrush;
+            Tabview . Tabcntrl . tabView . DbnamesCb . UpdateLayout ( );
+            Utils . ScrollLBRecordIntoView ( this . listbox1 , 0 );
             Tabview . GetTabview ( ) . TabSizeChanged ( null , null );
             Mouse . OverrideCursor = Cursors . Arrow;
             DbCountArgs args = new DbCountArgs ( );
             args . Dbcount = Cvm?.Count ?? -1;
-            args . sender = "dgUserctrl";
+            args . sender = "lbUserctrl";
             TabWinViewModel . TriggerBankDbCount ( this , args );
         }
 
         private void EventControl_GenericDataLoaded ( object sender , LoadedEventArgs e ) {
-            if ( e . CallerType != "LISTBOX" ) return;
+            if ( e . CallerType != "GENERICDATA" ) return;
             this . listbox1 . ItemsSource = null;
             Grid v = this . listbox1 . Parent as Grid;
             TabItem y = v . Parent as TabItem;
@@ -419,7 +474,16 @@ namespace NewWpfDev . UserControls {
             this . listbox1 . SelectedIndex = 0;
             this . listbox1 . SelectedItem = 0;
             this . listbox1 . UpdateLayout ( );
-
+            Tabview . Tabcntrl . tabView . DbnamesCb . SelectedIndex = Tabview . FindDbName ( Tabview . Tabcntrl . tabView . DbnamesCb . SelectedItem . ToString ( ) );
+            Tabview . Tabcntrl . DbNameIndexLb = Tabview . Tabcntrl . tabView . DbnamesCb . SelectedIndex;
+            Tabview . Tabcntrl . DbNameLb = Tabview . Tabcntrl . tabView . DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( );
+            Tabview . tabvw . DbTypeFld . Background = FindResource ( "Red5" ) as SolidColorBrush;
+            Tabview . tabvw . DbCount . Background = Application . Current . FindResource ( "Red5" ) as SolidColorBrush;
+            Tabview . tabvw . DbTypeFld . UpdateLayout ( );
+            Tabview . Tabcntrl . tabView . TemplatesCb . Foreground = FindResource ( "Red5" ) as SolidColorBrush;
+            Tabview . Tabcntrl . tabView . TemplatesCb . UpdateLayout ( );
+            Tabview . Tabcntrl . tabView . DbnamesCb . Foreground = FindResource ( "Red5" ) as SolidColorBrush;
+            Tabview . Tabcntrl . tabView . DbnamesCb . UpdateLayout ( );
             Utils . ScrollLBRecordIntoView ( this . listbox1 , 0 );
             this . listbox1 . Refresh ( );
             Mouse . OverrideCursor = Cursors . Arrow;
@@ -429,67 +493,62 @@ namespace NewWpfDev . UserControls {
             return ThisWin;
         }
 
-        public Task LoadBank ( bool update ) {
-            CurrentType = "BANK";
-            TabWinViewModel . TriggerDbType ( CurrentType );
-            Tabview . Tabcntrl . ActiveControlType = Tabview . Tabcntrl . lbUserctrl;
-            Tabview . Tabcntrl . DtTemplates . TemplateListLb = "BANK";
-            Tabview . Tabcntrl . CurrentTypeLb = "BANK";
-            Tabview . SetDbType ( "BANK" );
-            // now load the data
-            Task . Run ( async ( ) => {
-                Application . Current . Dispatcher . Invoke ( ( Action ) ( ( ) => {
-                    // does NOT use BankDataLoaded messaging
-                    LoadBankDb ( update );
-                } ) );
-            } );
-      //Application . Current . Dispatcher . Invoke ( ( Action ) ( ( ) =>
-      //    Bvm = UserControlDataAccess . GetBankObsCollection ( true , "LvUserControl" )
-
-            Mouse . OverrideCursor = Cursors . Arrow;
-            return null;
-            //ThreadPool . QueueUserWorkItem ( LoadBankDb, update);
-        }
-        public void LoadCustomer ( bool update ) {
+        public async Task LoadCustomer ( bool update = true ) {
             CurrentType = "CUSTOMER";
             TabWinViewModel . TriggerDbType ( CurrentType );
             Tabview . Tabcntrl . ActiveControlType = Tabview . Tabcntrl . lbUserctrl;
-            Tabview . Tabcntrl . DtTemplates . TemplateListLb = "CUSTOMER";
+            Tabview . Tabcntrl . DtTemplates . TemplateNameLb = "CUSTOMER";
             Tabview . Tabcntrl . CurrentTypeLb = "CUSTOMER";
             Tabview . SetDbType ( "CUSTOMER" );
-            LoadCustomerDb ( update );
+            Tabview . tabvw . DbTypeFld . Background = FindResource ( "Blue5" ) as SolidColorBrush;
+            Tabview . tabvw . DbCount . Background = Application . Current . FindResource ( "Blue5" ) as SolidColorBrush;
+            await LoadCustomerDb ( update );
             Mouse . OverrideCursor = Cursors . Arrow;
+            return;
         }
 
-        public void LoadGeneric ( string SqlCommand , bool update ) {
+        public int LoadGeneric ( string tablename ) {
             string ResultString = "";
-            CurrentType = "GENERIC";
-            TabWinViewModel . TriggerDbType ( CurrentType );
-            Gvm = SqlSupport . LoadGeneric ( SqlCommand , out ResultString , 0 , true );
+            string SqlCommand = tablename != null ? $"Select * from {tablename}" : "Select * from Invoice";
+            Tabview . Tabcntrl . ActiveControlType = Tabview . Tabcntrl . lbUserctrl;
+            //Setup Templates list  as we are changing Db type
+            Tabview . Tabcntrl . DtTemplates . TemplateNameLb = "GEN";
+            Tabview . Tabcntrl . CurrentTypeLb = "GEN";
+            Tabview . SetDbType ( "GEN" );
+
+            Tabview . Tabcntrl . lbUserctrl . listbox1 . ItemsSource = null;
+            Tabview . Tabcntrl . lbUserctrl . listbox1 . Items . Clear ( );
+            Gvm = new ObservableCollection<GenericClass> ( );
+            Gvm = SqlSupport . LoadGeneric ( SqlCommand , out ResultString , 0 , false );
+            Tabview . Tabcntrl . lbUserctrl . listbox1 . ItemsSource = Gvm;
+            DbCountArgs args = new DbCountArgs ( );
+            args . Dbcount = Gvm?.Count ?? -1;
+            args . sender = "lbUserctrl";
+            TabWinViewModel . TriggerBankDbCount ( this , args );
+
+            // Set ListBox to the new Data Template
+            Tabview . Tabcntrl . twVModel . CheckActiveTemplate ( Tabview . Tabcntrl . lbUserctrl );
+            FrameworkElement elemnt = Tabview . Tabcntrl . lbUserctrl . listbox1 as FrameworkElement;
+            DataTemplate dtemp = new DataTemplate ( );
+            // Lock template  - cannot be changed
+            dtemp . Seal ( );
+            dtemp = elemnt . FindResource ( Tabview . Tabcntrl . DtTemplates . TemplatesCombo . SelectedItem . ToString ( ) ) as DataTemplate;
+            Tabview . Tabcntrl . lbUserctrl . listbox1 . ItemTemplate = dtemp;
+            Tabview . Tabcntrl . DtTemplates . TemplatesCombo . SelectedIndex = Tabview . Tabcntrl . DtTemplates . TemplateIndexLb;
+            Tabview . Tabcntrl . lbUserctrl . listbox1 . UpdateLayout ( );
+            Tabview . tabvw . DbTypeFld . Background = FindResource ( "Red5" ) as SolidColorBrush;
+            Tabview . tabvw . DbCount . Background = Application . Current . FindResource ( "Red5" ) as SolidColorBrush;
+            return Gvm.Count;
         }
 
-        private Task  LoadBankDb ( object state ) {
-            Bvm = new ObservableCollection<BankAccountViewModel> ( );
-            this . listbox1 . ItemsSource = null;
-            this . listbox1 . Items . Clear ( );
-            CurrentType = "BANK";
-            TabWinViewModel . TriggerDbType ( CurrentType );
-            // uses BankDataLoadedto load data indirectly
-            Task task = Task . Run ( ( ) =>
-            {
-                Application . Current . Dispatcher . Invoke ( ( Action ) ( ( ) => {
-                    Bvm = UserControlDataAccess . GetBankObsCollection ( true , "LbUserControl" );
-                } ) );
-            } );
-            return null;
-        }
-        private async void LoadCustomerDb ( object state ) {
+
+        private async Task LoadCustomerDb ( object state ) {
             if ( Cvm == null ) Cvm = new ObservableCollection<CustomerViewModel> ( );
             if ( Cvm . Count == 0 ) {
-                Task task = Task . Run ( async ( ) => {
+                Task task =  Task . Run ( async ( ) => {
                     // This is pretty fast - uses Dapper and Linq
-                    Application . Current . Dispatcher . Invoke ( ( Action ) ( ( ) => {
-                        UserControlDataAccess . GetCustObsCollection ( Cvm , "" , true , "LbUserControl" );
+                    Application . Current . Dispatcher . Invoke ( ( Action ) ( async ( ) => {
+                         UserControlDataAccess . GetCustObsCollection ( Cvm , "" , true , "LbUserControl" );
                     } ) );
                 } );
             }
@@ -518,7 +577,7 @@ namespace NewWpfDev . UserControls {
         }
         private void listbox1_LostFocus ( object sender , RoutedEventArgs e ) {
         }
-        private void listbox1_SelectionChanged ( object sender , SelectionChangedEventArgs e ) {          
+        private void listbox1_SelectionChanged ( object sender , SelectionChangedEventArgs e ) {
             ListBox lb = sender as ListBox;
 
             if ( Tabview . Tabcntrl . Selectionchanged == true ) return;
@@ -530,30 +589,28 @@ namespace NewWpfDev . UserControls {
                 this . listbox1 . SelectedItem = 0;
             }
             ListBox v = e . OriginalSource as ListBox;
-            if ( v?.SelectedIndex != CurrentIndex  && Tabview . Tabcntrl . Selectionchanged  == false) {
-                CurrentIndex = v . SelectedIndex;
-                if ( Tabview . Tabcntrl . tabView . ViewersLinked ) {
-                    if ( Tabview . Tabcntrl . tabView . CheckAllControlIndexes ( CurrentIndex ) == false ) {
-                        Tabview . Tabcntrl . Selectionchanged = true;
-                        SelectionChangedArgs args = new SelectionChangedArgs ( );
-                        args . data = this . listbox1 . SelectedItem;
-                        args . sendername = "listbox1";
-                        args . sendertype = CurrentType;
-                        args . index = this . listbox1 . SelectedIndex;
-                        Debug . WriteLine ( $"ListBox broadcasting selection to set to  {args . index}" );
-                        Task task = Task . Run ( ( ) => {
-                            Application . Current . Dispatcher . Invoke ( ( ) => {
-                                EventControl . TriggerListSelectionChanged ( sender , args );
+            if ( v?.SelectedIndex != CurrentIndex && Tabview . Tabcntrl . Selectionchanged == false ) {
+                if ( Tabview . Tabcntrl . CurrentTypeLb != "GEN" ) {
+                    // CurrentIndex = v . SelectedIndex;
+                    if ( Tabview . Tabcntrl . tabView . ViewersLinked ) {
+                        if ( Tabview . Tabcntrl . tabView . CheckAllControlIndexes ( CurrentIndex ) == false ) {
+                            Tabview . Tabcntrl . Selectionchanged = true;
+                            SelectionChangedArgs args = new SelectionChangedArgs ( );
+                            args . data = this . listbox1 . SelectedItem;
+                            args . sendername = "listbox1";
+                            args . sendertype = CurrentType;
+                            args . index = this . listbox1 . SelectedIndex;
+                            Debug . WriteLine ( $"ListBox broadcasting selection to set to  {args . index}" );
+                            Task task = Task . Run ( ( ) => {
+                                Application . Current . Dispatcher . Invoke ( ( ) => {
+                                    EventControl . TriggerListSelectionChanged ( sender , args );
+                                } );
                             } );
-                        } );
-                        e . Handled = true;
+//                           e . Handled = true;
+                        }
                     }
-                  }
-             }
-
-           // SelectionInAction = false;
-            //Tabview . Tabcntrl . DtTemplates . TemplateIndexLb = Tabview . Tabcntrl . lbUserctrl . listbox1 . SelectedIndex;
-
+                }
+            }
             Mouse . OverrideCursor = Cursors . Arrow;
             Tabview . Tabcntrl . Selectionchanged = false;
             e . Handled = true;
@@ -563,10 +620,6 @@ namespace NewWpfDev . UserControls {
             bool success = false;
             if ( SelectionInAction == true )
                 return;
-            //if ( Tabview . Tabcntrl . Selectionchanged == false ) {
-            //    Tabview . Tabcntrl . Selectionchanged = true;
-            //    return;
-            //}
             if ( LbUserControl . TrackselectionChanges == false ) return;
             // Another viewer has changed selection
             int newindex = 0;
@@ -574,6 +627,10 @@ namespace NewWpfDev . UserControls {
 
             if ( sender . GetType ( ) == typeof ( LbUserControl ) )
                 return;
+            if ( Tabview . Tabcntrl . DtTemplates . TemplateNameLb == "GEN" ) {
+                Debug . WriteLine ( $"ListBox  : Cannot match : List  contains Generic data" );
+                return;
+            }
 
             if ( e . sendername != "listbox1" ) {
                 string custno = "", bankno = "";
@@ -609,7 +666,7 @@ namespace NewWpfDev . UserControls {
                     try {
                         foreach ( CustomerViewModel item in this . listbox1 . Items ) {
                             if ( item . CustNo == custno ) { //&& item . BankNo == bankno ) {
-                                Tabview . Tabcntrl . Selectionchanged   = true;
+                                Tabview . Tabcntrl . Selectionchanged = true;
                                 this . listbox1 . SelectedIndex = newindex;
                                 this . listbox1 . SelectedItem = newindex;
                                 Debug . WriteLine ( $"Listbox selection in Customers matched on {custno}:{bankno}, index {newindex}" );
@@ -623,7 +680,7 @@ namespace NewWpfDev . UserControls {
                     catch ( Exception ex ) { Debug . WriteLine ( $"Listbox failed search in Customer for match to {custno} : {bankno}" ); }
                 }
                 else if ( this . CurrentType == "BANK" ) {
-  //                  int indx = 0;
+                    //                  int indx = 0;
                     try {
                         foreach ( BankAccountViewModel item in this . listbox1 . Items ) {
                             if ( item . CustNo == custno ) { //} && item . BankNo == bankno ) {
@@ -638,20 +695,19 @@ namespace NewWpfDev . UserControls {
                             newindex++;
                         }
                     }
-                    catch ( Exception ex ) { Debug . WriteLine ( $"Listbox failed search in Bank for match to {custno} : {bankno}\n{ex.Message}" ); }
+                    catch ( Exception ex ) { Debug . WriteLine ( $"Listbox failed search in Bank for match to {custno} : {bankno}\n{ex . Message}" ); }
                 }
                 if ( success == false ) {
-                    if(this . CurrentType == "BANK" )
+                    if ( this . CurrentType == "BANK" )
                         Debug . WriteLine ( $"Listbox failed search in Bank for match to {custno} : {bankno}" );
                     else
                         Debug . WriteLine ( $"Listbox failed search in Customer for match to {custno} : {bankno}" );
                 }
                 else if ( success ) {
                     Utils . ScrollLBRecordIntoView ( this . listbox1 , newindex );
-                    //Tabview . Tabcntrl . DtTemplates . TemplateIndexLb = newindex;
                 }
-                this . listbox1 . UpdateLayout ( );                
-            }            
+                this . listbox1 . UpdateLayout ( );
+            }
             Tabview . Tabcntrl . Selectionchanged = false;
         }
 
@@ -671,10 +727,7 @@ namespace NewWpfDev . UserControls {
         }
 
         private void ttSp_PreviewMouseRightButtonDown ( object sender , MouseButtonEventArgs e ) {
-            if ( TipElapsedTime == 0 ) {
-                TooltipPopup . Visibility = Visibility . Visible;
-                timer . Start ( );
-            }
+            //            e . Handled = true;
         }
         private void Hidepopup_Click ( object sender , RoutedEventArgs e ) {
             TooltipPopup . Visibility = Visibility . Collapsed;
@@ -682,16 +735,8 @@ namespace NewWpfDev . UserControls {
             TipElapsedTime = 0;
         }
         private void listbox1_MouseLeave ( object sender , MouseEventArgs e ) {
-            if ( TipElapsedTime >= MAXTOOLTIPSECS ) {
-                TooltipPopup . Visibility = Visibility . Collapsed;
-                timer . Stop ( );
-                TipElapsedTime = 0;
-            }
         }
         private void LbUserControl_Tooltipshown ( object sender , TooltipArgs e ) {
-            //bool IsShown = e . IsOpen;
-            //IsToolTipOpen = e . isShow & IsShown ;
-            //TooltipPopup . IsOpen = IsToolTipOpen;
         }
         private void Timer_Tick ( object sender , EventArgs e ) {
             if ( TooltipPopup . Visibility == Visibility . Visible ) {
@@ -732,7 +777,18 @@ namespace NewWpfDev . UserControls {
                 }
             }
         }
-
+        private void Magnifyplus2 ( object sender , RoutedEventArgs e ) {
+            // set Listbox font size
+            Fontsize += 2;
+            listbox1 . FontSize = Fontsize; ;
+            listbox1 . UpdateLayout ( );
+        }
+        private void Magnifyminus2 ( object sender , RoutedEventArgs e ) {
+            Fontsize -= 2;
+            listbox1 . FontSize = Fontsize; ;
+            listbox1 . UpdateLayout ( );
+        }
+ 
         #region unused
         private void ttloaded ( object sender , RoutedEventArgs e ) {
             //ListBox lb = sender as ListBox;

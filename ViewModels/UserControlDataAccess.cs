@@ -41,9 +41,14 @@ namespace NewWpfDev. ViewModels
 
             try
             {
+                Debug . WriteLine ( "Loading BankAccount table in \"GetBankObsCollection\"!!!" );
                 dtBank = ReadBankData ( max );
-                if ( dtBank == null ) return null;
+                if ( dtBank == null ) {
+                    Debug . WriteLine ("BankAccount failed  to load from table !!!");
+                    return null;
+                }
                 // collection = new ObservableCollection<BankAccountViewModel> ( );
+                Debug . WriteLine ( "Loading BankAccount into Bvm in \"GetBankObsCollection\"!!!" );
                 LoadBankCollection ( bcollection , dtBank );
             }
             catch ( Exception ex )
@@ -150,11 +155,12 @@ namespace NewWpfDev. ViewModels
                 // This is ONLY called  if a requestor specifies the file wide variable argument as TRUE
                 if ( UserControlDataAccess . Notify )
                 {
-                   // $"Dispatcher on UI thread =  {Application . Current . Dispatcher . CheckAccess ( )}" . CW ( );
+                    // $"Dispatcher on UI thread =  {Application . Current . Dispatcher . CheckAccess ( )}" . CW ( );
                     //if ( Application . Current . Dispatcher . CheckAccess ( ) == false )
                     //{
                     //"Triggeriing BankDataLoaded inside a new App Dispatcher..." . CW ( );
                     //Application . Current . Dispatcher . Invoke ( ( ) =>
+                    Debug . WriteLine ( $"Calling TriggerBankDataLoaded with {bcollection.Count} records in \"LoadBankCollection\" for {Caller}!!!" );
                     EventControl . TriggerBankDataLoaded ( null ,
                         new LoadedEventArgs
                         {
