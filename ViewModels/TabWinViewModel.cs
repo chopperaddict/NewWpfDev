@@ -13,10 +13,13 @@ using System . Windows . Input;
 using System . Windows . Media;
 using System . Windows . Threading;
 
+using NewWpfDev . AttachedProperties;
 using NewWpfDev . Converts;
 using NewWpfDev . DataTemplates;
 using NewWpfDev . UserControls;
 using NewWpfDev . Views;
+
+using ServiceStack . Messaging;
 
 //using static NewWpfDev . Views . Tabview;
 
@@ -31,7 +34,9 @@ namespace NewWpfDev . ViewModels {
     /// </summary>
     public class TabWinViewModel : INotifyPropertyChanged, ITabViewer {
 
-        dynamic Ctrlptr = Tabview . Tabcntrl . dgUserctrl;
+        // DYNAMIC variables used globally (as Macros basically)
+        //        Tabview Ctrlptr;
+        public static dynamic TviewInfopanelptr;
 
         #region Events
         public static event EventHandler<LoadDbArgs> LoadDb;
@@ -79,7 +84,8 @@ namespace NewWpfDev . ViewModels {
         }
         #endregion NotifyPropertyChanged
 
-        //        public static TabController Tabctrl;
+        #region Declarations
+
         public Button button = new Button ( );
         private static Stopwatch timer = new Stopwatch ( );
         private bool SelectionInAction { get; set; } = false;
@@ -88,7 +94,9 @@ namespace NewWpfDev . ViewModels {
         }
 
         public bool USETASK { get; set; } = true;
-
+        public static DgUserControl dgUserctrl;
+        public static LbUserControl lbUserctrl;
+        public static LvUserControl lvUserctrl;
 
         public LbUserControl lbuser;
         public LvUserControl lvuser;
@@ -100,9 +108,8 @@ namespace NewWpfDev . ViewModels {
             public LogUserControl logctrl;
         }
         public Stopwatch watch = new Stopwatch ( );
-        public object Viewmodel {
-            get; set;
-        }
+
+        #endregion Declarations
 
         #region Properties
 
@@ -195,9 +202,6 @@ namespace NewWpfDev . ViewModels {
                 progressValue = value; NotifyPropertyChanged ( nameof ( ProgressValue ) );
             }
         }
-        #endregion Full properties
-
-
         private bool canExpand;
         public bool CanExpand {
             get { return canExpand; }
@@ -205,7 +209,13 @@ namespace NewWpfDev . ViewModels {
                 canExpand = value; NotifyPropertyChanged ( nameof ( CanExpand ) );
             }
         }
+        private string tabviewInfoString;
+        public string TabviewInfoString {
+            get { return tabviewInfoString; }
+            set { tabviewInfoString = value; NotifyPropertyChanged ( nameof ( TabviewInfoString ) ); }
+        }
 
+        #endregion Full properties
 
         #region Commands
         public ICommand LoadBankBtn {
@@ -230,76 +240,10 @@ namespace NewWpfDev . ViewModels {
         public ObservableCollection<CustomerViewModel> Cvm { get; set; }
         #endregion Commands
 
-        #region Interface items
-        public void TabLoadBank ( object HostControl , string DbType , bool Notify ) {
-            //            CurrentType = DbType;
-            TabWinViewModel . TriggerDbType ( DbType );
-            if ( HostControl . GetType ( ) == typeof ( DgUserControl ) ) {
-                Tabview . Tabcntrl . ActiveControlType = Tabview . Tabcntrl . dgUserctrl;
-                Tabview . Tabcntrl . DtTemplates . TemplateNameDg = "BANKACCOUNT";
-                Tabview . Tabcntrl . CurrentTypeDg = "BANKACCOUNT";
-            }
-            if ( HostControl . GetType ( ) == typeof ( LbUserControl ) ) {
-                Tabview . Tabcntrl . ActiveControlType = Tabview . Tabcntrl . lbUserctrl;
-                Tabview . Tabcntrl . DtTemplates . TemplateNameLb = "BANKACCOUNT";
-                Tabview . Tabcntrl . CurrentTypeLb = "BANKACCOUNT";
-            }
-            if ( HostControl . GetType ( ) == typeof ( LvUserControl ) ) {
-                Tabview . Tabcntrl . ActiveControlType = Tabview . Tabcntrl . lvUserctrl;
-                Tabview . Tabcntrl . DtTemplates . TemplateNameLv = "BANKACCOUNT";
-                Tabview . Tabcntrl . CurrentTypeLv = "BANKACCOUNT";
-            }
-            Tabview . SetDbType ( "BANK" );
-            // now load the data
-            Task . Run ( async ( ) => {
-                Application . Current . Dispatcher . Invoke ( ( Action ) ( async ( ) => {
-                    // does NOT use BankDataLoaded messaging
-                    await LoadBankDb ( HostControl , Notify );
-                } ) );
-            } );
-            Mouse . OverrideCursor = Cursors . Arrow;
-            return;
-        }
-        DgUserControl dgUserctrl;
-        LbUserControl lbUserctrl;
-        LvUserControl lvUserctrl;
-        private async Task LoadBankDb ( object HostControl , bool Notify ) {
-            Bvm = new ObservableCollection<BankAccountViewModel> ( );
-            if ( HostControl . GetType ( ) == typeof ( DgUserControl ) ) {
-                dgUserctrl = ( DgUserControl ) HostControl;
-                dgUserctrl . grid1 . ItemsSource = null;
-                dgUserctrl . grid1 . Items . Clear ( );
-                await Task . Run ( ( ) => {
-                    Application . Current . Dispatcher . Invoke ( ( Action ) ( ( ) => {
-                        Bvm = UserControlDataAccess . GetBankObsCollection ( true , "dgUserControl" );
-                    } ) );
-                } );
-            }
-            else if ( HostControl . GetType ( ) == typeof ( LbUserControl ) ) {
-                lbUserctrl = ( LbUserControl ) HostControl;
-                lbUserctrl . listbox1 . ItemsSource = null;
-                lbUserctrl . listbox1 . Items . Clear ( );
-                await Task . Run ( ( ) => {
-                    Application . Current . Dispatcher . Invoke ( ( Action ) ( ( ) => {
-                        Bvm = UserControlDataAccess . GetBankObsCollection ( true , "lbUserControl" );
-                    } ) );
-                } );
-            }
-            else if ( HostControl . GetType ( ) == typeof ( LvUserControl ) ) {
-                lvUserctrl = ( LvUserControl ) HostControl;
-                lvUserctrl . listview1 . ItemsSource = null;
-                lvUserctrl . listview1 . Items . Clear ( );
-                await Task . Run ( ( ) => {
-                    Application . Current . Dispatcher . Invoke ( ( Action ) ( ( ) => {
-                        Bvm = UserControlDataAccess . GetBankObsCollection ( true , "lvUserControl" );
-                    } ) );
-                } );
-            }
-            return;
-        }
 
-        #endregion Interface items
-
+        // *************************************
+        // Start of TABWINVIEWMODEL CODE
+        // *************************************
         public TabWinViewModel ( ) {
             if ( ThisWin == null ) {
                 ThisWin = this;
@@ -333,21 +277,6 @@ namespace NewWpfDev . ViewModels {
                     tvUserctrl = new TvUserControl ( );
                 if ( logUserctrl == null )
                     logUserctrl = new LogUserControl ( );
-
-                CanExpand = true;
-
-                //Tabview . Tabcntrl. dgUserctrl = DgUserControl . SetController ( this );
-                //Tabview . Tabcntrl. lbUserctrl = LbUserControl . SetController ( this );
-                //Tabview . Tabcntrl. lvUserctrl = LvUserControl . SetController ( this );
-                //tvUserctrl = TvUserControl . SetController ( this );
-                //logUserctrl = LogUserControl . SetController ( this );
-
-                // Save to our ViewModel repository
-                //Viewmodel = new ViewModel ( );
-                //Viewmodel = this;
-                //ViewModel . SaveViewmodel ( "TabWinViewModel" , Viewmodel );
-                progress = new Progress<int> ( count => ProgressValue = 0 );
-                //Debug . WriteLine ( $"ctrls = {Tabview . Tabcntrl . lbUserctrl?.listbox1?.Items . Count} ,  {Tabview . Tabcntrl . lvUserctrl?.listview1?.Items . Count}" );
             }
         }
 
@@ -369,14 +298,10 @@ namespace NewWpfDev . ViewModels {
                 return true;
             else return false;
         }
-        private void SetFocusToGrid ( object sender , EventArgs e ) {
-            //DgUserControl . OnGridGotFocus ( );
-        }
 
         private bool ShowinfoCanExecute ( object arg ) {
             return true;
         }
-
         private void ShowinfoExecute ( object obj ) {
             try {
                 TabViewInfo tvvi = new TabViewInfo ( "TabbedDataInfo.Txt" );
@@ -456,13 +381,16 @@ namespace NewWpfDev . ViewModels {
             else if ( CurrentTabName == "ListboxTab" ) {
                 Tabview . Tabcntrl . lbUserctrl . Bvm?.Clear ( );
                 Tabview . Tabcntrl . lbUserctrl . CurrentType = "BANK";
-                Tabview . Tabcntrl . lbUserctrl . LoadBank ( true );
-                //              await Task . Run ( ( ) => Tabview . Tabcntrl . lbUserctrl . LoadBank ( true ) );
+                Application . Current . Dispatcher . Invoke ( async ( ) =>
+                    await Task . Run ( ( ) => Tabview . Tabcntrl . lbUserctrl . LoadBank ( ) )
+                 );
             }
             else if ( CurrentTabName == "ListviewTab" ) {
                 Tabview . Tabcntrl . lvUserctrl . Bvm?.Clear ( );
                 Tabview . Tabcntrl . lvUserctrl . CurrentType = "BANK";
-                await Task . Run ( ( ) => Tabview . Tabcntrl . lvUserctrl . LoadBank ( ) );
+                Application . Current . Dispatcher . Invoke ( async ( ) =>
+                    await Task . Run ( ( ) => Tabview . Tabcntrl . lvUserctrl . LoadBank ( ) )
+                 );
             }
             DbType = "BANK";
         }
@@ -496,11 +424,15 @@ namespace NewWpfDev . ViewModels {
             // Get pointer to our view
             Tview = tview;
             Tabcontrol = Tview?.Tabctrl;
-            //Tabview . Tabcntrl. dgUserctrl = DgUserControl . SetController ( ThisWin );
-            //Tabview . Tabcntrl. lbUserctrl = LbUserControl . SetController ( ThisWin );
-            //Tabview . Tabcntrl . lvUserctrl = LvUserControl . SetController ( ThisWin );
             tvUserctrl = TvUserControl . SetController ( ThisWin );
             CurrentTabIndex = 0;
+
+            // Setup our global DYNAMIC pointers
+            if ( TviewInfopanelptr == null ) {
+                TviewInfopanelptr = tview . LoadName;
+                if ( TviewInfopanelptr != null )
+                    TabWinViewModel . SetInfoString ( "\"dynamic Tviewinfopanelptr\" that enables use of \"LoadName.Text\" in Tabview set correctly" );
+            }
             return ThisWin;
         }
         public static Tabview SendTabview ( ) {
@@ -509,22 +441,18 @@ namespace NewWpfDev . ViewModels {
             return null;
         }
 
-       
+
         public async Task SetCurrentTab ( Tabview tabview , string tab ) {
             // Working well 2/6/22
-            ProgressValue = 0;
-            Tview . ProgressBar_Progress . UpdateLayout ( );
+            //ProgressValue = 0;
+            //Tview . ProgressBar_Progress . UpdateLayout ( );
             CurrentTabName = tab;
 
             if ( tab == "DgridTab" ) {
                 // ************//
                 // DATAGRID
                 // ************//
-                //Tabview . Tabcntrl . twVModel . CanExpand = true;
-                // Test of Dynamic value
-                ProgressValue = 15;
-                Tview . ProgressBar_Progress . UpdateLayout ( );
-                Tview . LoadName . Text = "Loading Data Grid ...";
+                TabWinViewModel . SetInfoString ( "Loading Data Grid ..." );
                 if ( IsLoadingDb == true && CurrentTabName != tab ) return;
                 IsLoadingDb = true;
                 // setup the current tab Id
@@ -545,8 +473,8 @@ namespace NewWpfDev . ViewModels {
                 // Setup Templates to match this tab
                 CheckActiveTemplate ( Tabview . Tabcntrl . dgUserctrl );
 
-                ProgressValue = 25;
-                Tview . ProgressBar_Progress . UpdateLayout ( );
+                //ProgressValue = 25;
+                //Tview . ProgressBar_Progress . UpdateLayout ( );
 
                 if ( Tabview . Tabcntrl . dgUserctrl == null )
                     Tabview . Tabcntrl . dgUserctrl = new DgUserControl ( );
@@ -564,8 +492,8 @@ namespace NewWpfDev . ViewModels {
                     //// Setup Templates to match this tab
                     //CheckActiveTemplate ( Tabview . Tabcntrl . dgUserctrl );
                 }
-                ProgressValue = 100;
-                Tview . ProgressBar_Progress . UpdateLayout ( );
+                //ProgressValue = 100;
+                //Tview . ProgressBar_Progress . UpdateLayout ( );
                 // clear all Tags to false;
                 ClearTags ( );
                 Tabview . Tabcntrl . dgUserctrl . Tag = true;
@@ -596,16 +524,16 @@ namespace NewWpfDev . ViewModels {
                 Tabview . tabvw . TemplatesCb . IsEnabled = true;
                 Tabview . tabvw . DbnamesCb . UpdateLayout ( );
                 Tabview . Tabcntrl . dgUserctrl . grid1 . CommitEdit ( 0 , false );
-                Tview . LoadName . Text = "";
-                ProgressValue = 0;
                 Utils . ScrollRecordIntoView ( Tabview . Tabcntrl . dgUserctrl . grid1 , Tabview . Tabcntrl . dgUserctrl . grid1 . SelectedIndex );
                 Tview . ProgressBar_Progress . UpdateLayout ( );
                 // This NOW scrolls into view correctly !!!!!
                 Utils . ScrollRecordIntoView ( Tabview . Tabcntrl . dgUserctrl . grid1 , Tabview . Tabcntrl . dgUserctrl . grid1 . SelectedIndex , Tabview . Tabcntrl . dgUserctrl . grid1 . SelectedItem );
                 Tabview . Tabcntrl . dgUserctrl . grid1 . ScrollIntoView ( Tabview . Tabcntrl . dgUserctrl . grid1 . SelectedItem );
-                Ctrlptr = Tabview . Tabcntrl . dgUserctrl;
-                string [ ] ctrl = Utils . GetDynamicVarType ( Ctrlptr );
-                Debug . WriteLine ( $"Dynamic type is Datagrid  : \n\"{ctrl [ 0 ]}\"\n\"{ctrl [ 1 ]}\"\n\"{ctrl [ 2 ]}\"" );
+                Tabview . CtrlPtr = Tabview . Tabcntrl . dgUserctrl;
+                string [ ] strs = { "" , "" , "" };
+                bool result = Utils . GetDynamicVarType ( Tabview . CtrlPtr , out strs , false );
+                ////Debug . WriteLine ( $"Dynamic type is Datagrid User Control : \n\"{strs [ 0 ]}\"\n\"{strs [ 1 ]}\"\n\"{strs [ 2 ]}\"" );
+                TabWinViewModel . SetInfoString ( $"DataGrid User Control has loaded {Tabview . Tabcntrl . DbNameDg} successfully" );
             }
             else if ( tab == "ListboxTab" ) {
                 // ************//
@@ -614,7 +542,7 @@ namespace NewWpfDev . ViewModels {
                 if ( IsLoadingDb == true && Tabview . Tabcntrl . lbUserctrl != null ) return;
                 Mouse . OverrideCursor = Cursors . Wait;
                 //CurrentTabName = tab;
-                Tview . LoadName . Text = "List Box Loading";
+                TabWinViewModel . SetInfoString ( "List Box Loading" );
                 IsLoadingDb = true;
                 Tabcontrol . SelectedIndex = 1;
                 CurrentTabIndex = Tabcontrol . SelectedIndex;
@@ -632,8 +560,8 @@ namespace NewWpfDev . ViewModels {
                 // Setup Templates to match this tab
                 CheckActiveTemplate ( Tabview . Tabcntrl . lbUserctrl );
 
-                ProgressValue = 5;
-                Tview . ProgressBar_Progress . UpdateLayout ( );
+                //ProgressValue = 5;
+                //Tview . ProgressBar_Progress . UpdateLayout ( );
                 CurrentTabTextBlock = "Tab2Header";
                 CurrentTabName = tab;
                 Tabview . Tabcntrl . CurrentTabName = tab;
@@ -643,8 +571,8 @@ namespace NewWpfDev . ViewModels {
                     if ( USETASK ) {
                         watch . Reset ( );
                         watch . Start ( );
-                        ProgressValue = 15;
-                        Tview . ProgressBar_Progress . UpdateLayout ( );
+                        //ProgressValue = 15;
+                        //Tview . ProgressBar_Progress . UpdateLayout ( );
                         if ( Tabview . Tabcntrl . lbUserctrl == null ) Tabview . Tabcntrl . lbUserctrl = new LbUserControl ( );
 
                         Task task = new Task ( async ( ) => {
@@ -654,22 +582,20 @@ namespace NewWpfDev . ViewModels {
                         } );
                         task . Start ( );
 
-                        ProgressValue = 55;
-                        Tview . ProgressBar_Progress . UpdateLayout ( );
+                        //ProgressValue = 55;
+                        //Tview . ProgressBar_Progress . UpdateLayout ( );
                         //Tabitem . IsSelected = true;
                         Tabview . Tabcntrl . tabItem . IsSelected = true;
-                        ProgressValue = 85;
-                        Tview . ProgressBar_Progress . UpdateLayout ( );
+                        //ProgressValue = 85;
+                        //Tview . ProgressBar_Progress . UpdateLayout ( );
                         watch . Stop ( );
                         watch . Reset ( );
                         Tabview . Tabcntrl . lbUserctrl . listbox1 . Focus ( );
                         DbType = Tabview . Tabcntrl . lbUserctrl?.CurrentType;
                         Tabview . Tabcntrl . lbUserctrl . UpdateLayout ( );
-                        ProgressValue = 0;
-                        Tview . ProgressBar_Progress . UpdateLayout ( );
                         Mouse . OverrideCursor = Cursors . Arrow;
-                        ProgressValue = 90;
-                        Tview . ProgressBar_Progress . UpdateLayout ( );
+                        //ProgressValue = 90;
+                        //Tview . ProgressBar_Progress . UpdateLayout ( );
                     }
                     else {
                         watch . Start ( );
@@ -715,13 +641,15 @@ namespace NewWpfDev . ViewModels {
                 cargs . sender = "Tabview . Tabcntrl. lbUserctrl";
                 IsLoadingDb = false;
                 TabWinViewModel . TriggerBankDbCount ( this , cargs );
-                Tview . LoadName . Text = "";
-                ProgressValue = 0;
-                Tview . ProgressBar_Progress . UpdateLayout ( );
+                TabWinViewModel . SetInfoString ( "" );
+                //ProgressValue = 0;
+                //Tview . ProgressBar_Progress . UpdateLayout ( );
                 Utils . ScrollLBRecordIntoView ( Tabview . Tabcntrl . lbUserctrl . listbox1 , Tabview . Tabcntrl . lbUserctrl . listbox1 . SelectedIndex );
-                Ctrlptr = Tabview . Tabcntrl . lbUserctrl;
-                string [ ] ctrl = Utils . GetDynamicVarType ( Ctrlptr );
-                Debug . WriteLine ( $"Dynamic type is ListBox : \n\"{ctrl [ 0 ]}\"\n\"{ctrl [ 1 ]}\"\n\"{ctrl [ 2 ]}\"" );
+                Tabview . CtrlPtr = Tabview . Tabcntrl . lbUserctrl;
+                string [ ] strs = { "" , "" , "" };
+                bool result = Utils . GetDynamicVarType ( Tabview . CtrlPtr , out strs , false );
+                //Debug . WriteLine ( $"Dynamic type is ListBox User Control : \n\"{strs [ 0 ]}\"\n\"{strs [ 1 ]}\"\n\"{strs [ 2 ]}\"" );
+                TabWinViewModel . SetInfoString ( $"ListBoxUser Control has loaded {Tabview . Tabcntrl . DbNameLb} succesfully" );
             }
             else if ( tab == "ListviewTab" ) {
                 // ************//
@@ -734,7 +662,7 @@ namespace NewWpfDev . ViewModels {
                 Tabcontrol . SelectedIndex = 2;
                 CurrentTabIndex = Tabcontrol . SelectedIndex;
                 CurrentTabTextBlock = "Tab3Header";
-                Tview . LoadName . Text = "List View Loading";
+                TabWinViewModel . SetInfoString ( "List View Loading" );
 
                 //Set currently active tab to ListView
                 Tabview . Tabcntrl . ActiveControlType = Tabview . Tabcntrl . lvUserctrl;
@@ -760,8 +688,8 @@ namespace NewWpfDev . ViewModels {
 
                 if ( Tabview . Tabcntrl . lvUserctrl . listview1 . Items . Count == 0 ) {
                     // Need to load data here
-                    ProgressValue = 15;
-                    Tview . ProgressBar_Progress . UpdateLayout ( );
+                    //ProgressValue = 15;
+                    //Tview . ProgressBar_Progress . UpdateLayout ( );
 
                     if ( USETASK ) {
                         await Task . Run ( async ( ) => {
@@ -777,11 +705,12 @@ namespace NewWpfDev . ViewModels {
                         Tabview . Tabcntrl . lvUserctrl . listview1 . Refresh ( );
                     }
                     else {
-                        ProgressValue = 15;
-                        Tview . ProgressBar_Progress . UpdateLayout ( );
+                        //ProgressValue = 15;
+                        //Tview . ProgressBar_Progress . UpdateLayout ( );
                         Tabview . Tabcntrl . lvUserctrl = LoadListviewInBackgroundTask ( Tabview . Tabcntrl . lvUserctrl );
                     }
                     Tabview . tabvw . DbnamesCb . SelectedIndex = Tabview . Tabcntrl . tabView . BankIndex;
+                    Tabview . Tabcntrl . DbNameLv = Tabview . Tabcntrl . tabView . DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( );
                     Tabview . Tabcntrl . DbNameIndexLv = Tabview . Tabcntrl . tabView . BankIndex;
                 }
 
@@ -809,20 +738,18 @@ namespace NewWpfDev . ViewModels {
 
                 Tabview . tabvw . DbnamesCb . UpdateLayout ( );
 
-                Tview . LoadName . Text = "";
-                ProgressValue = 0;
-                Tview . ProgressBar_Progress . UpdateLayout ( );
                 DbType = Tabview . Tabcntrl . CurrentTypeLv;
 
-                Ctrlptr = Tabview . Tabcntrl . lvUserctrl;
-                string [ ] ctrl = Utils . GetDynamicVarType ( Ctrlptr );
-                Debug . WriteLine ( $"Dynamic type is ListView : \n\"{ctrl [ 0 ]}\"\n\"{ctrl [ 1 ]}\"\n\"{ctrl [ 2 ]}\"" );
+                Tabview . CtrlPtr = Tabview . Tabcntrl . lvUserctrl;
+                string [ ] strs = { "" , "" , "" };
+                bool result = Utils . GetDynamicVarType ( Tabview . CtrlPtr , out strs , false );
+                //                Debug . WriteLine ( $"Dynamic type is ListView User Control: \n\"{strs [ 0 ]}\"\n\"{strs [ 1 ]}\"\n\"{strs [ 2 ]}\"" );
+                TabWinViewModel . SetInfoString ( $"ListView User Control has loaded {Tabview . Tabcntrl . DbNameLv} succesfully" );
             }
             else if ( tab == "LogviewTab" ) {
                 // ************//
                 // LOGVIEW
                 // ************//
-                Tview . LoadName . Text = "";
                 if ( IsLoadingDb == true && CurrentTabName != tab ) return;
 
                 Tabview . Tabcntrl . twVModel . CanExpand = true;
@@ -856,8 +783,8 @@ namespace NewWpfDev . ViewModels {
                 logUserctrl . Tag = true;
                 Tview . LogviewTab . Content = logUserctrl;
                 //EventControl . TriggerWindowMessage ( this , new InterWindowArgs { message = $"LogUserControl now Active..." , listbox = null } );
-                ProgressValue = 0;
-                Tview . ProgressBar_Progress . UpdateLayout ( );
+                //ProgressValue = 0;
+                //Tview . ProgressBar_Progress . UpdateLayout ( );
                 Mouse . OverrideCursor = Cursors . Arrow;
                 //Debug . WriteLine ( $"Setting Logview as Active tab" );
                 IsLoadingDb = false;
@@ -874,13 +801,12 @@ namespace NewWpfDev . ViewModels {
                 cargs . Dbcount = logUserctrl . logview . Items . Count;
                 cargs . sender = "logUserctrl";
                 TabWinViewModel . TriggerBankDbCount ( this , cargs );
+                TabWinViewModel . SetInfoString ( "LogView User Control log  data loaded succesfully" );
             }
             else if ( tab == "TreeviewTab" ) {
                 // ************//
                 // TREEVIEW
                 // ************//
-                Tview . LoadName . Text = "";
-
                 Tabview . Tabcntrl . twVModel . CanExpand = true;
 
                 if ( IsLoadingDb == true && CurrentTabName != tab ) return;
@@ -896,8 +822,6 @@ namespace NewWpfDev . ViewModels {
                 CurrentTabTextBlock = "Tab5Header";
                 Tabview . Tabcntrl . tabView . Btn1 . IsEnabled = false;
                 Tabview . Tabcntrl . tabView . Btn2 . IsEnabled = false;
-                //Tabview . Tabcntrl . tabView . Btn6 . IsEnabled = false;
-
 
                 if ( Tabview . Tabcntrl . tvUserctrl == null ) {
                     // get new usercontrol & add to tab content
@@ -927,14 +851,12 @@ namespace NewWpfDev . ViewModels {
                 args . Dbcount = Tabview . Tabcntrl . tvUserctrl . treeview1 . Items . Count;
                 args . sender = "tvUserctrl";
                 TabWinViewModel . TriggerBankDbCount ( this , args );
-                ProgressValue = 0;
-                Tview . ProgressBar_Progress . UpdateLayout ( );
                 Tabview . Tabcntrl . tvUserctrl . treeview1 . Focus ( );
                 IsLoadingDb = false;
+                TabWinViewModel . SetInfoString ( "TreeView User Control log data loaded succesfully" );
+                Mouse . OverrideCursor = Cursors . Arrow;
             }
-            Mouse . OverrideCursor = Cursors . Arrow;
         }
-
         private void SetDefaultComboColors ( bool state ) {
             if ( state ) {
                 Tabview . tabvw . DbTypeFld . Background = Application . Current . FindResource ( "Blue5" ) as SolidColorBrush;
@@ -1065,8 +987,8 @@ namespace NewWpfDev . ViewModels {
             // We HAVE to  run most of this code inDispatcher as we are accessing UI elements
             // Debug . WriteLine ( $"Running TASK for LbUserControl" );
             Tview . Dispatcher . Invoke ( DispatcherPriority . Normal , ( Action ) ( async ( ) => {
-                ProgressValue = 25;
-                Tview . ProgressBar_Progress . UpdateLayout ( );
+                //ProgressValue = 25;
+                //Tview . ProgressBar_Progress . UpdateLayout ( );
                 Mouse . OverrideCursor = Cursors . Wait;
                 LbUserControl lbUser = new LbUserControl ( );
                 lbUser . Name = "temporary";
@@ -1074,8 +996,8 @@ namespace NewWpfDev . ViewModels {
                 lbUser . Visibility = Visibility . Visible;
                 if ( lbUser . listbox1 . ItemsSource == null ) {
                     // Debug . WriteLine ( $"Loading Db data from disk via SQL....." );
-                    ProgressValue = 45;
-                    Tview . ProgressBar_Progress . UpdateLayout ( );
+                    //ProgressValue = 45;
+                    //Tview . ProgressBar_Progress . UpdateLayout ( );
                     //                    DataTemplate dt = Application . Current . FindResource ( "CustomersDbTemplate1" ) as DataTemplate;
                     DataTemplate dt = Application . Current . FindResource ( "BankDataTemplate1" ) as DataTemplate;
                     lbUser . listbox1 . ItemTemplate = dt;
@@ -1103,13 +1025,13 @@ namespace NewWpfDev . ViewModels {
                         //                       Debug . WriteLine ( $"App now has full copy of ListBoxUserControl from the Task thread" );
                         SendWindowMessage ( $"App now has full copy of ListBoxUserControl from the Task thread" );
                     }
-                    ProgressValue = 75;
-                    Tview . ProgressBar_Progress . UpdateLayout ( );
+                    //ProgressValue = 75;
+                    //Tview . ProgressBar_Progress . UpdateLayout ( );
                 }
                 //                Debug . WriteLine ( $"Returning to main UI thread.." );
             }
             ) );
-            ProgressValue = 100;
+            //ProgressValue = 100;
             //Tview . ProgressBar_Progress . UpdateLayout ( );
             Mouse . OverrideCursor = Cursors . Arrow;
             return;
@@ -1125,8 +1047,8 @@ namespace NewWpfDev . ViewModels {
                 if ( userctrl == null ) {
                     //Mouse . OverrideCursor = Cursors . Wait;
                     //Debug . WriteLine ( $"Loading LvUserControl ....." );
-                    ProgressValue = 15;
-                    Tview . ProgressBar_Progress . UpdateLayout ( );
+                    //ProgressValue = 15;
+                    //Tview . ProgressBar_Progress . UpdateLayout ( );
                     // speed up this process as we do not need it just yet
                     Task loadcontrol = new Task ( ( ) => {
                         Tabview . Tabcntrl . lvUserctrl = new LvUserControl ( );
@@ -1142,13 +1064,13 @@ namespace NewWpfDev . ViewModels {
                 Tabitem . Content = Tabview . Tabcntrl . lvUserctrl;
                 //Debug . WriteLine ( $"TIrem : {Tabitem . Height}, {Tabitem . Width}" );
                 ListView lb = Tabview . Tabcntrl . lvUserctrl . listview1;
-                ProgressValue = 35;
-                Tview . ProgressBar_Progress . UpdateLayout ( );
+                //ProgressValue = 35;
+                //Tview . ProgressBar_Progress . UpdateLayout ( );
                 lb . HorizontalAlignment = HorizontalAlignment . Left;
                 Tabview . Tabcntrl . lvUserctrl . Width = Tabitem . ActualWidth - 5;
                 Tabview . Tabcntrl . lvUserctrl . Height = Tabitem . ActualHeight - 30;
-                ProgressValue = 35;
-                Tview . ProgressBar_Progress . UpdateLayout ( );
+                //ProgressValue = 35;
+                //Tview . ProgressBar_Progress . UpdateLayout ( );
 
                 // How to call a Converter from c#
                 ReduceByParamValue converter = new ReduceByParamValue ( );
@@ -1204,8 +1126,8 @@ namespace NewWpfDev . ViewModels {
                         // MAIN TASK HERE
                         Application . Current . Dispatcher . Invoke ( ( ) => {
                             //                           Debug . WriteLine ( "child task starting ......" );
-                            ProgressValue = 55;
-                            Tview . ProgressBar_Progress . UpdateLayout ( );
+                            //ProgressValue = 55;
+                            //Tview . ProgressBar_Progress . UpdateLayout ( );
                             //Debug . WriteLine ( $"Loading Db....." );
                             DataTemplate dt = Application . Current . FindResource ( "BankDataTemplate1" ) as DataTemplate;
                             Tabview . Tabcntrl . lvUserctrl . listview1 . ItemTemplate = dt;
@@ -1216,8 +1138,8 @@ namespace NewWpfDev . ViewModels {
                             //Mouse . OverrideCursor = Cursors . Arrow;
                             //Debug . WriteLine ( "child task ended ......" );
                             Tabview . Tabcntrl . lvUserctrl . UpdateLayout ( );
-                            ProgressValue = 75;
-                            Tview . ProgressBar_Progress . UpdateLayout ( );
+                            //ProgressValue = 75;
+                            //Tview . ProgressBar_Progress . UpdateLayout ( );
                         } );
                         //Debug. WriteLine ( "parent task starting ......" );
                         //Tabview . Tabcntrl. lvUserctrl . LoadBank ( true );
@@ -1240,8 +1162,8 @@ namespace NewWpfDev . ViewModels {
                 Utils . ScrollLBRecordIntoView ( Tabview . Tabcntrl . lvUserctrl . listview1 , Tabview . Tabcntrl . lvUserctrl . listview1 . SelectedIndex );
                 Tabview . Tabcntrl . lvUserctrl . Visibility = Visibility . Visible;
                 Tabview . Tabcntrl . lvUserctrl . UpdateLayout ( );
-                ProgressValue = 100;
-                Tview . ProgressBar_Progress . UpdateLayout ( );
+                //ProgressValue = 100;
+                //Tview . ProgressBar_Progress . UpdateLayout ( );
                 Mouse . OverrideCursor = Cursors . Arrow;
             } ) );
             //Debug . WriteLine ( $"*** Exiting async method entirely .. NB : Data may still be loading in maintask ***" );
@@ -1250,7 +1172,6 @@ namespace NewWpfDev . ViewModels {
             //Debug . WriteLine ( $"Elapsed msecs = {msecs}" );
             return;
         }
-
         public async Task LoadDataGridAsync ( DgUserControl userctrl ) {
             //            Debug . WriteLine ( $"Running TASK for LvUserControl" );
             // We HAVE to  run most of this code inDispatcher as we are accessing UI elements
@@ -1263,8 +1184,8 @@ namespace NewWpfDev . ViewModels {
             if ( userctrl == null ) {
                 //Mouse . OverrideCursor = Cursors . Wait;
                 //                Debug . WriteLine ( $"Loading DgUserControl ....." );
-                ProgressValue = 15;
-                Tview . ProgressBar_Progress . UpdateLayout ( );
+                //ProgressValue = 15;
+                //Tview . ProgressBar_Progress . UpdateLayout ( );
                 // speed up this process as we do not need it just yet
                 Task loadcontrol = new Task ( ( ) => {
                     Tabview . Tabcntrl . dgUserctrl = new DgUserControl ( );
@@ -1281,13 +1202,13 @@ namespace NewWpfDev . ViewModels {
             Tabitem . Content = Tabview . Tabcntrl . dgUserctrl;
             //Debug . WriteLine ( $"TIrem : {Tabitem . Height}, {Tabitem . Width}" );
             DataGrid dg = Tabview . Tabcntrl . dgUserctrl . grid1;
-            ProgressValue = 35;
-            Tview . ProgressBar_Progress . UpdateLayout ( );
+            //ProgressValue = 35;
+            //Tview . ProgressBar_Progress . UpdateLayout ( );
             dg . HorizontalAlignment = HorizontalAlignment . Left;
             Tabview . Tabcntrl . dgUserctrl . Width = Tabitem . ActualWidth - 5;
             Tabview . Tabcntrl . dgUserctrl . Height = Tabitem . ActualHeight - 30;
-            ProgressValue = 35;
-            Tview . ProgressBar_Progress . UpdateLayout ( );
+            //ProgressValue = 35;
+            //Tview . ProgressBar_Progress . UpdateLayout ( );
 
             // How to call a Converter from c#
             ReduceByParamValue converter = new ReduceByParamValue ( );
@@ -1335,8 +1256,8 @@ namespace NewWpfDev . ViewModels {
                 //Application . Current . Dispatcher . Invoke ( DispatcherPriority . Normal , ( Action ) (async ( ) =>
                 //{
                 //    Debug. WriteLine ( "child task starting ......" );
-                ProgressValue = 55;
-                Tview . ProgressBar_Progress . UpdateLayout ( );
+                //ProgressValue = 55;
+                //Tview . ProgressBar_Progress . UpdateLayout ( );
                 //Debug . WriteLine ( $"Loading Db....." );
                 DataTemplate dt = Application . Current . FindResource ( "BankDataTemplate1" ) as DataTemplate;
                 Tabview . Tabcntrl . dgUserctrl . grid1 . ItemTemplate = dt;
@@ -1347,8 +1268,8 @@ namespace NewWpfDev . ViewModels {
                 //Mouse . OverrideCursor = Cursors . Arrow;
                 //  Debug . WriteLine ( "child task ended ......" );
                 Tabview . Tabcntrl . dgUserctrl . UpdateLayout ( );
-                ProgressValue = 75;
-                Tview . ProgressBar_Progress . UpdateLayout ( );
+                //ProgressValue = 75;
+                //Tview . ProgressBar_Progress . UpdateLayout ( );
                 //   } , TaskCreationOptions . AttachedToParent
                 //);
 
@@ -1401,8 +1322,8 @@ namespace NewWpfDev . ViewModels {
                 //                Utils . ScrollRecordIntoView ( Tabview . Tabcntrl. dgUserctrl . grid1 , Tabview . Tabcntrl. dgUserctrl . grid1 . SelectedIndex );
                 Tabview . Tabcntrl . dgUserctrl . Visibility = Visibility . Visible;
                 Tabview . Tabcntrl . dgUserctrl . UpdateLayout ( );
-                ProgressValue = 100;
-                Tview . ProgressBar_Progress . UpdateLayout ( );
+                //ProgressValue = 100;
+                //Tview . ProgressBar_Progress . UpdateLayout ( );
                 //            } ) );
                 //Debug . WriteLine ( $"*** Exiting async method entirely .. NB : Data may still be loading in maintask ***" );
                 long msecs = watch . ElapsedMilliseconds;
@@ -1516,24 +1437,12 @@ namespace NewWpfDev . ViewModels {
                     Tabview . Tabcntrl . DtTemplates . TemplateNameDg = "BANKACCOUNT";
                     Tabview . Tabcntrl . DtTemplates . TemplatesCombo . ItemsSource = Tabview . DataTemplatesBank;
                     ProcessDgTemplate ( );
-                    //Tabview . Tabcntrl . ActiveControlType = Tabview . Tabcntrl . dgUserctrl;
-                    //Tabview . Tabcntrl . tabView . TemplatesCb . SelectedIndex = Tabview . Tabcntrl . DtTemplates . TemplateIndexDg;
-                    //Tabview . Tabcntrl . dgUserctrl . grid1 . ScrollIntoView ( Tabview . Tabcntrl . dgUserctrl . grid1 . SelectedIndex );
-                    //Tabview . Tabcntrl . tabView . IsLoading = true;
-                    //Tabview . Tabcntrl . tabView . DbnamesCb . SelectedIndex = Tabview . Tabcntrl . DbNameIndexDg;
-                    //Tabview . Tabcntrl . tabView . IsLoading = false;
                 }
                 else if ( Tabview . Tabcntrl . DtTemplates . TemplateNameDg == null || Tabview . Tabcntrl . CurrentTypeDg == "CUSTOMER" ) {
                     // DATAGRID ACTIONS
                     Tabview . Tabcntrl . DtTemplates . TemplateNameDg = "CUSTOMER";
                     Tabview . Tabcntrl . DtTemplates . TemplatesCombo . ItemsSource = Tabview . DataTemplatesCust;
                     ProcessDgTemplate ( );
-                    //Tabview . Tabcntrl . ActiveControlType = Tabview . Tabcntrl . dgUserctrl;
-                    //Tabview . Tabcntrl . tabView . TemplatesCb . SelectedIndex = Tabview . Tabcntrl . DtTemplates . TemplateIndexDg;
-                    //Tabview . Tabcntrl . dgUserctrl . grid1 . ScrollIntoView ( Tabview . Tabcntrl . dgUserctrl . grid1 . SelectedIndex );
-                    //Tabview . Tabcntrl . tabView . IsLoading = true;
-                    //Tabview . Tabcntrl . tabView . DbnamesCb . SelectedIndex = Tabview . Tabcntrl . DbNameIndexDg;
-                    //Tabview . Tabcntrl . tabView . IsLoading = false;
                 }
                 else if ( Tabview . Tabcntrl . DtTemplates . TemplateNameDg != "BANKACCOUNT"
                     && Tabview . Tabcntrl . DtTemplates . TemplateNameDg != "CUSTOMER" ) {
@@ -1541,11 +1450,6 @@ namespace NewWpfDev . ViewModels {
                     Tabview . Tabcntrl . DtTemplates . TemplateNameDg = "GEN";
                     Tabview . Tabcntrl . DtTemplates . TemplatesCombo . ItemsSource = Tabview . DataTemplatesGen;
                     ProcessDgTemplate ( );
-                    //Tabview . Tabcntrl . ActiveControlType = Tabview . Tabcntrl . dgUserctrl;
-                    //Tabview . Tabcntrl . tabView . TemplatesCb . SelectedIndex = Tabview . Tabcntrl . DtTemplates . TemplateIndexDg;
-                    //Tabview . Tabcntrl . tabView . IsLoading = true;
-                    //Tabview . Tabcntrl . tabView . DbnamesCb . SelectedIndex = Tabview . Tabcntrl . DbNameIndexDg;
-                    //Tabview . Tabcntrl . tabView . IsLoading = false;
                 }
                 Tabview . Tabcntrl . tabView . DbnamesCb . UpdateLayout ( );
                 TabWinViewModel . TriggerDbType ( Tabview . Tabcntrl . DtTemplates . TemplateNameDg );
@@ -1557,22 +1461,12 @@ namespace NewWpfDev . ViewModels {
                     Tabview . Tabcntrl . DtTemplates . TemplateNameLb = "BANKACCOUNT";
                     Tabview . Tabcntrl . DtTemplates . TemplatesCombo . ItemsSource = Tabview . DataTemplatesBank;
                     ProcessLbTemplate ( );
-                    //Tabview . Tabcntrl . ActiveControlType = Tabview . Tabcntrl . lbUserctrl;
-                    //Tabview . Tabcntrl . tabView . TemplatesCb . SelectedIndex = Tabview . Tabcntrl . DtTemplates . TemplateIndexLb;
-                    //Tabview . Tabcntrl . tabView . IsLoading = true;
-                    //Tabview . Tabcntrl . tabView . DbnamesCb . SelectedIndex = Tabview . Tabcntrl . DbNameIndexLb;
-                    //Tabview . Tabcntrl . tabView . IsLoading = false;
                 }
                 else if ( Tabview . Tabcntrl . DtTemplates . TemplateNameLb == null || Tabview . Tabcntrl . DtTemplates . TemplateNameLb == "CUSTOMER" ) {
                     // LISTBOX ACTIONS
                     Tabview . Tabcntrl . DtTemplates . TemplateNameLb = "CUSTOMER";
                     Tabview . Tabcntrl . DtTemplates . TemplatesCombo . ItemsSource = Tabview . DataTemplatesCust;
                     ProcessLbTemplate ( );
-                    //Tabview . Tabcntrl . ActiveControlType = Tabview . Tabcntrl . lbUserctrl;
-                    //Tabview . Tabcntrl . tabView . TemplatesCb . SelectedIndex = Tabview . Tabcntrl . DtTemplates . TemplateIndexLb;
-                    //Tabview . Tabcntrl . tabView . IsLoading = true;
-                    //Tabview . Tabcntrl . tabView . DbnamesCb . SelectedIndex = Tabview . Tabcntrl . DbNameIndexLb;
-                    //Tabview . Tabcntrl . tabView . IsLoading = false;
                 }
                 else if ( Tabview . Tabcntrl . DtTemplates . TemplateNameLb != "BANKACCOUNT"
                     && Tabview . Tabcntrl . DtTemplates . TemplateNameLb != "CUSTOMER" ) {
@@ -1580,11 +1474,6 @@ namespace NewWpfDev . ViewModels {
                     Tabview . Tabcntrl . DtTemplates . TemplateNameLb = "GEN";
                     Tabview . Tabcntrl . DtTemplates . TemplatesCombo . ItemsSource = Tabview . DataTemplatesGen;
                     ProcessLbTemplate ( );
-                    //Tabview . Tabcntrl . ActiveControlType = Tabview . Tabcntrl . lbUserctrl;
-                    //Tabview . Tabcntrl . tabView . TemplatesCb . SelectedIndex = Tabview . Tabcntrl . DtTemplates . TemplateIndexLb;
-                    //Tabview . Tabcntrl . tabView . IsLoading = true;
-                    //Tabview . Tabcntrl . tabView . DbnamesCb . SelectedIndex = Tabview . Tabcntrl . DbNameIndexLb;
-                    //Tabview . Tabcntrl . tabView . IsLoading = false;
                 }
                 Tabview . Tabcntrl . tabView . DbnamesCb . UpdateLayout ( );
                 TabWinViewModel . TriggerDbType ( Tabview . Tabcntrl . DtTemplates . TemplateNameLb );
@@ -1596,22 +1485,12 @@ namespace NewWpfDev . ViewModels {
                     Tabview . Tabcntrl . DtTemplates . TemplateNameLv = "BANKACCOUNT";
                     Tabview . Tabcntrl . DtTemplates . TemplatesCombo . ItemsSource = Tabview . DataTemplatesBank;
                     ProcessLvTemplate ( );
-                    //Tabview . Tabcntrl . ActiveControlType = Tabview . Tabcntrl . lvUserctrl;
-                    //Tabview . Tabcntrl . tabView . TemplatesCb . SelectedIndex = Tabview . Tabcntrl . DtTemplates . TemplateIndexLv;
-                    //Tabview . Tabcntrl . tabView . IsLoading = true;
-                    //Tabview . Tabcntrl . tabView . DbnamesCb . SelectedIndex = Tabview . Tabcntrl . DbNameIndexLv;
-                    //Tabview . Tabcntrl . tabView . IsLoading = false;
                 }
                 else if ( Tabview . Tabcntrl . DtTemplates . TemplateNameLv == null || Tabview . Tabcntrl . CurrentTypeLv == "CUSTOMER" ) {
                     // LISTVIEW ACTIONS
                     Tabview . Tabcntrl . DtTemplates . TemplateNameLv = "CUSTOMER";
                     Tabview . Tabcntrl . DtTemplates . TemplatesCombo . ItemsSource = Tabview . DataTemplatesCust;
                     ProcessLvTemplate ( );
-                    //Tabview . Tabcntrl . ActiveControlType = Tabview . Tabcntrl . lvUserctrl;
-                    //Tabview . Tabcntrl . tabView . TemplatesCb . SelectedIndex = Tabview . Tabcntrl . DtTemplates . TemplateIndexLv;
-                    //Tabview . Tabcntrl . tabView . IsLoading = true;
-                    //Tabview . Tabcntrl . tabView . DbnamesCb . SelectedIndex = Tabview . Tabcntrl . DbNameIndexLv;
-                    //Tabview . Tabcntrl . tabView . IsLoading = false;
                 }
                 else if ( Tabview . Tabcntrl . DtTemplates . TemplateNameLv != "BANKACCOUNT"
                     && Tabview . Tabcntrl . DtTemplates . TemplateNameLv != "CUSTOMER" ) {
@@ -1619,11 +1498,6 @@ namespace NewWpfDev . ViewModels {
                     Tabview . Tabcntrl . DtTemplates . TemplateNameLv = "GEN";
                     Tabview . Tabcntrl . DtTemplates . TemplatesCombo . ItemsSource = Tabview . DataTemplatesGen;
                     ProcessLvTemplate ( );
-                    //Tabview . Tabcntrl . ActiveControlType = Tabview . Tabcntrl . lvUserctrl;
-                    //Tabview . Tabcntrl . tabView . TemplatesCb . SelectedIndex = Tabview . Tabcntrl . DtTemplates . TemplateIndexLv;
-                    //Tabview . Tabcntrl . tabView . IsLoading = true;
-                    //Tabview . Tabcntrl . tabView . DbnamesCb . SelectedIndex = Tabview . Tabcntrl . DbNameIndexLv;
-                    //Tabview . Tabcntrl . tabView . IsLoading = false;
                 }
                 Tabview . Tabcntrl . tabView . DbnamesCb . UpdateLayout ( );
                 TabWinViewModel . TriggerDbType ( Tabview . Tabcntrl . DtTemplates . TemplateNameLv );
@@ -1640,7 +1514,6 @@ namespace NewWpfDev . ViewModels {
             }
             return index;
         }
-        #region NOT USED
         #region BACKGROUND THREADS
 
         //*************************************************
@@ -1654,8 +1527,8 @@ namespace NewWpfDev . ViewModels {
             worker . RunWorkerCompleted += DgWorker_RunWorkerCompleted;
             worker . DoWork += DgWorker_DoWork;
             Debug . WriteLine ( $"Running DataGrid Background Worker" );
-            ProgressValue = 15;
-            Tview . ProgressBar_Progress . UpdateLayout ( );
+            //ProgressValue = 15;
+            //Tview . ProgressBar_Progress . UpdateLayout ( );
             worker . RunWorkerAsync ( dguserctrl );
             return dguserctrl;
         }
@@ -1683,8 +1556,8 @@ namespace NewWpfDev . ViewModels {
             BackgroundWorker worker = sender as BackgroundWorker;
             //DgUserControl Tabview . Tabcntrl. dgUserctrl = e . UserState as DgUserControl;
             Stopwatch watch = new Stopwatch ( );
-            ProgressValue = 25;
-            Tview . ProgressBar_Progress . UpdateLayout ( );
+            //ProgressValue = 25;
+            //Tview . ProgressBar_Progress . UpdateLayout ( );
             if ( Tabview . Tabcntrl . dgUserctrl == null || Tabview . Tabcntrl . dgUserctrl . grid1 . Items . Count == 0 ) {
                 if ( Tabview . Tabcntrl . dgUserctrl == null )
                     Tabview . Tabcntrl . dgUserctrl = new DgUserControl ( );
@@ -1722,8 +1595,8 @@ namespace NewWpfDev . ViewModels {
                     Tabview . Tabcntrl . dgUserctrl . UpdateLayout ( );
                 }
 
-                ProgressValue = 45;
-                Tview . ProgressBar_Progress . UpdateLayout ( );
+                //ProgressValue = 45;
+                //Tview . ProgressBar_Progress . UpdateLayout ( );
                 //DataGrid lb = Tabview . Tabcntrl. dgUserctrl . grid1;
                 //convert = new ReduceByParamValue ( );
                 //lb . Height = Tabview . Tabcntrl. dgUserctrl . Height = Convert . ToDouble ( convert . Convert ( Tabcontrol . ActualHeight , typeof ( double ) , 40 , CultureInfo . CurrentCulture ) );
@@ -1922,8 +1795,8 @@ namespace NewWpfDev . ViewModels {
             worker . RunWorkerCompleted += LvWorker_RunWorkerCompleted;
             worker . DoWork += LvWorker_DoWork;
             Debug . WriteLine ( $"Running Background Worker" );
-            ProgressValue = 15;
-            Tview . ProgressBar_Progress . UpdateLayout ( );
+            //ProgressValue = 15;
+            //Tview . ProgressBar_Progress . UpdateLayout ( );
             worker . RunWorkerAsync ( lvuserctrl );
             return lvuserctrl;
         }
@@ -2025,6 +1898,27 @@ namespace NewWpfDev . ViewModels {
         #endregion Listview BackgrundWorker Loading
 
         #endregion BACKGROUND THREADS
+
+        #region Info panel global handlers
+        public static void SetInfoString ( string message ) {
+            // Global helper to alow all other conntrols  to update info panel (see below)
+            ThisWin . UpdateinfoPanel ( message );
+        }
+        public void UpdateinfoPanel ( string message ) {
+            // Updates  the  info panel at bottom of Tabview Window
+            // Uses Full property TabviewInfoString  binded  to conntrol
+            try {
+                if ( TviewInfopanelptr != null ) {
+                    TabviewInfoString = message;
+                }
+            }
+            catch ( Exception ex ) {
+                Debug . WriteLine ( $"Dynamic info panel method failed : [{ex . Message}]" );
+            }
+        }
+        #endregion Info panel global handlers
+
+        #region NOT USED
 
         private void UpdateInfopanel ( SelectionChangedArgs e ) {
             if ( e . data == null )
@@ -2285,6 +2179,136 @@ namespace NewWpfDev . ViewModels {
         }
 
         #endregion NOT USED
+        public void TabLoadDb ( object HostControl , string DbType , bool Notify ) {
+            // allows reloading of Bank or Customer Db via Context Menus
+            TabWinViewModel . TriggerDbType ( DbType );
+            if ( HostControl . GetType ( ) == typeof ( DgUserControl ) ) {
+                Tabview . Tabcntrl . ActiveControlType = Tabview . Tabcntrl . dgUserctrl;
+                if ( DbType == "BANKACCOUNT" ) {
+                    Tabview . Tabcntrl . DtTemplates . TemplateNameDg = "BANKACCOUNT";
+                    Tabview . Tabcntrl . CurrentTypeDg = "BANKACCOUNT";
+                }
+                else {
+                    Tabview . Tabcntrl . DtTemplates . TemplateNameDg = "CUSTOMER";
+                    Tabview . Tabcntrl . CurrentTypeDg = "CUSTOMER";
+                }
+            }
+            if ( HostControl . GetType ( ) == typeof ( LbUserControl ) ) {
+                Tabview . Tabcntrl . ActiveControlType = Tabview . Tabcntrl . lbUserctrl;
+                if ( DbType == "BANKACCOUNT" ) {
+                    Tabview . Tabcntrl . DtTemplates . TemplateNameLb = "BANKACCOUNT";
+                    Tabview . Tabcntrl . CurrentTypeLb = "BANKACCOUNT";
+                }
+                else {
+                    Tabview . Tabcntrl . DtTemplates . TemplateNameLb = "CUSTOMER";
+                    Tabview . Tabcntrl . CurrentTypeLb = "CUSTOMER";
+                }
+            }
+            if ( HostControl . GetType ( ) == typeof ( LvUserControl ) ) {
+                if ( DbType == "BANKACCOUNT" ) {
+                    Tabview . Tabcntrl . ActiveControlType = Tabview . Tabcntrl . lvUserctrl;
+                    Tabview . Tabcntrl . DtTemplates . TemplateNameLv = "BANKACCOUNT";
+                    Tabview . Tabcntrl . CurrentTypeLv = "BANKACCOUNT";
+                }
+                else {
+                    Tabview . Tabcntrl . DtTemplates . TemplateNameLv = "CUSTOMER";
+                    Tabview . Tabcntrl . CurrentTypeLv = "CUSTOMER";
+                }
+            }
+            if ( DbType == "BANKACCOUNT" ) {
+                Tabview . SetDbType ( "BANK" );
+                // now load the data
+                Task . Run ( async ( ) => {
+                    Application . Current . Dispatcher . Invoke ( ( Action ) ( async ( ) => {
+                        // does NOT use BankDataLoaded messaging
+                        await LoadBankDb ( HostControl , Notify );
+                    } ) );
+                } );
+            }
+            else {
+                Tabview . SetDbType ( "CUSTOMER" );
+                // now load the data
+                Task . Run ( async ( ) => {
+                    Application . Current . Dispatcher . Invoke ( ( Action ) ( async ( ) => {
+                        // does NOT use BankDataLoaded messaging
+                        await LoadCustDb ( HostControl , Notify );
+                    } ) );
+                } );
+            }
+            Mouse . OverrideCursor = Cursors . Arrow;
+            return;
+        }
+        private async Task LoadBankDb ( object HostControl , bool Notify ) {
+            // handles Bankaccount  data loading for all 3 UC's
+            Bvm = new ObservableCollection<BankAccountViewModel> ( );
+            if ( HostControl . GetType ( ) == typeof ( DgUserControl ) ) {
+                dgUserctrl = ( DgUserControl ) HostControl;
+                dgUserctrl . grid1 . ItemsSource = null;
+                dgUserctrl . grid1 . Items . Clear ( );
+                await Task . Run ( ( ) => {
+                    Application . Current . Dispatcher . Invoke ( ( Action ) ( ( ) => {
+                        UserControlDataAccess . GetBankObsCollection ( true , "DgUserControl" );
+                    } ) );
+                } );
+            }
+            else if ( HostControl . GetType ( ) == typeof ( LbUserControl ) ) {
+                lbUserctrl = ( LbUserControl ) HostControl;
+                lbUserctrl . listbox1 . ItemsSource = null;
+                lbUserctrl . listbox1 . Items . Clear ( );
+                await Task . Run ( ( ) => {
+                    Application . Current . Dispatcher . Invoke ( ( Action ) ( ( ) => {
+                        UserControlDataAccess . GetBankObsCollection ( true , "LbUserControl" );
+                    } ) );
+                } );
+            }
+            else if ( HostControl . GetType ( ) == typeof ( LvUserControl ) ) {
+                lvUserctrl = ( LvUserControl ) HostControl;
+                lvUserctrl . listview1 . ItemsSource = null;
+                lvUserctrl . listview1 . Items . Clear ( );
+                await Task . Run ( ( ) => {
+                    Application . Current . Dispatcher . Invoke ( ( Action ) ( ( ) => {
+                        UserControlDataAccess . GetBankObsCollection ( true , "LvUserControl" );
+                    } ) );
+                } );
+            }
+            return;
+        }
+
+        private async Task LoadCustDb ( object HostControl , bool Notify ) {
+            // handles Customer data loading for all 3 UC's
+            Cvm = new ObservableCollection<CustomerViewModel> ( );
+            if ( HostControl . GetType ( ) == typeof ( DgUserControl ) ) {
+                dgUserctrl = ( DgUserControl ) HostControl;
+                dgUserctrl . grid1 . ItemsSource = null;
+                dgUserctrl . grid1 . Items . Clear ( );
+                await Task . Run ( async ( ) => {
+                    Application . Current . Dispatcher . Invoke ( async ( ) =>
+                        await UserControlDataAccess . GetCustObsCollection ( Cvm , "" , true , "DgUserControl" )
+                     );
+                } );
+            }
+            else if ( HostControl . GetType ( ) == typeof ( LbUserControl ) ) {
+                lbUserctrl = ( LbUserControl ) HostControl;
+                lbUserctrl . listbox1 . ItemsSource = null;
+                lbUserctrl . listbox1 . Items . Clear ( );
+                await Task . Run ( async ( ) => {
+                    Application . Current . Dispatcher . Invoke ( async ( ) =>
+                        await UserControlDataAccess . GetCustObsCollection ( Cvm , "" , true , "LbUserControl" )
+                     );
+                } );
+            }
+            else if ( HostControl . GetType ( ) == typeof ( LvUserControl ) ) {
+                lvUserctrl = ( LvUserControl ) HostControl;
+                lvUserctrl . listview1 . ItemsSource = null;
+                lvUserctrl . listview1 . Items . Clear ( );
+                await Task . Run ( async ( ) => {
+                    Application . Current . Dispatcher . Invoke ( async ( ) =>
+                        await UserControlDataAccess . GetCustObsCollection ( Cvm , "" , true , "LvUserControl" )
+                     );
+                } );
+            }
+            return;
+        }
     }
 
 }

@@ -71,7 +71,7 @@ namespace NewWpfDev . Views
 
 			// Sets it to x:Name "BankGV"
 			BankGridViewWindow = this;
-			//			Utils . SetupWindowDrag ( this );
+						//Utils . SetupWindowDrag ( this );
 			MvvmViewModel . MovingObject = MovingObject;
 			// FlowDoc support
 			Listviews lv = new Listviews();

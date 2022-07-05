@@ -253,6 +253,8 @@ namespace NewWpfDev . UserControls {
             timer . Interval = new TimeSpan ( 0 , 0 , 1 );
             timer . Tick += Timer_Tick;
             this . DataContext = this;
+            Gvm = ITabViewer . Gvm;
+
         }
         public static void SetListSelectionChanged ( bool arg ) {
             TrackselectionChanges = arg;
@@ -327,55 +329,68 @@ namespace NewWpfDev . UserControls {
         }
 
         #region Bank Data Loading methods
-        public async  Task LoadBank ( bool update = true ) {
-            CurrentType = "BANK";
+        public async Task LoadBank ( bool update = true ) {
+            //Bank button handler
             //            WpfLib1 . Utils . IsReferenceEqual ( Tabview . Tabcntrl . lbUserctrl. listbox1, this.listbox1, "Tabview . Tabcntrl . lbUserctrl. listbox1" , "this.listbox1" , true );
             //WpfLib1 . Utils . IsHashEqual ( Tabview . Tabcntrl . lbUserctrl . listbox1 , this . listbox1 , "Tabview . Tabcntrl . lbUserctrl. listbox1" , "this.listbox1" , true ); 
-            TabWinViewModel . TriggerDbType ( CurrentType );
-            Tabview . Tabcntrl . ActiveControlType = Tabview . Tabcntrl . lbUserctrl;
-            Tabview . Tabcntrl . DtTemplates . TemplateNameLb = "BANKACCOUNT";
-            Tabview . Tabcntrl . CurrentTypeLb = "BANKACCOUNT";
-            Tabview . SetDbType ( "BANK" );
-            // now load the data
-            await Task . Run ( async ( ) => {
-                Application . Current . Dispatcher . Invoke ( ( Action ) ( async ( ) => {
+            Application . Current . Dispatcher . Invoke ( async ( ) => {
+                await DispatcherExtns . SwitchToUi ( Application . Current . Dispatcher );
+                Debug . WriteLine ( $"\nInside Dispatcher" );
+                $"Dispatcher on UI thread =  {Application . Current . Dispatcher . CheckAccess ( )}" . CW ( );
+                CurrentType = "BANK";
+                TabWinViewModel . TriggerDbType ( CurrentType );
+                Tabview . Tabcntrl . ActiveControlType = Tabview . Tabcntrl . lbUserctrl;
+                Tabview . Tabcntrl . DtTemplates . TemplateNameLb = "BANKACCOUNT";
+                Tabview . Tabcntrl . CurrentTypeLb = "BANKACCOUNT";
+                Tabview . SetDbType ( "BANK" );
+                // now load the data
+                await Task . Run ( async ( ) => {
                     // does NOT use BankDataLoaded messaging
-                   await  LoadBankDb ( update );
-                } ) );
+                    await LoadBankDb ( update );
+                } );
+                Mouse . OverrideCursor = Cursors . Arrow;
+                return;
             } );
-            Mouse . OverrideCursor = Cursors . Arrow;
-            return;
         }
         private async Task LoadBankDb ( bool notify ) {
             //Works  well - Fast too 1//7/2022
-            Bvm = new ObservableCollection<BankAccountViewModel> ( );
+            Application . Current . Dispatcher . Invoke ( async ( ) => {
+                await DispatcherExtns . SwitchToUi ( Application . Current . Dispatcher );
+                Debug . WriteLine ( $"\nInside Dispatcher" );
+                $"Dispatcher on UI thread =  {Application . Current . Dispatcher . CheckAccess ( )}" . CW ( );
+                Bvm = new ObservableCollection<BankAccountViewModel> ( );
             this . listbox1 . ItemsSource = null;
             this . listbox1 . Items . Clear ( );
             CurrentType = "BANK";
-            Tabview . tabvw . DbTypeFld . Background = FindResource ( "Blue5" ) as SolidColorBrush;
+                
+                // Set colors of Indicator panels on Tabview
+                Tabview . tabvw . DbTypeFld . Background = FindResource ( "Blue5" ) as SolidColorBrush;
             Tabview . tabvw . DbCount . Background = Application . Current . FindResource ( "Blue5" ) as SolidColorBrush;
-            TabWinViewModel . TriggerDbType ( CurrentType );
+            
+                TabWinViewModel . TriggerDbType ( CurrentType );
             // uses BankDataLoadedto load data indirectly
-            await Task . Run ( ( ) => {
-                int [ ] args = { 0 , 0 , 0 };
-                Application . Current . Dispatcher . Invoke ( ( Action ) ( ( ) => {
-                    DapperSupport . GetBankObsCollectionAsync ( Bvm , "" , "BankAccount" , "" , "" , false , false , notify , "LbUserControl" , args );
-                } ) );
+            int [ ] args = { 0 , 0 , 0 };
+            await Task . Run (async  ( ) => {
+                DapperSupport . GetBankObsCollectionAsync ( Bvm , "" , "BankAccount" , "" , "" , false , false , notify , "LbUserControl" , args );
+            } );
             } );
             return;
         }
 
         private void EventControl_BankDataLoaded ( object sender , LoadedEventArgs e ) {
             if ( e . CallerDb != "LbUserControl" ) return;
-            this . listbox1 . ItemsSource = null;
-            this . listbox1 . Items . Clear ( );
-            Bvm = e . DataSource as ObservableCollection<BankAccountViewModel>;
-            this . listbox1 . ItemsSource = Bvm;
-            Debug . WriteLine ( ( Bvm . Count > 0 ? $"Received {Bvm . Count} " : "Failed to receive " ) + "BankAccount Table Records in LbUserControl" );
-            CurrentType = "BANK";
-            TabWinViewModel . TriggerDbType ( CurrentType );
-            // load / Reload theTemplates Combo & set to index 0
-            Application . Current . Dispatcher . Invoke ( ( ) => {
+            Application . Current . Dispatcher . Invoke ( async ( ) => {
+                await DispatcherExtns . SwitchToUi ( Application . Current . Dispatcher );
+                Debug . WriteLine ( $"\nInside Dispatcher" );
+                $"Dispatcher on UI thread =  {Application . Current . Dispatcher . CheckAccess ( )}" . CW ( );
+                this . listbox1 . ItemsSource = null;
+                this . listbox1 . Items . Clear ( );
+                Bvm = e . DataSource as ObservableCollection<BankAccountViewModel>;
+                this . listbox1 . ItemsSource = Bvm;
+                Debug . WriteLine ( ( Bvm . Count > 0 ? $"Received {Bvm . Count} " : "Failed to receive " ) + "BankAccount Table Records in LbUserControl" );
+                CurrentType = "BANK";
+                TabWinViewModel . TriggerDbType ( CurrentType );
+                // load / Reload theTemplates Combo & set to index 0
                 Tabview . Tabcntrl . DtTemplates . TemplatesCombo . ItemsSource = Tabview . DataTemplatesBank;
                 Tabview . Tabcntrl . DtTemplates . TemplateIndexLb = 0;
                 Tabview . Tabcntrl . tabView . IsLoading = true;
@@ -384,49 +399,54 @@ namespace NewWpfDev . UserControls {
                 Tabview . Tabcntrl . DbNameLb = Tabview . Tabcntrl . tabView . DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( );
                 Tabview . Tabcntrl . tabView . IsLoading = false;
                 Tabview . Tabcntrl . DtTemplates . TemplatesCombo . SelectedIndex = 0;
+                // Set ListBox to the new Data Template
+                FrameworkElement elemnt = Tabview . Tabcntrl . lbUserctrl . listbox1 as FrameworkElement;
+                DataTemplate dtemp = new DataTemplate ( );
+                // Lock template  - cannot be changed
+                dtemp . Seal ( );
+                dtemp = elemnt . FindResource ( Tabview . Tabcntrl . DtTemplates . TemplatesCombo . SelectedItem . ToString ( ) ) as DataTemplate;
+                Tabview . Tabcntrl . lbUserctrl . listbox1 . ItemTemplate = dtemp;
+                Tabview . Tabcntrl . DtTemplates . TemplatesCombo . SelectedIndex = Tabview . Tabcntrl . DtTemplates . TemplateIndexLb;
+                Tabview . Tabcntrl . lbUserctrl . listbox1 . UpdateLayout ( );
+
+                Tabview . Tabcntrl . tabView . TemplatesCb . Foreground = FindResource ( "Black0" ) as SolidColorBrush;
+                Tabview . Tabcntrl . tabView . TemplatesCb . UpdateLayout ( );
+                Tabview . Tabcntrl . tabView . DbnamesCb . Foreground = FindResource ( "Black0" ) as SolidColorBrush;
+                Tabview . Tabcntrl . tabView . DbnamesCb . UpdateLayout ( );
+
+                Tabview . Tabcntrl . twVModel . ProgressValue = 0;
+                Tabview . Tabcntrl . tabView . ProgressBar_Progress . UpdateLayout ( );
+                Utils . ScrollLBRecordIntoView ( this . listbox1 , 0 );
+                this . listbox1 . Refresh ( );
+                Tabview . GetTabview ( ) . TabSizeChanged ( null , null );
+                Mouse . OverrideCursor = Cursors . Arrow;
+                DbCountArgs args = new DbCountArgs ( );
+                args . Dbcount = Bvm?.Count ?? -1;
+                args . sender = "lbUserctrl";
+
+                TabWinViewModel . TriggerBankDbCount ( this , args );
             } );
-            // Set ListBox to the new Data Template
-            FrameworkElement elemnt = Tabview . Tabcntrl . lbUserctrl . listbox1 as FrameworkElement;
-            DataTemplate dtemp = new DataTemplate ( );
-            // Lock template  - cannot be changed
-            dtemp . Seal ( );
-            dtemp = elemnt . FindResource ( Tabview . Tabcntrl . DtTemplates . TemplatesCombo . SelectedItem . ToString ( ) ) as DataTemplate;
-            Tabview . Tabcntrl . lbUserctrl . listbox1 . ItemTemplate = dtemp;
-            Tabview . Tabcntrl . DtTemplates . TemplatesCombo . SelectedIndex = Tabview . Tabcntrl . DtTemplates . TemplateIndexLb;
-            Tabview . Tabcntrl . lbUserctrl . listbox1 . UpdateLayout ( );
-
-            Tabview . Tabcntrl . tabView . TemplatesCb . Foreground = FindResource ( "Black0" ) as SolidColorBrush;
-            Tabview . Tabcntrl . tabView . TemplatesCb . UpdateLayout ( );
-            Tabview . Tabcntrl . tabView . DbnamesCb . Foreground = FindResource ( "Black0" ) as SolidColorBrush;
-            Tabview . Tabcntrl . tabView . DbnamesCb . UpdateLayout ( );
-
-            Tabview . Tabcntrl . twVModel . ProgressValue = 0;
-            Tabview . Tabcntrl . tabView . ProgressBar_Progress . UpdateLayout ( );
-            Utils . ScrollLBRecordIntoView ( this . listbox1 , 0 );
-            this . listbox1 . Refresh ( );
-            Tabview . GetTabview ( ) . TabSizeChanged ( null , null );
-            Mouse . OverrideCursor = Cursors . Arrow;
-            DbCountArgs args = new DbCountArgs ( );
-            args . Dbcount = Bvm?.Count ?? -1;
-            args . sender = "lbUserctrl";
-
-            TabWinViewModel . TriggerBankDbCount ( this , args );
+            Debug . WriteLine ( $"Exited Dispatcher\n" );
         }
 
         #endregion Bank Data Loading methods
 
         private void EventControl_CustDataLoaded ( object sender , LoadedEventArgs e ) {
             if ( e . CallerType != "LbUserControl" ) return;
-            this . listbox1 . ItemsSource = null;
-            this . listbox1 . Items . Clear ( );
-            Cvm = e . DataSource as ObservableCollection<CustomerViewModel>;
-            this . listbox1 . ItemsSource = Cvm;
-            this . listbox1 . SelectedIndex = 0;
-            CurrentType = "CUSTOMER";
-            TabWinViewModel . TriggerDbType ( CurrentType );
+            Application . Current . Dispatcher . Invoke ( async ( ) => {
+                await DispatcherExtns . SwitchToUi ( Application . Current . Dispatcher );
+                Debug . WriteLine ( $"\nInside Dispatcher" );
+                $"Dispatcher on UI thread =  {Application . Current . Dispatcher . CheckAccess ( )}" . CW ( );
+                this . listbox1 . ItemsSource = null;
+                this . listbox1 . Items . Clear ( );
+                Cvm = e . DataSource as ObservableCollection<CustomerViewModel>;
+                this . listbox1 . ItemsSource = Cvm;
+                this . listbox1 . SelectedIndex = 0;
+                CurrentType = "CUSTOMER";
+                TabWinViewModel . TriggerDbType ( CurrentType );
+                Debug . WriteLine ( ( Bvm . Count > 0 ? $"Received {Cvm . Count} " : "Failed to receive " ) + "Cuustomer Table Records in LbUserControl" );
 
-            // load / Reload theTemplates Combo & set to index 0
-            Application . Current . Dispatcher . Invoke ( ( ) => {
+                // load / Reload theTemplates Combo & set to index 0
                 Tabview . Tabcntrl . DtTemplates . TemplatesCombo . ItemsSource = Tabview . DataTemplatesCust;
                 Tabview . Tabcntrl . DtTemplates . TemplateIndexLb = 0;
                 Tabview . Tabcntrl . tabView . IsLoading = true;
@@ -435,28 +455,29 @@ namespace NewWpfDev . UserControls {
                 Tabview . Tabcntrl . DbNameLb = Tabview . Tabcntrl . tabView . DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( );
                 Tabview . Tabcntrl . tabView . IsLoading = false;
                 Tabview . Tabcntrl . DtTemplates . TemplatesCombo . SelectedIndex = 0;
-            } );
-            // Set Data Template
-            FrameworkElement elemnt = Tabview . Tabcntrl . lbUserctrl . listbox1 as FrameworkElement;
-            DataTemplate dtemp = new DataTemplate ( );
-            // Lock template  - cannot be changed
-            dtemp . Seal ( );
-            dtemp = elemnt . FindResource ( Tabview . Tabcntrl . DtTemplates . TemplatesCombo . SelectedItem . ToString ( ) ) as DataTemplate;
-            Tabview . Tabcntrl . lbUserctrl . listbox1 . ItemTemplate = dtemp;
-            Tabview . Tabcntrl . DtTemplates . TemplatesCombo . SelectedIndex = 0;
-            Tabview . Tabcntrl . lbUserctrl . listbox1 . UpdateLayout ( );
+                // Set Data Template
+                FrameworkElement elemnt = Tabview . Tabcntrl . lbUserctrl . listbox1 as FrameworkElement;
+                DataTemplate dtemp = new DataTemplate ( );
+                // Lock template  - cannot be changed
+                dtemp . Seal ( );
+                dtemp = elemnt . FindResource ( Tabview . Tabcntrl . DtTemplates . TemplatesCombo . SelectedItem . ToString ( ) ) as DataTemplate;
+                Tabview . Tabcntrl . lbUserctrl . listbox1 . ItemTemplate = dtemp;
+                Tabview . Tabcntrl . DtTemplates . TemplatesCombo . SelectedIndex = 0;
+                Tabview . Tabcntrl . lbUserctrl . listbox1 . UpdateLayout ( );
 
-            Tabview . Tabcntrl . tabView . TemplatesCb . Foreground = FindResource ( "Black0" ) as SolidColorBrush;
-            Tabview . Tabcntrl . tabView . TemplatesCb . UpdateLayout ( );
-            Tabview . Tabcntrl . tabView . DbnamesCb . Foreground = FindResource ( "Black0" ) as SolidColorBrush;
-            Tabview . Tabcntrl . tabView . DbnamesCb . UpdateLayout ( );
-            Utils . ScrollLBRecordIntoView ( this . listbox1 , 0 );
-            Tabview . GetTabview ( ) . TabSizeChanged ( null , null );
-            Mouse . OverrideCursor = Cursors . Arrow;
-            DbCountArgs args = new DbCountArgs ( );
-            args . Dbcount = Cvm?.Count ?? -1;
-            args . sender = "lbUserctrl";
-            TabWinViewModel . TriggerBankDbCount ( this , args );
+                Tabview . Tabcntrl . tabView . TemplatesCb . Foreground = FindResource ( "Black0" ) as SolidColorBrush;
+                Tabview . Tabcntrl . tabView . TemplatesCb . UpdateLayout ( );
+                Tabview . Tabcntrl . tabView . DbnamesCb . Foreground = FindResource ( "Black0" ) as SolidColorBrush;
+                Tabview . Tabcntrl . tabView . DbnamesCb . UpdateLayout ( );
+                Utils . ScrollLBRecordIntoView ( this . listbox1 , 0 );
+                Tabview . GetTabview ( ) . TabSizeChanged ( null , null );
+                Mouse . OverrideCursor = Cursors . Arrow;
+                DbCountArgs args = new DbCountArgs ( );
+                args . Dbcount = Cvm?.Count ?? -1;
+                args . sender = "lbUserctrl";
+                TabWinViewModel . TriggerBankDbCount ( this , args );
+            } );
+            Debug . WriteLine ( $"Exited Dispatcher\n" );
         }
 
         private void EventControl_GenericDataLoaded ( object sender , LoadedEventArgs e ) {
@@ -477,6 +498,8 @@ namespace NewWpfDev . UserControls {
             Tabview . Tabcntrl . tabView . DbnamesCb . SelectedIndex = Tabview . FindDbName ( Tabview . Tabcntrl . tabView . DbnamesCb . SelectedItem . ToString ( ) );
             Tabview . Tabcntrl . DbNameIndexLb = Tabview . Tabcntrl . tabView . DbnamesCb . SelectedIndex;
             Tabview . Tabcntrl . DbNameLb = Tabview . Tabcntrl . tabView . DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( );
+            
+            // Set colors of Indicator panels on Tabview
             Tabview . tabvw . DbTypeFld . Background = FindResource ( "Red5" ) as SolidColorBrush;
             Tabview . tabvw . DbCount . Background = Application . Current . FindResource ( "Red5" ) as SolidColorBrush;
             Tabview . tabvw . DbTypeFld . UpdateLayout ( );
@@ -484,6 +507,7 @@ namespace NewWpfDev . UserControls {
             Tabview . Tabcntrl . tabView . TemplatesCb . UpdateLayout ( );
             Tabview . Tabcntrl . tabView . DbnamesCb . Foreground = FindResource ( "Red5" ) as SolidColorBrush;
             Tabview . Tabcntrl . tabView . DbnamesCb . UpdateLayout ( );
+            
             Utils . ScrollLBRecordIntoView ( this . listbox1 , 0 );
             this . listbox1 . Refresh ( );
             Mouse . OverrideCursor = Cursors . Arrow;
@@ -500,8 +524,11 @@ namespace NewWpfDev . UserControls {
             Tabview . Tabcntrl . DtTemplates . TemplateNameLb = "CUSTOMER";
             Tabview . Tabcntrl . CurrentTypeLb = "CUSTOMER";
             Tabview . SetDbType ( "CUSTOMER" );
+            
+            // Set colors of Indicator panels on Tabview
             Tabview . tabvw . DbTypeFld . Background = FindResource ( "Blue5" ) as SolidColorBrush;
             Tabview . tabvw . DbCount . Background = Application . Current . FindResource ( "Blue5" ) as SolidColorBrush;
+            
             await LoadCustomerDb ( update );
             Mouse . OverrideCursor = Cursors . Arrow;
             return;
@@ -518,7 +545,7 @@ namespace NewWpfDev . UserControls {
 
             Tabview . Tabcntrl . lbUserctrl . listbox1 . ItemsSource = null;
             Tabview . Tabcntrl . lbUserctrl . listbox1 . Items . Clear ( );
-            Gvm = new ObservableCollection<GenericClass> ( );
+            //Gvm = new ObservableCollection<GenericClass> ( );
             Gvm = SqlSupport . LoadGeneric ( SqlCommand , out ResultString , 0 , false );
             Tabview . Tabcntrl . lbUserctrl . listbox1 . ItemsSource = Gvm;
             DbCountArgs args = new DbCountArgs ( );
@@ -536,19 +563,22 @@ namespace NewWpfDev . UserControls {
             Tabview . Tabcntrl . lbUserctrl . listbox1 . ItemTemplate = dtemp;
             Tabview . Tabcntrl . DtTemplates . TemplatesCombo . SelectedIndex = Tabview . Tabcntrl . DtTemplates . TemplateIndexLb;
             Tabview . Tabcntrl . lbUserctrl . listbox1 . UpdateLayout ( );
+            
+            // Set colors of Indicator panels on Tabview
             Tabview . tabvw . DbTypeFld . Background = FindResource ( "Red5" ) as SolidColorBrush;
             Tabview . tabvw . DbCount . Background = Application . Current . FindResource ( "Red5" ) as SolidColorBrush;
-            return Gvm.Count;
+            
+            return Gvm . Count;
         }
 
 
         private async Task LoadCustomerDb ( object state ) {
             if ( Cvm == null ) Cvm = new ObservableCollection<CustomerViewModel> ( );
             if ( Cvm . Count == 0 ) {
-                Task task =  Task . Run ( async ( ) => {
+                Task task = Task . Run ( async ( ) => {
                     // This is pretty fast - uses Dapper and Linq
                     Application . Current . Dispatcher . Invoke ( ( Action ) ( async ( ) => {
-                         UserControlDataAccess . GetCustObsCollection ( Cvm , "" , true , "LbUserControl" );
+                        UserControlDataAccess . GetCustObsCollection ( Cvm , "" , true , "LbUserControl" );
                     } ) );
                 } );
             }
@@ -591,7 +621,7 @@ namespace NewWpfDev . UserControls {
             ListBox v = e . OriginalSource as ListBox;
             if ( v?.SelectedIndex != CurrentIndex && Tabview . Tabcntrl . Selectionchanged == false ) {
                 if ( Tabview . Tabcntrl . CurrentTypeLb != "GEN" ) {
-                    // CurrentIndex = v . SelectedIndex;
+                    CurrentIndex = v . SelectedIndex;
                     if ( Tabview . Tabcntrl . tabView . ViewersLinked ) {
                         if ( Tabview . Tabcntrl . tabView . CheckAllControlIndexes ( CurrentIndex ) == false ) {
                             Tabview . Tabcntrl . Selectionchanged = true;
@@ -601,12 +631,12 @@ namespace NewWpfDev . UserControls {
                             args . sendertype = CurrentType;
                             args . index = this . listbox1 . SelectedIndex;
                             Debug . WriteLine ( $"ListBox broadcasting selection to set to  {args . index}" );
-                            Task task = Task . Run ( ( ) => {
+                            Task task = Task . Run ( async ( ) => {
                                 Application . Current . Dispatcher . Invoke ( ( ) => {
                                     EventControl . TriggerListSelectionChanged ( sender , args );
                                 } );
                             } );
-//                           e . Handled = true;
+                            //                           e . Handled = true;
                         }
                     }
                 }
@@ -788,7 +818,7 @@ namespace NewWpfDev . UserControls {
             listbox1 . FontSize = Fontsize; ;
             listbox1 . UpdateLayout ( );
         }
- 
+
         #region unused
         private void ttloaded ( object sender , RoutedEventArgs e ) {
             //ListBox lb = sender as ListBox;
@@ -805,6 +835,14 @@ namespace NewWpfDev . UserControls {
         }
         #endregion unused
 
+        private void ReloadBank ( object sender , RoutedEventArgs e ) {
+            Tabview . Tabcntrl . twVModel . TabLoadDb ( this , "BANKACCOUNT" , true ); ;
+
+        }
+
+        private void ReloadCust ( object sender , RoutedEventArgs e ) {
+            Tabview . Tabcntrl . twVModel . TabLoadDb ( this , "CUSTOMER" , true );
+        }
     }
 }
 

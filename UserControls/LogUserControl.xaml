@@ -307,6 +307,7 @@
             ItemContainerStyle="{StaticResource ListBoxItemStyle1}"
             Background="BlueViolet" Foreground="White" 
                  PreviewMouseMove="logview_PreviewMouseMove"
+                 ToolTip="Right click to open Context Menu for control magnifcation (and other stuff)"
                   MouseEnter="PART_MouseEnter"
                   MouseLeave="PART_MouseLeave"/>
     </Grid>

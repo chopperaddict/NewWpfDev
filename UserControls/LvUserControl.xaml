@@ -157,11 +157,11 @@
                 </MenuItem.Header>
             </MenuItem>
 
-            <!--<MenuItem  Click="Serialize_DgUserControl"
+            <MenuItem  Click="ReloadBank"
                     Style="{StaticResource MenuItemBlue}">
                 <MenuItem.Header>
                     <TextBlock 
-                                Text="Serialize DgUserControl"
+                                Text="Load Bank Indirectly"
                                 FontSize="16"
                                  Height="25"
                                 Padding="10 0 0 0"
@@ -169,11 +169,11 @@
                                 Width="350"/>
                 </MenuItem.Header>
             </MenuItem>
-            <MenuItem  Click="DeSerialize_DgUserControl"
+            <MenuItem  Click="ReloadCust"
                     Style="{StaticResource MenuItemBlue}">
                 <MenuItem.Header>
                     <TextBlock 
-                                Text="DeSerialize DgUserControl"
+                                Text="Load Customer Indirectly"
                                 FontSize="16"
                                  Height="25"
                                 Padding="10 0 0 0"
@@ -181,30 +181,6 @@
                                 Width="350"/>
                 </MenuItem.Header>
             </MenuItem>
-            <MenuItem  Click="Serialize_LbUserControl"
-                    Style="{StaticResource MenuItemBlue}">
-                <MenuItem.Header>
-                    <TextBlock 
-                                Text="Serialize LbUserControl"
-                                FontSize="16"
-                                 Height="25"
-                                Padding="10 0 0 0"
-                                Margin="0 0 0 0"
-                                Width="350"/>
-                </MenuItem.Header>
-            </MenuItem>
-            <MenuItem  Click="Serialize_LvUserControl"
-                    Style="{StaticResource MenuItemBlue}">
-                <MenuItem.Header>
-                    <TextBlock 
-                                Text="Serialize LvUserControl"
-                                FontSize="16"
-                                 Height="25"
-                                Padding="10 0 0 0"
-                                Margin="0 0 0 0"
-                                Width="350"/>
-                </MenuItem.Header>
-            </MenuItem>-->
 
         </ContextMenu>
 
@@ -330,6 +306,8 @@
                    KeyDown="listview1_KeyDown"
                   MouseEnter="PART_MouseEnter"
                   MouseLeave="PART_MouseLeave"
+                ToolTip="Right click to open Context Menu for control magnifcation (and other stuff)"
+
                   Visibility="Visible"
                   ItemContainerStyle="{StaticResource ListBoxItemStyle1}">
                   <!--LostFocus="listview1_LostFocus"

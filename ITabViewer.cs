@@ -9,10 +9,10 @@ using NewWpfDev . ViewModels;
 
 namespace NewWpfDev {
     interface ITabViewer {
-
-        //static ObservableCollection<BankAccountViewModel> Bvm { get; set; }
-        //static ObservableCollection<CustomerViewModel> Cvm { get; set; }
-        //void TabLoadBank ( object HostControl , string DbType , bool update );
+        // Data collections
+        static ObservableCollection<BankAccountViewModel> Bvm { get; set; }
+        static ObservableCollection<CustomerViewModel> Cvm { get; set; }
+        static ObservableCollection<GenericClass> Gvm { get; set; }
 
     }
 }

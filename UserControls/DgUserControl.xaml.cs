@@ -131,6 +131,7 @@ namespace NewWpfDev . UserControls {
             // allow this  to broadcast
             EventControl . TriggerWindowMessage ( this , new InterWindowArgs { message = $"DgUIserControl loaded, ViewMode is DATAGRIDUSERCONTROLVIEWMODEL..." } );
             IsLoaded = false;
+            Gvm = ITabViewer . Gvm;
 
         }
         private void ReceivedFocus ( GotFocusArgs args ) {
@@ -168,34 +169,26 @@ namespace NewWpfDev . UserControls {
             TrackselectionChanges = arg;
         }
 
-        public async Task  LoadBank ( bool update = true ) {
+        public async Task LoadBank ( bool update = true ) {
             BankCollection bankcollection = new BankCollection ( );
 
             Tabview . Tabcntrl . DtTemplates . TemplateNameDg = "BANKACCOUNT";
             Tabview . Tabcntrl . CurrentTypeDg = "BANKACCOUNT";
             Tabview . Tabcntrl . ActiveControlType = Tabview . Tabcntrl . dgUserctrl;
 
-            Application . Current . Dispatcher . Invoke (
-                    ( ) => {
-                        Tabview . Tabcntrl . dgUserctrl . grid1 . ItemsSource = null;
-                        Tabview . Tabcntrl . dgUserctrl . grid1 . Items . Clear ( );
-                        Tabview . Tabcntrl . dgUserctrl . grid1 . CellStyle = FindResource ( "MAINCustomerGridStyle" ) as Style;
+            Application . Current . Dispatcher . Invoke ( ( ) => {
+                Tabview . Tabcntrl . dgUserctrl . grid1 . ItemsSource = null;
+                Tabview . Tabcntrl . dgUserctrl . grid1 . Items . Clear ( );
+                Tabview . Tabcntrl . dgUserctrl . grid1 . CellStyle = FindResource ( "MAINCustomerGridStyle" ) as Style;
 
-                        if ( Bvm == null ) Bvm = new ObservableCollection<BankAccountViewModel> ( );
-                        CurrentType = "BANK";
-                        Tabview . tabvw . DbTypeFld . Background = FindResource ( "Blue5" ) as SolidColorBrush;
-                        Tabview . tabvw . DbCount . Background = Application . Current . FindResource ( "Blue5" ) as SolidColorBrush;
-                    }
-                        );
+                if ( Bvm == null ) Bvm = new ObservableCollection<BankAccountViewModel> ( );
+                CurrentType = "BANK";
 
-            //Tabview . Tabcntrl . dgUserctrl. grid1 . ItemsSource = null;
- //           this . grid1 . Items . Clear ( );
-            //Tabview . Tabcntrl . dgUserctrl . grid1 . CellStyle = FindResource ( "MAINCustomerGridStyle" ) as Style;
+                // Set colors of Indicator panels on Tabview
+                Tabview . tabvw . DbTypeFld . Background = FindResource ( "Blue5" ) as SolidColorBrush;
+                Tabview . tabvw . DbCount . Background = Application . Current . FindResource ( "Blue5" ) as SolidColorBrush;
+            } );
 
-            //if ( Bvm == null ) Bvm = new ObservableCollection<BankAccountViewModel> ( );
-            //CurrentType = "BANK";
-            //Tabview . tabvw . DbTypeFld . Background = FindResource ( "Blue5" ) as SolidColorBrush;
-            //Tabview . tabvw . DbCount . Background = Application . Current . FindResource ( "Blue5" ) as SolidColorBrush;
             TabWinViewModel . TriggerDbType ( CurrentType );
 
             Task task = Task . Run ( ( ) => {
@@ -204,69 +197,72 @@ namespace NewWpfDev . UserControls {
                     Bvm = ( ObservableCollection<BankAccountViewModel> ) UserControlDataAccess . GetBankObsCollectionAsync ( Bvm , "" , true , "DgUserControl" );
                 } );
             } );
-            return ;
+            return;
         }
         public async Task LoadCustomer ( bool update = true ) {
             this . Dispatcher . Invoke ( ( ) => {
-
                 Tabview . Tabcntrl . DtTemplates . TemplateNameDg = "CUSTOMER";
                 Tabview . Tabcntrl . CurrentTypeDg = "CUSTOMER";
                 Tabview . Tabcntrl . ActiveControlType = Tabview . Tabcntrl . dgUserctrl;
                 this . grid1 . ItemsSource = null;
                 this . grid1 . Items . Clear ( );
                 Tabview . Tabcntrl . dgUserctrl . grid1 . CellStyle = FindResource ( "MAINCustomerGridStyle" ) as Style;
+
+                // Set colors of Indicator panels on Tabview
                 Tabview . tabvw . DbTypeFld . Background = FindResource ( "Blue5" ) as SolidColorBrush;
                 Tabview . tabvw . DbCount . Background = Application . Current . FindResource ( "Blue5" ) as SolidColorBrush;
-            } );
-            CurrentType = "CUSTOMER";
+                CurrentType = "CUSTOMER";
 
-            TabWinViewModel . TriggerDbType ( CurrentType );
-            if ( Cvm == null ) Cvm = new ObservableCollection<CustomerViewModel> ( );
-            Task task = Task . Run ( ( ) => {
-                // This is pretty fast - uses Dapper and Linq
-                this . Dispatcher . Invoke ( ( ) => {
+                TabWinViewModel . TriggerDbType ( CurrentType );
+                if ( Cvm == null ) Cvm = new ObservableCollection<CustomerViewModel> ( );
+                Task task = Task . Run ( ( ) => {
+                    // This is pretty fast - uses Dapper and Linq
                     UserControlDataAccess . GetCustObsCollection ( Cvm , "" , true , "DgUserControl" );
                 } );
             } );
         }
 
-        public  async Task<bool>  LoadGeneric ( string tablename ) {
+        public async Task<bool> LoadGeneric ( string tablename ) {
             string ResultString = "";
-            string SqlCommand = tablename != null ? $"Select * from {tablename}" : "Select * from Invoice";
-            Tabview . Tabcntrl . ActiveControlType = Tabview . Tabcntrl . dgUserctrl;
-            //Setup Templates list  as we are changing Db type
-            Tabview . Tabcntrl . DtTemplates . TemplateNameDg = tablename . ToUpper ( );
-            Tabview . Tabcntrl . CurrentTypeDg = "GEN";
-            Tabview . SetDbType ( "GEN" );
-            Tabview . tabvw . DbTypeFld . Background = FindResource ( "Red5" ) as SolidColorBrush;
-            Tabview . tabvw . DbCount . Background = Application . Current . FindResource ( "Red5" ) as SolidColorBrush;
+            this . Dispatcher . Invoke ( ( ) => {
+                string SqlCommand = tablename != null ? $"Select * from {tablename}" : "Select * from Invoice";
+                Tabview . Tabcntrl . ActiveControlType = Tabview . Tabcntrl . dgUserctrl;
+                //Setup Templates list  as we are changing Db type
+                Tabview . Tabcntrl . DtTemplates . TemplateNameDg = tablename . ToUpper ( );
+                Tabview . Tabcntrl . CurrentTypeDg = "GEN";
+                Tabview . SetDbType ( "GEN" );
 
-            Tabview . Tabcntrl . dgUserctrl . grid1 . CellStyle = null;
-            Tabview . Tabcntrl . dgUserctrl . grid1 . ItemsSource = null;
-            Tabview . Tabcntrl . dgUserctrl . grid1 . Items . Clear ( );
-            Tabview . Tabcntrl . dgUserctrl . grid1 . Foreground = FindResource ( "Red5" ) as SolidColorBrush;
-            Gvm = new ObservableCollection<GenericClass> ( );
-            Gvm = SqlSupport . LoadGeneric ( SqlCommand , out ResultString , 0 , false );
-            CreateGenericColumns ( SqlServerCommands . GetGenericColumnCount ( Gvm ) );
-            SqlServerCommands . LoadActiveRowsOnlyInGrid ( Tabview . Tabcntrl . dgUserctrl . grid1 , Gvm , SqlServerCommands . GetGenericColumnCount ( Gvm ) );
+                // Set colors of Indicator panels on Tabview
+                Tabview . tabvw . DbTypeFld . Background = FindResource ( "Red5" ) as SolidColorBrush;
+                Tabview . tabvw . DbCount . Background = Application . Current . FindResource ( "Red5" ) as SolidColorBrush;
 
-            // Set Datagrid to the new Data Template
-            Tabview . Tabcntrl . DtTemplates . TemplateNameDg = tablename . ToUpper ( );
-            Tabview . Tabcntrl . twVModel . CheckActiveTemplate ( Tabview . Tabcntrl . dgUserctrl );
-            FrameworkElement elemnt = Tabview . Tabcntrl . dgUserctrl . grid1 as FrameworkElement;
-            DataTemplate dtemp = new DataTemplate ( );
-            DbCountArgs args = new DbCountArgs ( );
-            args . Dbcount = Gvm?.Count ?? -1;
-            args . sender = "dgUserctrl";
-            TabWinViewModel . TriggerBankDbCount ( this , args );
+                Tabview . Tabcntrl . dgUserctrl . grid1 . CellStyle = null;
+                Tabview . Tabcntrl . dgUserctrl . grid1 . ItemsSource = null;
+                Tabview . Tabcntrl . dgUserctrl . grid1 . Items . Clear ( );
+                Tabview . Tabcntrl . dgUserctrl . grid1 . Foreground = FindResource ( "Red5" ) as SolidColorBrush;
+                // Gvm = new ObservableCollection<GenericClass> ( );
+                Gvm = SqlSupport . LoadGeneric ( SqlCommand , out ResultString , 0 , false );
+                CreateGenericColumns ( SqlServerCommands . GetGenericColumnCount ( Gvm ) );
+                SqlServerCommands . LoadActiveRowsOnlyInGrid ( Tabview . Tabcntrl . dgUserctrl . grid1 , Gvm , SqlServerCommands . GetGenericColumnCount ( Gvm ) );
 
-            // Lock template  - cannot be changed
-            dtemp . Seal ( );
-            dtemp = elemnt . FindResource ( Tabview . Tabcntrl . DtTemplates . TemplatesCombo . SelectedItem . ToString ( ) ) as DataTemplate;
-            Tabview . Tabcntrl . dgUserctrl . grid1 . ItemTemplate = dtemp;
-            Tabview . Tabcntrl . DtTemplates . TemplatesCombo . SelectedIndex = Tabview . Tabcntrl . DtTemplates . TemplateIndexDg;
-            Tabview . Tabcntrl . dgUserctrl . grid1 . UpdateLayout ( );
-            return Gvm . Count == 0 ? false : true ;
+                // Set Datagrid to the new Data Template
+                Tabview . Tabcntrl . DtTemplates . TemplateNameDg = tablename . ToUpper ( );
+                Tabview . Tabcntrl . twVModel . CheckActiveTemplate ( Tabview . Tabcntrl . dgUserctrl );
+                FrameworkElement elemnt = Tabview . Tabcntrl . dgUserctrl . grid1 as FrameworkElement;
+                DataTemplate dtemp = new DataTemplate ( );
+                DbCountArgs args = new DbCountArgs ( );
+                args . Dbcount = Gvm?.Count ?? -1;
+                args . sender = "dgUserctrl";
+                TabWinViewModel . TriggerBankDbCount ( this , args );
+
+                // Lock template  - cannot be changed
+                dtemp . Seal ( );
+                dtemp = elemnt . FindResource ( Tabview . Tabcntrl . DtTemplates . TemplatesCombo . SelectedItem . ToString ( ) ) as DataTemplate;
+                Tabview . Tabcntrl . dgUserctrl . grid1 . ItemTemplate = dtemp;
+                Tabview . Tabcntrl . DtTemplates . TemplatesCombo . SelectedIndex = Tabview . Tabcntrl . DtTemplates . TemplateIndexDg;
+                Tabview . Tabcntrl . dgUserctrl . grid1 . UpdateLayout ( );
+            } );
+            return Gvm . Count == 0 ? false : true;
             //return;
         }
 
@@ -503,10 +499,25 @@ namespace NewWpfDev . UserControls {
             grid1 . FontSize = Fontsize;
             grid1 . UpdateLayout ( );
         }
+
         #region Interface methods
         public void TabLoadBank ( object HostControl , string DbType , bool update ) {
             throw new NotImplementedException ( );
         }
         #endregion Interface methods
+
+        public static void WriteSerializedObject ( ) {
+            Stream SaveFileStream = File . Create ( FileName );
+            BinaryFormatter serializer = new BinaryFormatter ( );
+            serializer . Serialize ( SaveFileStream , Tabview . Tabcntrl . dgUserctrl );
+            SaveFileStream . Close ( );
+        }
+        private void ReloadBank ( object sender , RoutedEventArgs e ) {
+            Tabview . Tabcntrl . twVModel . TabLoadDb ( this , "BANKACCOUNT" , true );
+        }
+
+        private void ReloadCust ( object sender , RoutedEventArgs e ) {
+            Tabview . Tabcntrl . twVModel . TabLoadDb ( this , "CUSTOMER" , true );
+        }
     }
 }

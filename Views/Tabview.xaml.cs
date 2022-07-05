@@ -15,14 +15,12 @@ using System . Windows . Media . Animation;
 using System . Windows . Media . Effects;
 using System . Windows . Threading;
 
-using Microsoft . VisualBasic;
-
-//using DocumentFormat . OpenXml . Wordprocessing;
-
 using NewWpfDev . Converts;
 using NewWpfDev . Models;
 using NewWpfDev . UserControls;
 using NewWpfDev . ViewModels;
+
+using ServiceStack;
 
 using static NewWpfDev . Views . Tabview;
 
@@ -39,10 +37,15 @@ namespace NewWpfDev . Views {
         }
         #endregion OnPropertyChanged
 
+        // Serializes any Observablecollection correctly to JSON file
+        //            SerializeTestBank ( ); // works  well
+
+
         #region Declarations
 
-        // Critical object variable
-        public dynamic CtrlPtr;
+        // Critical objects variable
+        public static dynamic CtrlPtr;
+        public static dynamic Infopanelptr;
 
         public bool IsLoading { get; set; } = true;
         DatagridUserControlViewModel dgvm {
@@ -82,9 +85,7 @@ namespace NewWpfDev . Views {
             //
             public DataTemplates DtTemplates;
 
-            public dynamic Ctrlptr;
-
-            public object ActiveControlType { get; set; }
+              public object ActiveControlType { get; set; }
             public DgUserControl dgUserctrl { get; set; }
             public LbUserControl lbUserctrl { get; set; }
             public LvUserControl lvUserctrl { get; set; }
@@ -134,7 +135,6 @@ namespace NewWpfDev . Views {
         #endregion properties
 
         #region ALL Dependency Properties
-
 
         public ComboBox Combobox {
             get { return ( ComboBox ) GetValue ( ComboboxProperty ); }
@@ -217,6 +217,14 @@ namespace NewWpfDev . Views {
             DependencyProperty . Register ( "Lvusercontrol" , typeof ( LvUserControl ) ,
                 typeof ( Tabview ) , new PropertyMetadata ( ( LvUserControl ) null ) );
 
+       // public string TabviewInfoString     {
+       //     get { return ( string  ) GetValue ( TabviewInfoStringProperty ); }
+       //     set { SetValue ( TabviewInfoStringProperty , value ); }
+       // }
+       //public static readonly DependencyProperty TabviewInfoStringProperty =
+       //     DependencyProperty . Register ( "TabviewInfoString" , typeof ( string  ) , typeof ( Tabview) , new PropertyMetadata ( "" ) );
+
+
         #endregion User Control DP;s
         #endregion ALL Dependency Properties
 
@@ -257,6 +265,16 @@ namespace NewWpfDev . Views {
         public static readonly DependencyProperty LVControlProperty =
             DependencyProperty . RegisterAttached ( "LVControl" , typeof ( ListView ) , typeof ( Tabview ) , new PropertyMetadata ( ( ListView ) null ) );
 
+       // public static string TabviewInfoString    ( DependencyObject obj ) {
+       //     return ( string)  obj . GetValue ( TabviewInfoStringProperty );
+       // }
+       // public static void SetMyProperty ( DependencyObject obj , string  value ) {
+       //     obj . SetValue ( TabviewInfoStringProperty , value );
+       // }
+       //public static readonly DependencyProperty TabviewInfoStringProperty =
+       //     DependencyProperty . RegisterAttached ( "TabviewInfoString" , typeof ( string  ) , typeof ( Tabview ) , new PropertyMetadata ( "" ) );
+
+
         #endregion Attached properties
 
         #endregion Declarations
@@ -278,7 +296,10 @@ namespace NewWpfDev . Views {
             this . Left = 50;
             this . Top = 100;
             SizeChanged += Tabview_SizeChanged;
+            
+            // Setup pointers In TabWinViewWindow
             ControllerVm = TabWinViewModel . SetPointer ( this , "DgridTab" );
+            
             this . Show ( );
             this . DataContext = ControllerVm;
             TabWinViewModel . CurrentTabIndex = 0;
@@ -300,6 +321,13 @@ namespace NewWpfDev . Views {
             Tabview . Tabcntrl . DtTemplates . TemplatesCombo . ItemsSource = DataTemplatesBank;
             Tabview . Tabcntrl . DtTemplates . TemplatesCombo . SelectedIndex = 0;
             Mouse . OverrideCursor = Cursors . Arrow;
+            Utils . SetupWindowDrag ( this );
+            Infopanelptr = LoadName;
+            string [ ] strs = { "" , "" , "" };
+            bool result = Utils . GetDynamicVarType ( Infopanelptr , out strs );
+            //Debug . WriteLine ( $"TextBlock Info panel type is ListView : \n\"{strs [ 0 ]}\"\n\"{strs [ 1 ]}\"\n\"{strs [ 2 ]}\"" );
+            // How to use "Public Static Dynamic" pointer to access Infopanel TextBlock Text from anywhere in Tabview
+            Infopanelptr . Text = "Tabview loaded successfully";
             IsLoading = false;
         }
         public static int FindDbName ( string dbname ) {
@@ -320,34 +348,34 @@ namespace NewWpfDev . Views {
                     Tabview . Tabcntrl . CurrentTypeDg = "BANKACCOUNT";
                     Tabview . Tabcntrl . DbNameIndexDg = DbnamesCb . SelectedIndex;
                     Tabview . Tabcntrl . DbNameDg = DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( );
-                    await Task . Run ( ( ) => Tabview . Tabcntrl . dgUserctrl . LoadBank ( ) );
+                    // Allows Callee to update interface
+                    Application . Current . Dispatcher . Invoke ( async ( ) =>
+                        await Task . Run ( async ( ) => await Tabview . Tabcntrl . dgUserctrl . LoadBank ( ) )
+                    );
+                    //                  await Task . Run (async  ( ) => await Tabview . Tabcntrl . dgUserctrl . LoadBank ( ) );
                 }
                 else if ( Tabview . Tabcntrl . ActiveControlType . GetType ( ) == typeof ( LbUserControl ) ) {
                     Tabview . Tabcntrl . DtTemplates . TemplateNameLb = "BANKACCOUNT";
                     Tabview . Tabcntrl . CurrentTypeLb = "BANKACCOUNT";
                     Tabview . Tabcntrl . DbNameIndexLb = DbnamesCb . SelectedIndex;
                     Tabview . Tabcntrl . DbNameLb = DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( );
-                    await Task . Run ( async ( ) => {
-                        Application . Current . Dispatcher . Invoke (
-                                        ( ) => Tabview . Tabcntrl . lbUserctrl . LoadBank ( )
-                                );
-                    }
-                        );
-
-                    //    Application . Current . Dispatcher . Invoke ( async ( ) => {
-                    //        await Task . Run ( ( ) => Tabview . Tabcntrl . lbUserctrl . LoadBank ( ) );
-                    //    } );
+                    // Allows Callee to update interface
+                    Application . Current . Dispatcher . Invoke ( async () =>
+                    // works well, & fast
+                        await Task . Run ( async ( ) => await Tabview . Tabcntrl . lbUserctrl . LoadBank ( ) )
+                    );
                 }
                 else if ( Tabview . Tabcntrl . ActiveControlType . GetType ( ) == typeof ( LvUserControl ) ) {
                     Tabview . Tabcntrl . DtTemplates . TemplateNameLv = "BANKACCOUNT";
                     Tabview . Tabcntrl . CurrentTypeLv = "BANKACCOUNT";
                     Tabview . Tabcntrl . DbNameIndexLv = DbnamesCb . SelectedIndex;
                     Tabview . Tabcntrl . DbNameLv = DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( );
-                    Tabview . Tabcntrl . lvUserctrl . LoadBank ( );
-                    //await Application . Current . Dispatcher . Invoke ( async ( ) => {
-                    //        await Task . Run ( ( ) => Tabview . Tabcntrl . lvUserctrl . LoadBank ( ));
-                    //   } );
-                }
+                    // Allows Callee to update interface
+                    Application . Current . Dispatcher . Invoke ( async ( ) =>
+                        await Task . Run ( async ( ) => await Tabview . Tabcntrl . lvUserctrl . LoadBank ( ) )
+                    );
+//                    Tabview . Tabcntrl . lvUserctrl . LoadBank ( );
+                  }
                 Tabview . SetDbType ( "BANK" );
             }
             else if ( selitem . ToUpper ( ) == "CUSTOMER" ) {
@@ -356,27 +384,31 @@ namespace NewWpfDev . Views {
                     Tabview . Tabcntrl . CurrentTypeDg = "CUSTOMER";
                     Tabview . Tabcntrl . DbNameIndexDg = DbnamesCb . SelectedIndex;
                     Tabview . Tabcntrl . DbNameDg = DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( );
-                    await Application . Current . Dispatcher . Invoke ( async ( ) => {
-                        await Task . Run ( ( ) => Tabview . Tabcntrl . dgUserctrl . LoadCustomer ( ) );
-                    } );
+                    await Task . Run ( async ( ) => await Tabview . Tabcntrl . dgUserctrl . LoadCustomer( ) );
+
+                    //await Application . Current . Dispatcher . Invoke ( async ( ) => {
+                    //    await Task . Run ( ( ) => Tabview . Tabcntrl . dgUserctrl . LoadCustomer ( ) );
+                    //} );
                 }
                 else if ( Tabview . Tabcntrl . ActiveControlType . GetType ( ) == typeof ( LbUserControl ) ) {
                     Tabview . Tabcntrl . DtTemplates . TemplateNameLb = "CUSTOMER";
                     Tabview . Tabcntrl . CurrentTypeLb = "CUSTOMER";
                     Tabview . Tabcntrl . DbNameIndexLb = DbnamesCb . SelectedIndex;
                     Tabview . Tabcntrl . DbNameLb = Tabview . Tabcntrl . tabView . DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( );
-                    await Application . Current . Dispatcher . Invoke ( async ( ) => {
-                        await Task . Run ( ( ) => Tabview . Tabcntrl . lbUserctrl . LoadCustomer ( ) );
-                    } );
+                    await Task . Run ( async ( ) => await Tabview . Tabcntrl . lbUserctrl . LoadCustomer ( ) );
+                    //await Application . Current . Dispatcher . Invoke ( async ( ) => {
+                    //    await Task . Run ( ( ) => Tabview . Tabcntrl . lbUserctrl . LoadCustomer ( ) );
+                    //} );
                 }
                 else if ( Tabview . Tabcntrl . ActiveControlType . GetType ( ) == typeof ( LvUserControl ) ) {
                     Tabview . Tabcntrl . DtTemplates . TemplateNameLv = "CUSTOMER";
                     Tabview . Tabcntrl . CurrentTypeLv = "CUSTOMER";
                     Tabview . Tabcntrl . DbNameIndexLv = DbnamesCb . SelectedIndex;
                     Tabview . Tabcntrl . DbNameLv = Tabview . Tabcntrl . tabView . DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( );
-                    await Application . Current . Dispatcher . Invoke ( async ( ) => {
-                        await Task . Run ( ( ) => Tabview . Tabcntrl . lvUserctrl . LoadCustomer ( ) );
-                    } );
+                    await Task . Run ( async ( ) => await Tabview . Tabcntrl . lvUserctrl . LoadCustomer ( ) );
+                    //await Application . Current . Dispatcher . Invoke ( async ( ) => {
+                    //    await Task . Run ( ( ) => Tabview . Tabcntrl . lvUserctrl . LoadCustomer ( ) );
+                    //} );
                 }
                 Tabview . SetDbType ( "CUSTOMER" );
             }
@@ -388,14 +420,7 @@ namespace NewWpfDev . Views {
                     Tabview . Tabcntrl . DtTemplates . TemplateNameDg = "GEN";
                     Tabview . Tabcntrl . DbNameDg = DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( );
                     var Task = Tabview . Tabcntrl . dgUserctrl . LoadGeneric ( e . AddedItems [ 0 ] . ToString ( ) );
-                    Task . Wait ( );
-                    //if ( Task.Result == false) {
-                    //    Debug . WriteLine ( $"No records returned for {DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( )}\nso BankAccount will be (re)loaded  by default" );
-                    //    MessageBox . Show ( $"the Db [{DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( )}] returned ZERO records.\n\nTherefore the DataGrid will now reload the \n\"default\" BankAccount Table for you. " , "Table requested returned No Data " );
-                    //    // Reload Bankaccount as default
-                    //    Tabview . Tabcntrl . dgUserctrl . LoadBank( );
-                    //}
-                }
+                  }
                 else if ( Tabview . Tabcntrl . ActiveControlType . GetType ( ) == typeof ( LbUserControl ) ) {
                     // a GENERIC table  has been selected in ListBox
                     Tabview . Tabcntrl . CurrentTypeLb = "GEN";
@@ -410,9 +435,6 @@ namespace NewWpfDev . Views {
                         // Reload Bankaccount as default
                         Tabview . Tabcntrl . lbUserctrl . LoadBank ( );
                     }
-                    //await Application . Current . Dispatcher . Invoke ( async ( ) => {
-                    //    await Task . Run ( ( ) => Tabview . Tabcntrl . lbUserctrl . LoadGeneric ( e . AddedItems [ 0 ] . ToString ( ) ));
-                    //} );
                 }
                 else if ( Tabview . Tabcntrl . ActiveControlType . GetType ( ) == typeof ( LvUserControl ) ) {
                     // a GENERIC table  has been selected in Listview
@@ -431,9 +453,6 @@ namespace NewWpfDev . Views {
                             Task . Run ( ( ) => Tabview . Tabcntrl . lvUserctrl . LoadBank ( ) )
                             );
                     }
-                    //await Application . Current . Dispatcher . Invoke ( async ( ) => {
-                    //    await Task . Run ( ( ) => Tabview . Tabcntrl . lvUserctrl . LoadGeneric ( e . AddedItems [ 0 ] . ToString ( ) ));
-                    //} );
                 }
                 Tabview . SetDbType ( "GEN" );
             }
@@ -509,10 +528,10 @@ namespace NewWpfDev . Views {
             linkViewers . IsChecked = val;
             ViewersLinked = val;
         }
-        private async void Window_Loaded ( object sender , RoutedEventArgs e ) {
+        private  void Window_Loaded ( object sender , RoutedEventArgs e ) {
             Tabctrl . SelectedIndex = 0;
             TabWinViewModel . IsLoadingDb = false;
-            Application . Current . Dispatcher . Invoke ( async () =>
+            Application . Current . Dispatcher . Invoke ( async ( ) =>
                 ControllerVm . SetCurrentTab ( this , "DgridTab" )
             );
         }
@@ -660,22 +679,20 @@ namespace NewWpfDev . Views {
 
         #region Left Mouse Ckick on tabs Trigger Methods
         private void GridMouseLeftButtonDown ( object sender , MouseButtonEventArgs e ) {
-           Application . Current . Dispatcher . Invoke ( ( ) => ControllerVm . SetCurrentTab ( this , "DgridTab" ));
-           // ControllerVm . SetCurrentTab ( this , "DgridTab" );
+            Application . Current . Dispatcher . Invoke ( ( ) => ControllerVm . SetCurrentTab ( this , "DgridTab" ) );
+            // ControllerVm . SetCurrentTab ( this , "DgridTab" );
         }
         private async void ListboxMouseLeftButtonDown ( object sender , MouseButtonEventArgs e ) {
             Application . Current . Dispatcher . Invoke ( ( ) => ControllerVm . SetCurrentTab ( this , "ListboxTab" ) );
         }
         private async void ListviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e ) {
-            Application . Current . Dispatcher . Invoke ( ( ) => ControllerVm . SetCurrentTab ( this , "ListviewTab" ));
+            Application . Current . Dispatcher . Invoke ( ( ) => ControllerVm . SetCurrentTab ( this , "ListviewTab" ) );
         }
         private async void LogviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e ) {
-            Application . Current . Dispatcher . Invoke ( ( ) => ControllerVm . SetCurrentTab ( this , "LogviewTab" ));
+            Application . Current . Dispatcher . Invoke ( ( ) => ControllerVm . SetCurrentTab ( this , "LogviewTab" ) );
         }
         private async void TreeviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e ) {
-            SerializeTestBank ( );
-            Application . Current . Dispatcher . Invoke ( ( ) => ControllerVm . SetCurrentTab ( this , "TreeviewTab" ));
-
+            Application . Current . Dispatcher . Invoke ( ( ) => ControllerVm . SetCurrentTab ( this , "TreeviewTab" ) );
         }
 
         #endregion Left Mouse Ckick on Tabs
@@ -1092,22 +1109,26 @@ namespace NewWpfDev . Views {
         }
 
         private void Serialize_DgUserControl ( object sender , RoutedEventArgs e ) {
+            DgUserControl . WriteSerializedObject ( );
             //      serialize ( );
             //DgUserControl dgobj = Tabview . Tabcntrl . dgUserctrl . ReadSerializedObject ( );
             //WpfLib1 . Utils . IsReferenceEqual ( dgobj , Tabview . Tabcntrl . dgUserctrl , "dgobj" , "Tabview.Tabcntrl.dgUserctrl" , true );
 
 
         }
-        private void SerializeTestBank ( ) {
+        private string SerializeTestBank ( ) {
             //This Works !!!! - XAML file created from Db data as a collection
             //creates a JSON output file as JSONTEXT.json of entire BANKACCOUNT Db contents
-            WpfLib1 . Utils . WriteSerializedCollectionJSON ( DatagridUserControlViewModel . Bvm , @"C:\users\ianch\BankAccountCollection.json" );
-            // Read it back in to check....
-            string str = WpfLib1 . Utils . ReadSerializedCollectionJson ( @"C:\users\ianch\BankAccountCollection.json" );
-            // returns as a string formatted as "xxxxx,yyyy\n" so we need to convert it back to our collection type
-            // Thiis creates a new Bvm correctly from our JSON output
-            Bvm = Utils . CreateBankAccountFromJson ( str );
-            Debug . WriteLine ( str );
+            if ( DatagridUserControlViewModel . Bvm != null && DatagridUserControlViewModel . Bvm . Count > 0 ) {
+                WpfLib1 . Utils . WriteSerializedCollectionJSON ( DatagridUserControlViewModel . Bvm , @"C:\users\ianch\BankAccountCollection.json" );
+                // Read it back in to check....
+                string str = WpfLib1 . Utils . ReadSerializedCollectionJson ( @"C:\users\ianch\BankAccountCollection.json" );
+                // returns as a string formatted as "xxxxx,yyyy\n" so we need to convert it back to our collection type
+                // Thiis creates a new Bvm correctly from our JSON output
+                Bvm = Utils . CreateBankAccountFromJson ( str );
+                return str;
+            }
+            return "";
         }
 
         private void DeSerialize_DgUserControl ( object sender , RoutedEventArgs e ) {

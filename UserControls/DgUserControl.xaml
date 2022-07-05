@@ -106,6 +106,30 @@
                 </MenuItem.Header>
             </MenuItem>
 
+            <MenuItem  Click="ReloadBank"
+                    Style="{StaticResource MenuItemBlue}">
+                <MenuItem.Header>
+                    <TextBlock 
+                                Text="Load Bank Indirectly"
+                                FontSize="16"
+                                 Height="25"
+                                Padding="10 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="350"/>
+                </MenuItem.Header>
+            </MenuItem>
+            <MenuItem  Click="ReloadCust"
+                    Style="{StaticResource MenuItemBlue}">
+                <MenuItem.Header>
+                    <TextBlock 
+                                Text="Load Customer Indirectly"
+                                FontSize="16"
+                                 Height="25"
+                                Padding="10 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="350"/>
+                </MenuItem.Header>
+            </MenuItem>
             <!--<MenuItem  Click="Serialize_DgUserControl"
                     Style="{StaticResource MenuItemBlue}">
                 <MenuItem.Header>
@@ -189,6 +213,7 @@
                 IsTabStop="False"
                 AutoGenerateColumns="false"                                   
                 AlternatingRowBackground="Beige"
+                  ToolTip="Right click to open Context Menu for control magnifcation (and other stuff)"
                   MouseEnter="PART_MouseEnter"
                 MouseLeave="PART_MouseLeave"
                 Background="Black"  

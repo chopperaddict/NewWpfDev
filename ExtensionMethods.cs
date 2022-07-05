@@ -65,7 +65,7 @@ namespace NewWpfDev
             {
                 uiElement . Dispatcher . Invoke ( DispatcherPriority . Render , EmptyDelegate );
             }
-            catch { }
+            catch ( Exception ex ) { Debug . WriteLine ($"REFRESH FAILEd !!  {ex.Message}"); }
         }
         public static Brush ToSolidColorBrush ( this string HexColorString )
         {

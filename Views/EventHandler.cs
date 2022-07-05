@@ -2,15 +2,12 @@
 using System . Collections . Generic;
 using System . Diagnostics;
 using System . Linq;
-using System . Runtime . CompilerServices;
 using System . Text;
 using System . Threading . Tasks;
-using System . Windows . Threading;
 
-namespace NewWpfDev. Views
-{
-	#region chime
-	public delegate void ChimeEventHandler ( );
+namespace NewWpfDev . Views {
+    #region chime
+    public delegate void ChimeEventHandler ( );
 
 	public class ClockTower
 	{
@@ -318,38 +315,5 @@ namespace NewWpfDev. Views
 			Debug . WriteLine ( $"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" );
 		}
 	}
-	//public static class DispatcherExtensions
-	//{
-	//	public static SwitchToUiAwaitable SwitchToUi ( this Dispatcher dispatcher )
-	//	{
-	//		return new SwitchToUiAwaitable ( dispatcher );
-	//	}
-
-	//	public struct SwitchToUiAwaitable : INotifyCompletion
-	//	{
-	//		private readonly Dispatcher _dispatcher;
-
-	//		public SwitchToUiAwaitable ( Dispatcher dispatcher )
-	//		{
-	//			_dispatcher = dispatcher;
-	//		}
-
-	//		public SwitchToUiAwaitable GetAwaiter ( )
-	//		{
-	//			return this;
-	//		}
-
-	//		public void GetResult ( )
-	//		{
-	//		}
-
-	//		public bool IsCompleted => _dispatcher . CheckAccess ( );
-
-	//		public void OnCompleted ( Action continuation )
-	//		{
-	//			_dispatcher . BeginInvoke ( continuation );
-	//		}
-	//	}
-	//}
 
 } // End namespace

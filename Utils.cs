@@ -281,12 +281,12 @@ namespace NewWpfDev {
             dictvalue = keyval;
             return keyval;
         }
-           public static bool DeleteDictionaryEntry ( Dictionary<string , string> dict , string value ) {
+        public static bool DeleteDictionaryEntry ( Dictionary<string , string> dict , string value ) {
             try {
                 dict . Remove ( value );
             }
             catch ( Exception ex ) {
-                Debug . WriteLine ( $"Unable to access Dictionary {dict} to delete key value [{value}]\n{ex.Message}" );
+                Debug . WriteLine ( $"Unable to access Dictionary {dict} to delete key value [{value}]\n{ex . Message}" );
                 WpfLib1 . Utils . DoErrorBeep ( 250 , 50 , 1 );
                 return false;
             }
@@ -297,7 +297,7 @@ namespace NewWpfDev {
                 dict . Remove ( value );
             }
             catch ( Exception ex ) {
-                Debug . WriteLine ( $"Unable to access Dictionary {dict} to delete key value [{value}]\n{ex.Message}" );
+                Debug . WriteLine ( $"Unable to access Dictionary {dict} to delete key value [{value}]\n{ex . Message}" );
                 WpfLib1 . Utils . DoErrorBeep ( 250 , 50 , 1 );
                 return false;
             }
@@ -308,14 +308,14 @@ namespace NewWpfDev {
                 dict . Remove ( value );
             }
             catch ( Exception ex ) {
-                Debug . WriteLine ( $"Unable to access Dictionary {dict} to delete key value [{value}]\n{ex . Message}" ); 
+                Debug . WriteLine ( $"Unable to access Dictionary {dict} to delete key value [{value}]\n{ex . Message}" );
                 WpfLib1 . Utils . DoErrorBeep ( 250 , 50 , 1 );
                 return false;
             }
             return true;
         }
 
-          // Create dictionary of ALL Sql Connection strings we may want to use
+        // Create dictionary of ALL Sql Connection strings we may want to use
         public static void LoadConnectionStrings ( ) {
             try {
                 if ( Flags . ConnectionStringsDict . Count > 0 )
@@ -425,7 +425,7 @@ namespace NewWpfDev {
         }
         #endregion datagrid row  to List methods
 
-            public static string ParseTableColumnData ( List<string> fldnameslist ) {
+        public static string ParseTableColumnData ( List<string> fldnameslist ) {
             int indx = 0;
             string entry = "", outp = "";
             int trimlen = 3;
@@ -550,7 +550,7 @@ namespace NewWpfDev {
             BankAccountViewModel bvm = new BankAccountViewModel ( );
             CustomerViewModel cvm = new CustomerViewModel ( );
             DetailsViewModel dvm = new DetailsViewModel ( );
-             if ( obj1 == null || obj2 == null )
+            if ( obj1 == null || obj2 == null )
                 return result;
             if ( obj1 . GetType ( ) == bvm . GetType ( ) )
                 bvm = obj1 as BankAccountViewModel;
@@ -699,7 +699,7 @@ namespace NewWpfDev {
             char [ ] s = { ',' };
             string [ ] data = input . Split ( s );
             string donor = data [ 0 ];
-              //We have the sender type in the string recvd
+            //We have the sender type in the string recvd
             cvm . Id = int . Parse ( data [ index++ ] );
             cvm . CustNo = data [ index++ ];
             cvm . BankNo = data [ index++ ];
@@ -830,15 +830,15 @@ namespace NewWpfDev {
             try {
                 var v = original . GetType ( );
                 bool isScrollbar = original . GetType ( ) . Equals ( typeof ( ScrollBar ) );
-                  if ( !isScrollbar . Equals ( typeof ( ScrollBar ) ) ) {
+                if ( !isScrollbar . Equals ( typeof ( ScrollBar ) ) ) {
                     if ( original . GetType ( ) . Equals ( typeof ( DataGrid ) ) ) {
-                         return false;
+                        return false;
                     }
-                      else if ( original . GetType ( ) . Equals ( typeof ( Paragraph ) ) ) {
-                          return false;
+                    else if ( original . GetType ( ) . Equals ( typeof ( Paragraph ) ) ) {
+                        return false;
                     }
                     else if ( original . GetType ( ) . Equals ( typeof ( Border ) ) ) {
-                         return false;
+                        return false;
                     }
                     else if ( FindVisualParent<ScrollBar> ( original as DependencyObject ) != null ) {
                         //scroll bar is clicked
@@ -850,7 +850,7 @@ namespace NewWpfDev {
                     return true;
             }
             catch ( Exception ex ) {
-             }
+            }
 #pragma warning restore CS0168 // The variable 'ex' is declared but never used
             return true;
         }
@@ -1340,7 +1340,7 @@ namespace NewWpfDev {
             try {
                 var v = original . GetType ( );
                 if ( original . GetType ( ) . Equals ( typeof ( Border ) ) ) {
-                     return true;
+                    return true;
                 }
                 Type type = original . GetType ( );
                 if ( type . Equals ( typeof ( TextBlock ) ) ) {
@@ -1350,7 +1350,7 @@ namespace NewWpfDev {
                     return false;
                 }
                 if ( type . Equals ( typeof ( TreeViewItem ) ) ) {
-                   //                  Debug. WriteLine ( "Grid clicked" );
+                    //                  Debug. WriteLine ( "Grid clicked" );
                     return false;
                 }
                 else if ( FindVisualParent<Border> ( original as DependencyObject ) != null ) {
@@ -1359,7 +1359,7 @@ namespace NewWpfDev {
                     return true;
                 }
                 return false;
-             }
+            }
             catch ( Exception ex ) {
                 return false;
             }
@@ -1480,9 +1480,9 @@ namespace NewWpfDev {
             //update and scroll to bottom first
             Dgrid . SelectedIndex = ( int ) CurrentRecord;
             Dgrid . SelectedItem = ( int ) CurrentRecord;
-             Dgrid . ScrollIntoView ( Dgrid . SelectedItem );
+            Dgrid . ScrollIntoView ( Dgrid . SelectedItem );
             Dgrid . UpdateLayout ( );
-         }
+        }
         public static void ScrollRecordIntoView ( DataGrid Dgrid , int CurrentRecord , object row = null ) {
             // Works well 26/5/21
             double currentTop = 0;
@@ -1505,11 +1505,11 @@ namespace NewWpfDev {
             if ( Dgrid == null || Dgrid . Items . Count == 0 )//|| Dgrid . SelectedItem == null )
                 return;
 
-              Dgrid . SelectedIndex = CurrentRecord;
+            Dgrid . SelectedIndex = CurrentRecord;
             Dgrid . SelectedItem = CurrentRecord;
-             Dgrid . BringIntoView ( );
+            Dgrid . BringIntoView ( );
             Dgrid . UpdateLayout ( );
-             Dgrid . UpdateLayout ( );
+            Dgrid . UpdateLayout ( );
         }
         static public DataGridRow GetRow ( DataGrid dg , int index ) {
             DataGridRow row = ( DataGridRow ) dg . ItemContainerGenerator . ContainerFromIndex ( index );
@@ -1584,7 +1584,7 @@ namespace NewWpfDev {
             // This triggers the selection changed event
             grid . SelectedIndex = row;
             grid . SelectedItem = row;
-             grid . SelectedIndex = row;
+            grid . SelectedIndex = row;
             grid . SelectedItem = row;
             WpfLib1 . Utils . ScrollRecordIntoView ( grid , row );
             grid . ScrollIntoView ( grid . SelectedItem );
@@ -2361,23 +2361,23 @@ namespace NewWpfDev {
         #endregion ZERO referennces
 
         #region Dynamic Handlers
-        public static string [ ] GetDynamicVarType ( dynamic Ctrlptr ) {
+        public static bool GetDynamicVarType ( dynamic Ctrlptr , out string [ ] strs , bool showinfo=false ) {
             //*************************************************************************************
             // Discovers what type the dynamic item is and returns a string contaiining its type
             //*************************************************************************************
+            strs = new string [ ] { "" , "" , "" };
+            bool isvalid = false;
             string [ ] ctrltype = { "" , "" , "" };
             string line = Ctrlptr . GetType ( ) . ToString ( );
-            ctrltype [ 2 ] = Ctrlptr . GetType ( ) . ToString ( );
-            int offset = line . LastIndexOf (  '.' ) + 1;
-            ctrltype [ 0 ] = line . Substring ( offset);
-            ctrltype [ 1 ] = $"Tabview . Tabcntrl . {ctrltype [ 0 ]}";
-;            if ( Ctrlptr . GetType ( ) == typeof ( DgUserControl ) ) 
-                 Debug . WriteLine ( $"Type of DataGrid received in Dynamic variable is {ctrltype [ 0 ] . ToUpper ( )}" );
-            else if ( Ctrlptr . GetType ( ) == typeof ( LbUserControl ) ) 
-                Debug . WriteLine ( $"Type of ListBox received in Dynamic variable is {ctrltype [ 0 ] . ToUpper()}" );
-            else if ( Ctrlptr . GetType ( ) == typeof ( LvUserControl ) ) 
-                Debug . WriteLine ( $"Type of ListView  received in Dynamic variable is {ctrltype [0] . ToUpper ( )}" );
-            return ctrltype;
+            strs [ 2 ] = Ctrlptr . GetType ( ) . ToString ( );
+            int offset = line . LastIndexOf ( '.' ) + 1;
+            strs [ 0 ] = line . Substring ( offset );
+            strs [ 1 ] = $"Tabview . Tabcntrl . {ctrltype [ 0 ]}";
+            if ( Ctrlptr . GetType ( ) == typeof ( DgUserControl ) ) { if ( showinfo ) Debug . WriteLine ( $"Type of DataGrid received in Dynamic variable is {strs [ 0 ] . ToUpper ( )}" ); }
+            else if ( Ctrlptr . GetType ( ) == typeof ( LbUserControl ) ) { if ( showinfo ) Debug . WriteLine ( $"Type of ListBox received in Dynamic variable is {strs [ 0 ] . ToUpper ( )}" ); }
+            else if ( Ctrlptr . GetType ( ) == typeof ( LvUserControl ) ) { if ( showinfo ) Debug . WriteLine ( $"Type of ListView  received in Dynamic variable is {strs [ 0 ] . ToUpper ( )}" ); }
+            isvalid = Ctrlptr . GetType ( ) != null ? true : false; ;
+            return isvalid;
         }
 
         #endregion Dynamic Handlers

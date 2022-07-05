@@ -97,10 +97,10 @@ namespace NewWpfDev . ViewModels {
         }
 
         public void DgLoadDb ( object sender , LoadDbArgs e ) {
-            if ( e . dbname == "BANK" )
-                LoadBank ( );
-            else
-                LoadCustomer ( );
+            //if ( e . dbname == "BANK" )
+            //    LoadBank ( );
+            //else
+            //     LoadCustomer ( );
         }
 
         private void CreateBankColumns ( ) {
@@ -200,14 +200,12 @@ namespace NewWpfDev . ViewModels {
                 Tabview . Tabcntrl . DtTemplates . TemplatesCombo . SelectedIndex = 0;
             }
 
-            Task task = Task . Run ( ( ) => {
-                // This is pretty fast - uses Dapper and Linq
-                Application . Current . Dispatcher . Invoke ( ( ) => {
+            Application . Current . Dispatcher . Invoke ( ( ) => {
+                Task task = Task . Run ( ( ) => {
+                    // This is pretty fast - uses Dapper and Linq
                     UserControlDataAccess . GetBankObsCollectionAsync ( Bvm , "" , true , "DgUserControl" );
                 } );
-                return Bvm;
             } );
-
         }
         public void LoadCustomer ( bool update = true ) {
             Tabview . Tabcntrl . dgUserctrl . grid1 . ItemsSource = null;
@@ -228,80 +226,85 @@ namespace NewWpfDev . ViewModels {
 
             Task task = Task . Run ( ( ) => {
                 // This is pretty fast - uses Dapper and Linq
-                Application . Current . Dispatcher . Invoke ( ( ) => {
-                    Cvm = ( ObservableCollection<CustomerViewModel> ) UserControlDataAccess . GetCustObsCollection ( Cvm , "" , true , "DgUserControl" );
+                Application . Current . Dispatcher . Invoke ( async ( ) => {
+                    await UserControlDataAccess . GetCustObsCollection ( Cvm , "" , true , "DgUserControl" );
                 } );
+                Task . FromResult ( Cvm );
             } );
         }
 
         public void EventControl_BankDataLoaded ( object sender , LoadedEventArgs e ) {
             if ( e . CallerType != "DgUserControl" ) return;
-            //if ( dgUserctrl. grid1 .  Items . Count > 0 && CurrentType != "BANK" ) return;
-            CurrentType = "BANK";
-            TabWinViewModel . TriggerDbType ( CurrentType );
-            //await Dispatcher . SwitchToUi ( );
-            //$"Dispatcher on UI thread =  {Application . Current . Dispatcher . CheckAccess ( )}" . CW ( );
-            //Debug . WriteLine ( $"Data requested by : [{e . CallerDb}]" );
-            Tabview . Tabcntrl . dgUserctrl . grid1 . ItemsSource = null;
-            Tabview . Tabcntrl . dgUserctrl . grid1 . Items . Clear ( );
-            CreateBankColumns ( );
-            Bvm = e . DataSource as ObservableCollection<ViewModels . BankAccountViewModel>;
-            Tabview . Tabcntrl . dgUserctrl . grid1 . ItemsSource = Bvm;
-            Tabview . Tabcntrl . dgUserctrl . grid1 . SelectedIndex = 0;
-            Tabview . Tabcntrl . dgUserctrl . grid1 . SelectedItem = 0;
+            Application . Current . Dispatcher . Invoke ( async ( ) => {
+                await DispatcherExtns . SwitchToUi ( Application . Current . Dispatcher );
+                Debug . WriteLine ( $"\nInside Dispatcher" );
+                $"Dispatcher on UI thread =  {Application . Current . Dispatcher . CheckAccess ( )}" . CW ( );
+                Tabview . Tabcntrl . dgUserctrl . grid1 . ItemsSource = null;
+                CurrentType = "BANK";
+                TabWinViewModel . TriggerDbType ( CurrentType );
+                Tabview . Tabcntrl . dgUserctrl . grid1 . Items . Clear ( );
+                CreateBankColumns ( );
+                Bvm = e . DataSource as ObservableCollection<ViewModels . BankAccountViewModel>;
+                Tabview . Tabcntrl . dgUserctrl . grid1 . ItemsSource = Bvm;
+                if ( Tabview . Tabcntrl . tabView . ViewersLinked == false ) {
+                    Tabview . Tabcntrl . dgUserctrl . grid1 . SelectedIndex = 0;
+                    Tabview . Tabcntrl . dgUserctrl . grid1 . SelectedItem = 0;
+                }
+                Tabview . Tabcntrl . DtTemplates . TemplateNameDg = "BANKACCOUNT";
+                Tabview . Tabcntrl . CurrentTypeDg = "BANKACCOUNT";
+                //            Application . Current . Dispatcher . Invoke ( ( ) => {
+                Tabview . Tabcntrl . DtTemplates . TemplatesCombo . ItemsSource = Tabview . DataTemplatesBank;
+                Tabview . Tabcntrl . DtTemplates . TemplatesCombo . SelectedIndex = 0;
+                Tabview . Tabcntrl . ActiveControlType = Tabview . Tabcntrl . dgUserctrl;
+                Tabview . Tabcntrl . DtTemplates . TemplateIndexDg = 0;
+                // set default table name in tables combo
+                Tabview . Tabcntrl . tabView . IsLoading = true;
+                Tabview . Tabcntrl . tabView . DbnamesCb . SelectedIndex = FindDbName ( "BANKACCOUNT" );
+                Tabview . Tabcntrl . DbNameIndexDg = Tabview . Tabcntrl . tabView . DbnamesCb . SelectedIndex;
+                Tabview . Tabcntrl . DbNameDg = Tabview . Tabcntrl . tabView . DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( );
+                Tabview . Tabcntrl . tabView . IsLoading = false;
+                //                TabWinViewModel .FindActiveTable ( "BANKACCOUNT" );
 
-            Tabview . Tabcntrl . DtTemplates . TemplateNameDg = "BANKACCOUNT";
-            Tabview . Tabcntrl . CurrentTypeDg = "BANKACCOUNT";
-            //            Application . Current . Dispatcher . Invoke ( ( ) => {
-            Tabview . Tabcntrl . DtTemplates . TemplatesCombo . ItemsSource = Tabview . DataTemplatesBank;
-            Tabview . Tabcntrl . DtTemplates . TemplatesCombo . SelectedIndex = 0;
-            Tabview . Tabcntrl . ActiveControlType = Tabview . Tabcntrl . dgUserctrl;
-            Tabview . Tabcntrl . DtTemplates . TemplateIndexDg = 0;
-            // set default table name in tables combo
-            Tabview . Tabcntrl . tabView . IsLoading = true;
-            Tabview . Tabcntrl . tabView . DbnamesCb . SelectedIndex = FindDbName ( "BANKACCOUNT" );
-            Tabview . Tabcntrl . DbNameIndexDg = Tabview . Tabcntrl . tabView . DbnamesCb . SelectedIndex;
-            Tabview . Tabcntrl . DbNameDg = Tabview . Tabcntrl . tabView . DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( );
-            Tabview . Tabcntrl . tabView . IsLoading = false;
-            //                TabWinViewModel .FindActiveTable ( "BANKACCOUNT" );
-
-            //            } );
-            //Tabview . Tabcntrl . DtTemplates . SelectedIndex = 0;
-            DataTemplate dt = Application . Current . FindResource ( "BankDataTemplate1" ) as DataTemplate;
-            Tabview . Tabcntrl . dgUserctrl . grid1 . ItemTemplate = dt;
-            Tabview . Tabcntrl . twVModel . CheckActiveTemplate ( Tabview . Tabcntrl . dgUserctrl );
-            Tabview . Tabcntrl . dgUserctrl . grid1 . UpdateLayout ( );
-            Utils . ScrollRecordIntoView ( Tabview . Tabcntrl . dgUserctrl . grid1 , 0 );
-            //Debug . WriteLine ( $"Data Loaded for: [{e . CallerDb}], Records = {Tabview . Tabcntrl . dgUserctrl . grid1 . Items . Count}" );
-            DbCountArgs args = new DbCountArgs ( );
-            args . Dbcount = Bvm?.Count ?? -1;
-            args . sender = "dgUserctrl";
-            TabWinViewModel . TriggerBankDbCount ( this , args );
-
+                //            } );
+                DataTemplate dt = Application . Current . FindResource ( "BankDataTemplate1" ) as DataTemplate;
+                Tabview . Tabcntrl . dgUserctrl . grid1 . ItemTemplate = dt;
+                Tabview . Tabcntrl . twVModel . CheckActiveTemplate ( Tabview . Tabcntrl . dgUserctrl );
+                Tabview . Tabcntrl . dgUserctrl . grid1 . UpdateLayout ( );
+                Utils . ScrollRecordIntoView ( Tabview . Tabcntrl . dgUserctrl . grid1 , 0 );
+                //Debug . WriteLine ( $"Data Loaded for: [{e . CallerDb}], Records = {Tabview . Tabcntrl . dgUserctrl . grid1 . Items . Count}" );
+                DbCountArgs args = new DbCountArgs ( );
+                args . Dbcount = Bvm?.Count ?? -1;
+                args . sender = "dgUserctrl";
+                TabWinViewModel . TriggerBankDbCount ( this , args );
+            } );
         }
 
         public void EventControl_CustDataLoaded ( object sender , LoadedEventArgs e ) {
             if ( e . CallerType != "DgUserControl" ) return;
             //            if ( dgUserctrl. grid1 .  Items . Count > 0 && CurrentType != "CUSTOMER" ) return;
 
-            CurrentType = "CUSTOMER";
-            TabWinViewModel . TriggerDbType ( CurrentType );
-            Tabview . Tabcntrl . dgUserctrl . grid1 . ItemsSource = null;
-            Tabview . Tabcntrl . dgUserctrl . grid1 . Items . Clear ( );
-            CreateCustomerColumns ( );
-            Cvm = new ObservableCollection<ViewModels . CustomerViewModel> ( );
-            Cvm = e . DataSource as ObservableCollection<ViewModels . CustomerViewModel>;
-            Tabview . Tabcntrl . dgUserctrl . grid1 . ItemsSource = Cvm;
-            Tabview . Tabcntrl . dgUserctrl . grid1 . CellStyle = Application . Current . FindResource ( "MAINCustomerGridStyle" ) as Style;
+            Application . Current . Dispatcher . Invoke ( async ( ) => {
+                await DispatcherExtns . SwitchToUi ( Application . Current . Dispatcher );
+                Debug . WriteLine ( $"\nInside Dispatcher" );
+                $"Dispatcher on UI thread =  {Application . Current . Dispatcher . CheckAccess ( )}" . CW ( );
+                CurrentType = "CUSTOMER";
+                TabWinViewModel . TriggerDbType ( CurrentType );
+                Tabview . Tabcntrl . dgUserctrl . grid1 . ItemsSource = null;
+                Tabview . Tabcntrl . dgUserctrl . grid1 . Items . Clear ( );
+                CreateCustomerColumns ( );
+                Cvm = new ObservableCollection<ViewModels . CustomerViewModel> ( );
+                Cvm = e . DataSource as ObservableCollection<ViewModels . CustomerViewModel>;
+                Tabview . Tabcntrl . dgUserctrl . grid1 . ItemsSource = Cvm;
+                Tabview . Tabcntrl . dgUserctrl . grid1 . CellStyle = Application . Current . FindResource ( "MAINCustomerGridStyle" ) as Style;
 
-            DataTemplate dt = Application . Current . FindResource ( "CustomersDbTemplate1" ) as DataTemplate;
-            Tabview . Tabcntrl . dgUserctrl . grid1 . ItemTemplate = dt;
-            Tabview . Tabcntrl . dgUserctrl . grid1 . SelectedIndex = 0;
-            Tabview . Tabcntrl . dgUserctrl . grid1 . SelectedItem = 0;
-
-            Tabview . Tabcntrl . DtTemplates . TemplateNameDg = "CUSTOMER";
-            Tabview . Tabcntrl . CurrentTypeDg = "CUSTOMER";
-            Application . Current . Dispatcher . Invoke ( ( ) => {
+                DataTemplate dt = Application . Current . FindResource ( "CustomersDbTemplate1" ) as DataTemplate;
+                Tabview . Tabcntrl . dgUserctrl . grid1 . ItemTemplate = dt;
+                if ( Tabview . Tabcntrl . tabView . ViewersLinked == false ) {
+                    Tabview . Tabcntrl . dgUserctrl . grid1 . SelectedIndex = 0;
+                    Tabview . Tabcntrl . dgUserctrl . grid1 . SelectedItem = 0;
+                }
+                Tabview . Tabcntrl . DtTemplates . TemplateNameDg = "CUSTOMER";
+                Tabview . Tabcntrl . CurrentTypeDg = "CUSTOMER";
                 Tabview . Tabcntrl . DtTemplates . TemplatesCombo . ItemsSource = Tabview . DataTemplatesCust;
                 Tabview . Tabcntrl . DtTemplates . TemplatesCombo . SelectedIndex = 0;
                 Tabview . Tabcntrl . tabView . IsLoading = true;
@@ -312,13 +315,13 @@ namespace NewWpfDev . ViewModels {
                 Tabview . Tabcntrl . ActiveControlType = Tabview . Tabcntrl . dgUserctrl;
                 Tabview . Tabcntrl . ActiveControlType = Tabview . Tabcntrl . dgUserctrl;
                 Tabview . Tabcntrl . DtTemplates . TemplateIndexDg = 0;
-            } );
 
-            Utils . ScrollRecordIntoView ( grid1 , 0 );
-            DbCountArgs args = new DbCountArgs ( );
-            args . Dbcount = Cvm?.Count ?? -1;
-            args . sender = "dgUserctrl";
-            TabWinViewModel . TriggerBankDbCount ( this , args );
+                Utils . ScrollRecordIntoView ( grid1 , 0 );
+                DbCountArgs args = new DbCountArgs ( );
+                args . Dbcount = Cvm?.Count ?? -1;
+                args . sender = "dgUserctrl";
+                TabWinViewModel . TriggerBankDbCount ( this , args );
+            } );
         }
 
         public void grid1_SelectionChanged ( object sender , SelectionChangedEventArgs e ) {
@@ -326,8 +329,10 @@ namespace NewWpfDev . ViewModels {
             if ( Tabview . Tabcntrl . dgUserctrl . grid1 . Items . Count == 0 ) return;
             if ( Tabview . Tabcntrl . dgUserctrl . grid1 . SelectedIndex == -1 ) {
                 //make sure we have something selected !
-                Tabview . Tabcntrl . dgUserctrl . grid1 . SelectedIndex = 0;
-                Tabview . Tabcntrl . dgUserctrl . grid1 . SelectedItem = 0;
+                if ( Tabview . Tabcntrl . tabView . ViewersLinked == false ) {
+                    Tabview . Tabcntrl . dgUserctrl . grid1 . SelectedIndex = 0;
+                    Tabview . Tabcntrl . dgUserctrl . grid1 . SelectedItem = 0;
+                }
             }
             //            DataGrid v = e . OriginalSource as DataGrid;
             DataGrid v = e . OriginalSource as DataGrid;
@@ -359,7 +364,7 @@ namespace NewWpfDev . ViewModels {
 
             Mouse . OverrideCursor = Cursors . Arrow;
             CurrentIndex = Tabview . Tabcntrl . dgUserctrl . grid1 . SelectedIndex;
-             Tabview . Tabcntrl . Selectionchanged = false;
+            Tabview . Tabcntrl . Selectionchanged = false;
         }
 
         public void SelectionHasChanged ( object sender , SelectionChangedArgs e ) {

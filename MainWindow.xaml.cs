@@ -26,12 +26,14 @@ namespace NewWpfDev
     #region Generic System wide structures and Definitions
     // All System wide Delegates are declared here...
     #region DELEGATE DECLARATIONS
- //   public delegate void LoadTableDelegate ( string Sqlcommand , string TableType , object bvm );
-	//public delegate void LoadTableWithDapperDelegate ( string Sqlcommand , string TableType , object bvm , object Args);
-	#endregion DELEGATE DECLARATIONS
+    //   public delegate void LoadTableDelegate ( string Sqlcommand , string TableType , object bvm );
+    //public delegate void LoadTableWithDapperDelegate ( string Sqlcommand , string TableType , object bvm , object Args);
+    #endregion DELEGATE DECLARATIONS
 
-	#region dummy classes
-	public class EditDb
+    
+    // Required to allow various  items  towork without these classes actually being in this Project
+    #region dummy classes
+    public class EditDb
 	{
 	}
 	public class SqlDbViewer
@@ -223,45 +225,53 @@ namespace NewWpfDev
 	//=======================//
 	// Start of Mainwindow class
 	//=======================//
+
 	public partial class MainWindow : Window
 	{
-        //public static GridViewer gv = new GridViewer ( );
-        //// Global pointers to Viewmodel classes
+          //// Global pointers to Viewmodel classes
         public static BankAccountViewModel bvm = null;
         public static CustomerViewModel cvm = null;
         public static DetailsViewModel dvm = null;
 
+        #region Dynamic variables
+
+        public static dynamic DgridDynamic;
+        public static dynamic LboxDynamic;
+        public static dynamic LviewDynamic;
+        public static dynamic UserctrlDynamic;
+        public static dynamic InterFaceDynamic;
+
+        #endregion Dynamic variables
+
         //public static ExplorerClass Txplorer;
 
-        public MainWindow ( )
-		{
-			InitializeComponent ( );
-			this . Top = 100;
-			this . Left = 100;
-			WpfLib1 . Utils .SetupWindowDrag ( this );
-            Flags . CurrentConnectionString = ( string )Properties . Settings . Default [ "BankSysConnectionString" ];
+        public MainWindow ( ) {
+            InitializeComponent ( );
+            this . Top = 100;
+            this . Left = 100;
+            WpfLib1 . Utils . SetupWindowDrag ( this );
+            Flags . CurrentConnectionString = ( string ) Properties . Settings . Default [ "BankSysConnectionString" ];
             Flags . FlowdocCrMultplier = 3.0;
-            Flags . UseFlowdoc = Properties . Settings . Default . UseFlowDoc . ToUpper() == "TRUE" ? true : false;
-            Properties . Settings . Default . Save();
-            Flags . UseScrollView = Properties . Settings . Default . UseScrollViewer . ToUpper() == "TRUE" ? true : false;
-            Properties . Settings . Default . Save();
-            Flags . ReplaceFldNames = Properties . Settings . Default . ReplaceFldNames . ToUpper() == "TRUE" ? true : false;
-            Properties . Settings . Default . Save();
+            Flags . UseFlowdoc = Properties . Settings . Default . UseFlowDoc . ToUpper ( ) == "TRUE" ? true : false;
+            Properties . Settings . Default . Save ( );
+            Flags . UseScrollView = Properties . Settings . Default . UseScrollViewer . ToUpper ( ) == "TRUE" ? true : false;
+            Properties . Settings . Default . Save ( );
+            Flags . ReplaceFldNames = Properties . Settings . Default . ReplaceFldNames . ToUpper ( ) == "TRUE" ? true : false;
+            Properties . Settings . Default . Save ( );
             Flags . UseMagnify = Properties . Settings . Default . UseMagnify;
-            Properties . Settings . Default . Save();
+            Properties . Settings . Default . Save ( );
 
             string startpath = Properties . Settings . Default . AppRootPath;
-            if ( startpath == "" )
-            {
-                startpath = SupportMethods . GetCurrentApplicationFullPath();
+            if ( startpath == "" ) {
+                startpath = SupportMethods . GetCurrentApplicationFullPath ( );
                 Properties . Settings . Default . AppRootPath = startpath;
-                Properties . Settings . Default . Save();
-                WpfLib1 . Utils .SaveProperty("AppRootPath" , startpath);
+                Properties . Settings . Default . Save ( );
+                WpfLib1 . Utils . SaveProperty ( "AppRootPath" , startpath );
             }
-
         }
 
-//		private void button1_Click ( object sender , RoutedEventArgs e )
+    
+        //		private void button1_Click ( object sender , RoutedEventArgs e )
 //		{
 //			Datagrids dg = new Datagrids();
 //			dg . Show ( );
@@ -320,7 +330,6 @@ namespace NewWpfDev
 		//	SysConfig scfg = new         SysConfig();
 		//	scfg . Show ( );
 
-		//}
 
 		private void button10_Click ( object sender , RoutedEventArgs e )
 		{
@@ -354,61 +363,25 @@ namespace NewWpfDev
         {
             Application . Current . Shutdown();
         }
-
-        private void Button16_Click (object sender , RoutedEventArgs e)
-        {
-            //UserCtrlHost uch = new UserCtrlHost();
-            //uch . Show();
-            //TextBoxwithDataError tbwe = newTextBoxwithDataError();
+        private void Button1_Click ( object sender , RoutedEventArgs e ) {
+            Datagrids dg = new Datagrids ( );
+            dg . Show ( );
         }
-
-        private void Button1_Click (object sender , RoutedEventArgs e)
-        {
-            Datagrids dg = new Datagrids();
-            dg . Show();
+        private void Button2_Click ( object sender , RoutedEventArgs e ) {
+            Listviews lv = new Listviews ( );
+            lv . Show ( );
         }
-
-        private void Button2_Click (object sender , RoutedEventArgs e)
-        {
-            Listviews lv = new Listviews();
-            lv . Show();
+        private void Button3_Click ( object sender , RoutedEventArgs e ) {
+            TreeViews tvs = new TreeViews ( );
+            tvs . Show ( );
         }
-
-        private void Button3_Click (object sender , RoutedEventArgs e)
-        {
-            TreeViews tvs = new TreeViews();
-            tvs . Show();
+        private void Button6_Click ( object sender , RoutedEventArgs e ) {
+            MvvmContainerWin mvvm = new MvvmContainerWin ( );
+            mvvm . Show ( );
         }
-
-        private void Button6_Click (object sender , RoutedEventArgs e)
-        {
-            MvvmContainerWin mvvm = new MvvmContainerWin();
-            mvvm . Show();
-        }
-
-        private void Button7_Click (object sender , RoutedEventArgs e)
-        {
-            MvvmUserTest mut = new MvvmUserTest();
-            mut . Show();
-        }
-
-        private void Button13_Click (object sender , RoutedEventArgs e)
-        {
-            FourwaySplitViewer fv = new FourwaySplitViewer();
-            fv . Show();
-        }
-
-        private void Button21_Click (object sender , RoutedEventArgs e)
-        {
-            YieldWindow yw = new YieldWindow();
-            yw . Show(); 
-        }
-
-        private void Button20_Click (object sender , RoutedEventArgs e)
-        {
-            Tabview ss = new Tabview();
-            ss . Show();
-
+        private void Button7_Click ( object sender , RoutedEventArgs e ) {
+            MvvmUserTest mut = new MvvmUserTest ( );
+            mut . Show ( );
         }
 
         //        private void button11_Click ( object sender, RoutedEventArgs e )
@@ -423,12 +396,10 @@ namespace NewWpfDev
         //			sv. Show ( );
         //        }
 
-        //        private void button13_Click ( object sender, RoutedEventArgs e )
-        //        {
-        //			FourwaySplitViewer st = new FourwaySplitViewer( );
-        //			st . Show ( );
-        //        }
-
+        private void Button13_Click ( object sender , RoutedEventArgs e ) {
+            FourwaySplitViewer fv = new FourwaySplitViewer ( );
+            fv . Show ( );
+        }
         //        private void button14_Click ( object sender, RoutedEventArgs e )
         //        {
         //			Mouse . OverrideCursor = Cursors . Wait;
@@ -442,17 +413,21 @@ namespace NewWpfDev
         //			mt . Show ( );
         //        }
 
-        //        private void button16_Click ( object sender , RoutedEventArgs e )
-        //        {
-        //			DataErrorWindow hit = new DataErrorWindow ( );
-        //			hit . Show ( );
-        //        }
+        private void Button16_Click ( object sender , RoutedEventArgs e ) {
+        }
 
         //        private void button17_Click ( object sender , RoutedEventArgs e )
         //        {
         //			MvvmContainerWin ucm = new MvvmContainerWin ( );
         //			ucm . Show ( );
         //        }
+
+        //        private void button18_Click ( object sender , RoutedEventArgs e )
+        //        {
+        //			TabViewInfo tvvi = new TabViewInfo ("NewWPfDevInfo.txt" );
+        //			tvvi . Show ( );
+        //		}
+
 
         //        private void button19_Click ( object sender , RoutedEventArgs e )
         //        {
@@ -463,26 +438,14 @@ namespace NewWpfDev
         //			uch . LoadHostWindow ( );
         //		}
 
-        //        private void button18_Click ( object sender , RoutedEventArgs e )
-        //        {
-        //			TabViewInfo tvvi = new TabViewInfo ("NewWPfDevInfo.txt" );
-        //			tvvi . Show ( );
-        //		}
+        private void Button20_Click ( object sender , RoutedEventArgs e ) {
+            Tabview ss = new Tabview ( );
+            ss . Show ( );
 
-        //		private void button20_Click ( object sender , RoutedEventArgs e )
-        //        {
-        ////			LoadPopup pu= new LoadPopup ( );
-        ////			pu . Show ( );
-
-        //			Tabview ss = new Tabview( );
-        //			ss . Show ( );
-
-        //		}
-
-        //        private void button21_Click ( object sender , RoutedEventArgs e )
-        //        {
-        //			YieldWindow yw = new YieldWindow ( );
-        //			yw . Show ( );
-        //        }
+        }
+        private void Button21_Click ( object sender , RoutedEventArgs e ) {
+            YieldWindow yw = new YieldWindow ( );
+            yw . Show ( );
+        }
     }
 }

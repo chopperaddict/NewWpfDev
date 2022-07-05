@@ -1034,7 +1034,6 @@ namespace NewWpfDev . Views
 
                         // Caution : This loads the data into the Datarid with only the selected rows
                         // //visible in the grid so do NOT repopulate the grid after making this call
-                        //SqlSupport . LoadActiveRowsOnlyInLBox ( listBox , genaccts , DapperSupport . GetGenericColumnCount ( genaccts ) );
                         SqlServerCommands . LoadActiveRowsOnlyInGrid(dGrid , genaccts , SqlServerCommands . GetGenericColumnCount(genaccts));
                         if ( Flags . ReplaceFldNames )
                         {
@@ -1210,7 +1209,6 @@ namespace NewWpfDev . Views
                         {
                             // Caution : This loads the data into the Datarid with only the selected rows
                             // //visible in the grid so do NOT repopulate the grid after making this call
-                            //SqlSupport . LoadActiveRowsOnlyInLBox ( listBox , genaccts , DapperSupport . GetGenericColumnCount ( genaccts ) );
                             listBox . ItemsSource = genaccts;
                             if ( genaccts . Count == 0 )
                                 return;
