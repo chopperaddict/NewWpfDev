@@ -24,6 +24,7 @@ using NewWpfDev . SQL;
 using NewWpfDev . ViewModels;
 using NewWpfDev . Views;
 
+using static System . Net . WebRequestMethods;
 using static NewWpfDev . Views . Tabview;
 
 using Cursors = System . Windows . Input . Cursors;
@@ -507,7 +508,7 @@ namespace NewWpfDev . UserControls {
         #endregion Interface methods
 
         public static void WriteSerializedObject ( ) {
-            Stream SaveFileStream = File . Create ( FileName );
+            Stream SaveFileStream = System . IO . File . Create ( FileName );
             BinaryFormatter serializer = new BinaryFormatter ( );
             serializer . Serialize ( SaveFileStream , Tabview . Tabcntrl . dgUserctrl );
             SaveFileStream . Close ( );
@@ -518,6 +519,20 @@ namespace NewWpfDev . UserControls {
 
         private void ReloadCust ( object sender , RoutedEventArgs e ) {
             Tabview . Tabcntrl . twVModel . TabLoadDb ( this , "CUSTOMER" , true );
+        }
+
+        private void WriteBinarydata ( object sender , RoutedEventArgs e ) {
+            bool result = Utils.WriteSerializedObjectJSON ( Tabview.Tabcntrl.twVModel , @"C:\users\ianch\TabWinViewModel.json" , 2 );
+            return;
+
+                 result =  Utils . WriteSerializedObject ( Tabview . Tabcntrl . lgUserctrl , @"C:\users\ianch\TabWinViewModel.bin" , "LbUserControl" );
+            if ( result )
+                Debug . WriteLine ( "Serilaization succeeded" );
+            else {
+                Debug . WriteLine ( "Serilaization Failed" );
+                Utils . DoErrorBeep ( 280 , 100 , 1 );
+                Utils . DoErrorBeep ( 180 , 400 , 1 );
+            }
         }
     }
 }

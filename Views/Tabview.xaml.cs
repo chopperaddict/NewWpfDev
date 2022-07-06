@@ -37,9 +37,56 @@ namespace NewWpfDev . Views {
         }
         #endregion OnPropertyChanged
 
+        public static dynamic Tctrl;
+
+        #region Tab CONTROL STRUCTURES
+        public struct DataTemplates {
+            // A sole instance of this Structure is contained as DtTemplates in TabController struct - as Tabcntrl
+            public ComboBox TemplatesCombo { get; set; }
+            public int TemplateIndexDg { get; set; }
+            public int TemplateIndexLb { get; set; }
+            public int TemplateIndexLv { get; set; }
+            public string TemplateNameDg { get; set; }
+            public string TemplateNameLb { get; set; }
+            public string TemplateNameLv { get; set; }
+        }
+        public struct TabController {
+            //
+            // Main Control structure for the TabView Tab Controls windows
+            //
+            public DataTemplates DtTemplates;
+
+            public object ActiveControlType { get; set; }
+            public DgUserControl dgUserctrl { get; set; }
+            public LbUserControl lbUserctrl { get; set; }
+            public LvUserControl lvUserctrl { get; set; }
+            public LogUserControl lgUserctrl { get; set; }
+            public TvUserControl tvUserctrl { get; set; }
+            public string CurrentTypeDg { get; set; }
+            public string CurrentTypeLb { get; set; }
+            public string CurrentTypeLv { get; set; }
+            public string CurrentTabName { get; set; }
+            public string DbNameDg { get; set; }
+            public string DbNameLb { get; set; }
+            public string DbNameLv { get; set; }
+            public int DbNameIndexDg { get; set; }
+            public int DbNameIndexLb { get; set; }
+            public int DbNameIndexLv { get; set; }
+            public TabControl tabControl { get; set; }
+            public Tabview tabView { get; set; }
+            public TabItem tabItem { get; set; }
+            public TabWinViewModel twVModel { get; set; }
+            public bool Selectionchanged { get; set; }
+        }
+
+        //Structure to control Templates for all tabs
+        public static DataTemplates DtTemplates = new DataTemplates ( );
+        public static TabController Tabcntrl = new TabController ( );
+
+        #endregion Tab CONTROL STRUCTURES
+
         // Serializes any Observablecollection correctly to JSON file
         //            SerializeTestBank ( ); // works  well
-
 
         #region Declarations
 
@@ -68,51 +115,6 @@ namespace NewWpfDev . Views {
         // Pointer to the special library FlowdocLib.cs 
         FlowdocLib fdl = new FlowdocLib ( );
 
-        #region Tab CONTROL STRUCTURES
-        public struct DataTemplates {
-            // A sole instance of this Structure is contained as DtTemplates in TabController struct - as Tabcntrl
-            public ComboBox TemplatesCombo { get; set; }
-            public int TemplateIndexDg { get; set; }
-            public int TemplateIndexLb { get; set; }
-            public int TemplateIndexLv { get; set; }
-            public string TemplateNameDg { get; set; }
-            public string TemplateNameLb { get; set; }
-            public string TemplateNameLv { get; set; }
-        }
-        public struct TabController {
-            //
-            // Main Control structure for the TabView Tab Controls windows
-            //
-            public DataTemplates DtTemplates;
-
-              public object ActiveControlType { get; set; }
-            public DgUserControl dgUserctrl { get; set; }
-            public LbUserControl lbUserctrl { get; set; }
-            public LvUserControl lvUserctrl { get; set; }
-            public LogUserControl lgUserctrl { get; set; }
-            public TvUserControl tvUserctrl { get; set; }
-            public string CurrentTypeDg { get; set; }
-            public string CurrentTypeLb { get; set; }
-            public string CurrentTypeLv { get; set; }
-            public string CurrentTabName { get; set; }
-            public string DbNameDg { get; set; }
-            public string DbNameLb { get; set; }
-            public string DbNameLv { get; set; }
-            public int DbNameIndexDg { get; set; }
-            public int DbNameIndexLb { get; set; }
-            public int DbNameIndexLv { get; set; }
-            public TabControl tabControl { get; set; }
-            public Tabview tabView { get; set; }
-            public TabItem tabItem { get; set; }
-            public TabWinViewModel twVModel { get; set; }
-            public bool Selectionchanged { get; set; }
-        }
-
-        //Structure to control Templates for all tabs
-        public static DataTemplates DtTemplates = new DataTemplates ( );
-        public static TabController Tabcntrl = new TabController ( );
-
-        #endregion Tab CONTROL STRUCTURES
 
         #region general properties
         public static object MovingObject {
@@ -217,12 +219,12 @@ namespace NewWpfDev . Views {
             DependencyProperty . Register ( "Lvusercontrol" , typeof ( LvUserControl ) ,
                 typeof ( Tabview ) , new PropertyMetadata ( ( LvUserControl ) null ) );
 
-       // public string TabviewInfoString     {
-       //     get { return ( string  ) GetValue ( TabviewInfoStringProperty ); }
-       //     set { SetValue ( TabviewInfoStringProperty , value ); }
-       // }
-       //public static readonly DependencyProperty TabviewInfoStringProperty =
-       //     DependencyProperty . Register ( "TabviewInfoString" , typeof ( string  ) , typeof ( Tabview) , new PropertyMetadata ( "" ) );
+        // public string TabviewInfoString     {
+        //     get { return ( string  ) GetValue ( TabviewInfoStringProperty ); }
+        //     set { SetValue ( TabviewInfoStringProperty , value ); }
+        // }
+        //public static readonly DependencyProperty TabviewInfoStringProperty =
+        //     DependencyProperty . Register ( "TabviewInfoString" , typeof ( string  ) , typeof ( Tabview) , new PropertyMetadata ( "" ) );
 
 
         #endregion User Control DP;s
@@ -265,14 +267,14 @@ namespace NewWpfDev . Views {
         public static readonly DependencyProperty LVControlProperty =
             DependencyProperty . RegisterAttached ( "LVControl" , typeof ( ListView ) , typeof ( Tabview ) , new PropertyMetadata ( ( ListView ) null ) );
 
-       // public static string TabviewInfoString    ( DependencyObject obj ) {
-       //     return ( string)  obj . GetValue ( TabviewInfoStringProperty );
-       // }
-       // public static void SetMyProperty ( DependencyObject obj , string  value ) {
-       //     obj . SetValue ( TabviewInfoStringProperty , value );
-       // }
-       //public static readonly DependencyProperty TabviewInfoStringProperty =
-       //     DependencyProperty . RegisterAttached ( "TabviewInfoString" , typeof ( string  ) , typeof ( Tabview ) , new PropertyMetadata ( "" ) );
+        // public static string TabviewInfoString    ( DependencyObject obj ) {
+        //     return ( string)  obj . GetValue ( TabviewInfoStringProperty );
+        // }
+        // public static void SetMyProperty ( DependencyObject obj , string  value ) {
+        //     obj . SetValue ( TabviewInfoStringProperty , value );
+        // }
+        //public static readonly DependencyProperty TabviewInfoStringProperty =
+        //     DependencyProperty . RegisterAttached ( "TabviewInfoString" , typeof ( string  ) , typeof ( Tabview ) , new PropertyMetadata ( "" ) );
 
 
         #endregion Attached properties
@@ -284,6 +286,8 @@ namespace NewWpfDev . Views {
             Mouse . OverrideCursor = Cursors . Wait;
             tabvw = this;
             TabViewWin = this;
+            //Tctrl = Tabcntrl;
+            //Debug . WriteLine ($"{ Tctrl.GetType()}");
             CreateControlStructs ( );
             InitializeComponent ( );
             LoadDbTables ( null );
@@ -296,22 +300,22 @@ namespace NewWpfDev . Views {
             this . Left = 50;
             this . Top = 100;
             SizeChanged += Tabview_SizeChanged;
-            
+
             // Setup pointers In TabWinViewWindow
             ControllerVm = TabWinViewModel . SetPointer ( this , "DgridTab" );
-            
+
             this . Show ( );
             this . DataContext = ControllerVm;
             TabWinViewModel . CurrentTabIndex = 0;
             if ( TabWinViewModel . Tabcontrol != null )
                 currenttab = TabWinViewModel . Tabcontrol;
-            EventControl . WindowMessage += InterWinComms_WindowMessage;
             UseTask . IsChecked = ControllerVm . USETASK;
             UseWorker . IsChecked = !ControllerVm . USETASK;
             LoadTemplates ( );
             //Maximize hook  +/- statements
             Flowdoc . ExecuteFlowDocMaxmizeMethod += new EventHandler ( MaximizeFlowDoc );
             FlowDoc . FlowDocClosed += Flowdoc_FlowDocClosed;
+            EventControl . WindowMessage += InterWinComms_WindowMessage;
             TemplatesCb . SelectionChanged += TemplatesCb_SelectionChanged;
             DbnamesCb . SelectionChanged += DbNamesCb_SelectionChanged;
             TemplatesCb . UpdateLayout ( );
@@ -329,7 +333,9 @@ namespace NewWpfDev . Views {
             // How to use "Public Static Dynamic" pointer to access Infopanel TextBlock Text from anywhere in Tabview
             Infopanelptr . Text = "Tabview loaded successfully";
             IsLoading = false;
+            Console. WriteLine ("HOOOORAH, CONSOLE WRITELINE IS WORKING !!!!!!");
         }
+
         public static int FindDbName ( string dbname ) {
             int count = 0;
             foreach ( string item in Tabview . Tabcntrl . tabView . DbnamesCb . Items ) {
@@ -360,7 +366,7 @@ namespace NewWpfDev . Views {
                     Tabview . Tabcntrl . DbNameIndexLb = DbnamesCb . SelectedIndex;
                     Tabview . Tabcntrl . DbNameLb = DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( );
                     // Allows Callee to update interface
-                    Application . Current . Dispatcher . Invoke ( async () =>
+                    Application . Current . Dispatcher . Invoke ( async ( ) =>
                     // works well, & fast
                         await Task . Run ( async ( ) => await Tabview . Tabcntrl . lbUserctrl . LoadBank ( ) )
                     );
@@ -374,8 +380,8 @@ namespace NewWpfDev . Views {
                     Application . Current . Dispatcher . Invoke ( async ( ) =>
                         await Task . Run ( async ( ) => await Tabview . Tabcntrl . lvUserctrl . LoadBank ( ) )
                     );
-//                    Tabview . Tabcntrl . lvUserctrl . LoadBank ( );
-                  }
+                    //                    Tabview . Tabcntrl . lvUserctrl . LoadBank ( );
+                }
                 Tabview . SetDbType ( "BANK" );
             }
             else if ( selitem . ToUpper ( ) == "CUSTOMER" ) {
@@ -384,7 +390,7 @@ namespace NewWpfDev . Views {
                     Tabview . Tabcntrl . CurrentTypeDg = "CUSTOMER";
                     Tabview . Tabcntrl . DbNameIndexDg = DbnamesCb . SelectedIndex;
                     Tabview . Tabcntrl . DbNameDg = DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( );
-                    await Task . Run ( async ( ) => await Tabview . Tabcntrl . dgUserctrl . LoadCustomer( ) );
+                    await Task . Run ( async ( ) => await Tabview . Tabcntrl . dgUserctrl . LoadCustomer ( ) );
 
                     //await Application . Current . Dispatcher . Invoke ( async ( ) => {
                     //    await Task . Run ( ( ) => Tabview . Tabcntrl . dgUserctrl . LoadCustomer ( ) );
@@ -420,7 +426,7 @@ namespace NewWpfDev . Views {
                     Tabview . Tabcntrl . DtTemplates . TemplateNameDg = "GEN";
                     Tabview . Tabcntrl . DbNameDg = DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( );
                     var Task = Tabview . Tabcntrl . dgUserctrl . LoadGeneric ( e . AddedItems [ 0 ] . ToString ( ) );
-                  }
+                }
                 else if ( Tabview . Tabcntrl . ActiveControlType . GetType ( ) == typeof ( LbUserControl ) ) {
                     // a GENERIC table  has been selected in ListBox
                     Tabview . Tabcntrl . CurrentTypeLb = "GEN";
@@ -528,7 +534,7 @@ namespace NewWpfDev . Views {
             linkViewers . IsChecked = val;
             ViewersLinked = val;
         }
-        private  void Window_Loaded ( object sender , RoutedEventArgs e ) {
+        private void Window_Loaded ( object sender , RoutedEventArgs e ) {
             Tabctrl . SelectedIndex = 0;
             TabWinViewModel . IsLoadingDb = false;
             Application . Current . Dispatcher . Invoke ( async ( ) =>
@@ -673,6 +679,11 @@ namespace NewWpfDev . Views {
             // cleanup FLowDoc before closing down
             Flowdoc . ExecuteFlowDocMaxmizeMethod -= new EventHandler ( MaximizeFlowDoc );
             FlowDoc . FlowDocClosed -= Flowdoc_FlowDocClosed;
+            EventControl . WindowMessage -= InterWinComms_WindowMessage;
+            TemplatesCb . SelectionChanged -= TemplatesCb_SelectionChanged;
+            DbnamesCb . SelectionChanged -= DbNamesCb_SelectionChanged;
+            FlowDoc . FlowDocClosed -= Flowdoc_FlowDocClosed;
+            SizeChanged -= Tabview_SizeChanged;
             // Close App
             ControllerVm . Closedown ( );
         }
@@ -783,46 +794,51 @@ namespace NewWpfDev . Views {
         }
 
         private void usetask ( object sender , RoutedEventArgs e ) {
-            ControllerVm . USETASK = ( bool ) UseTask . IsChecked;
+            Tabview . Tabcntrl . twVModel . USETASK = ( bool ) UseTask . IsChecked;
             CheckBox cb = sender as CheckBox;
             if ( cb . Name == "UseTask" ) {
                 if ( ( bool ) cb . IsChecked == true ) {
-                    ControllerVm . USETASK = true;
+                    Tabview . Tabcntrl . twVModel . USETASK = true;
                     UseWorker . IsChecked = false;
                     UseTask . IsChecked = true;
                 }
                 else {
-                    ControllerVm . USETASK = false;
+                    Tabview . Tabcntrl . twVModel . USETASK = false;
                     UseWorker . IsChecked = true;
                     UseTask . IsChecked = false;
                 }
             }
             else {
                 if ( ( bool ) cb . IsChecked == true ) {
-                    ControllerVm . USETASK = false;
+                    Tabview . Tabcntrl . twVModel . USETASK = false;
                     UseWorker . IsChecked = true;
                     UseTask . IsChecked = false;
                 }
                 else {
-                    ControllerVm . USETASK = true;
+                    Tabview . Tabcntrl . twVModel . USETASK = true;
                     UseTask . IsChecked = true;
                     UseWorker . IsChecked = false;
                 }
             }
-            if ( Tabview . Tabcntrl . dgUserctrl != null ) {
+            if ( Tabview . Tabcntrl . dgUserctrl != null )
                 Tabview . Tabcntrl . dgUserctrl . grid1 . ItemsSource = null;
+            if ( Tabview . Tabcntrl . lbUserctrl != null )
                 Tabview . Tabcntrl . lbUserctrl . listbox1 . ItemsSource = null;
+            if ( Tabview . Tabcntrl . lvUserctrl != null )
                 Tabview . Tabcntrl . lvUserctrl . listview1 . ItemsSource = null;
-                TabWinViewModel . logUserctrl . logview . ItemsSource = null;
-                TabWinViewModel . tvUserctrl . treeview1 . ItemsSource = null;
+            if ( Tabview . Tabcntrl . lgUserctrl != null )
+                Tabview . Tabcntrl . lgUserctrl . logview . ItemsSource = null;
+            if ( Tabview . Tabcntrl . tvUserctrl . treeview1 != null )
+                Tabview . Tabcntrl . tvUserctrl . treeview1 . ItemsSource = null;
+            if ( Tabview . Tabcntrl . dgUserctrl . grid1 != null )
                 Tabview . Tabcntrl . dgUserctrl . grid1 . Items . Clear ( );
+            if ( Tabview . Tabcntrl . lbUserctrl . listbox1 != null )
                 Tabview . Tabcntrl . lbUserctrl . listbox1 . Items . Clear ( );
+            if ( Tabview . Tabcntrl . lvUserctrl . listview1 != null )
                 Tabview . Tabcntrl . lvUserctrl . listview1 . Items . Clear ( );
-                TabWinViewModel . logUserctrl . logview . Items . Clear ( );
-                TabWinViewModel . tvUserctrl . treeview1 . Items . Clear ( );
-            }
-            //if ( sender . GetType ( ) == typeof ( CheckBox ) )
-            //    Debug . WriteLine ( "" );
+            if ( Tabview . Tabcntrl . lgUserctrl . logview != null )
+                Tabview . Tabcntrl . lgUserctrl . logview . Items . Clear ( );
+
             clearTabs ( this , null );
         }
 
@@ -1171,6 +1187,7 @@ namespace NewWpfDev . Views {
             Tabview . Tabcntrl . tvUserctrl = new TvUserControl ( );
             Tabview . Tabcntrl . DtTemplates = DtTemplates;
             Tabview . Tabcntrl . twVModel = ControllerVm;
+            Console . WriteLine ("gfdfs");
         }
 
         private void TemplatesCb_SelectionChanged ( object sender , SelectionChangedEventArgs e ) {

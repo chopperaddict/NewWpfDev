@@ -35,6 +35,11 @@ using NewWpfDev . Views;
 using static NewWpfDev . Views . DragDropClient;
 
 using Brush = System . Windows . Media . Brush;
+using System . IO;
+using System . Runtime . Serialization;
+using System . Runtime . Serialization . Formatters . Binary;
+using System . Runtime . Serialization . Json;
+using System . Reflection;
 
 namespace NewWpfDev {
     /// <summary>
@@ -1752,26 +1757,114 @@ namespace NewWpfDev {
             return objects;
         }
 
-        public bool WriteSerializedObjectJSON ( object obj , string file = "" ) {
+        #region Serialization
+        public static bool WriteSerializedObject ( object obj , string filename , string Modeltype ) {
+            bool result = false;
+            try {
+                if ( Modeltype == "LbUserControl" ) {
+                    LbUserControl item = new LbUserControl ( );
+                    Debug . WriteLine ( GetObjectSize ( item ) . ToString ( ) );
+                    item = obj as LbUserControl;
+
+                    //overview . title = "Serialization Overview";
+                    XmlSerializer writer = new XmlSerializer ( item . GetType ( ) );
+
+                    var path = Environment . GetFolderPath ( Environment . SpecialFolder . MyDocuments ) + "//SerializationOverview.xml";
+                    System . IO . FileStream file = System . IO . File . Create ( filename );
+
+                    writer . Serialize ( file , item );
+                    file . Close ( );
+                }
+                result = true;
+            }
+            catch { }
+            return result;
+        }
+
+        private void ReadSerializedObject ( dynamic obj , string file ) {
+            using ( var stream = File . Open ( file , FileMode . Open ) ) {
+                using ( var reader = new BinaryReader ( stream , Encoding . UTF8 , false ) ) {
+                    obj = reader . ReadBytes ( file . Length );
+                }
+            }
+        }
+        static private int GetObjectSize ( object TestObject ) {
+            BinaryFormatter bf = new BinaryFormatter ( );
+            MemoryStream ms = new MemoryStream ( );
+            byte [ ] Array;
+            bf . Serialize ( ms , TestObject );
+            Array = ms . ToArray ( );
+            return Array . Length;
+        }
+        static public bool WriteSerializedObjectJSON ( dynamic obj , string file = "" , int Jsontype = 1 ) {
             //Writes any linear style object as a JSON file (Observable collection works fine)
             // Doesnt handle Datagrids or UserControl etc
             //Create JSON String
             if ( file == "" )
                 file = "DefaultJsonText.json";
-            try {
-                var options = new JsonSerializerOptions { WriteIndented = true , IncludeFields = true , MaxDepth = 12 };
-                string jsonString = System . Text . Json . JsonSerializer . Serialize<object> ( obj , options );
-                // Save JSON file to disk 
-                XmlSerializer mySerializer = new XmlSerializer ( typeof ( string ) );
-                StreamWriter myWriter = new StreamWriter ( file );
-                mySerializer . Serialize ( myWriter , jsonString );
-                myWriter . Close ( );
+
+            if ( Jsontype == 1 ) {
+                try {
+                    var options = new JsonSerializerOptions { WriteIndented = true , IncludeFields = true , MaxDepth = 12 };
+                    string jsonString = System . Text . Json . JsonSerializer . Serialize<object> ( obj , options );
+                    // Save JSON file to disk 
+                    XmlSerializer mySerializer = new XmlSerializer ( typeof ( string ) );
+                    StreamWriter myWriter = new StreamWriter ( file );
+                    mySerializer . Serialize ( myWriter , jsonString );
+                    myWriter . Close ( );
+                    return true;
+                }
+                catch ( Exception ex ) {
+                    Debug . WriteLine ( $"Serialization FAILED :[{ex . Message}]" );
+                }
+            }
+            else if ( Jsontype == 2 ) {
+                try {
+                    FieldInvestigation ( obj . GetType ( ) );
+                    MethodInvestigation ( obj . GetType ( ) );
+
+                    DataContractJsonSerializerSettings settings = new DataContractJsonSerializerSettings ( );
+                    settings . IgnoreExtensionDataObject = true;
+                    DataContractJsonSerializer js = new DataContractJsonSerializer ( obj . GetType ( ) );
+                    MemoryStream msObj = new MemoryStream ( );
+                    js . WriteObject ( msObj , obj );
+                    msObj . Close ( );
+                }
+                catch ( Exception ex ) { Debug . WriteLine ( $"Json serialization failed. Reason : {ex . Message}" ); }
                 return true;
             }
-            catch ( Exception ex ) {
-                Debug . WriteLine ( $"Serialization FAILED :[{ex . Message}]" );
-            }
             return false;
+        }
+
+
+        static void FieldInvestigation ( Type t ) {
+            Debug . WriteLine ( $"*********Fields for {t}*********" );
+            FieldInfo [ ] fld = t . GetFields ( );
+            foreach ( FieldInfo f in fld ) {
+                Debug . WriteLine ( "-->{0} : {1} " ,  f . MemberType , f . Name );
+                //              Debug . WriteLine ( "-->{0}" , f .MemberType);
+            }
+        }
+
+        static void MethodInvestigation ( Type t ) {
+            Debug . WriteLine ( $"*********Methods for {t}*********" );
+            MethodInfo [ ] mth = t . GetMethods ( );
+            foreach ( MethodInfo m in mth ) {
+                Debug . WriteLine ( "-->{0}" , m . ReflectedType );
+            }
+        }
+        public bool WriteSerializedObjectXML ( object obj , string file = "" ) {
+            //string myPath = "new.xml";
+            //XmlSerializer s = new XmlSerializer ( settings . GetType ( ) );
+            //StreamWriter streamWriter = new StreamWriter ( myPath );
+            //s . Serialize ( streamWriter , settings ); 
+            return true;
+        }
+        public bool ReadSerializedObjectXML ( object obj , string file = "" ) {
+            //MySettings mySettings = new MySettings ( );
+            //string myPath = "new.xml";
+            //XmlSerializer s = new XmlSerializer ( typeof ( mySettings ) ); return true;
+            return true;
         }
 
         public static ObservableCollection<BankAccountViewModel> CreateBankAccountFromJson ( string sb ) {
@@ -1820,6 +1913,7 @@ namespace NewWpfDev {
             }
             return Bvm;
         }
+        #endregion Serialization
 
         #region ZERO referennces
         public static string convertToHex ( double temp ) {
@@ -2361,7 +2455,7 @@ namespace NewWpfDev {
         #endregion ZERO referennces
 
         #region Dynamic Handlers
-        public static bool GetDynamicVarType ( dynamic Ctrlptr , out string [ ] strs , bool showinfo=false ) {
+        public static bool GetDynamicVarType ( dynamic Ctrlptr , out string [ ] strs , bool showinfo = false ) {
             //*************************************************************************************
             // Discovers what type the dynamic item is and returns a string contaiining its type
             //*************************************************************************************

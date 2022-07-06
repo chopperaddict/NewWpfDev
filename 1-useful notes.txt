@@ -24,7 +24,7 @@ optional 2 :  No output to Debug console, No string (name) info
                 return Bvm;
 
 ==============================================================================================================
-	// How to speed up listviews in particular, but other content conrols as well
+	// How to speed up listviews in particular, but other content controls as well
 ===============================================================================================================
           
 		<ListView .ItemsPanel>
@@ -42,13 +42,34 @@ optional 2 :  No output to Debug console, No string (name) info
 ==============================================================================================================
 	// How to wrap methods in threads to access UI elements
 ===============================================================================================================
-                    ControlName. Current . Dispatcher . Invoke ( ( ) =>
+                    ControlName. Current . Dispatcher . Invoke ( ( ) =>);
+						Your single line of code here..... ( using the STA UI Thread:)
 					OR
-                    Application . Current . Dispatcher . Invoke ( ( ) =>
-					{
-					as many commands as required go here.
-					}
-					);
+                    Application . Current . Dispatcher . Invoke ( ( ) =>{
+						Your lines of code here..... ( using the STA UI Thread:)
+						Your lines of code here..... ( using the STA UI Thread:)
+					});
+					as many commands as required go in here.
+
+					To use it with Tasks :
+
+                    Application . Current . Dispatcher . Invoke ( ( ) =>{
+						Task . Run ( () => {
+							Your 1st Task code goes here.....
+							Your 2nd Task code goes here.....
+						});
+						Other code required to be in UI thread goes here.....
+					});
+					 
+					 or vice versa to run multiple Task items that are using the STA UI Thread:
+
+					Task . Run ( () => {
+		                Application . Current . Dispatcher . Invoke ( ( ) =>{
+							Your lines of code goes here.....
+						});
+					});
+
+	
 ==============================================================================================================
 	// How to use my Utils.FindChildren method
 ===============================================================================================================
@@ -59,7 +80,7 @@ optional 2 :  No output to Debug console, No string (name) info
         foreach ( var item in obj)
         {
             TabItem titem = item as TabItem;
-            Console . WriteLine ($"{item.ToString()}, {titem.Name}");
+            Debug . WriteLine ($"{item.ToString()}, {titem.Name}");
         }
 ==============================================================================================================
 	// How to access an objects properties easily
@@ -88,7 +109,7 @@ optional 2 :  No output to Debug console, No string (name) info
                 // Call ' task2 . Start(); ' to run the entire thing......
                 Task child = new Task (  ( ) =>
                 {
-                    Console . WriteLine ( $"Loading Db....." );
+                    Debug . WriteLine ( $"Loading Db....." );
 					etc ....;
 					can be loads in here ......
                 } , TaskCreationOptions . AttachedToParent
@@ -112,7 +133,7 @@ optional 2 :  No output to Debug console, No string (name) info
                         Console . Write ( "." );
                         Thread . Sleep ( 10 );
                     }
-                    Console . WriteLine ( "\nTest thread ended...." );
+                    Debug . WriteLine ( "\nTest thread ended...." );
                 } );
 
 				// Run the child processes in reverse order ( I think)
@@ -136,11 +157,11 @@ optional 2 :  No output to Debug console, No string (name) info
 ===============================================================================================================
       private void LbWorker_DoWork ( object sender , DoWorkEventArgs e )
         {
-            Console . WriteLine ( $"Calling ListBox Background Worker ProgressChanged method" );
+            Debug . WriteLine ( $"Calling ListBox Background Worker ProgressChanged method" );
             BackgroundWorker worker = sender as BackgroundWorker;
             // How  to pass more than just percent  done by using e.Argument (object) which can be anyhing you want to unpack in progresschanged()
             worker . ReportProgress ( 10 , e . Argument as LbUserControl );
-              Console . WriteLine ( $"Cancelling thread of ProgressChanged method" );
+              Debug . WriteLine ( $"Cancelling thread of ProgressChanged method" );
             Tview . ProgressBar_Progress . UpdateLayout ( );
             worker . CancelAsync ( );
 		}
@@ -262,7 +283,7 @@ optional 2 :  No output to Debug console, No string (name) info
 		//To call the generic method :-
 		foreach ( int item in ReadGenericCollection( intobj ) )
         {
-            Console . WriteLine ( item );
+            Debug . WriteLine ( item );
         }
 		
 		// the generic routine itself
@@ -290,7 +311,7 @@ optional 2 :  No output to Debug console, No string (name) info
                 {
 				// Cast item to relevant type
                     bvrecord = ie . Current as BankAccountViewModel;
-                    Console . WriteLine ( bvrecord . CustNo );
+                    Debug . WriteLine ( bvrecord . CustNo );
                 }
                 else break;
             }
@@ -715,7 +736,7 @@ NB See DataErrorWindow for a different Method
 		{
 			//In this event, we get current mouse position on the control to use it in the MouseMove event.
 			MovingObject = fdl . Flowdoc_PreviewMouseLeftButtonDown ( sender , Flowdoc , e );
-			Console . WriteLine ($"MvvmDataGrid Btn down {MovingObject}");
+			Debug . WriteLine ($"MvvmDataGrid Btn down {MovingObject}");
 		}
 
 		private void Flowdoc_MouseMove ( object sender , MouseEventArgs e )
@@ -1181,12 +1202,12 @@ dynamicParameters.Add("TestOutput", 0, Dbtype.Int32, ParameterDirection.Output);
 					ObservableCollection<GenericClass>o = new  ObservableCollection<GenericClass>( );
 					NB : You cannot use the (arg) parameter directly, and you cant reassign the (o) back to the original (arg)
 					o = test as ObservableCollection<GenericClass>;
-					Console . WriteLine ( $"collection has {o . Count ( )} records" );
+					Debug . WriteLine ( $"collection has {o . Count ( )} records" );
 					break;
 				case GenericClass:
 					GenericClass g = new GenericClass();
 					g = test as GenericClass;
-					Console . WriteLine ( $"Field1 = [{g . field1}] " );
+					Debug . WriteLine ( $"Field1 = [{g . field1}] " );
 					break;
 
 
@@ -1475,7 +1496,7 @@ System . Diagnostics . PresentationTraceSources . DataBindingSource . Switch . L
 	private bool Actypefiltermethod ( object obj )
 	{
 		BankAccountViewModel bvm = obj as BankAccountViewModel;
-		Console . WriteLine ( $"Testing  for {bvm . AcType} == {ActypeFiltervalue} as AcType" );
+		Debug . WriteLine ( $"Testing  for {bvm . AcType} == {ActypeFiltervalue} as AcType" );
 		return bvm . AcType == ActypeFiltervalue;
 	}
 
@@ -2061,7 +2082,7 @@ can be used most anywhere in XAML code
                                     foreach ( var city in item.Country)
                                     {
                                                         NwCust . Add ( item );
-                                                    //Console . WriteLine ( $"{item . Country}, {item . City}, {item . CompanyName}" );
+                                                    //Debug . WriteLine ( $"{item . Country}, {item . City}, {item . CompanyName}" );
                                     }
                                 }
                     }

@@ -143,7 +143,7 @@ namespace NewWpfDev . ViewModels {
                     if ( bcollection . Count == 0 )
                         Debug . WriteLine ( $"BYPASSING TriggerBankDataLoaded with {bcollection . Count} records in \"LoadBankCollection\" for {Caller}!!!" );
                     else {
-                        Debug . WriteLine ( $"Calling TriggerBankDataLoaded with {bcollection . Count} records in \"LoadBankCollection\" for {Caller}!!!" );
+  //                      Debug . WriteLine ( $"Calling TriggerBankDataLoaded with {bcollection . Count} records in \"LoadBankCollection\" for {Caller}!!!" );
                         EventControl . TriggerBankDataLoaded ( null ,
                             new LoadedEventArgs {
                                 CallerType = Caller ,

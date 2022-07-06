@@ -21,6 +21,7 @@ using NewWpfDev . Views;
 
 namespace NewWpfDev . UserControls {
 
+    [Serializable()]
     public partial class LbUserControl : UserControl, ITabViewer {
 
         const string FileName = @"LbUserControl.bin";
@@ -249,12 +250,12 @@ namespace NewWpfDev . UserControls {
             EventControl . GenDataLoaded += EventControl_GenericDataLoaded;
             EventControl . ListSelectionChanged += SelectionHasChanged;
             TabWinViewModel . LoadDb += LoadDb;
-            InterWinComms . Tooltipshown += LbUserControl_Tooltipshown;
+            InterWinComms . Tooltipshown += LbUserControl_Tooltipshown;            
             timer . Interval = new TimeSpan ( 0 , 0 , 1 );
             timer . Tick += Timer_Tick;
             this . DataContext = this;
             Gvm = ITabViewer . Gvm;
-
+             
         }
         public static void SetListSelectionChanged ( bool arg ) {
             TrackselectionChanges = arg;

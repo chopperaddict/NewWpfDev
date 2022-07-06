@@ -126,12 +126,11 @@ namespace NewWpfDev . UserControls {
         }
         private void EventControl_BankDataLoaded ( object sender , LoadedEventArgs e ) {
             if ( e . CallerType != "LvUserControl" ) return;
-
             Application . Current . Dispatcher . Invoke ( async ( ) => {
                 await DispatcherExtns . SwitchToUi ( Application . Current . Dispatcher );
                 Debug . WriteLine ( $"\nInside Dispatcher" );
                 $"Dispatcher on UI thread =  {Application . Current . Dispatcher . CheckAccess ( )}" . CW ( );
-                Bvm = e . DataSource as ObservableCollection<BankAccountViewModel>;
+               Bvm = e . DataSource as ObservableCollection<BankAccountViewModel>;
                 //if ( Bvm . Count == 0 ) {
                 //    Thread . Sleep ( 250 );
                 //    while ( true ) {
@@ -278,7 +277,7 @@ namespace NewWpfDev . UserControls {
                 Tabview . Tabcntrl . DtTemplates . TemplateNameLv = "BANKACCOUNT";
                 Tabview . Tabcntrl . CurrentTypeLv = "BANKACCOUNT";
                 Task . Run ( ( ) => SetDbType ( "BANK" ) );
-                Task . Run ( async ( ) => LoadBankDb ( arg ) );
+                Task . Run ( async ( ) => await LoadBankDb ( arg ) );
             } );
             //Application . Current . Dispatcher . Invoke ( async ( ) =>
             //    await Task . Run ( async ( ) => await LoadBankDb ( arg ) )
@@ -373,7 +372,7 @@ namespace NewWpfDev . UserControls {
             //Async workks well !!
             if ( Bvm == null || Bvm . Count == 0 ) {
                 Bvm = new ObservableCollection<ViewModels . BankAccountViewModel> ( );
-                Debug . WriteLine ( $"Calling \"UserControlDataAccess . GetBankObsCollection()\"" );
+                //Debug . WriteLine ( $"Calling \"UserControlDataAccess . GetBankObsCollection()\"" );
                 // Allows Callee to update interface
                 Application . Current . Dispatcher . Invoke ( async ( ) => {
                     await DispatcherExtns . SwitchToUi ( Application . Current . Dispatcher );
