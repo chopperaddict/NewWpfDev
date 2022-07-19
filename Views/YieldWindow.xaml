@@ -10,7 +10,7 @@
         xmlns:diags="clr-namespace:System.Diagnostics;assembly=WindowsBase"
         mc:Ignorable="d"
         x:Name="YieldWin"
-        Title="Yield demo Window" Height="580" Width="800"
+        Title="Yield demo Window" Height="580" Width="900"
         MinHeight="580" MinWidth="800"
         WindowChrome.ResizeGripDirection="BottomRight"
         ResizeMode="CanResizeWithGrip"
@@ -48,7 +48,7 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="125"/>
+            <ColumnDefinition Width="175"/>
         </Grid.ColumnDefinitions>
 
         <TextBlock Grid.Row="1"  Grid.Column="0" Grid.ColumnSpan="3" 
@@ -59,70 +59,82 @@
                    Text="Left Grid loads data normally, while right grid loads using Yield return based on ACTYPE conditions (1-4) passed down to the Datatable processing code that actually handles the yield return. Stack oprations are blindigly fster...." />
 
         <DataGrid x:Name="dgrid1" Margin="10,15,0,10"  Grid.Row="2" Grid.RowSpan="9"
-                  ItemsSource="{Binding bvm}"
+                  ItemsSource="{Binding bvm2}"
                   SelectionMode="Single"
-                  CellEditEnding="dgrid1_CellEditEnding"        
+                  CellEditEnding="dgrid1_CellEditEnding"   
+                  MinRowHeight="20"
                   IsSynchronizedWithCurrentItem ="True">
             </DataGrid>
         
         <DataGrid x:Name="dgrid2" AutoGenerateColumns="True"  Grid.Row="2" Grid.Column="1" Margin="10,15,0,10" Grid.RowSpan="9"
                   CellEditEnding="dgrid2_CellEditEnding"        
                   IsSynchronizedWithCurrentItem ="True"
+                  MinRowHeight="20"
                   SelectionMode="Single">
         </DataGrid>
-        
-        <Button x:Name="Stack1"   Grid.Row="2" Grid.Column="2" Template="{StaticResource HorizontalGradientTemplateGreen}"
-                Command="{Binding LoadStack1}" 
-                Content="{Binding Button1Text}" Width="100" Height="40" FontSize="14" 
-                Background="Red" Foreground="White" Margin="0,0,0 5" VerticalAlignment="Bottom"/>
-        <Button x:Name="Stack2"   Grid.Row="3" Grid.Column="2" Template="{StaticResource HorizontalGradientTemplateGreen}"
-                ToolTip="Loads data into right  grid in Ascending CustNo order , use Right Click to load data in Descending order ...."
+
+        <Label x:Name="counter1" Grid.Row="1" Grid.Column="1" Height="30" Width="80" FontSize="18" Padding="0 3 0 0" HorizontalAlignment="Right"
+                Content="{Binding Counter1, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Background="Blue" Foreground="White" HorizontalContentAlignment="Center" Margin="256,58,2,2"/>
+        <Label x:Name="counter2" Grid.Row="1" Height="30" Width="80" FontSize="18" Padding="0 3 0 0" HorizontalAlignment="Right"
+                Content="{Binding Counter2, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Background="Blue" Foreground="White" HorizontalContentAlignment="Center" Margin="254,56,4,4"/>
+        <Label x:Name="duration1" Grid.Row="1" Height="30" Width="100" HorizontalAlignment="Right"
+                Content="{Binding Duration1, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Background="Blue" Foreground="White" HorizontalContentAlignment="Center" Margin="0,53,94,0"/>
+        <Label x:Name="duration2" Grid.Row="1" Grid.Column="1" Height="30" Width="100"  HorizontalAlignment="Right"
+                Content="{Binding Duration2, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Background="Blue" Foreground="White" HorizontalContentAlignment="Center" Margin="140,58,97,2"/>
+         <Button x:Name="Stack1"   Grid.Row="1" Grid.Column="0" Template="{StaticResource HorizontalGradientTemplateGreen}"
+                Command="{Binding LoadData}" 
+                Content="Load Database (vv)" Width="140" Height="40" FontSize="14" 
+                Background="Red" Foreground="White" Margin="0,0,0 5" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
+        <Button x:Name="loadyield2"   Grid.Row="2" Grid.Column="2"  Template="{StaticResource HorizontalGradientTemplateGray}"
+                Command="{Binding LoadNormal}" VerticalAlignment="Bottom"
+                Content="Reset All Items" Width="140" Height="40"  FontSize="13"
+                Background="Lightgreen" Foreground="Black" Margin="0,0,0 0"/>
+ 
+        <Button x:Name="loadyield"   Grid.Row="3" Grid.Column="2"  Template="{StaticResource HorizontalGradientTemplateGreen}"
+                ToolTip="Loads data into right grid in Ascending CustNo order - directly from Queue"
+                Command="{Binding LoadYield1}" 
+                Content="Show from  Queue" Width="140" Height="40"  FontSize="13"
+                Background="Lightgreen" Foreground="Black" Margin="0,0,0 0"/>
+        <Button x:Name="Stack2"   Grid.Row="4" Grid.Column="2" Template="{StaticResource HorizontalGradientTemplateGreen}"
+                ToolTip="Loads data into right grid in Descending CustNo order - directly from Stack"
                 Command="{Binding LoadStack2}" 
-                Content="Show stack" Width="100" Height="40" FontSize="14"
+                Content="Show from stack" Width="140"  Height="40" FontSize="14"
                 MouseRightButtonDown="Stack2_PreviewButton"
                 Background="Red" Foreground="White" Margin="0,0,0 0"/>
-        <Button x:Name="iterate"   Grid.Row="4" Grid.Column="2" Template="{StaticResource HorizontalGradientTemplateGreen}"
-                Command="{Binding Iterate}" 
-                Content="Iterate Db" Width="100" Height="40" FontSize="14"
-                Background="Red" Foreground="White" Margin="0,0,0 0"/>
         <Button x:Name="Loadnormal"  Grid.Row="5" Grid.Column="2"  Template="{StaticResource HorizontalGradientTemplateBlue}"
-                Command="{Binding LoadNormal}" 
-                Content="Load Normal " Width="100" Height="40" 
+                Command="{Binding LoadYield2}"  CommandParameter="0"
+                Content="ReLoad via Normal " Width="140" Height="40" 
                 Background="Lightgreen" Foreground="Black" Margin="0,0,0 0"/>
-        <Button x:Name="loadyield"   Grid.Row="8" Grid.Column="2"  Template="{StaticResource HorizontalGradientTemplateGray}"
-                Command="{Binding LoadYield1}" 
-                Content="Yield Return 1" Width="100" Height="40"  FontSize="13"
-                Background="Lightgreen" Foreground="Black" Margin="0,0,0 0"/>
-        <Button x:Name="loadyield2"   Grid.Row="9" Grid.Column="2"  Template="{StaticResource HorizontalGradientTemplateGray}"
-                Command="{Binding LoadYield2}" 
-                Content="Yield Return 2" Width="100" Height="40"  FontSize="13"
-                Background="Lightgreen" Foreground="Black" Margin="0,0,0 0"/>
+        <Button x:Name="iterate"   Grid.Row="6" Grid.Column="2" Template="{StaticResource HorizontalGradientTemplateGreen}"
+                Command="{Binding Iterate}" 
+                Content="Reload via Iteration" Width="140" Height="40" FontSize="14"
+                Background="Red" Foreground="White" Margin="0,0,0 0"/>
+        <Button x:Name="Clear"   Grid.Row="7" Grid.Column="2" Template="{StaticResource HorizontalGradientTemplateBlue}"
+                Command="{Binding ClearGrid}" 
+                Content="Clear Grid" Width="140" Height="40" FontSize="14"
+                Background="Red" Foreground="White" Margin="0,0,0 0"/>
 
+        <TextBox x:Name="limit1" Grid.Row="9" Grid.Column="3" 
+                 Text="{Binding limit1, Mode=TwoWay}" 
+                 Width="70" Height="35" FontSize="18"  Margin="10 0 0 0"  HorizontalAlignment="Left"
+                 Background="Orange" Foreground="Black" TextAlignment="Center"/>
+        <TextBox x:Name="limit2" Grid.Row="9" Grid.Column="3" 
+                Text="{Binding limit2, Mode=TwoWay}" 
+                 Width="70" Height="35" FontSize="18" Margin="0 0 10 0" HorizontalAlignment="Right"
+                 Background="Orange" Foreground="Black" TextAlignment="Center"/>
         <Button x:Name="CloseBtn"   Grid.Row="10" Grid.Column="2"  Template="{StaticResource HorizontalGradientTemplateYellow}"
-                Click="Closebtn" Content="Close" Width="100" Height="40"  FontSize="16"
+                Click="Closebtn" Content="Close" Width="140" Height="40"  FontSize="16"
                 Background="LightGray" Foreground="Black" Margin="0,0,0 0"/>
+        <Button x:Name="StackToggleCloseBtn"   Grid.Row="8" Grid.Column="2"  Template="{StaticResource HorizontalGradientTemplateBlue}"
+                Command="{Binding ToggleStack}" Content="Toggle Stack View" Width="140" Height="40"  FontSize="16"
+                Background="LightGray" Foreground="Black" Margin="0,0,0 0"/>
+
+        <!--// bottom row-->
         <Button x:Name="CloseAllBtn"   Grid.Row="11" Grid.Column="4" Template="{StaticResource HorizontalGradientTemplateRed}"
                 Command="{Binding CloseAllBtn}" 
-                Content="Close App" Width="100" Height="40"  FontSize="16"
+                Content="Close App" Width="140" Height="40"  FontSize="16"
                 Background="Red" Foreground="White" Margin="0,0,0 0"/>
         
-        <Label x:Name="counter1" Grid.Row="1" Grid.Column="1" Height="30" Width="80" FontSize="18" Padding="0 3 0 0" HorizontalAlignment="Right"
-                Content="{Binding Counter1, Mode=TwoWay}" Background="Blue" Foreground="White" HorizontalContentAlignment="Center" Margin="256,58,2,2"/>
-        <Label x:Name="counter2" Grid.Row="1" Height="30" Width="80" FontSize="18" Padding="0 3 0 0" HorizontalAlignment="Right"
-                Content="{Binding Counter2, Mode=TwoWay}" Background="Blue" Foreground="White" HorizontalContentAlignment="Center" Margin="254,56,4,4"/>
-        <Label x:Name="duration1" Grid.Row="1" Height="30" Width="100" HorizontalAlignment="Right"
-                Content="{Binding Duration1, Mode=TwoWay}" Background="Blue" Foreground="White" HorizontalContentAlignment="Center" Margin="0,53,94,0"/>
-        <Label x:Name="duration2" Grid.Row="1" Grid.Column="1" Height="30" Width="100"  HorizontalAlignment="Right"
-                Content="{Binding Duration2, Mode=TwoWay}" Background="Blue" Foreground="White" HorizontalContentAlignment="Center" Margin="140,58,97,2"/>
-        <TextBox x:Name="limit1" Grid.Row="6" Grid.Column="3" 
-                 Text="{Binding limit1, Mode=TwoWay}" 
-                 Width="100" Height="35" FontSize="18" 
-                 Background="Orange" Foreground="Black" TextAlignment="Center"/>
-        <TextBox x:Name="limit2" Grid.Row="7" Grid.Column="3" 
-                Text="{Binding limit2, Mode=TwoWay}" 
-                 Width="100" Height="35" FontSize="18" 
-                 Background="Orange" Foreground="Black" TextAlignment="Center"/>
-
        <!--//NB need Mode=TwoWay to make this one work ??? OneWay fails -->
         <TextBlock x:Name="recordval" Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="2" Height="35" 
                 Background="Blue" Foreground="White"  FontSize="16" Padding="0 4 0 0"
@@ -137,8 +149,7 @@
                 Background="Blue" Foreground="White"  FontSize="16" 
                    HorizontalAlignment="Right" 
                    TextAlignment="Center"
-                   Padding="0 4 0 0" Margin="-985,5,0,5"
-                   >
+                   Padding="0 4 0 0" Margin="-985,5,0,5">
             <TextBlock.Text>
                    <!--//THIS is how you can pass an object (BankAccountViewModel or theViewModel or whatever) to a converter ,
                     so we can combine fields or whatever else we want to show

@@ -235,11 +235,11 @@ namespace NewWpfDev
 
         #region Dynamic variables
 
-        public static dynamic DgridDynamic;
-        public static dynamic LboxDynamic;
-        public static dynamic LviewDynamic;
-        public static dynamic UserctrlDynamic;
-        public static dynamic InterFaceDynamic;
+        //public static dynamic DgridDynamic;
+        //public static dynamic LboxDynamic;
+        //public static dynamic LviewDynamic;
+        //public static dynamic UserctrlDynamic;
+        //public static dynamic InterFaceDynamic;
 
         #endregion Dynamic variables
 
@@ -414,6 +414,8 @@ namespace NewWpfDev
         //        }
 
         private void Button16_Click ( object sender , RoutedEventArgs e ) {
+            BankAcHost bah = new BankAcHost ( );
+            bah . Show ( );
         }
 
         //        private void button17_Click ( object sender , RoutedEventArgs e )

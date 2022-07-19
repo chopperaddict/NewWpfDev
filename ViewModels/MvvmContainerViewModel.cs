@@ -214,8 +214,10 @@
                 cctrl1 = ContainerWin . LeftContentControl;
             if ( cctrl1 . Content == null )
             {
+                ContainerWin . LeftContentControl . Content = null;
                 ContainerWin . LeftContentControl . Content = new MvvmImageUC ( );
                 cctrl1 = ContainerWin . LeftContentControl;
+                ContainerWin . LeftContentControl . UpdateLayout ( );
             }
             else
             {

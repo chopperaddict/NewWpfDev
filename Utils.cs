@@ -40,6 +40,7 @@ using System . Runtime . Serialization;
 using System . Runtime . Serialization . Formatters . Binary;
 using System . Runtime . Serialization . Json;
 using System . Reflection;
+using DocumentFormat . OpenXml . Office2013 . Excel;
 
 namespace NewWpfDev {
     /// <summary>
@@ -227,26 +228,6 @@ namespace NewWpfDev {
         }
 
         #endregion play tunes / sounds
-
-        /// <summary>
-        /// Simulate Application.DoEvents function of 
-        /// <see cref=" System.Windows.Forms.Application"/> class.
-        /// </summary>
-        //[SecurityPermissionAttribute ( SecurityAction . Demand ,
-        //    Flags = SecurityPermissionFlag . UnmanagedCode )]
-        //public static void SetSynchforDbCollections ( object _lock ,
-        //	ObservableCollection<BankAccountViewModel> bvmcollection ,
-        //	ObservableCollection<CustomerViewModel> cvmcollection ,
-        //	ObservableCollection<DetailsViewModel> dvmcollection
-        //	)
-        //{
-        //	_lock = new object ( );
-        //	BindingOperations . EnableCollectionSynchronization ( bvmcollection , _lock );
-        //	_lock = new object ( );
-        //	BindingOperations . EnableCollectionSynchronization ( cvmcollection , _lock );
-        //	_lock = new object ( );
-        //	BindingOperations . EnableCollectionSynchronization ( dvmcollection , _lock );
-        //}
 
         #region Dictionary Handlers
         public static string GetDictionaryEntry ( Dictionary<string , string> dict , string key , out string dictvalue ) {
@@ -466,33 +447,6 @@ namespace NewWpfDev {
             return output;
         }
         // Record the names of the method that called this one in an iterative tree.
-        public static string trace ( string prompt = "" ) {
-            // logs all the calls made upwards in a tree
-            string output = "", tmp = "";
-            int indx = 1;
-            var v = new StackTrace ( 0 );
-            if ( prompt != "" )
-                output = prompt + $"\nStackTrace  for {prompt}:\n";
-            while ( true ) {
-#pragma warning disable CS0168 // The variable 'ex' is declared but never used
-                try {
-
-                    tmp = v . GetFrame ( indx++ ) . GetMethod ( ) . Name + '\n';
-                    if ( tmp . Contains ( "Invoke" ) || tmp . Contains ( "RaiseEvent" ) )
-                        break;
-                    else
-                        output += tmp;
-                }
-                catch ( Exception ex ) {
-                    Debug . WriteLine ( "trace() Crashed...\n" );
-                    output += "\ntrace() Crashed...\n";
-                    break;
-                }
-#pragma warning restore CS0168 // The variable 'ex' is declared but never used
-            }
-            Debug . WriteLine ( $"\n{output}\n" );
-            return $"\n{output}\n";
-        }
         //TODO
         //public static void Mbox ( Window win , string string1 = "" , string string2 = "" , string caption = "" , string iconstring = "" , int Btn1 = 1 , int Btn2 = 0 , int Btn3 = 0 , int Btn4 = 0 , int defButton = 1 , bool minsize = false , bool modal = false ) {
         //    // We NEED to remove any \r as part of \r\n as textboxes ONLY accept \n on its own for Cr/Lf
@@ -545,10 +499,6 @@ namespace NewWpfDev {
         //    else
         //        msg . Show ( );
         //}
-        public static Brush BrushFromColors ( Color color ) {
-            Brush brush = new SolidColorBrush ( color );
-            return brush;
-        }
         //Working well 4/8/21
         public static bool CompareDbRecords ( object obj1 , object obj2 ) {
             bool result = false;
@@ -585,23 +535,6 @@ namespace NewWpfDev {
             }
             result = false;
             return result;
-        }
-        public static string ConvertInputDate ( string datein ) {
-            string YYYMMDD = "";
-            string [ ] datebits;
-            // This filter will strip off the "Time" section of an excel date
-            // and return us a valid YYYY/MM/DD string
-            char [ ] ch = { '/' , ' ' };
-            datebits = datein . Split ( ch );
-            if ( datebits . Length < 3 )
-                return datein;
-
-            // check input to see if it needs reversing ?
-            if ( datebits [ 0 ] . Length == 4 )
-                YYYMMDD = datebits [ 0 ] + "/" + datebits [ 1 ] + "/" + datebits [ 2 ];
-            else
-                YYYMMDD = datebits [ 2 ] + "/" + datebits [ 1 ] + "/" + datebits [ 0 ];
-            return YYYMMDD;
         }
         //TODO
         //public static BankDragviewModel CreateBankGridRecordFromString ( string input )
@@ -698,51 +631,6 @@ namespace NewWpfDev {
                 SaveImageToFile ( rtb , filename );
             return rtb;
         }
-        public static CustomerViewModel CreateCustomerRecordFromString ( string input ) {
-            int index = 1;
-            CustomerViewModel cvm = new CustomerViewModel ( );
-            char [ ] s = { ',' };
-            string [ ] data = input . Split ( s );
-            string donor = data [ 0 ];
-            //We have the sender type in the string recvd
-            cvm . Id = int . Parse ( data [ index++ ] );
-            cvm . CustNo = data [ index++ ];
-            cvm . BankNo = data [ index++ ];
-            cvm . AcType = int . Parse ( data [ index++ ] );
-            cvm . FName = data [ index++ ];
-            cvm . LName = data [ index++ ];
-            cvm . Addr1 = data [ index++ ];
-            cvm . Addr2 = data [ index++ ];
-            cvm . Town = data [ index++ ];
-            cvm . County = data [ index++ ];
-            cvm . PCode = data [ index++ ];
-            cvm . Phone = data [ index++ ];
-            cvm . Mobile = data [ index++ ];
-            cvm . Dob = DateTime . Parse ( data [ index++ ] );
-            cvm . ODate = DateTime . Parse ( data [ index++ ] );
-            cvm . CDate = DateTime . Parse ( data [ index ] );
-            return cvm;
-        }
-        public static DetailsViewModel CreateDetailsRecordFromString ( string input ) {
-            int index = 0;
-            DetailsViewModel bvm = new DetailsViewModel ( );
-            char [ ] s = { ',' };
-            string [ ] data = input . Split ( s );
-            string donor = data [ 0 ];
-            //Check to see if the data includes the data type in it
-            //As we have to parse it diffrently if not - see index....
-            if ( donor . Length > 3 )
-                index = 1;
-            bvm . Id = int . Parse ( data [ index++ ] );
-            bvm . CustNo = data [ index++ ];
-            bvm . BankNo = data [ index++ ];
-            bvm . AcType = int . Parse ( data [ index++ ] );
-            bvm . IntRate = decimal . Parse ( data [ index++ ] );
-            bvm . Balance = decimal . Parse ( data [ index++ ] );
-            bvm . ODate = DateTime . Parse ( data [ index++ ] );
-            bvm . CDate = DateTime . Parse ( data [ index ] );
-            return bvm;
-        }
 
         public static void Magnify ( List<object> list , bool magnify ) {
             // lets other controls have magnification, providing other Templates do not overrule these.....
@@ -793,6 +681,800 @@ namespace NewWpfDev {
                     continue;
                 }
             }
+        }
+        public static DependencyObject FindChild ( DependencyObject o , Type childType ) {
+            DependencyObject foundChild = null;
+            if ( o != null ) {
+                int childrenCount = VisualTreeHelper . GetChildrenCount ( o );
+                for ( int i = 0 ; i < childrenCount ; i++ ) {
+                    var child = VisualTreeHelper . GetChild ( o , i );
+                    if ( child . GetType ( ) != childType ) {
+                        foundChild = FindChild ( child , childType );
+                    }
+                    else {
+                        foundChild = child;
+                        break;
+                    }
+                }
+            }
+            return foundChild;
+        }
+        //TODO
+        //public static string CreateDragDataFromRecord ( BankDragviewModel bvm ) {
+        //    if ( bvm == null )
+        //        return "";
+        //    string datastring = "";
+        //    datastring = bvm . RecordType + ",";
+        //    datastring += bvm . Id + ",";
+        //    datastring += bvm . CustNo + ",";
+        //    datastring += bvm . BankNo + ",";
+        //    datastring += bvm . AcType . ToString ( ) + ",";
+        //    datastring += bvm . IntRate . ToString ( ) + ",";
+        //    datastring += bvm . Balance . ToString ( ) + ",";
+        //    datastring += "'" + bvm . CDate . ToString ( ) + "',";
+        //    datastring += "'" + bvm . ODate . ToString ( ) + "',";
+        //    return datastring;
+        //}
+        public static T FindChild<T> ( DependencyObject parent , string childName )
+              where T : DependencyObject {
+            // Confirm parent and childName are valid. 
+            if ( parent == null )
+                return null;
+            T foundChild = null;
+            int childrenCount = VisualTreeHelper . GetChildrenCount ( parent );
+            for ( int i = 0 ; i < childrenCount ; i++ ) {
+                var child = VisualTreeHelper . GetChild ( parent , i );
+                // If the child is not of the request child type child
+                T childType = child as T;
+                if ( childType == null ) {
+                    // recursively drill down the tree
+                    foundChild = FindChild<T> ( child , childName );
+                    // If the child is found, break so we do not overwrite the found child. 
+                    if ( foundChild != null )
+                        break;
+                }
+                else if ( !string . IsNullOrEmpty ( childName ) ) {
+                    var frameworkElement = child as FrameworkElement;
+                    // If the child's name is set for search
+                    if ( frameworkElement != null && frameworkElement . Name == childName ) {
+                        // if the child's name is of the request name
+                        foundChild = ( T ) child;
+                        break;
+                    }
+                }
+                else {
+                    // child element found.
+                    foundChild = ( T ) child;
+                    break;
+                }
+            }
+            return foundChild;
+        }
+        public static T FindVisualChildByName<T> ( DependencyObject parent , string name ) where T : DependencyObject {
+            for ( int i = 0 ; i < VisualTreeHelper . GetChildrenCount ( parent ) ; i++ ) {
+                var child = VisualTreeHelper . GetChild ( parent , i );
+                string controlName = child . GetValue ( Control . NameProperty ) as string;
+                if ( controlName == name ) {
+                    return child as T;
+                }
+                else {
+                    T result = FindVisualChildByName<T> ( child , name );
+                    if ( result != null )
+                        return result;
+                }
+            }
+            return null;
+        }
+        public static T FindVisualParent<T> ( UIElement element ) where T : UIElement {
+            UIElement parent = element;
+            while ( parent != null ) {
+                var correctlyTyped = parent as T;
+                if ( correctlyTyped != null ) {
+                    return correctlyTyped;
+                }
+                parent = VisualTreeHelper . GetParent ( parent ) as UIElement;
+            }
+            return null;
+        }
+        public static parentItem FindVisualParent<parentItem> ( DependencyObject obj ) where parentItem : DependencyObject {
+            DependencyObject parent = VisualTreeHelper . GetParent ( obj );
+            while ( parent != null && !parent . GetType ( ) . Equals ( typeof ( parentItem ) ) ) {
+                parent = VisualTreeHelper . GetParent ( parent );
+            }
+            return parent as parentItem;
+        }
+        public static string GetDataSortOrder ( string commandline ) {
+            if ( Flags . SortOrderRequested == ( int ) Flags . SortOrderEnum . DEFAULT )
+                commandline += "Custno, BankNo";
+            else if ( Flags . SortOrderRequested == ( int ) Flags . SortOrderEnum . ID )
+                commandline += "ID";
+            else if ( Flags . SortOrderRequested == ( int ) Flags . SortOrderEnum . BANKNO )
+                commandline += "BankNo, CustNo";
+            else if ( Flags . SortOrderRequested == ( int ) Flags . SortOrderEnum . CUSTNO )
+                commandline += "CustNo";
+            else if ( Flags . SortOrderRequested == ( int ) Flags . SortOrderEnum . ACTYPE )
+                commandline += "AcType";
+            else if ( Flags . SortOrderRequested == ( int ) Flags . SortOrderEnum . DOB )
+                commandline += "Dob";
+            else if ( Flags . SortOrderRequested == ( int ) Flags . SortOrderEnum . ODATE )
+                commandline += "Odate";
+            else if ( Flags . SortOrderRequested == ( int ) Flags . SortOrderEnum . CDATE )
+                commandline += "Cdate";
+            return commandline;
+        }
+        public static void SaveImageToFile ( RenderTargetBitmap bmp , string file , string imagetype = "PNG" ) {
+            string [ ] items;
+            // Make a PNG encoder.
+            if ( bmp == null )
+                return;
+            if ( file == "" && imagetype != "" )
+                file = @"c:\users\ianch\pictures\defaultimage";
+            items = file . Split ( '.' );
+            file = items [ 0 ];
+            if ( imagetype == "PNG" )
+                file += ".png";
+            else if ( imagetype == "GIF" )
+                file += ".gif";
+            else if ( imagetype == "JPG" )
+                file += ".jpg";
+            else if ( imagetype == "BMP" )
+                file += ".bmp";
+            else if ( imagetype == "TIF" )
+                file += ".tif";
+            try {
+                using ( FileStream fs = new FileStream ( file ,
+                            FileMode . Create , FileAccess . Write , FileShare . ReadWrite ) ) {
+                    if ( imagetype == "PNG" ) {
+                        PngBitmapEncoder encoder = new PngBitmapEncoder ( );
+                        encoder . Frames . Add ( BitmapFrame . Create ( bmp ) );
+                        encoder . Save ( fs );
+                    }
+                    else if ( imagetype == "GIF" ) {
+                        GifBitmapEncoder encoder = new GifBitmapEncoder ( );
+                        encoder . Frames . Add ( BitmapFrame . Create ( bmp ) );
+                        encoder . Save ( fs );
+                    }
+                    else if ( imagetype == "JPG" || imagetype == "JPEG" ) {
+                        JpegBitmapEncoder encoder = new JpegBitmapEncoder ( );
+                        encoder . Frames . Add ( BitmapFrame . Create ( bmp ) );
+                        encoder . Save ( fs );
+                    }
+                    else if ( imagetype == "BMP" ) {
+                        BmpBitmapEncoder encoder = new BmpBitmapEncoder ( );
+                        encoder . Frames . Add ( BitmapFrame . Create ( bmp ) );
+                        encoder . Save ( fs );
+                    }
+                    else if ( imagetype == "TIF" || imagetype == "TIFF" ) {
+                        TiffBitmapEncoder encoder = new TiffBitmapEncoder ( );
+                        encoder . Frames . Add ( BitmapFrame . Create ( bmp ) );
+                        encoder . Save ( fs );
+                    }
+                    fs . Close ( );
+                }
+            }
+            catch ( Exception ex ) {
+                //TODO
+                //    WpfLib1 . Utils .Mbox ( null , string1: "The image could not be saved for the following reason " , string2: $"{ex . Message}" , caption: "" , iconstring: "\\icons\\Information.png" , Btn1: MB . OK , Btn2: MB . NNULL , defButton: MB . OK );
+            }
+        }
+        public static void ScrollLBRecordIntoView ( ListBox lbox , int CurrentRecord ) {
+            // Works well 26/5/21
+
+            //update and scroll to bottom first
+            lbox . ScrollIntoView ( lbox . SelectedIndex );
+            lbox . UpdateLayout ( );
+            lbox . ScrollIntoView ( lbox . SelectedItem );
+            lbox . UpdateLayout ( );
+        }
+        public static void ScrollLVRecordIntoView ( ListView Dgrid , int CurrentRecord ) {
+            // Works well 26/5/21
+
+            //update and scroll to bottom first
+            Dgrid . SelectedIndex = ( int ) CurrentRecord;
+            Dgrid . SelectedItem = ( int ) CurrentRecord;
+            Dgrid . ScrollIntoView ( Dgrid . SelectedItem );
+            Dgrid . UpdateLayout ( );
+        }
+        public static void ScrollRecordIntoView ( DataGrid Dgrid , int CurrentRecord , object row = null ) {
+            // Works well 26/5/21
+            double currentTop = 0;
+            double currentBottom = 0;
+            if ( CurrentRecord == -1 || Dgrid == null )
+                return;
+            if ( Dgrid . Name == "CustomerGrid" || Dgrid . Name == "DataGrid1" ) {
+                currentTop = Flags . TopVisibleBankGridRow;
+                currentBottom = Flags . BottomVisibleBankGridRow;
+            }
+            else if ( Dgrid . Name == "BankGrid" || Dgrid . Name == "DataGrid2" ) {
+                currentTop = Flags . TopVisibleCustGridRow;
+                currentBottom = Flags . BottomVisibleCustGridRow;
+            }
+            else if ( Dgrid . Name == "DetailsGrid" || Dgrid . Name == "DetailsGrid" ) {
+                currentTop = Flags . TopVisibleDetGridRow;
+                currentBottom = Flags . BottomVisibleDetGridRow;
+            }     // Believe it or not, it takes all this to force a scrollinto view correctly
+
+            if ( Dgrid == null || Dgrid . Items . Count == 0 )//|| Dgrid . SelectedItem == null )
+                return;
+
+            if ( Dgrid . SelectedIndex != CurrentRecord )
+                Dgrid . SelectedIndex = CurrentRecord;
+            Dgrid . SelectedItem = CurrentRecord;
+            Dgrid . ScrollIntoView ( Dgrid . Items . Count - 1 );
+             Dgrid . SelectedItem = CurrentRecord;
+            Dgrid . UpdateLayout ( );
+            Dgrid . BringIntoView ( );
+            Dgrid . ScrollIntoView ( Dgrid . Items [ Dgrid . Items . Count - 1 ] );
+            Dgrid . UpdateLayout ( );
+            Dgrid . ScrollIntoView ( row ?? Dgrid . SelectedItem );
+            Dgrid . UpdateLayout ( );
+            //Dgrid . BringIntoView ( );
+            // Dgrid . ScrollIntoView ( Dgrid . SelectedItem );
+            //Dgrid . UpdateLayout ( );
+        }
+        //Generic form of Selection forcing code below
+        public static void SetupWindowDrag ( Window inst ) {
+#pragma warning disable CS0168 // The variable 'ex' is declared but never used
+            try {
+                //Handle the button NOT being the left mouse button
+                // which will crash the DragMove Fn.....
+                MouseButtonState mbs = Mouse . RightButton;
+                if ( mbs == MouseButtonState . Pressed )
+                    return;
+                inst . MouseDown += delegate {
+                    {
+#pragma warning disable CS0168 // The variable 'ex' is declared but never used
+                        try {
+                            inst?.DragMove ( );
+                        }
+                        catch ( Exception ex ) {
+                            return;
+                        }
+#pragma warning restore CS0168 // The variable 'ex' is declared but never used
+                    }
+                };
+            }
+            catch ( Exception ex ) {
+                return;
+            }
+#pragma warning restore CS0168 // The variable 'ex' is declared but never used
+        }
+        public static bool CheckResetDbConnection ( string currdb , out string constring ) {
+            //string constring = "";
+            currdb?.ToUpper ( );
+            // This resets the current database connection to the one we re working with (currdb - in UPPER Case!)- should be used anywhere that We switch between databases in Sql Server
+            // It also sets the Flags.CurrentConnectionString - Current Connectionstring  and local variable
+            if ( Utils . GetDictionaryEntry ( Flags . ConnectionStringsDict , currdb , out string connstring ) != "" ) {
+                if ( connstring != null ) {
+                    Flags . CurrentConnectionString = connstring;
+                    SqlConnection con;
+                    con = new SqlConnection ( Flags . CurrentConnectionString );
+                    if ( con != null ) {
+                        constring = connstring;
+                        con . Close ( );
+                        return true;
+                    }
+                    else {
+                        constring = connstring;
+                        return false;
+                    }
+                }
+                {
+                    constring = connstring;
+                    return false;
+                }
+            }
+            else {
+                constring = connstring;
+                return false;
+            }
+
+        }
+        /// <summary>
+        /// A Generic data reader for any ObservableCollection&lt;T&gt; type
+        /// </summary>
+        ///<example>
+        ///Call Method using loop such as :
+        ///<code>
+        ///<c>foreach ( int item in Utils. ReadGenericCollection ( <paramref name="collection"/> intcollection) )</c>
+        ///</code>
+        /// </example>
+        /// or any similar looping construct
+        /// <typeparam name="T">Any Generic Observable Collection</typeparam>
+        /// <param name="collection"/>
+        /// <returns>Individual records via yield return system to return items on demand, or NULL if collection cannot provide an Iterator 
+        /// </returns>
+        public static IEnumerable ReadGenericCollection<T> ( ObservableCollection<T> collection , IEnumerator ie = null ) {
+            // Generic method to supply content of ANY Observablecollection<> type
+            // Call it by a call such as  :-
+            //  foreach ( BankCollection item in Utils.GenericRead ( BankCollection ) )
+            //      {Debug. WriteLine ( item );}
+            //or
+            //  foreach ( int item in Utils.GenericRead ( integerCollection ) )
+            //      {Debug. WriteLine ( item );}
+            if ( collection . Count > 0 ) {
+                ie = collection . GetEnumerator ( );
+                if ( ie != null ) {
+                    foreach ( var item in collection ) {
+
+                        if ( ie . MoveNext ( ) )
+                            yield return item;
+                    }
+                }
+            }
+        }
+
+        #region Nullable handlers
+        public static bool? CompareNullable ( int? a , int? b ) {
+            if ( Nullable . Compare<int> ( a , b ) == 0 ) {
+                $"Nullable int {a} is Equal to {b}" . cwinfo ( ); return true;
+            }
+            else {
+                $"Nullable int {a} is NOT Equal to {b}" . cwinfo ( );
+                return false;
+            }
+        }
+        public static bool? CompareNullable ( long? a , long? b ) {
+            if ( Nullable . Compare<long> ( a , b ) == 0 ) {
+                $"Nullable long {a} is Equal to {b}" . cwinfo ( );
+                return true;
+            }
+            else {
+                $"Nullable long {a} is NOT Equal to {b}" . cwinfo ( );
+                return false;
+            }
+        }
+        public static bool? CompareNullable ( double? a , double? b ) {
+            if ( Nullable . Compare<double> ( a , b ) == 0 ) {
+                $"Nullable double {a} is Equal to {b}" . cwinfo ( );
+                return true;
+            }
+            else {
+                $"Nullable double int {a} is NOT Equal to {b}" . cwinfo ( );
+                return false;
+            }
+        }
+        public static bool? CompareNullable ( float? a , float? b ) {
+            if ( Nullable . Compare<float> ( a , b ) == 0 ) {
+                $"Nullable float {a} is Equal to {b}" . cwinfo ( );
+                return true;
+            }
+            else {
+                $"Nullable float {a} is NOT Equal to {b}" . cwinfo ( );
+                return false;
+            }
+        }
+        public static bool? CompareNullable ( decimal? a , decimal? b ) {
+            if ( Nullable . Compare<decimal> ( a , b ) == 0 ) {
+                $"Nullable decimal {a} is Equal to {b}" . cwinfo ( );
+                return true;
+            }
+            else {
+                $"Nullable decimal {a} is NOT Equal to {b}" . cwinfo ( );
+                return false;
+            }
+        }
+
+        #endregion Nullable handlers
+
+        //public static string? CompareNullable ( string? a , string? b ) { return Nullable . Compare ( a , b ); }
+        //public static BankAccountViewModel? CompareNullable ( BankAccountViewModel? a , BankAccountViewModel? b ) {
+        //    return Nullable . Compare<BankAccountViewModel> ( a,  b ); }
+
+        #region file read/Write methods
+
+        public static StringBuilder ReadFileGeneric ( string path , ref StringBuilder sb ) {
+            string s = File . ReadAllText ( path );
+            sb . Append ( s );
+            return sb;
+        }
+        public static bool ReadStringFromFile ( string path , out string str , bool Trimlines = false , bool TrimBlank = false ) {
+            str = ReadStringFromFileComplex ( path , Trimlines , TrimBlank );
+            if ( str . Length > 0 ) return true;
+            else return false;
+        }
+        public static string ReadStringFromFileComplex ( string path , bool Trimlines = false , bool TrimBlank = false ) {
+            string result = "";
+            result = File . ReadAllText ( path );
+            if ( Trimlines == true ) {
+                StringBuilder sbb = new StringBuilder ( );
+                string [ ] strng = result . Split ( '\n' );
+                foreach ( string item in strng ) {
+                    if ( TrimBlank == true ) {
+                        sbb . Append ( item . Trim ( ) );
+                    }
+                    else
+                        sbb . Append ( item );
+                }
+                result = sbb . ToString ( );
+            }
+            return result;
+        }
+        public static StringBuilder ReadStringBuilderFromFile ( string path , ref string str ) {
+            StringBuilder sb = new StringBuilder ( );
+            ReadStringBuilderFromFile ( path , out sb );
+            return sb;
+        }
+        public static bool ReadStringBuilderFromFile ( string path , out StringBuilder sb , bool Trimlines = false , bool TrimBlank = false ) {
+            StringBuilder sbb = new StringBuilder ( );
+            StringSplitOptions options = StringSplitOptions . None;
+            string str = File . ReadAllText ( path );
+            if ( Trimlines == true )
+                options = StringSplitOptions . TrimEntries;
+            if ( TrimBlank == true )
+                options = StringSplitOptions . RemoveEmptyEntries;
+            string [ ] strng = str . Split ( '\n' , options );
+            foreach ( string item in strng ) {
+                sbb . Append ( item );
+            }
+            sb = sbb;
+            if ( sbb . Length > 0 )
+                return true;
+            else
+                return false;
+        }
+        public static StringBuilder ReadStringBuilderAllLinesFromFile ( string path ) {
+            StringBuilder sb = new StringBuilder ( );
+            string str = File . ReadAllText ( path );
+            sb . Append ( str );
+            return sb;
+        }
+        public static bool WriteStringToFile ( string path , string data ) {
+            File . WriteAllText ( path , data );
+            return true;
+        }
+        public static bool WriteStringBuilderToFile ( string path , StringBuilder data ) {
+            File . WriteAllText ( path , data . ToString ( ) );
+            return true;
+        }
+        #endregion file read/Write methods
+
+        #region Serialization
+        public static bool WriteSerializedObject ( object obj , string filename , string Modeltype ) {
+            bool result = false;
+            try {
+                if ( Modeltype == "LbUserControl" ) {
+                    LbUserControl item = new LbUserControl ( );
+                    Debug . WriteLine ( GetObjectSize ( item ) . ToString ( ) );
+                    item = obj as LbUserControl;
+
+                    //overview . title = "Serialization Overview";
+                    XmlSerializer writer = new XmlSerializer ( item . GetType ( ) );
+
+                    var path = Environment . GetFolderPath ( Environment . SpecialFolder . MyDocuments ) + "//SerializationOverview.xml";
+                    System . IO . FileStream file = System . IO . File . Create ( filename );
+
+                    writer . Serialize ( file , item );
+                    file . Close ( );
+                }
+                result = true;
+            }
+            catch { }
+            return result;
+        }
+
+        //private void ReadSerializedObject ( dynamic obj , string file ) {
+        //    using ( var stream = File . Open ( file , FileMode . Open ) ) {
+        //        using ( var reader = new BinaryReader ( stream , Encoding . UTF8 , false ) ) {
+        //            obj = reader . ReadBytes ( file . Length );
+        //        }
+        //    }
+        //}
+        static private int GetObjectSize ( object TestObject ) {
+            BinaryFormatter bf = new BinaryFormatter ( );
+            MemoryStream ms = new MemoryStream ( );
+            byte [ ] Array;
+            bf . Serialize ( ms , TestObject );
+            Array = ms . ToArray ( );
+            return Array . Length;
+        }
+        //static public bool WriteSerializedObjectJSON ( dynamic obj , string file = "" , int Jsontype = 1 ) {
+        //    //Writes any linear style object as a JSON file (Observable collection works fine)
+        //    // Doesnt handle Datagrids or UserControl etc
+        //    //Create JSON String
+        //    if ( file == "" )
+        //        file = "DefaultJsonText.json";
+
+        //    if ( Jsontype == 1 ) {
+        //        try {
+        //            var options = new JsonSerializerOptions { WriteIndented = true , IncludeFields = true , MaxDepth = 12 };
+        //            string jsonString = System . Text . Json . JsonSerializer . Serialize<object> ( obj , options );
+        //            // Save JSON file to disk 
+        //            XmlSerializer mySerializer = new XmlSerializer ( typeof ( string ) );
+        //            StreamWriter myWriter = new StreamWriter ( file );
+        //            mySerializer . Serialize ( myWriter , jsonString );
+        //            myWriter . Close ( );
+        //            return true;
+        //        }
+        //        catch ( Exception ex ) {
+        //            Debug . WriteLine ( $"Serialization FAILED :[{ex . Message}]" );
+        //        }
+        //    }
+        //    else if ( Jsontype == 2 ) {
+        //        try {
+        //            FieldInvestigation ( obj . GetType ( ) );
+        //            MethodInvestigation ( obj . GetType ( ) );
+
+        //            DataContractJsonSerializerSettings settings = new DataContractJsonSerializerSettings ( );
+        //            settings . IgnoreExtensionDataObject = true;
+        //            DataContractJsonSerializer js = new DataContractJsonSerializer ( obj . GetType ( ) );
+        //            MemoryStream msObj = new MemoryStream ( );
+        //            js . WriteObject ( msObj , obj );
+        //            msObj . Close ( );
+        //        }
+        //        catch ( Exception ex ) { Debug . WriteLine ( $"Json serialization failed. Reason : {ex . Message}" ); }
+        //        return true;
+        //    }
+        //    return false;
+        //}
+
+
+        static void FieldInvestigation ( Type t ) {
+            Debug . WriteLine ( $"*********Fields for {t}*********" );
+            FieldInfo [ ] fld = t . GetFields ( );
+            foreach ( FieldInfo f in fld ) {
+                Debug . WriteLine ( "-->{0} : {1} " , f . MemberType , f . Name );
+                //              Debug . WriteLine ( "-->{0}" , f .MemberType);
+            }
+        }
+
+        static void MethodInvestigation ( Type t ) {
+            Debug . WriteLine ( $"*********Methods for {t}*********" );
+            MethodInfo [ ] mth = t . GetMethods ( );
+            foreach ( MethodInfo m in mth ) {
+                Debug . WriteLine ( "-->{0}" , m . ReflectedType );
+            }
+        }
+        public bool WriteSerializedObjectXML ( object obj , string file = "" ) {
+            //string myPath = "new.xml";
+            //XmlSerializer s = new XmlSerializer ( settings . GetType ( ) );
+            //StreamWriter streamWriter = new StreamWriter ( myPath );
+            //s . Serialize ( streamWriter , settings ); 
+            return true;
+        }
+        public bool ReadSerializedObjectXML ( object obj , string file = "" ) {
+            //MySettings mySettings = new MySettings ( );
+            //string myPath = "new.xml";
+            //XmlSerializer s = new XmlSerializer ( typeof ( mySettings ) ); return true;
+            return true;
+        }
+
+        public static ObservableCollection<BankAccountViewModel> CreateBankAccountFromJson ( string sb ) {
+            ObservableCollection<BankAccountViewModel> Bvm = new ObservableCollection<BankAccountViewModel> ( );
+            int index = 0;
+            string [ ] entries, entry;
+            bool start = true, End = false;
+            string item = "";
+            entries = sb . Split ( '\n' );
+            while ( true ) {
+                BankAccountViewModel bv = new BankAccountViewModel ( );
+                entry = entries [ index ] . Split ( ',' );
+                if ( entry [ 0 ] == "" ) break;
+                item = entry [ 1 ];
+                bv . Id = int . Parse ( item );
+                index++;
+                entry = entries [ index ] . Split ( ',' );
+                item = entry [ 1 ];
+                bv . BankNo = item;
+                index++;
+                entry = entries [ index ] . Split ( ',' );
+                item = entry [ 1 ];
+                bv . CustNo = item;
+                index++;
+                entry = entries [ index ] . Split ( ',' );
+                item = entry [ 1 ];
+                bv . AcType = int . Parse ( item );
+                index++;
+                entry = entries [ index ] . Split ( ',' );
+                item = entry [ 1 ];
+                bv . Balance = Decimal . Parse ( item );
+                index++;
+                entry = entries [ index ] . Split ( ',' );
+                item = entry [ 1 ];
+                bv . IntRate = Decimal . Parse ( item );
+                index++;
+                entry = entries [ index ] . Split ( ',' );
+                item = entry [ 1 ];
+                bv . ODate = DateTime . Parse ( item );
+                index++;
+                entry = entries [ index ] . Split ( ',' );
+                item = entry [ 1 ];
+                bv . CDate = DateTime . Parse ( item );
+                Bvm . Add ( bv );
+                index++;
+            }
+            return Bvm;
+        }
+        #endregion Serialization
+
+        #region ZERO referennces
+        public static string convertToHex ( double temp ) {
+            int intval = ( int ) Convert . ToInt32 ( temp );
+            string hexval = intval . ToString ( "X" );
+            return hexval;
+        }
+        //Working well 4/8/21
+        public static string trace ( string prompt = "" ) {
+            // logs all the calls made upwards in a tree
+            string output = "", tmp = "";
+            int indx = 1;
+            var v = new StackTrace ( 0 );
+            if ( prompt != "" )
+                output = prompt + $"\nStackTrace  for {prompt}:\n";
+            while ( true ) {
+#pragma warning disable CS0168 // The variable 'ex' is declared but never used
+                try {
+
+                    tmp = v . GetFrame ( indx++ ) . GetMethod ( ) . Name + '\n';
+                    if ( tmp . Contains ( "Invoke" ) || tmp . Contains ( "RaiseEvent" ) )
+                        break;
+                    else
+                        output += tmp;
+                }
+                catch ( Exception ex ) {
+                    Debug . WriteLine ( "trace() Crashed...\n" );
+                    output += "\ntrace() Crashed...\n";
+                    break;
+                }
+#pragma warning restore CS0168 // The variable 'ex' is declared but never used
+            }
+            Debug . WriteLine ( $"\n{output}\n" );
+            return $"\n{output}\n";
+        }
+        public static Brush BrushFromColors ( Color color ) {
+            Brush brush = new SolidColorBrush ( color );
+            return brush;
+        }
+        public static string ConvertInputDate ( string datein ) {
+            string YYYMMDD = "";
+            string [ ] datebits;
+            // This filter will strip off the "Time" section of an excel date
+            // and return us a valid YYYY/MM/DD string
+            char [ ] ch = { '/' , ' ' };
+            datebits = datein . Split ( ch );
+            if ( datebits . Length < 3 )
+                return datein;
+
+            // check input to see if it needs reversing ?
+            if ( datebits [ 0 ] . Length == 4 )
+                YYYMMDD = datebits [ 0 ] + "/" + datebits [ 1 ] + "/" + datebits [ 2 ];
+            else
+                YYYMMDD = datebits [ 2 ] + "/" + datebits [ 1 ] + "/" + datebits [ 0 ];
+            return YYYMMDD;
+        }
+        public static CustomerViewModel CreateCustomerRecordFromString ( string input ) {
+            int index = 1;
+            CustomerViewModel cvm = new CustomerViewModel ( );
+            char [ ] s = { ',' };
+            string [ ] data = input . Split ( s );
+            string donor = data [ 0 ];
+            //We have the sender type in the string recvd
+            cvm . Id = int . Parse ( data [ index++ ] );
+            cvm . CustNo = data [ index++ ];
+            cvm . BankNo = data [ index++ ];
+            cvm . AcType = int . Parse ( data [ index++ ] );
+            cvm . FName = data [ index++ ];
+            cvm . LName = data [ index++ ];
+            cvm . Addr1 = data [ index++ ];
+            cvm . Addr2 = data [ index++ ];
+            cvm . Town = data [ index++ ];
+            cvm . County = data [ index++ ];
+            cvm . PCode = data [ index++ ];
+            cvm . Phone = data [ index++ ];
+            cvm . Mobile = data [ index++ ];
+            cvm . Dob = DateTime . Parse ( data [ index++ ] );
+            cvm . ODate = DateTime . Parse ( data [ index++ ] );
+            cvm . CDate = DateTime . Parse ( data [ index ] );
+            return cvm;
+        }
+        public static int FindMatchingRecord ( string Custno , string Bankno , DataGrid Grid , string currentDb = "" ) {
+            int index = 0;
+            bool success = false;
+            if ( currentDb == "BANKACCOUNT" ) {
+                foreach ( var item in Grid . Items ) {
+                    BankAccountViewModel cvm = item as BankAccountViewModel;
+                    if ( cvm == null )
+                        break;
+                    if ( cvm . CustNo == Custno && cvm . BankNo == Bankno ) {
+                        success = true;
+                        break;
+                    }
+                    index++;
+                }
+                if ( !success )
+                    index = -1;
+                return index;
+            }
+            else if ( currentDb == "CUSTOMER" ) {
+                foreach ( var item in Grid . Items ) {
+                    CustomerViewModel cvm = item as CustomerViewModel;
+                    if ( cvm == null )
+                        break;
+                    if ( cvm . CustNo == Custno && cvm . BankNo == Bankno ) {
+                        break;
+                    }
+                    index++;
+                }
+                if ( index == Grid . Items . Count )
+                    index = -1;
+                return index;
+            }
+            else if ( currentDb == "DETAILS" ) {
+                foreach ( var item in Grid . Items ) {
+                    DetailsViewModel dvm = item as DetailsViewModel;
+                    if ( dvm == null )
+                        break;
+                    if ( dvm . CustNo == Custno && dvm . BankNo == Bankno ) {
+                        break;
+                    }
+                    index++;
+                }
+                if ( index == Grid . Items . Count )
+                    index = -1;
+                return index;
+            }
+            return -1;
+        }
+        public static string CreateFullCsvTextFromRecord ( BankAccountViewModel bvm , DetailsViewModel dvm , CustomerViewModel cvm = null , bool IncludeType = true ) {
+            if ( bvm == null && cvm == null && dvm == null )
+                return "";
+            string datastring = "";
+            if ( bvm != null ) {
+                // Handle a BANK Record
+                if ( IncludeType )
+                    datastring = "BANKACCOUNT";
+                datastring += bvm . Id + ",";
+                datastring += bvm . CustNo + ",";
+                datastring += bvm . BankNo + ",";
+                datastring += bvm . AcType . ToString ( ) + ",";
+                datastring += bvm . IntRate . ToString ( ) + ",";
+                datastring += bvm . Balance . ToString ( ) + ",";
+                datastring += "'" + bvm . CDate . ToString ( ) + "',";
+                datastring += "'" + bvm . ODate . ToString ( ) + "',";
+            }
+            else if ( dvm != null ) {
+                if ( IncludeType )
+                    datastring = "DETAILS,";
+                datastring += dvm . Id + ",";
+                datastring += dvm . CustNo + ",";
+                datastring += dvm . BankNo + ",";
+                datastring += dvm . AcType . ToString ( ) + ",";
+                datastring += dvm . IntRate . ToString ( ) + ",";
+                datastring += dvm . Balance . ToString ( ) + ",";
+                datastring += "'" + dvm . CDate . ToString ( ) + "',";
+                datastring += dvm . ODate . ToString ( ) + ",";
+            }
+            else if ( cvm != null ) {
+                if ( IncludeType )
+                    datastring = "CUSTOMER,";
+                datastring += cvm . Id + ",";
+                datastring += cvm . CustNo + ",";
+                datastring += cvm . BankNo + ",";
+                datastring += cvm . AcType . ToString ( ) + ",";
+                datastring += "'" + cvm . CDate . ToString ( ) + "',";
+                datastring += cvm . ODate . ToString ( ) + ",";
+            }
+            return datastring;
+        }
+        public static DetailsViewModel CreateDetailsRecordFromString ( string input ) {
+            int index = 0;
+            DetailsViewModel bvm = new DetailsViewModel ( );
+            char [ ] s = { ',' };
+            string [ ] data = input . Split ( s );
+            string donor = data [ 0 ];
+            //Check to see if the data includes the data type in it
+            //As we have to parse it diffrently if not - see index....
+            if ( donor . Length > 3 )
+                index = 1;
+            bvm . Id = int . Parse ( data [ index++ ] );
+            bvm . CustNo = data [ index++ ];
+            bvm . BankNo = data [ index++ ];
+            bvm . AcType = int . Parse ( data [ index++ ] );
+            bvm . IntRate = decimal . Parse ( data [ index++ ] );
+            bvm . Balance = decimal . Parse ( data [ index++ ] );
+            bvm . ODate = DateTime . Parse ( data [ index++ ] );
+            bvm . CDate = DateTime . Parse ( data [ index ] );
+            return bvm;
         }
         public static bool HitTestScrollBar ( object sender , MouseButtonEventArgs e ) {
             //TODO
@@ -858,215 +1540,6 @@ namespace NewWpfDev {
             }
 #pragma warning restore CS0168 // The variable 'ex' is declared but never used
             return true;
-        }
-        public static DependencyObject FindChild ( DependencyObject o , Type childType ) {
-            DependencyObject foundChild = null;
-            if ( o != null ) {
-                int childrenCount = VisualTreeHelper . GetChildrenCount ( o );
-                for ( int i = 0 ; i < childrenCount ; i++ ) {
-                    var child = VisualTreeHelper . GetChild ( o , i );
-                    if ( child . GetType ( ) != childType ) {
-                        foundChild = FindChild ( child , childType );
-                    }
-                    else {
-                        foundChild = child;
-                        break;
-                    }
-                }
-            }
-            return foundChild;
-        }
-        //TODO
-        //public static string CreateDragDataFromRecord ( BankDragviewModel bvm ) {
-        //    if ( bvm == null )
-        //        return "";
-        //    string datastring = "";
-        //    datastring = bvm . RecordType + ",";
-        //    datastring += bvm . Id + ",";
-        //    datastring += bvm . CustNo + ",";
-        //    datastring += bvm . BankNo + ",";
-        //    datastring += bvm . AcType . ToString ( ) + ",";
-        //    datastring += bvm . IntRate . ToString ( ) + ",";
-        //    datastring += bvm . Balance . ToString ( ) + ",";
-        //    datastring += "'" + bvm . CDate . ToString ( ) + "',";
-        //    datastring += "'" + bvm . ODate . ToString ( ) + "',";
-        //    return datastring;
-        //}
-        public static string CreateFullCsvTextFromRecord ( BankAccountViewModel bvm , DetailsViewModel dvm , CustomerViewModel cvm = null , bool IncludeType = true ) {
-            if ( bvm == null && cvm == null && dvm == null )
-                return "";
-            string datastring = "";
-            if ( bvm != null ) {
-                // Handle a BANK Record
-                if ( IncludeType )
-                    datastring = "BANKACCOUNT";
-                datastring += bvm . Id + ",";
-                datastring += bvm . CustNo + ",";
-                datastring += bvm . BankNo + ",";
-                datastring += bvm . AcType . ToString ( ) + ",";
-                datastring += bvm . IntRate . ToString ( ) + ",";
-                datastring += bvm . Balance . ToString ( ) + ",";
-                datastring += "'" + bvm . CDate . ToString ( ) + "',";
-                datastring += "'" + bvm . ODate . ToString ( ) + "',";
-            }
-            else if ( dvm != null ) {
-                if ( IncludeType )
-                    datastring = "DETAILS,";
-                datastring += dvm . Id + ",";
-                datastring += dvm . CustNo + ",";
-                datastring += dvm . BankNo + ",";
-                datastring += dvm . AcType . ToString ( ) + ",";
-                datastring += dvm . IntRate . ToString ( ) + ",";
-                datastring += dvm . Balance . ToString ( ) + ",";
-                datastring += "'" + dvm . CDate . ToString ( ) + "',";
-                datastring += dvm . ODate . ToString ( ) + ",";
-            }
-            else if ( cvm != null ) {
-                if ( IncludeType )
-                    datastring = "CUSTOMER,";
-                datastring += cvm . Id + ",";
-                datastring += cvm . CustNo + ",";
-                datastring += cvm . BankNo + ",";
-                datastring += cvm . AcType . ToString ( ) + ",";
-                datastring += "'" + cvm . CDate . ToString ( ) + "',";
-                datastring += cvm . ODate . ToString ( ) + ",";
-            }
-            return datastring;
-        }
-        public static T FindChild<T> ( DependencyObject parent , string childName )
-              where T : DependencyObject {
-            // Confirm parent and childName are valid. 
-            if ( parent == null )
-                return null;
-            T foundChild = null;
-            int childrenCount = VisualTreeHelper . GetChildrenCount ( parent );
-            for ( int i = 0 ; i < childrenCount ; i++ ) {
-                var child = VisualTreeHelper . GetChild ( parent , i );
-                // If the child is not of the request child type child
-                T childType = child as T;
-                if ( childType == null ) {
-                    // recursively drill down the tree
-                    foundChild = FindChild<T> ( child , childName );
-                    // If the child is found, break so we do not overwrite the found child. 
-                    if ( foundChild != null )
-                        break;
-                }
-                else if ( !string . IsNullOrEmpty ( childName ) ) {
-                    var frameworkElement = child as FrameworkElement;
-                    // If the child's name is set for search
-                    if ( frameworkElement != null && frameworkElement . Name == childName ) {
-                        // if the child's name is of the request name
-                        foundChild = ( T ) child;
-                        break;
-                    }
-                }
-                else {
-                    // child element found.
-                    foundChild = ( T ) child;
-                    break;
-                }
-            }
-            return foundChild;
-        }
-        public static int FindMatchingRecord ( string Custno , string Bankno , DataGrid Grid , string currentDb = "" ) {
-            int index = 0;
-            bool success = false;
-            if ( currentDb == "BANKACCOUNT" ) {
-                foreach ( var item in Grid . Items ) {
-                    BankAccountViewModel cvm = item as BankAccountViewModel;
-                    if ( cvm == null )
-                        break;
-                    if ( cvm . CustNo == Custno && cvm . BankNo == Bankno ) {
-                        success = true;
-                        break;
-                    }
-                    index++;
-                }
-                if ( !success )
-                    index = -1;
-                return index;
-            }
-            else if ( currentDb == "CUSTOMER" ) {
-                foreach ( var item in Grid . Items ) {
-                    CustomerViewModel cvm = item as CustomerViewModel;
-                    if ( cvm == null )
-                        break;
-                    if ( cvm . CustNo == Custno && cvm . BankNo == Bankno ) {
-                        break;
-                    }
-                    index++;
-                }
-                if ( index == Grid . Items . Count )
-                    index = -1;
-                return index;
-            }
-            else if ( currentDb == "DETAILS" ) {
-                foreach ( var item in Grid . Items ) {
-                    DetailsViewModel dvm = item as DetailsViewModel;
-                    if ( dvm == null )
-                        break;
-                    if ( dvm . CustNo == Custno && dvm . BankNo == Bankno ) {
-                        break;
-                    }
-                    index++;
-                }
-                if ( index == Grid . Items . Count )
-                    index = -1;
-                return index;
-            }
-            return -1;
-        }
-        public static T FindVisualChildByName<T> ( DependencyObject parent , string name ) where T : DependencyObject {
-            for ( int i = 0 ; i < VisualTreeHelper . GetChildrenCount ( parent ) ; i++ ) {
-                var child = VisualTreeHelper . GetChild ( parent , i );
-                string controlName = child . GetValue ( Control . NameProperty ) as string;
-                if ( controlName == name ) {
-                    return child as T;
-                }
-                else {
-                    T result = FindVisualChildByName<T> ( child , name );
-                    if ( result != null )
-                        return result;
-                }
-            }
-            return null;
-        }
-        public static T FindVisualParent<T> ( UIElement element ) where T : UIElement {
-            UIElement parent = element;
-            while ( parent != null ) {
-                var correctlyTyped = parent as T;
-                if ( correctlyTyped != null ) {
-                    return correctlyTyped;
-                }
-                parent = VisualTreeHelper . GetParent ( parent ) as UIElement;
-            }
-            return null;
-        }
-        public static parentItem FindVisualParent<parentItem> ( DependencyObject obj ) where parentItem : DependencyObject {
-            DependencyObject parent = VisualTreeHelper . GetParent ( obj );
-            while ( parent != null && !parent . GetType ( ) . Equals ( typeof ( parentItem ) ) ) {
-                parent = VisualTreeHelper . GetParent ( parent );
-            }
-            return parent as parentItem;
-        }
-        public static string GetDataSortOrder ( string commandline ) {
-            if ( Flags . SortOrderRequested == ( int ) Flags . SortOrderEnum . DEFAULT )
-                commandline += "Custno, BankNo";
-            else if ( Flags . SortOrderRequested == ( int ) Flags . SortOrderEnum . ID )
-                commandline += "ID";
-            else if ( Flags . SortOrderRequested == ( int ) Flags . SortOrderEnum . BANKNO )
-                commandline += "BankNo, CustNo";
-            else if ( Flags . SortOrderRequested == ( int ) Flags . SortOrderEnum . CUSTNO )
-                commandline += "CustNo";
-            else if ( Flags . SortOrderRequested == ( int ) Flags . SortOrderEnum . ACTYPE )
-                commandline += "AcType";
-            else if ( Flags . SortOrderRequested == ( int ) Flags . SortOrderEnum . DOB )
-                commandline += "Dob";
-            else if ( Flags . SortOrderRequested == ( int ) Flags . SortOrderEnum . ODATE )
-                commandline += "Odate";
-            else if ( Flags . SortOrderRequested == ( int ) Flags . SortOrderEnum . CDATE )
-                commandline += "Cdate";
-            return commandline;
         }
         public static Brush GetDictionaryBrush ( string brushname ) {
             Brush brs = null;
@@ -1414,108 +1887,6 @@ namespace NewWpfDev {
                 return input;
             return output;
         }
-        // allows any image to be saved as PNG/GIF/JPG format, defaullt is PNG
-        public static void SaveImageToFile ( RenderTargetBitmap bmp , string file , string imagetype = "PNG" ) {
-            string [ ] items;
-            // Make a PNG encoder.
-            if ( bmp == null )
-                return;
-            if ( file == "" && imagetype != "" )
-                file = @"c:\users\ianch\pictures\defaultimage";
-            items = file . Split ( '.' );
-            file = items [ 0 ];
-            if ( imagetype == "PNG" )
-                file += ".png";
-            else if ( imagetype == "GIF" )
-                file += ".gif";
-            else if ( imagetype == "JPG" )
-                file += ".jpg";
-            else if ( imagetype == "BMP" )
-                file += ".bmp";
-            else if ( imagetype == "TIF" )
-                file += ".tif";
-            try {
-                using ( FileStream fs = new FileStream ( file ,
-                            FileMode . Create , FileAccess . Write , FileShare . ReadWrite ) ) {
-                    if ( imagetype == "PNG" ) {
-                        PngBitmapEncoder encoder = new PngBitmapEncoder ( );
-                        encoder . Frames . Add ( BitmapFrame . Create ( bmp ) );
-                        encoder . Save ( fs );
-                    }
-                    else if ( imagetype == "GIF" ) {
-                        GifBitmapEncoder encoder = new GifBitmapEncoder ( );
-                        encoder . Frames . Add ( BitmapFrame . Create ( bmp ) );
-                        encoder . Save ( fs );
-                    }
-                    else if ( imagetype == "JPG" || imagetype == "JPEG" ) {
-                        JpegBitmapEncoder encoder = new JpegBitmapEncoder ( );
-                        encoder . Frames . Add ( BitmapFrame . Create ( bmp ) );
-                        encoder . Save ( fs );
-                    }
-                    else if ( imagetype == "BMP" ) {
-                        BmpBitmapEncoder encoder = new BmpBitmapEncoder ( );
-                        encoder . Frames . Add ( BitmapFrame . Create ( bmp ) );
-                        encoder . Save ( fs );
-                    }
-                    else if ( imagetype == "TIF" || imagetype == "TIFF" ) {
-                        TiffBitmapEncoder encoder = new TiffBitmapEncoder ( );
-                        encoder . Frames . Add ( BitmapFrame . Create ( bmp ) );
-                        encoder . Save ( fs );
-                    }
-                    fs . Close ( );
-                }
-            }
-            catch ( Exception ex ) {
-                //TODO
-                //    WpfLib1 . Utils .Mbox ( null , string1: "The image could not be saved for the following reason " , string2: $"{ex . Message}" , caption: "" , iconstring: "\\icons\\Information.png" , Btn1: MB . OK , Btn2: MB . NNULL , defButton: MB . OK );
-            }
-        }
-        public static void ScrollLBRecordIntoView ( ListBox lbox , int CurrentRecord ) {
-            // Works well 26/5/21
-
-            //update and scroll to bottom first
-            lbox . ScrollIntoView ( lbox . SelectedIndex );
-            lbox . UpdateLayout ( );
-            lbox . ScrollIntoView ( lbox . SelectedItem );
-            lbox . UpdateLayout ( );
-        }
-        public static void ScrollLVRecordIntoView ( ListView Dgrid , int CurrentRecord ) {
-            // Works well 26/5/21
-
-            //update and scroll to bottom first
-            Dgrid . SelectedIndex = ( int ) CurrentRecord;
-            Dgrid . SelectedItem = ( int ) CurrentRecord;
-            Dgrid . ScrollIntoView ( Dgrid . SelectedItem );
-            Dgrid . UpdateLayout ( );
-        }
-        public static void ScrollRecordIntoView ( DataGrid Dgrid , int CurrentRecord , object row = null ) {
-            // Works well 26/5/21
-            double currentTop = 0;
-            double currentBottom = 0;
-            if ( CurrentRecord == -1 || Dgrid == null )
-                return;
-            if ( Dgrid . Name == "CustomerGrid" || Dgrid . Name == "DataGrid1" ) {
-                currentTop = Flags . TopVisibleBankGridRow;
-                currentBottom = Flags . BottomVisibleBankGridRow;
-            }
-            else if ( Dgrid . Name == "BankGrid" || Dgrid . Name == "DataGrid2" ) {
-                currentTop = Flags . TopVisibleCustGridRow;
-                currentBottom = Flags . BottomVisibleCustGridRow;
-            }
-            else if ( Dgrid . Name == "DetailsGrid" || Dgrid . Name == "DetailsGrid" ) {
-                currentTop = Flags . TopVisibleDetGridRow;
-                currentBottom = Flags . BottomVisibleDetGridRow;
-            }     // Believe it or not, it takes all this to force a scrollinto view correctly
-
-            if ( Dgrid == null || Dgrid . Items . Count == 0 )//|| Dgrid . SelectedItem == null )
-                return;
-
-            Dgrid . SelectedIndex = CurrentRecord;
-            Dgrid . SelectedItem = CurrentRecord;
-            Dgrid . BringIntoView ( );
-            Dgrid . UpdateLayout ( );
-            Dgrid . UpdateLayout ( );
-        }
         static public DataGridRow GetRow ( DataGrid dg , int index ) {
             DataGridRow row = ( DataGridRow ) dg . ItemContainerGenerator . ContainerFromIndex ( index );
             if ( row == null ) {
@@ -1525,64 +1896,7 @@ namespace NewWpfDev {
             }
             return row;
         }
-        //Generic form of Selection forcing code below
-        public static void SetupWindowDrag ( Window inst ) {
-#pragma warning disable CS0168 // The variable 'ex' is declared but never used
-            try {
-                //Handle the button NOT being the left mouse button
-                // which will crash the DragMove Fn.....
-                MouseButtonState mbs = Mouse . RightButton;
-                if ( mbs == MouseButtonState . Pressed )
-                    return;
-                inst . MouseDown += delegate {
-                    {
-#pragma warning disable CS0168 // The variable 'ex' is declared but never used
-                        try {
-                            inst?.DragMove ( );
-                        }
-                        catch ( Exception ex ) {
-                            return;
-                        }
-#pragma warning restore CS0168 // The variable 'ex' is declared but never used
-                    }
-                };
-            }
-            catch ( Exception ex ) {
-                return;
-            }
-#pragma warning restore CS0168 // The variable 'ex' is declared but never used
-        }
-        public static bool CheckResetDbConnection ( string currdb , out string constring ) {
-            //string constring = "";
-            currdb?.ToUpper ( );
-            // This resets the current database connection to the one we re working with (currdb - in UPPER Case!)- should be used anywhere that We switch between databases in Sql Server
-            // It also sets the Flags.CurrentConnectionString - Current Connectionstring  and local variable
-            if ( Utils . GetDictionaryEntry ( Flags . ConnectionStringsDict , currdb , out string connstring ) != "" ) {
-                if ( connstring != null ) {
-                    Flags . CurrentConnectionString = connstring;
-                    SqlConnection con;
-                    con = new SqlConnection ( Flags . CurrentConnectionString );
-                    if ( con != null ) {
-                        constring = connstring;
-                        con . Close ( );
-                        return true;
-                    }
-                    else {
-                        constring = connstring;
-                        return false;
-                    }
-                }
-                {
-                    constring = connstring;
-                    return false;
-                }
-            }
-            else {
-                constring = connstring;
-                return false;
-            }
-
-        }
+        // allows any image to be saved as PNG/GIF/JPG format, defaullt is PNG
         public static void SetUpGridSelection ( DataGrid grid , int row = 0 ) {
             if ( row == -1 )
                 row = 0;
@@ -1591,120 +1905,10 @@ namespace NewWpfDev {
             grid . SelectedItem = row;
             grid . SelectedIndex = row;
             grid . SelectedItem = row;
-            WpfLib1 . Utils . ScrollRecordIntoView ( grid , row );
+            Utils . ScrollRecordIntoView ( grid , row );
             grid . ScrollIntoView ( grid . SelectedItem );
             grid . UpdateLayout ( );
         }
-
-        /// <summary>
-        /// A Generic data reader for any ObservableCollection&lt;T&gt; type
-        /// </summary>
-        ///<example>
-        ///Call Method using loop such as :
-        ///<code>
-        ///<c>foreach ( int item in Utils. ReadGenericCollection ( <paramref name="collection"/> intcollection) )</c>
-        ///</code>
-        /// </example>
-        /// or any similar looping construct
-        /// <typeparam name="T">Any Generic Observable Collection</typeparam>
-        /// <param name="collection"/>
-        /// <returns>Individual records via yield return system to return items on demand, or NULL if collection cannot provide an Iterator 
-        /// </returns>
-        public static IEnumerable ReadGenericCollection<T> ( ObservableCollection<T> collection , IEnumerator ie = null ) {
-            // Generic method to supply content of ANY Observablecollection<> type
-            // Call it by a call such as  :-
-            //  foreach ( BankCollection item in Utils.GenericRead ( BankCollection ) )
-            //      {Debug. WriteLine ( item );}
-            //or
-            //  foreach ( int item in Utils.GenericRead ( integerCollection ) )
-            //      {Debug. WriteLine ( item );}
-            if ( collection . Count > 0 ) {
-                ie = collection . GetEnumerator ( );
-                if ( ie != null ) {
-                    foreach ( var item in collection ) {
-
-                        if ( ie . MoveNext ( ) )
-                            yield return item;
-                    }
-                }
-            }
-        }
-
-        #region Nullable handlers
-        public static bool? CompareNullable ( int? a , int? b ) {
-            if ( Nullable . Compare<int> ( a , b ) == 0 ) {
-                $"Nullable int {a} is Equal to {b}" . cwinfo ( ); return true;
-            }
-            else {
-                $"Nullable int {a} is NOT Equal to {b}" . cwinfo ( );
-                return false;
-            }
-        }
-        public static bool? CompareNullable ( long? a , long? b ) {
-            if ( Nullable . Compare<long> ( a , b ) == 0 ) {
-                $"Nullable long {a} is Equal to {b}" . cwinfo ( );
-                return true;
-            }
-            else {
-                $"Nullable long {a} is NOT Equal to {b}" . cwinfo ( );
-                return false;
-            }
-        }
-        public static bool? CompareNullable ( double? a , double? b ) {
-            if ( Nullable . Compare<double> ( a , b ) == 0 ) {
-                $"Nullable double {a} is Equal to {b}" . cwinfo ( );
-                return true;
-            }
-            else {
-                $"Nullable double int {a} is NOT Equal to {b}" . cwinfo ( );
-                return false;
-            }
-        }
-        public static bool? CompareNullable ( float? a , float? b ) {
-            if ( Nullable . Compare<float> ( a , b ) == 0 ) {
-                $"Nullable float {a} is Equal to {b}" . cwinfo ( );
-                return true;
-            }
-            else {
-                $"Nullable float {a} is NOT Equal to {b}" . cwinfo ( );
-                return false;
-            }
-        }
-        public static bool? CompareNullable ( decimal? a , decimal? b ) {
-            if ( Nullable . Compare<decimal> ( a , b ) == 0 ) {
-                $"Nullable decimal {a} is Equal to {b}" . cwinfo ( );
-                return true;
-            }
-            else {
-                $"Nullable decimal {a} is NOT Equal to {b}" . cwinfo ( );
-                return false;
-            }
-        }
-
-        #endregion Nullable handlers
-
-        //public static string? CompareNullable ( string? a , string? b ) { return Nullable . Compare ( a , b ); }
-        //public static BankAccountViewModel? CompareNullable ( BankAccountViewModel? a , BankAccountViewModel? b ) {
-        //    return Nullable . Compare<BankAccountViewModel> ( a,  b ); }
-
-        public static StringBuilder ReadFileGeneric ( string path , ref StringBuilder sb ) {
-            string s = File . ReadAllText ( path );
-            sb . Append ( s );
-            return sb;
-        }
-        public static string ReadFileGeneric ( string path , ref string sb ) {
-            sb = File . ReadAllText ( path );
-            return sb;
-        }
-        public static bool WriteFileGeneric ( string path , string data ) {
-            File . WriteAllText ( path , data );
-            return true;
-        }
-        public static bool WriteFileGeneric ( string path , StringBuilder data ) {
-            File . WriteAllText ( path , data . ToString ( ) );
-            return true;
-        }
-
         public static List<object> GetChildControls ( UIElement parent , string TypeRequired ) {
             // this uses  the TabControlHelper class
             UIElement element = new UIElement ( );
@@ -1757,171 +1961,6 @@ namespace NewWpfDev {
             return objects;
         }
 
-        #region Serialization
-        public static bool WriteSerializedObject ( object obj , string filename , string Modeltype ) {
-            bool result = false;
-            try {
-                if ( Modeltype == "LbUserControl" ) {
-                    LbUserControl item = new LbUserControl ( );
-                    Debug . WriteLine ( GetObjectSize ( item ) . ToString ( ) );
-                    item = obj as LbUserControl;
-
-                    //overview . title = "Serialization Overview";
-                    XmlSerializer writer = new XmlSerializer ( item . GetType ( ) );
-
-                    var path = Environment . GetFolderPath ( Environment . SpecialFolder . MyDocuments ) + "//SerializationOverview.xml";
-                    System . IO . FileStream file = System . IO . File . Create ( filename );
-
-                    writer . Serialize ( file , item );
-                    file . Close ( );
-                }
-                result = true;
-            }
-            catch { }
-            return result;
-        }
-
-        private void ReadSerializedObject ( dynamic obj , string file ) {
-            using ( var stream = File . Open ( file , FileMode . Open ) ) {
-                using ( var reader = new BinaryReader ( stream , Encoding . UTF8 , false ) ) {
-                    obj = reader . ReadBytes ( file . Length );
-                }
-            }
-        }
-        static private int GetObjectSize ( object TestObject ) {
-            BinaryFormatter bf = new BinaryFormatter ( );
-            MemoryStream ms = new MemoryStream ( );
-            byte [ ] Array;
-            bf . Serialize ( ms , TestObject );
-            Array = ms . ToArray ( );
-            return Array . Length;
-        }
-        static public bool WriteSerializedObjectJSON ( dynamic obj , string file = "" , int Jsontype = 1 ) {
-            //Writes any linear style object as a JSON file (Observable collection works fine)
-            // Doesnt handle Datagrids or UserControl etc
-            //Create JSON String
-            if ( file == "" )
-                file = "DefaultJsonText.json";
-
-            if ( Jsontype == 1 ) {
-                try {
-                    var options = new JsonSerializerOptions { WriteIndented = true , IncludeFields = true , MaxDepth = 12 };
-                    string jsonString = System . Text . Json . JsonSerializer . Serialize<object> ( obj , options );
-                    // Save JSON file to disk 
-                    XmlSerializer mySerializer = new XmlSerializer ( typeof ( string ) );
-                    StreamWriter myWriter = new StreamWriter ( file );
-                    mySerializer . Serialize ( myWriter , jsonString );
-                    myWriter . Close ( );
-                    return true;
-                }
-                catch ( Exception ex ) {
-                    Debug . WriteLine ( $"Serialization FAILED :[{ex . Message}]" );
-                }
-            }
-            else if ( Jsontype == 2 ) {
-                try {
-                    FieldInvestigation ( obj . GetType ( ) );
-                    MethodInvestigation ( obj . GetType ( ) );
-
-                    DataContractJsonSerializerSettings settings = new DataContractJsonSerializerSettings ( );
-                    settings . IgnoreExtensionDataObject = true;
-                    DataContractJsonSerializer js = new DataContractJsonSerializer ( obj . GetType ( ) );
-                    MemoryStream msObj = new MemoryStream ( );
-                    js . WriteObject ( msObj , obj );
-                    msObj . Close ( );
-                }
-                catch ( Exception ex ) { Debug . WriteLine ( $"Json serialization failed. Reason : {ex . Message}" ); }
-                return true;
-            }
-            return false;
-        }
-
-
-        static void FieldInvestigation ( Type t ) {
-            Debug . WriteLine ( $"*********Fields for {t}*********" );
-            FieldInfo [ ] fld = t . GetFields ( );
-            foreach ( FieldInfo f in fld ) {
-                Debug . WriteLine ( "-->{0} : {1} " ,  f . MemberType , f . Name );
-                //              Debug . WriteLine ( "-->{0}" , f .MemberType);
-            }
-        }
-
-        static void MethodInvestigation ( Type t ) {
-            Debug . WriteLine ( $"*********Methods for {t}*********" );
-            MethodInfo [ ] mth = t . GetMethods ( );
-            foreach ( MethodInfo m in mth ) {
-                Debug . WriteLine ( "-->{0}" , m . ReflectedType );
-            }
-        }
-        public bool WriteSerializedObjectXML ( object obj , string file = "" ) {
-            //string myPath = "new.xml";
-            //XmlSerializer s = new XmlSerializer ( settings . GetType ( ) );
-            //StreamWriter streamWriter = new StreamWriter ( myPath );
-            //s . Serialize ( streamWriter , settings ); 
-            return true;
-        }
-        public bool ReadSerializedObjectXML ( object obj , string file = "" ) {
-            //MySettings mySettings = new MySettings ( );
-            //string myPath = "new.xml";
-            //XmlSerializer s = new XmlSerializer ( typeof ( mySettings ) ); return true;
-            return true;
-        }
-
-        public static ObservableCollection<BankAccountViewModel> CreateBankAccountFromJson ( string sb ) {
-            ObservableCollection<BankAccountViewModel> Bvm = new ObservableCollection<BankAccountViewModel> ( );
-            int index = 0;
-            string [ ] entries, entry;
-            bool start = true, End = false;
-            string item = "";
-            entries = sb . Split ( '\n' );
-            while ( true ) {
-                BankAccountViewModel bv = new BankAccountViewModel ( );
-                entry = entries [ index ] . Split ( ',' );
-                if ( entry [ 0 ] == "" ) break;
-                item = entry [ 1 ];
-                bv . Id = int . Parse ( item );
-                index++;
-                entry = entries [ index ] . Split ( ',' );
-                item = entry [ 1 ];
-                bv . BankNo = item;
-                index++;
-                entry = entries [ index ] . Split ( ',' );
-                item = entry [ 1 ];
-                bv . CustNo = item;
-                index++;
-                entry = entries [ index ] . Split ( ',' );
-                item = entry [ 1 ];
-                bv . AcType = int . Parse ( item );
-                index++;
-                entry = entries [ index ] . Split ( ',' );
-                item = entry [ 1 ];
-                bv . Balance = Decimal . Parse ( item );
-                index++;
-                entry = entries [ index ] . Split ( ',' );
-                item = entry [ 1 ];
-                bv . IntRate = Decimal . Parse ( item );
-                index++;
-                entry = entries [ index ] . Split ( ',' );
-                item = entry [ 1 ];
-                bv . ODate = DateTime . Parse ( item );
-                index++;
-                entry = entries [ index ] . Split ( ',' );
-                item = entry [ 1 ];
-                bv . CDate = DateTime . Parse ( item );
-                Bvm . Add ( bv );
-                index++;
-            }
-            return Bvm;
-        }
-        #endregion Serialization
-
-        #region ZERO referennces
-        public static string convertToHex ( double temp ) {
-            int intval = ( int ) Convert . ToInt32 ( temp );
-            string hexval = intval . ToString ( "X" );
-            return hexval;
-        }
-        //Working well 4/8/21
         /// <summary>
         /// Accepts color in Colors.xxxx format = "Blue" etc
         /// </summary>
@@ -2455,27 +2494,26 @@ namespace NewWpfDev {
         #endregion ZERO referennces
 
         #region Dynamic Handlers
-        public static bool GetDynamicVarType ( dynamic Ctrlptr , out string [ ] strs , bool showinfo = false ) {
-            //*************************************************************************************
-            // Discovers what type the dynamic item is and returns a string contaiining its type
-            //*************************************************************************************
-            strs = new string [ ] { "" , "" , "" };
-            bool isvalid = false;
-            string [ ] ctrltype = { "" , "" , "" };
-            string line = Ctrlptr . GetType ( ) . ToString ( );
-            strs [ 2 ] = Ctrlptr . GetType ( ) . ToString ( );
-            int offset = line . LastIndexOf ( '.' ) + 1;
-            strs [ 0 ] = line . Substring ( offset );
-            strs [ 1 ] = $"Tabview . Tabcntrl . {ctrltype [ 0 ]}";
-            if ( Ctrlptr . GetType ( ) == typeof ( DgUserControl ) ) { if ( showinfo ) Debug . WriteLine ( $"Type of DataGrid received in Dynamic variable is {strs [ 0 ] . ToUpper ( )}" ); }
-            else if ( Ctrlptr . GetType ( ) == typeof ( LbUserControl ) ) { if ( showinfo ) Debug . WriteLine ( $"Type of ListBox received in Dynamic variable is {strs [ 0 ] . ToUpper ( )}" ); }
-            else if ( Ctrlptr . GetType ( ) == typeof ( LvUserControl ) ) { if ( showinfo ) Debug . WriteLine ( $"Type of ListView  received in Dynamic variable is {strs [ 0 ] . ToUpper ( )}" ); }
-            isvalid = Ctrlptr . GetType ( ) != null ? true : false; ;
-            return isvalid;
-        }
+        //public static bool GetDynamicVarType ( dynamic Ctrlptr , out string [ ] strs , bool showinfo = false ) {
+        //    //*************************************************************************************
+        //    // Discovers what type the dynamic item is and returns a string contaiining its type
+        //    //*************************************************************************************
+        //    strs = new string [ ] { "" , "" , "" };
+        //    bool isvalid = false;
+        //    string [ ] ctrltype = { "" , "" , "" };
+        //    string line = Ctrlptr . GetType ( ) . ToString ( );
+        //    strs [ 2 ] = Ctrlptr . GetType ( ) . ToString ( );
+        //    int offset = line . LastIndexOf ( '.' ) + 1;
+        //    strs [ 0 ] = line . Substring ( offset );
+        //    strs [ 1 ] = $"Tabview . Tabcntrl . {ctrltype [ 0 ]}";
+        //    if ( Ctrlptr . GetType ( ) == typeof ( DgUserControl ) ) { if ( showinfo ) Debug . WriteLine ( $"Type of DataGrid received in Dynamic variable is {strs [ 0 ] . ToUpper ( )}" ); }
+        //    else if ( Ctrlptr . GetType ( ) == typeof ( LbUserControl ) ) { if ( showinfo ) Debug . WriteLine ( $"Type of ListBox received in Dynamic variable is {strs [ 0 ] . ToUpper ( )}" ); }
+        //    else if ( Ctrlptr . GetType ( ) == typeof ( LvUserControl ) ) { if ( showinfo ) Debug . WriteLine ( $"Type of ListView  received in Dynamic variable is {strs [ 0 ] . ToUpper ( )}" ); }
+        //    isvalid = Ctrlptr . GetType ( ) != null ? true : false; ;
+        //    return isvalid;
+        //}
 
         #endregion Dynamic Handlers
 
     }
-
 }

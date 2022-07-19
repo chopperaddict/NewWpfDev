@@ -118,12 +118,12 @@ namespace NewWpfDev . UserControls {
             //TestLoan . TimeLastLoaded = DateTime . Now;
             openFileStream . Close ( );
         }
-        public static void WriteSerializedObject ( ) {
-            Stream SaveFileStream = File . Create ( FileName );
-            BinaryFormatter serializer = new BinaryFormatter ( );
-            serializer . Serialize ( SaveFileStream , Tabview . Tabcntrl . dgUserctrl );
-            SaveFileStream . Close ( );
-        }
+        //public static void WriteSerializedObject ( ) {
+        //    Stream SaveFileStream = File . Create ( FileName );
+        //    BinaryFormatter serializer = new BinaryFormatter ( );
+        //    serializer . Serialize ( SaveFileStream , Tabview . Tabcntrl . dgUserctrl );
+        //    SaveFileStream . Close ( );
+        //}
         private void EventControl_BankDataLoaded ( object sender , LoadedEventArgs e ) {
             if ( e . CallerType != "LvUserControl" ) return;
             Application . Current . Dispatcher . Invoke ( async ( ) => {

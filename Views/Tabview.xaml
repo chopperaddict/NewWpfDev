@@ -681,7 +681,7 @@
                 </MenuItem.Header>
             </MenuItem>
 
-            <MenuItem  Click="Serialize_DgUserControl"
+            <!--<MenuItem  Click="Serialize_DgUserControl"
                     Style="{StaticResource MenuItemBlue}">
                 <MenuItem.Header>
                     <TextBlock 
@@ -728,7 +728,7 @@
                                 Margin="0 0 0 0"
                                 Width="350"/>
                 </MenuItem.Header>
-            </MenuItem>
+            </MenuItem>-->
 
         </ContextMenu>
 

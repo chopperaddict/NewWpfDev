@@ -431,28 +431,27 @@ namespace NewWpfDev. Sql
 		}
 
 		#endregion generic data formatting methods
-		public static GenericClass ParseDapperRow ( dynamic buff , Dictionary<string , object> dict , out int colcount )
+		public static ObservableCollection<GenericClass> ParseDapperRow ( ObservableCollection<GenericClass>buff, Dictionary<string , object> dict , out int colcount )
 		{
-			//			StringBuilder sb = new StringBuilder();
-			GenericClass GenRow = new GenericClass();
-			int index=0;
+			//GenericClass GenRow = new GenericClass();
+			//int index=0;
 			colcount = 0;
-			foreach ( var item in buff )
-			{
-				try
-				{
-					if ( item . Key == "" || item . Value == null )
-						break;
-					dict . Add ( item . Key , item . Value );
-					index++;
-				} catch ( Exception ex )
-				{
-					MessageBox . Show ( $"ParseDapper error was : \n{ex . Message}\nKey={item . Key} Value={item . Value . ToString ( )}" );
-					break;
-				}
-			}
-			colcount = index;
-			return GenRow;
+			//foreach ( var item in dict )
+			//{
+			//	try
+			//	{
+			//		if ( item . Key == "" || item . Value == null )
+			//			break;
+			//		dict . Add ( item . Key , item . Value );
+			//		index++;
+			//	} catch ( Exception ex )
+			//	{
+			//		MessageBox . Show ( $"ParseDapper error was : \n{ex . Message}\nKey={item . Key} Value={item . Value . ToString ( )}" );
+			//		break;
+			//	}
+			//}
+			//colcount = index;
+			return buff;
 		}
 		public static string GetStringFromGenericRow ( GenericClass GenRow )
 		{

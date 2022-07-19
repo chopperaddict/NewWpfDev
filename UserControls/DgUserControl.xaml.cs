@@ -72,45 +72,45 @@ namespace NewWpfDev . UserControls {
             reader . Close ( );
             return deSerialObject;
         }
-        public void WriteSerializedObjectXML ( ObservableCollection<BankAccountViewModel> dgobj ) {
-            //Creates an XML file as output
-            XmlSerializer mySerializer = new XmlSerializer ( typeof ( ObservableCollection<BankAccountViewModel> [ ] ) );
-            // To write to a file, create a StreamWriter object.  
-            StreamWriter myWriter = new StreamWriter ( FileName );
-            mySerializer . Serialize ( myWriter , dgobj );
-            myWriter . Close ( );
+        //public void WriteSerializedObjectXML ( ObservableCollection<BankAccountViewModel> dgobj ) {
+        //    //Creates an XML file as output
+        //    XmlSerializer mySerializer = new XmlSerializer ( typeof ( ObservableCollection<BankAccountViewModel> [ ] ) );
+        //    // To write to a file, create a StreamWriter object.  
+        //    StreamWriter myWriter = new StreamWriter ( FileName );
+        //    mySerializer . Serialize ( myWriter , dgobj );
+        //    myWriter . Close ( );
+        //}
+        public bool WriteSerializedObjectJSON ( object obj , string file = "" ) {
+            //Writes any linear style object as a JSON file (Observable collection works fine)
+            // Doesnt handle Datagrids or UserControl etc
+            //Create JSON String
+            if ( file == "" )
+                file = FileName;
+            try {
+                var options = new JsonSerializerOptions { WriteIndented = true , IncludeFields = true , MaxDepth = 12 };
+                string jsonString = System . Text . Json . JsonSerializer . Serialize<object> ( obj , options );
+                // Save JSON file to disk 
+                XmlSerializer mySerializer = new XmlSerializer ( typeof ( string ) );
+                StreamWriter myWriter = new StreamWriter ( file );
+                mySerializer . Serialize ( myWriter , jsonString );
+                myWriter . Close ( );
+                return true;
+            }
+            catch ( Exception ex ) {
+                Debug . WriteLine ( $"Serialization FAILED :[{ex . Message}]" );
+            }
+            return false;
         }
-        //  public bool WriteSerializedObjectJSON ( object obj , string file = "" ) {
-        //    //Writes any linear style object as a JSON file (Observable collection works fine)
-        //    // Doesnt handle Datagrids or UserControl etc
-        //    //Create JSON String
-        //    if ( file == "" )
-        //        file = FileName;
-        //    try {
-        //        var options = new JsonSerializerOptions { WriteIndented = true , IncludeFields = true , MaxDepth = 12 };
-        //        string jsonString = System . Text . Json . JsonSerializer . Serialize<object> ( obj , options );
-        //        // Save JSON file to disk 
-        //        XmlSerializer mySerializer = new XmlSerializer ( typeof ( string ) );
-        //        StreamWriter myWriter = new StreamWriter ( file );
-        //        mySerializer . Serialize ( myWriter , jsonString );
-        //        myWriter . Close ( );
-        //        return true;
-        //    }
-        //    catch ( Exception ex ) {
-        //        Debug . WriteLine ( $"Serialization FAILED :[{ex . Message}]" );
-        //    }
-        //    return false;
-        //}
-        //public string ReadSerializedObjectJson ( string file ) {
-        //    string fileName = file, output = "";
-        //    JsonTextReader reader = new JsonTextReader ( new StringReader ( file ) );
-        //    while ( reader . Read ( )){
-        //        string strg = String . Format ( "{0}, {1}" , reader . TokenType , reader . Value );
-        //        output += strg;
-        //    }
-        //    string str = reader . ReadAsString ( );
-        //      return output;
-        //}
+        public string ReadSerializedObjectJson ( string file ) {
+            string fileName = file, output = "";
+            JsonTextReader reader = new JsonTextReader ( new StringReader ( file ) );
+            while ( reader . Read ( ) ) {
+                string strg = String . Format ( "{0}, {1}" , reader . TokenType , reader . Value );
+                output += strg;
+            }
+            string str = reader . ReadAsString ( );
+            return output;
+        }
         #endregion Serialization
 
         public DgUserControl ( ) {
@@ -507,12 +507,12 @@ namespace NewWpfDev . UserControls {
         }
         #endregion Interface methods
 
-        public static void WriteSerializedObject ( ) {
-            Stream SaveFileStream = System . IO . File . Create ( FileName );
-            BinaryFormatter serializer = new BinaryFormatter ( );
-            serializer . Serialize ( SaveFileStream , Tabview . Tabcntrl . dgUserctrl );
-            SaveFileStream . Close ( );
-        }
+        //public static void WriteSerializedObject ( ) {
+        //    Stream SaveFileStream = System . IO . File . Create ( FileName );
+        //    BinaryFormatter serializer = new BinaryFormatter ( );
+        //    serializer . Serialize ( SaveFileStream , Tabview . Tabcntrl . dgUserctrl );
+        //    SaveFileStream . Close ( );
+        //}
         private void ReloadBank ( object sender , RoutedEventArgs e ) {
             Tabview . Tabcntrl . twVModel . TabLoadDb ( this , "BANKACCOUNT" , true );
         }
@@ -522,17 +522,17 @@ namespace NewWpfDev . UserControls {
         }
 
         private void WriteBinarydata ( object sender , RoutedEventArgs e ) {
-            bool result = Utils.WriteSerializedObjectJSON ( Tabview.Tabcntrl.twVModel , @"C:\users\ianch\TabWinViewModel.json" , 2 );
-            return;
+            //bool result = Utils.WriteSerializedObjectJSON ( Tabview.Tabcntrl.twVModel , @"C:\users\ianch\TabWinViewModel.json" , 2 );
+            //return;
 
-                 result =  Utils . WriteSerializedObject ( Tabview . Tabcntrl . lgUserctrl , @"C:\users\ianch\TabWinViewModel.bin" , "LbUserControl" );
-            if ( result )
-                Debug . WriteLine ( "Serilaization succeeded" );
-            else {
-                Debug . WriteLine ( "Serilaization Failed" );
-                Utils . DoErrorBeep ( 280 , 100 , 1 );
-                Utils . DoErrorBeep ( 180 , 400 , 1 );
-            }
+            //     result =  Utils . WriteSerializedObject ( Tabview . Tabcntrl . lgUserctrl , @"C:\users\ianch\TabWinViewModel.bin" , "LbUserControl" );
+            //if ( result )
+            //    Debug . WriteLine ( "Serilaization succeeded" );
+            //else {
+            //    Debug . WriteLine ( "Serilaization Failed" );
+            //    Utils . DoErrorBeep ( 280 , 100 , 1 );
+            //    Utils . DoErrorBeep ( 180 , 400 , 1 );
+            //}
         }
     }
 }

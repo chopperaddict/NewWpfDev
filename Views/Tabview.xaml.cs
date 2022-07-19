@@ -37,7 +37,7 @@ namespace NewWpfDev . Views {
         }
         #endregion OnPropertyChanged
 
-        public static dynamic Tctrl;
+//        public static dynamic Tctrl;
 
         #region Tab CONTROL STRUCTURES
         public struct DataTemplates {
@@ -91,8 +91,8 @@ namespace NewWpfDev . Views {
         #region Declarations
 
         // Critical objects variable
-        public static dynamic CtrlPtr;
-        public static dynamic Infopanelptr;
+        //public static dynamic CtrlPtr;
+        //public static dynamic Infopanelptr;
 
         public bool IsLoading { get; set; } = true;
         DatagridUserControlViewModel dgvm {
@@ -326,12 +326,12 @@ namespace NewWpfDev . Views {
             Tabview . Tabcntrl . DtTemplates . TemplatesCombo . SelectedIndex = 0;
             Mouse . OverrideCursor = Cursors . Arrow;
             Utils . SetupWindowDrag ( this );
-            Infopanelptr = LoadName;
-            string [ ] strs = { "" , "" , "" };
-            bool result = Utils . GetDynamicVarType ( Infopanelptr , out strs );
+            //Infopanelptr = LoadName;
+            //string [ ] strs = { "" , "" , "" };
+            //bool result = Utils . GetDynamicVarType ( Infopanelptr , out strs );
             //Debug . WriteLine ( $"TextBlock Info panel type is ListView : \n\"{strs [ 0 ]}\"\n\"{strs [ 1 ]}\"\n\"{strs [ 2 ]}\"" );
             // How to use "Public Static Dynamic" pointer to access Infopanel TextBlock Text from anywhere in Tabview
-            Infopanelptr . Text = "Tabview loaded successfully";
+            LoadName . Text = "Tabview loaded successfully";
             IsLoading = false;
             Console. WriteLine ("HOOOORAH, CONSOLE WRITELINE IS WORKING !!!!!!");
         }
@@ -1116,23 +1116,7 @@ namespace NewWpfDev . Views {
         #endregion  Doesnt help
 
         #region Serialization
-        private void Serialize_LvUserControl ( object sender , RoutedEventArgs e ) {
-            LvUserControl . WriteSerializedObject ( );
-        }
-
-        private void Serialize_LbUserControl ( object sender , RoutedEventArgs e ) {
-            LbUserControl . WriteSerializedObject ( );
-        }
-
-        private void Serialize_DgUserControl ( object sender , RoutedEventArgs e ) {
-            DgUserControl . WriteSerializedObject ( );
-            //      serialize ( );
-            //DgUserControl dgobj = Tabview . Tabcntrl . dgUserctrl . ReadSerializedObject ( );
-            //WpfLib1 . Utils . IsReferenceEqual ( dgobj , Tabview . Tabcntrl . dgUserctrl , "dgobj" , "Tabview.Tabcntrl.dgUserctrl" , true );
-
-
-        }
-        private string SerializeTestBank ( ) {
+         private string SerializeTestBank ( ) {
             //This Works !!!! - XAML file created from Db data as a collection
             //creates a JSON output file as JSONTEXT.json of entire BANKACCOUNT Db contents
             if ( DatagridUserControlViewModel . Bvm != null && DatagridUserControlViewModel . Bvm . Count > 0 ) {
@@ -1147,10 +1131,7 @@ namespace NewWpfDev . Views {
             return "";
         }
 
-        private void DeSerialize_DgUserControl ( object sender , RoutedEventArgs e ) {
-
-        }
-        #endregion Serializatio
+        #endregion Serialization
 
         public void LoadTemplates ( ) {
             DataTemplatesBank . Clear ( );

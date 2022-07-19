@@ -76,7 +76,6 @@ namespace NewWpfDev . UserControls {
         private const int MAXTOOLTIPSECS = 5;
         #endregion declarations
 
-
         #region Full Properties
         protected bool SelectionInAction;
         private bool isToolTipOpen;
@@ -267,12 +266,12 @@ namespace NewWpfDev . UserControls {
             Tabview . Tabcntrl . lbUserctrl = ( LbUserControl ) deserializer . Deserialize ( openFileStream );
             openFileStream . Close ( );
         }
-        public static void WriteSerializedObject ( ) {
-            Stream SaveFileStream = File . Create ( FileName );
-            BinaryFormatter serializer = new BinaryFormatter ( );
-            serializer . Serialize ( SaveFileStream , Tabview . Tabcntrl . lbUserctrl . listbox1 );
-            SaveFileStream . Close ( );
-        }
+        //public static void WriteSerializedObject ( ) {
+        //    Stream SaveFileStream = File . Create ( FileName );
+        //    BinaryFormatter serializer = new BinaryFormatter ( );
+        //    serializer . Serialize ( SaveFileStream , Tabview . Tabcntrl . lbUserctrl . listbox1 );
+        //    SaveFileStream . Close ( );
+        //}
 
         private void UserControl_Loaded ( object sender , RoutedEventArgs e ) {
             //These get called EVERY time the control gets focus,

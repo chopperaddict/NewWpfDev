@@ -67,7 +67,7 @@
         <Button x:Name="button15" Content="MenuTest" HorizontalAlignment="Left" Margin="500,82,0,0" 
             VerticalAlignment="Top" Height="40" Width="102" 
             Foreground="{StaticResource White0}" Template="{StaticResource GradientButtonTemplateBlue}" />
-        <Button x:Name="button16" Content="Dummy" HorizontalAlignment="Left" Margin="499,138,0,0" 
+        <Button x:Name="button16" Content="Bank System" HorizontalAlignment="Left" Margin="499,138,0,0" 
             VerticalAlignment="Top" Height="40" Width="102" Click="Button16_Click"
             Foreground="{StaticResource White0}" Template="{StaticResource GradientButtonTemplateBlue}" />
         <Button x:Name="button17" Content="button" HorizontalAlignment="Left" Margin="375,187,0,0" 

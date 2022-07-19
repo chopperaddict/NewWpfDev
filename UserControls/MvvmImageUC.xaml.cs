@@ -33,6 +33,7 @@ namespace NewWpfDev . UserControls
         {
             InitializeComponent ( );
             mcvm = MvvmContainerViewModel . GetMvvmContainerViewModel ( );
+            GetListOfImages ( );
             mvvmImageuc = this;
         }
 

@@ -108,15 +108,6 @@
 						BorderBrush="{TemplateBinding BorderBrush}"
 						BorderThickness="{TemplateBinding BorderThickness}"
 						CornerRadius="0,0,0,0">
-
-						<!--MOST IMPORTANT the ContentPresenter lives here and displays our
-							"Content" text correctly NB: Interestingly, it is in the BORDER which
-							is the Outermost part of a buttons "design" as shown very clearly in
-							the Visual Tree so that is where I need to put it with other controls
-							
-							V.Tree shows that inside the ContentPresenter is a StackPanel that
-							actually contains the Contents text-->
-
 						<ContentPresenter
 							Margin="2"
 							HorizontalAlignment="Center"

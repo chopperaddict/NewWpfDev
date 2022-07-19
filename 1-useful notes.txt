@@ -1,4 +1,60 @@
 ﻿==============================================================================================================
+	// How to use Themes ???
+===============================================================================================================
+Support for themes in a WPF application must be explicitly enabled by adding the following attribute to the assembly:
+
+[assembly: ThemeInfo(
+  ResourceDictionary.None,
+  ResourceDictionaryLocation.SourceAssembly
+ )]
+This will instruct WPF to look for an embedded resource file called themes\generic.xaml to determine the default look of the application's controls.
+==============================================================================================================
+	// How to use a MultiBinding to format output of a field
+===============================================================================================================
+<TextBlock>
+    <TextBlock.Text>
+        <MultiBinding StringFormat="{}{0} {1}">
+            <Binding Path="User.Forename"/>
+            <Binding Path="User.Surname"/>
+        </MultiBinding>
+    </TextBlock.Text>
+</TextBlock>
+
+Normal MultiBinding
+
+                <!--// The line <Binding />  wiill pass the current DataContext to the converter, 
+                    //plus whatever value is in the Converterparameter as a (parseable) string-->
+                    <!--//the 2nd line passes whatever the value is in the (MUST BE) Ancestor (Window or UserControl etc) 
+                    //variable or property or D.P <BankAcctDetails> (Actually another UserControl declared in this parent), -->
+                    <Button.CommandParameter>
+                        <MultiBinding Converter="{StaticResource AddTwoValuesConverter}" ConverterParameter="10">
+                            <Binding  />
+                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Window}" Path="BankAcDetails" />
+                            <!--<Binding Path="HostWin" ElementName="Width"/>-->
+                            </MultiBinding>
+
+==============================================================================================================
+	// my snippets
+===============================================================================================================
+// useful for ICommands
+icmd : generates
+        private ICommand commandname;
+        public ICommand commandname
+        {
+            get
+            {
+                if (commandname == null)
+                    commandname = new RelayCommand(ExecuteMethod, CanExecuteMethod));
+                return commandname;
+            }
+        }              
+
+earg : generates 
+           if (arg == null)
+                return true;
+            else return (bool)arg;
+ 
+==============================================================================================================
 	// How to chack objects for equality and Hashcode
 ===============================================================================================================
           WpfLib1 . Utils . IsReferenceEqual ( Tabview . Tabcntrl . ActiveControlType , Tabview . Tabcntrl . lbUserctrl , "Tabview . Tabcntrl . ActiveControlType" , "Tabview . Tabcntrl . lbUserctrl" , true );
@@ -847,7 +903,7 @@ MUST BE -				Visibility="Collapsed"
 	// GenericDbHandlers.CS is required
 
 	// GenericDbHandlersContains has this very useful helper method for ensuring SQL Db handling will acess the correct M$ Db name "Ian1" is mmmy main supply
-	// but it is geeric for any Db names shown in M$SQLServer (requires FLAGS.CS also as it  trigger the connection strings utility therein)
+	// but it is generic for any Db names shown in M$SQLServer (requires FLAGS.CS also as it  trigger the connection strings utility therein)
 ===============================================================================================================
 
 		private static void GenericDbHandlers.CheckDbDomain(string DbDomain="IAN1")
@@ -1551,7 +1607,7 @@ Func<int> getRandomNumber = () => new Random().Next(1, 100);
 Func<int, int, int>  Sum  = (x, y) => x + y;
 
 ===============================================================================================================
-// How to check for an existing data View and if one is available, use it rather than loading form Db via SQL
+// How to check for an existing data View and if one is available, use it rather than loading from Db via SQL
 // This is very much faster then reloading the data...
 ===============================================================================================================
 
@@ -1791,7 +1847,7 @@ how to use my GLOBAL color control styles (in ListBoxColorAP.CS) and NWOrder/NWC
 any ListBox/ListView in the system
 ===============================================================================================================
 
- Set these 2 properties in the LISTBOX section of the cntrol declaration
+ Set these 2 properties in the LISTBOX section of the control declaration
 
 ItemContainerStyle="{DynamicResource ListBoxColorControlTemplate}"
 ItemTemplate="{StaticResource NwCustomersDataTemplate1}"
@@ -1902,7 +1958,7 @@ Height="{Binding Height, ElementName=Innergrid, Converter={StaticResource AddTop
 		// Must declare the event
             public event RoutedEventHandler Click;
 
-		//Setup handler to handle click event  from UserControl
+		//Setup handler in parent window to handle click event  from UserControl
 		Click += new RoutedEventHandler ( Threedbtn_Click );
 
             private void OnClick ( object sender, MouseButtonEventArgs e )
@@ -1997,6 +2053,7 @@ can be used most anywhere in XAML code
 ===============================================================================================================
 			<local:ThreeDeeBtnControl.Width>
 				<MultiBinding Converter="{StaticResource WidthMultiConverter}">
+					// Important : This line passes the  current object to the converter
 					<Binding />
 					<Binding Path="TextSize" ElementName="DisplayWindow"/>
 					<Binding Path="FontDecoration" ElementName="DisplayWindow"/>

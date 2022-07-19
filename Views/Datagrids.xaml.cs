@@ -612,9 +612,7 @@ namespace NewWpfDev. Views
         {
             SqlConnection con;
             DataTable dt = new DataTable ( );
-#pragma warning disable CS0219 // The variable 'filterline' is assigned but its value is never used
-            string filterline = "";
-#pragma warning restore CS0219 // The variable 'filterline' is assigned but its value is never used
+           string filterline = "";
             string ConString = Flags . CurrentConnectionString;
             //			string ConString = ( string ) Properties . Settings . Default [ "BankSysConnectionString" ];
             //Debug . WriteLine ( $"Making new SQL connection in DETAILSCOLLECTION,  Time elapsed = {timer . ElapsedMilliseconds}" );

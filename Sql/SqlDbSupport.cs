@@ -13,6 +13,8 @@ using System . Windows;
 using System . IO;
 //using NewWpfDev. Properties;
 using NewWpfDev. Views;
+using System . Reflection;
+using System . Collections . ObjectModel;
 
 namespace NewWpfDev. Sql
 {
@@ -480,5 +482,33 @@ namespace NewWpfDev. Sql
 				return;
 			}
 		}
-	}
+
+ 
+        public static List<T> GetListOfTFromDataTable<T, U>(T dataclass, ObservableCollection<U> data, DataTable dt) {
+             List<T> newList = new List<T> ( );
+            return newList;
+        }
+        private static List<T> ConvertDataTable<T> ( DataTable dt ) {
+            List<T> data = new List<T> ( );
+            foreach ( DataRow row in dt . Rows ) {
+                T item = GetItem<T> ( row );
+                data . Add ( item );
+            }
+            return data;
+        }
+        private static T GetItem<T> ( DataRow dr ) {
+            Type temp = typeof ( T );
+            T obj = Activator . CreateInstance<T> ( );
+
+            foreach ( DataColumn column in dr . Table . Columns ) {
+                foreach ( PropertyInfo pro in temp . GetProperties ( ) ) {
+                    if ( pro . Name == column . ColumnName )
+                        pro . SetValue ( obj , dr [ column . ColumnName ] , null );
+                    else
+                        continue;
+                }
+            }
+            return obj;
+        }
+    }
 }

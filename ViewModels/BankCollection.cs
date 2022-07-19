@@ -60,7 +60,7 @@ namespace NewWpfDev. ViewModels
                     //Bankinternalcollection . Clear ( );
                     //Bankinternalcollection = new BankCollection ( );
                     ObservableCollection<BankAccountViewModel> collection = new ObservableCollection<BankAccountViewModel>();
-                    bcollection = LoadBankTaskInSortOrderasync(collection , caller , Notify);
+                    bcollection = LoadBankTaskInSortOrder(collection , caller , Notify);
                     //bcollection = Bankinternalcollection;
                 }
                 bcollection = collection;
@@ -74,7 +74,7 @@ namespace NewWpfDev. ViewModels
         }
         #endregion load  bank
 
-        public static ObservableCollection<BankAccountViewModel> LoadBankTaskInSortOrderasync (ObservableCollection<BankAccountViewModel> bcollection , string Caller , bool notify , int i = -1)
+        public static ObservableCollection<BankAccountViewModel> LoadBankTaskInSortOrder (ObservableCollection<BankAccountViewModel> bcollection , string Caller , bool notify , int i = -1)
         {
             if ( dtBank . Rows . Count > 0 )
                 dtBank . Clear();
@@ -365,6 +365,7 @@ namespace NewWpfDev. ViewModels
             SqlConnection con;
             SqlCommand cmd = null;
             string ConString = "";
+            bool success = false;
             ConString = Flags . CurrentConnectionString;
             if ( ConString == "" )
             {
@@ -380,11 +381,12 @@ namespace NewWpfDev. ViewModels
                     if ( CallerType == "CUSTOMER" )
                     {
                         cmd = new SqlCommand("UPDATE BankAccount SET BANKNO=@bankno, CUSTNO=@custno, ACTYPE=@actype, " +
-                            "ODATE=@odate, CDATE=@cdate where CUSTNO = @custno" , con);
+                            "INTRATE=@intrate, ODATE=@odate, CDATE=@cdate where CUSTNO = @custno" , con);
                         cmd . Parameters . AddWithValue("@id" , Convert . ToInt32(NewData . Id));
                         cmd . Parameters . AddWithValue("@bankno" , NewData . BankNo . ToString());
                         cmd . Parameters . AddWithValue("@custno" , NewData . CustNo . ToString());
                         cmd . Parameters . AddWithValue("@actype" , Convert . ToInt32(NewData . AcType));
+                        cmd . Parameters . AddWithValue ( "@intrate" , Convert . ToDecimal ( NewData . IntRate ) );
                         cmd . Parameters . AddWithValue("@odate" , Convert . ToDateTime(NewData . ODate));
                         cmd . Parameters . AddWithValue("@cdate" , Convert . ToDateTime(NewData . CDate));
                     }
@@ -403,17 +405,19 @@ namespace NewWpfDev. ViewModels
                     }
                     cmd . ExecuteNonQuery();
                     Debug . WriteLine("SQL Update of All Db's successful...");
+                    success = true;
                 }
             }
             catch ( Exception ex )
             {
                 Debug. WriteLine($"BANKACCOUNT Update FAILED : {ex . Message}, {ex . Data}");
+                success = false;
             }
             finally
             {
                 con . Close();
             }
-            return true;
+            return success;
         }
 
         #region update functionality

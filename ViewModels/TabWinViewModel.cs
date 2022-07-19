@@ -12,7 +12,6 @@ using System . Windows . Controls;
 using System . Windows . Input;
 using System . Windows . Media;
 using System . Windows . Threading;
-
 using NewWpfDev . AttachedProperties;
 using NewWpfDev . Converts;
 using NewWpfDev . DataTemplates;
@@ -37,7 +36,7 @@ namespace NewWpfDev . ViewModels {
 
         // DYNAMIC variables used globally (as Macros basically)
         //        Tabview Ctrlptr;
-        public static dynamic TviewInfopanelptr;
+ //       public static dynamic TviewInfopanelptr;
 //        public  static dynamic Tctrl;
 
         #region Events
@@ -134,16 +133,7 @@ namespace NewWpfDev . ViewModels {
         public static int CurrentTabIndex {
             get; set;
         }
-        //public static DgUserControl Tabview . Tabcntrl. dgUserctrl {
-        //    get; set;
-        //}
-        //public static LbUserControl Tabview . Tabcntrl. lbUserctrl {
-        //    get; set;
-        //}
-        //public static LvUserControl Tabview . Tabcntrl. lvUserctrl {
-        //    get; set;
-        //}
-        public static LogUserControl logUserctrl {
+          public static LogUserControl logUserctrl {
             get; set;
         }
         public static TvUserControl tvUserctrl {
@@ -158,7 +148,7 @@ namespace NewWpfDev . ViewModels {
         //private static object TabContentObject {
         //    get; set;
         //}
-        public static bool IsLoadingDb { get; set; } = true;
+        public static bool IsLoadingDb { get; set; } = false;
 
         #endregion Poperties
 
@@ -278,10 +268,7 @@ namespace NewWpfDev . ViewModels {
                     tvUserctrl = new TvUserControl ( );
                 if ( logUserctrl == null )
                     logUserctrl = new LogUserControl ( );
-                //Set up pointer to control structure
-                //Tctrl = Tabview . Tabcntrl;
-                //Debug . WriteLine ($"Typeof Tctrl is {Tctrl.GetType()}");
-            }
+             }
         }
 
         private async void   LoadGenBtnExecute ( object obj ) {
@@ -357,7 +344,6 @@ namespace NewWpfDev . ViewModels {
                 //Application . Current . Dispatcher . Invoke (() =>
                 Tabview . Tabcntrl . lvUserctrl . LoadCustomer ( );
 
-
                 Tabview . Tabcntrl . lvUserctrl . listview1 . ItemsSource = Tabview . Tabcntrl . lvUserctrl . Cvm;
                 DataTemplate dt = Application . Current . FindResource ( "CustomersDbTemplate1" ) as DataTemplate;
                 Tabview . Tabcntrl . lvUserctrl . listview1 . ItemTemplate = dt;
@@ -426,13 +412,6 @@ namespace NewWpfDev . ViewModels {
             Tabcontrol = Tview?.Tabctrl;
             tvUserctrl = TvUserControl . SetController ( ThisWin );
             CurrentTabIndex = 0;
-
-            // Setup our global DYNAMIC pointers
-            if ( TviewInfopanelptr == null ) {
-                TviewInfopanelptr = tview . LoadName;
-                if ( TviewInfopanelptr != null )
-                    TabWinViewModel . SetInfoString ( "\"dynamic Tviewinfopanelptr\" that enables use of \"LoadName.Text\" in Tabview set correctly" );
-            }
             return ThisWin;
         }
         public static Tabview SendTabview ( ) {
@@ -445,8 +424,7 @@ namespace NewWpfDev . ViewModels {
         // Controls tab switchng
         //************************
         public async Task SetCurrentTab ( Tabview tabview , string tab ) {
-            // Working well 2/6/22
-            //ProgressValue = 0;
+             //ProgressValue = 0;
             CurrentTabName = tab;
 
             if ( tab == "DgridTab" ) {
@@ -454,7 +432,9 @@ namespace NewWpfDev . ViewModels {
                 // DATAGRID
                 // ************//
                 TabWinViewModel . SetInfoString ( "Loading Data Grid ..." );
-                if ( IsLoadingDb == true && CurrentTabName != tab ) return;
+                if ( CurrentTabName != tab ) return;
+                if ( Tabview . Tabcntrl . dgUserctrl == null ) return;
+
                 IsLoadingDb = true;
                 // setup the current tab Id
                 Tabcontrol . SelectedIndex = 0;
@@ -523,16 +503,13 @@ namespace NewWpfDev . ViewModels {
                 // This NOW scrolls into view correctly !!!!!
                 Utils . ScrollRecordIntoView ( Tabview . Tabcntrl . dgUserctrl . grid1 , Tabview . Tabcntrl . dgUserctrl . grid1 . SelectedIndex , Tabview . Tabcntrl . dgUserctrl . grid1 . SelectedItem );
                 Tabview . Tabcntrl . dgUserctrl . grid1 . ScrollIntoView ( Tabview . Tabcntrl . dgUserctrl . grid1 . SelectedItem );
-                Tabview . CtrlPtr = Tabview . Tabcntrl . dgUserctrl;
-                string [ ] strs = { "" , "" , "" };
-                bool result = Utils . GetDynamicVarType ( Tabview . CtrlPtr , out strs , false );
                 TabWinViewModel . SetInfoString ( $"DataGrid User Control has loaded {Tabview . Tabcntrl . DbNameDg} successfully" );
             }
             else if ( tab == "ListboxTab" ) {
                 // ************//
                 // LISTBOX
                 // ************//
-                if ( IsLoadingDb == true && Tabview . Tabcntrl . lbUserctrl != null ) return;
+                if (Tabview . Tabcntrl . lbUserctrl == null ) return;
                 Mouse . OverrideCursor = Cursors . Wait;
                TabWinViewModel . SetInfoString ( "List Box Loading" );
                 IsLoadingDb = true;
@@ -618,16 +595,16 @@ namespace NewWpfDev . ViewModels {
                 TabWinViewModel . TriggerBankDbCount ( this , cargs );
                 TabWinViewModel . SetInfoString ( "" );
                  Utils . ScrollLBRecordIntoView ( Tabview . Tabcntrl . lbUserctrl . listbox1 , Tabview . Tabcntrl . lbUserctrl . listbox1 . SelectedIndex );
-                Tabview . CtrlPtr = Tabview . Tabcntrl . lbUserctrl;
-                string [ ] strs = { "" , "" , "" };
-                bool result = Utils . GetDynamicVarType ( Tabview . CtrlPtr , out strs , false );
+                //Tabview . CtrlPtr = Tabview . Tabcntrl . lbUserctrl;
+                //string [ ] strs = { "" , "" , "" };
+                //bool result = Utils . GetDynamicVarType ( Tabview . CtrlPtr , out strs , false );
                 TabWinViewModel . SetInfoString ( $"ListBoxUser Control has loaded {Tabview . Tabcntrl . DbNameLb} succesfully" );
             }
             else if ( tab == "ListviewTab" ) {
                 // ************//
                 // LISTVIEW
                 // ************//
-                if ( IsLoadingDb == true && Tabview . Tabcntrl . lvUserctrl != null ) return;
+                if (Tabview . Tabcntrl . lvUserctrl == null ) return;
 
                 IsLoadingDb = true;
                 Debug . WriteLine ( $"Setting Listview as Active tab" );
@@ -706,16 +683,16 @@ namespace NewWpfDev . ViewModels {
 
                 DbType = Tabview . Tabcntrl . CurrentTypeLv;
 
-                Tabview . CtrlPtr = Tabview . Tabcntrl . lvUserctrl;
-                string [ ] strs = { "" , "" , "" };
-                bool result = Utils . GetDynamicVarType ( Tabview . CtrlPtr , out strs , false );
+                //Tabview . CtrlPtr = Tabview . Tabcntrl . lvUserctrl;
+                //string [ ] strs = { "" , "" , "" };
+                //bool result = Utils . GetDynamicVarType ( Tabview . CtrlPtr , out strs , false );
                TabWinViewModel . SetInfoString ( $"ListView User Control has loaded {Tabview . Tabcntrl . DbNameLv} succesfully" );
             }
             else if ( tab == "LogviewTab" ) {
                 // ************//
                 // LOGVIEW
                 // ************//
-                if ( IsLoadingDb == true && CurrentTabName != tab ) return;
+                if (  CurrentTabName != tab ) return;
 
                 Tabview . Tabcntrl . twVModel . CanExpand = true;
 
@@ -769,7 +746,7 @@ namespace NewWpfDev . ViewModels {
                 // ************//
                 Tabview . Tabcntrl . twVModel . CanExpand = true;
 
-                if ( IsLoadingDb == true && CurrentTabName != tab ) return;
+                if (  CurrentTabName != tab ) return;
                 IsLoadingDb = true;
                 ClearTags ( );
                 Tabcontrol . SelectedIndex = 4;
@@ -1879,15 +1856,8 @@ namespace NewWpfDev . ViewModels {
         public void UpdateinfoPanel ( string message ) {
             // Updates  the  info panel at bottom of Tabview Window
             // Uses Full property TabviewInfoString  binded  to conntrol
-            try {
-                if ( TviewInfopanelptr != null ) {
-                    TabviewInfoString = message;
-                }
-            }
-            catch ( Exception ex ) {
-                Debug . WriteLine ( $"Dynamic info panel method failed : [{ex . Message}]" );
-            }
-        }
+           Tabview.Tabcntrl.tabView . LoadName.Text = message;
+          }
         #endregion Info panel global handlers
 
         #region NOT USED

@@ -141,5 +141,12 @@ namespace NewWpfDev . UserControls {
             treeview1 . FontSize = Fontsize;
             treeview1 . UpdateLayout ( );
         }
+
+        private void TreeView_MouseLeftButtonUp ( object sender , MouseButtonEventArgs e ) {
+            // Intercepts left mouse button click event in my TreeView
+            // Can do whatever we like from here on......
+            TreeViewItem tvi = ( TreeViewItem ) sender;
+            e . Handled = true;
+        }
     }
 }

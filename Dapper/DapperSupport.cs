@@ -47,17 +47,11 @@ namespace NewWpfDev. Dapper
 			// Use DAPPER to run a Stored Procedure
 			//====================================
 			string result = "";
-#pragma warning disable CS0219 // The variable 'HasArgs' is assigned but its value is never used
 			bool HasArgs = false;
-#pragma warning restore CS0219 // The variable 'HasArgs' is assigned but its value is never used
-#pragma warning disable CS0219 // The variable 'argcount' is assigned but its value is never used
 			int argcount = 0;
-#pragma warning restore CS0219 // The variable 'argcount' is assigned but its value is never used
 			//DbToOpen = "";
 			errormsg = "";
-#pragma warning disable CS0168 // The variable 'resultDb' is declared but never used
 			IEnumerable  resultDb;
-#pragma warning restore CS0168 // The variable 'resultDb' is declared but never used
 			genericlist = new List<string> ( );
 			string arg1="", arg2="", arg3="", arg4="";
 			Dictionary<string , object> dict = new Dictionary<string, object>();
@@ -4433,7 +4427,7 @@ namespace NewWpfDev. Dapper
 			}
 			catch ( Exception ex )
 			{
-				Debug. WriteLine ( $"Column count error '{ex . Message}'" );
+				Debug. WriteLine ( $"Column count error '{ex . Message}, {ex.Data}'" );
 			}
 			return 0;
 		}

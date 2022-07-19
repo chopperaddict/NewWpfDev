@@ -1,5 +1,6 @@
 ﻿using System;
 using System . Collections . Generic;
+using System . Diagnostics;
 using System . Linq;
 using System . Text;
 using System . Threading . Tasks;
@@ -19,6 +20,7 @@ namespace NewWpfDev. ViewModels
             public RelayCommand ( Action<object> executeMethod , Func<object , bool> canexecuteMethod )
             {
                   _executeMethod = executeMethod;
+                    Debug . WriteLine ($"Calling Command {executeMethod.Method.ToString()}");
                   _canexecuteMethod = canexecuteMethod;
             }
 
@@ -54,6 +56,7 @@ namespace NewWpfDev. ViewModels
 #pragma warning disable CS0168 // The variable 'ex' is declared but never used
             try
             {
+                Debug . WriteLine ($"Executing {parameter?.GetType().ToString()}");
                 _executeMethod ( parameter );
             }
             catch ( Exception ex ) { }

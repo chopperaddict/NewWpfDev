@@ -766,15 +766,11 @@ namespace NewWpfDev . UserControls
 			// This how to access Row data from  a grid the easiest way.... parsed into a List <xxxxx>
 			if ( dt != null )
 			{
-				//				dbNameLb . Items . Clear ( );
-				//				dbNameLv . Items . Clear ( );
 				list = Utils . GetDataDridRowsAsListOfStrings ( dt );
 				if ( DbName == "NORTHWIND" )
 				{
 					foreach ( string row in list )
 					{
-						//						dbNameLb . Items . Add ( row );
-						//						dbNameLv . Items . Add ( row );
 						if ( row . ToUpper ( ) == CurrentTableName )
 							listindex = count;
 						count++;
@@ -784,8 +780,6 @@ namespace NewWpfDev . UserControls
 				{
 					foreach ( string row in list )
 					{
-						//						dbNameLb . Items . Add ( row );
-						//						dbNameLv . Items . Add ( row );
 						if ( row . ToUpper ( ) == CurrentTableName )
 							listindex = count;
 						count++;
@@ -795,8 +789,6 @@ namespace NewWpfDev . UserControls
 				{
 					foreach ( string row in list )
 					{
-						//						dbNameLb . Items . Add ( row );
-						//						dbNameLv . Items . Add ( row );
 						if ( row . ToUpper ( ) == CurrentTableName )
 							listindex = count;
 						count++;
