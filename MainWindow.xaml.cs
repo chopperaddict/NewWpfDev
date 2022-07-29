@@ -250,6 +250,8 @@ namespace NewWpfDev
             this . Top = 100;
             this . Left = 100;
             WpfLib1 . Utils . SetupWindowDrag ( this );
+            this . Show ( );
+            Mouse . SetCursor ( Cursors . Wait);
             Flags . CurrentConnectionString = ( string ) Properties . Settings . Default [ "BankSysConnectionString" ];
             Flags . FlowdocCrMultplier = 3.0;
             Flags . UseFlowdoc = Properties . Settings . Default . UseFlowDoc . ToUpper ( ) == "TRUE" ? true : false;
@@ -268,70 +270,72 @@ namespace NewWpfDev
                 Properties . Settings . Default . Save ( );
                 WpfLib1 . Utils . SaveProperty ( "AppRootPath" , startpath );
             }
+            //Button16_Click ( null, null );
+            //Mouse . SetCursor ( Cursors . Arrow );
         }
 
-    
+
         //		private void button1_Click ( object sender , RoutedEventArgs e )
-//		{
-//			Datagrids dg = new Datagrids();
-//			dg . Show ( );
-//		}
+        //		{
+        //			Datagrids dg = new Datagrids();
+        //			dg . Show ( );
+        //		}
 
-//		private void button2_Click ( object sender , RoutedEventArgs e )
-//		{
-//			Listviews lv = new Listviews();
-//			lv. Show ( );
-//		}
+        //		private void button2_Click ( object sender , RoutedEventArgs e )
+        //		{
+        //			Listviews lv = new Listviews();
+        //			lv. Show ( );
+        //		}
 
-//		private void button3_Click ( object sender , RoutedEventArgs e )
-//		{
-//			TreeViews tv = new TreeViews();
-//#pragma warning disable CS0168 // The variable 'ex' is declared but never used
-//			try
-//			{
-//				tv . Show ( );
-//			}
-//            catch ( Exception ex ) { Debug. WriteLine ("TreeViews already open"); }
-//#pragma warning restore CS0168 // The variable 'ex' is declared but never used
-//		}
+        //		private void button3_Click ( object sender , RoutedEventArgs e )
+        //		{
+        //			TreeViews tv = new TreeViews();
+        //#pragma warning disable CS0168 // The variable 'ex' is declared but never used
+        //			try
+        //			{
+        //				tv . Show ( );
+        //			}
+        //            catch ( Exception ex ) { Debug. WriteLine ("TreeViews already open"); }
+        //#pragma warning restore CS0168 // The variable 'ex' is declared but never used
+        //		}
 
-//		private void button4_Click ( object sender , RoutedEventArgs e )
-//		{
-//			VmTest vmt = new VmTest();
-//			vmt . Show ( );
-//		}
+        //		private void button4_Click ( object sender , RoutedEventArgs e )
+        //		{
+        //			VmTest vmt = new VmTest();
+        //			vmt . Show ( );
+        //		}
 
-//		private void button5_Click ( object sender , RoutedEventArgs e )
-//		{
-//			GenericMvvmWindow gmvvm = new GenericMvvmWindow();
-//			gmvvm . Show ( );
-//		}
+        //		private void button5_Click ( object sender , RoutedEventArgs e )
+        //		{
+        //			GenericMvvmWindow gmvvm = new GenericMvvmWindow();
+        //			gmvvm . Show ( );
+        //		}
 
-//		private void button6_Click ( object sender , RoutedEventArgs e )
-//		{
-//			MvvmDataGrid bg = new MvvmDataGrid();
-//			bg . Show ( );
-//		}
+        //		private void button6_Click ( object sender , RoutedEventArgs e )
+        //		{
+        //			MvvmDataGrid bg = new MvvmDataGrid();
+        //			bg . Show ( );
+        //		}
 
-//		private void button7_Click ( object sender , RoutedEventArgs e )
-//		{
-//			MvvmUserTest mut = new MvvmUserTest();
-//			mut . Show ( );
-//		}
+        //		private void button7_Click ( object sender , RoutedEventArgs e )
+        //		{
+        //			MvvmUserTest mut = new MvvmUserTest();
+        //			mut . Show ( );
+        //		}
 
-//		private void button8_Click ( object sender , RoutedEventArgs e )
-//		{
-//			ModernViews ga = new ModernViews ( );
-//			ga . Show ( );
-//		}
+        //		private void button8_Click ( object sender , RoutedEventArgs e )
+        //		{
+        //			ModernViews ga = new ModernViews ( );
+        //			ga . Show ( );
+        //		}
 
-		//private void button9_Click ( object sender , RoutedEventArgs e )
-		//{
-		//	SysConfig scfg = new         SysConfig();
-		//	scfg . Show ( );
+        //private void button9_Click ( object sender , RoutedEventArgs e )
+        //{
+        //	SysConfig scfg = new         SysConfig();
+        //	scfg . Show ( );
 
 
-		private void button10_Click ( object sender , RoutedEventArgs e )
+        private void button10_Click ( object sender , RoutedEventArgs e )
 		{
 			this . Close ( );
 			Application . Current . Shutdown ( );
@@ -448,6 +452,16 @@ namespace NewWpfDev
         private void Button21_Click ( object sender , RoutedEventArgs e ) {
             YieldWindow yw = new YieldWindow ( );
             yw . Show ( );
+        }
+
+        private void Button4_Click ( object sender , RoutedEventArgs e )
+        {
+
+        }
+
+        private void Button5_Cick ( object sender , RoutedEventArgs e )
+        {
+
         }
     }
 }

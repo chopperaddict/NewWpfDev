@@ -36,7 +36,17 @@ namespace NewWpfDev . Models {
         // This is the ViewModel for BankAcHost
 
         public static BankAcHost Host { get; set; }
- 
+
+        #region Full Props
+        private string infotxt = "";
+        public string InfoText
+        {
+            get { return infotxt; }
+            set { infotxt = value; NotifyPropertyChanged ( nameof ( InfoText ) ); }
+        }
+        #endregion Full Props
+
+
         #region Exit ICommand
 
         private ICommand exitFullSystem;
@@ -126,8 +136,8 @@ namespace NewWpfDev . Models {
             get {
                 if ( selectGrid == null ) {
                     selectGrid = new RelayCommand (
-                        ( parameter ) => ExecuteselectGrid ( parameter ) ,
-                        ( parameter ) => CanExecuteselectGrid ( parameter )
+                        (object  parameter ) => ExecuteselectGrid ( parameter ) ,
+                        ( object  parameter ) => CanExecuteselectGrid ( parameter )
                    );
                 }
                 Debug . WriteLine ( $"SelectGrid hit" );
@@ -135,17 +145,25 @@ namespace NewWpfDev . Models {
             }
         }
         private void ExecuteselectGrid ( object obj ) {
+            //Host . SetActivePanel ( obj .ToString() );
             SelectAcctGrid ( obj );
         }
         private bool CanExecuteselectGrid ( object arg ) { return true; }
 
         private void SelectAcctGrid ( object obj ) {
-            if ( obj is object [ ] parameters ) {
+            // How to parse out arguments (usually created by a Converter (single or MultiBinding) of some form)
+            if ( obj is object [ ] parameters )
+            {
+                // This receives [3] arguments created by AddTwoValuesConverter
+                // I define these to be string, calling class, generic object
                 if ( parameters == null ) return;
-                Debug . WriteLine ( $"{parameters [ 0 ]? . GetType ( ) . ToString ( )}" );
-                Debug . WriteLine ( $"{parameters [ 1 ] ?. GetType ( ) . ToString ( )}" );
+                Debug . WriteLine ( $"{parameters [ 0 ]?.GetType ( ) . ToString ( )}" );
+                Debug . WriteLine ( $"{parameters [ 1 ]?.GetType ( ) . ToString ( )}" );
+                Debug . WriteLine ( $"{parameters [ 2 ]?.GetType ( ) . ToString ( )}" );
+                Host . SetActivePanel ( parameters [0] . ToString ( ) );
             }
-            Host . SetActivePanel ( "BANKACCOUNTGRID" );
+            else
+            Host . SetActivePanel ( obj.ToString() );
         }
         #endregion SelectGrid
 

@@ -402,7 +402,7 @@
 						</RepeatButton>
 						<RepeatButton Style="{StaticResource MenuScrollButton}"-->
 	<!--Data="{StaticResource DownArrow}" />-->
-	<Style x:Key="{x:Type Menu}"
+	<Style x:Key="DefaultMenu"
        TargetType="{x:Type Menu}">
 		<Setter Property="OverridesDefaultStyle"
           Value="True" />
@@ -411,7 +411,7 @@
 		<Setter Property="Template">
 			<Setter.Value>
 				<ControlTemplate TargetType="{x:Type Menu}">
-					<Border BorderThickness="1">
+                    <!--<Border BorderThickness="0" >
 						<Border.BorderBrush>
 							<LinearGradientBrush StartPoint="0,0"
                                  EndPoint="0,1">
@@ -425,8 +425,8 @@
 								</LinearGradientBrush.GradientStops>
 							</LinearGradientBrush>
 
-						</Border.BorderBrush>
-						<Border.Background>
+						</Border.BorderBrush>-->
+						<!--<Border.Background>
 							<LinearGradientBrush EndPoint="0.5,1"
                                  StartPoint="0.5,0">
 								<GradientStop Color="{DynamicResource ControlLightColor}"
@@ -434,11 +434,11 @@
 								<GradientStop Color="{DynamicResource ControlMediumColor}"
                             Offset="1" />
 							</LinearGradientBrush>
-						</Border.Background>
+						</Border.Background>-->
 						<StackPanel ClipToBounds="True"
                       Orientation="Horizontal"
                       IsItemsHost="True" />
-					</Border>
+					<!--</Border>-->
 				</ControlTemplate>
 			</Setter.Value>
 		</Setter>

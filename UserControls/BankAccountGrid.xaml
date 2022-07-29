@@ -14,31 +14,25 @@
              d:DesignHeight="450" d:DesignWidth="800">
     
     <UserControl.Resources>
-        <conv:ICommandParamsConverter x:Key="ICommandParamsConverter"/>
-
-        
+        <conv:ICommandParamsConverter x:Key="ICommandParamsConverter"/>        
     </UserControl.Resources>
+    
     <Grid  x:Name="MainGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="45"/>
             <RowDefinition/>
+            <!--<RowDefinition Height="55"/>-->
         </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="200"/>
-        </Grid.ColumnDefinitions>
 
-        <!--<Border x:Name="MainBorder" Background="{StaticResource Orange5}" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
-                Height="{Binding Path=ActualHeight, ElementName=MainGrid}" 
-                Width="{Binding Path=ActualWidth, ElementName=MainGrid}" 
-                Visibility="Collapsed"/>-->
-        
         <TextBlock Text="Bank Account Overview" Background="Red" FontSize="20"
                    Foreground="White" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" TextAlignment="Center" Padding="0 5 0 0"/>
         
            <DataGrid x:Name="grid1" Grid.Row="1" Grid.ColumnSpan="1" ItemsSource="{Binding Bvm}"
                      DataContext="{Binding Bvm, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                     Margin="0 55 20 0"
+                     CellStyle="{StaticResource BankAccountGridStyle}"
+                     Margin="0 5 5 0"
                       SelectionChanged="grid1_SelectionChanged"/>
-            </Grid >
+                     <!--CellStyle="{StaticResource MAINBankAccountGridStyle}"-->
+
+     </Grid >
 </UserControl>

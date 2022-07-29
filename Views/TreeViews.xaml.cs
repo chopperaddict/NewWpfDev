@@ -386,13 +386,9 @@ namespace NewWpfDev. Views
         #region Attached Properties
 
         public static bool Gettvselection ( DependencyObject obj )
-        {
-            return ( bool ) obj . GetValue ( tvselectionProperty );
-        }
+        {return ( bool ) obj . GetValue ( tvselectionProperty );}
         public static void Settvselection ( DependencyObject obj , bool value )
-        {
-            obj . SetValue ( tvselectionProperty , value );
-        }
+        {obj . SetValue ( tvselectionProperty , value );}
         public static readonly DependencyProperty tvselectionProperty =
             DependencyProperty . RegisterAttached ( "tvselection" , typeof ( bool ) , typeof ( TreeViews ) , new PropertyMetadata ( ( bool ) false ) );
 

@@ -1,0 +1,129 @@
+﻿<UserControl x:Class="NewWpfDev.UserControls.PopupListBox"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:NewWpfDev.UserControls"
+             mc:Ignorable="d" 
+             x:Name="BorderGrid"
+             Width="{Binding Path=CanvasWidth, ElementName=parent}"
+                d:DesignHeight="30" d:DesignWidth="179">
+
+    <UserControl.Resources>
+        <!--allows us to switch  etween datatemplates to change view of each row-->
+        <DataTemplate x:Key="Notselected">
+            <TextBlock Text="{Binding}" Foreground="White" Background="{StaticResource Blue1}" Width="{Binding ActualWidth, ElementName=StylesCombo}" />
+        </DataTemplate>
+
+        <DataTemplate x:Key="IsSelected">
+            <TextBlock Text="{Binding}" Foreground="White" Background="Red" Width="{Binding ActualWidth, ElementName=StylesCombo}"/>
+        </DataTemplate>
+
+        <DataTemplate x:Key="UnSelectedMouseover">
+            <TextBlock Text="{Binding}" Foreground="White" Background="Orange" Width="{Binding ActualWidth, ElementName=StylesCombo}"/>
+        </DataTemplate>
+
+        <DataTemplate x:Key="SelectedMouseover">
+            <TextBlock Text="{Binding}" Foreground="White" Background="Green" Width="{Binding ActualWidth, ElementName=StylesCombo}"/>
+        </DataTemplate>
+
+        <Style TargetType="{x:Type ListBoxItem}" x:Key="ContainerStyle">
+            <Setter Property="ContentTemplate" Value="{StaticResource Notselected}"/>
+            <Style.Triggers>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="false" />
+                        <Condition Property="IsSelected" Value="false" />
+                        <!--<Condition Property="IsFocused"  Value="false" />-->
+                    </MultiTrigger.Conditions>
+                    <Setter Property="ContentTemplate"   Value="{StaticResource Notselected}"/>
+                    <Setter Property="BorderThickness"   Value="0"/>
+                </MultiTrigger>
+
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="false" />
+                        <Condition Property="IsSelected"  Value="True" />
+                        <!--<Condition Property="IsFocused"  Value="True" />-->
+                    </MultiTrigger.Conditions>
+                    <Setter Property="ContentTemplate"   Value="{StaticResource IsSelected}"/>
+                    <Setter Property="BorderThickness"   Value="0"/>
+                </MultiTrigger>
+
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="True" />
+                        <Condition Property="IsSelected" Value="false" />
+                        <!--<Condition Property="IsFocused"  Value="True" />-->
+                    </MultiTrigger.Conditions>
+                    <Setter Property="ContentTemplate"   Value="{StaticResource UnSelectedMouseover}"/>
+                    <Setter Property="BorderThickness"   Value="0"/>
+                </MultiTrigger>
+
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="True" />
+                        <Condition Property="IsSelected"  Value="True" />
+                        <!--<Condition Property="IsFocused"  Value="True" />-->
+                    </MultiTrigger.Conditions>
+                    <Setter Property="ContentTemplate"   Value="{StaticResource SelectedMouseover}"/>
+                    <Setter Property="BorderThickness"   Value="0"/>
+                    <!--<Setter Property="BorderBrush"   Value="White"/>-->
+                </MultiTrigger>
+            </Style.Triggers>
+        </Style>
+
+    </UserControl.Resources>
+    <Canvas x:Name="Stylesgrid" 
+               Width="{Binding Path=CanvasWidth, ElementName=parent}" >
+
+        <ListBox x:Name="StylesCombo"
+                    Panel.ZIndex="8"
+                    FontSize="14"
+                    Padding="0 0 0 0"
+                   HorizontalContentAlignment="Left"
+                    IsHitTestVisible="true"
+                    ItemsSource="{Binding AllStyles}"
+                    HorizontalAlignment="Center"
+                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                    ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                    VerticalAlignment="Top"
+                    SelectionChanged="StylesCombo_SelectionChanged"
+                    BorderThickness="2"
+                    MouseEnter="StylesCombo_MouseEnter"
+                    MouseLeave="StylesCombo_MouseLeave" 
+                    Background="{Binding Background}"
+                    Foreground="{Binding Foreground}"
+                    ItemContainerStyle="{StaticResource ContainerStyle}" 
+                    d:ItemsSource="{d:SampleData ItemCount=5}"
+                    BorderBrush="Transparent" OverridesDefaultStyle="False"
+                 Height="27" Width="174" Canvas.Left="3" Canvas.Top="1">
+            <ListBox.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform ScaleY="1" ScaleX="1"/>
+                    <SkewTransform/>
+                    <RotateTransform/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </ListBox.RenderTransform>
+        </ListBox>
+
+        <!--ItemContainerStyle="{StaticResource ContainerStyle}" d:ItemsSource="{d:SampleData ItemCount=5}">-->
+
+        <TextBlock x:Name="ShadowText"      
+                    Padding="20 3 0 0"
+                    IsHitTestVisible="true"
+                    Panel.ZIndex="9"
+                    Text="{Binding SelectedItem, ElementName=StylesCombo}"
+                    FontSize="14"
+                    Background="{Binding Background}"
+                    Foreground="{Binding Foreground}"
+                    MouseEnter="StylesCombo_MouseEnter"
+                    MouseLeave="StylesCombo_MouseLeave" 
+                    VerticalAlignment="Top"            
+                    HorizontalAlignment="Center"
+                   Height="27"
+                   Width="176"
+                    Visibility="Visible" Canvas.Top="1" Canvas.Left="1"/>
+    </Canvas>
+</UserControl>

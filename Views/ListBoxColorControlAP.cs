@@ -13,6 +13,27 @@ namespace NewWpfDev. Views
     {
         #region Attached Properties
 
+        #region UseAttProperties
+        public static readonly DependencyProperty UseAttPropertiesProperty
+              = DependencyProperty . RegisterAttached (
+              "UseAttProperties" ,
+              typeof ( bool ) ,
+              typeof ( ListboxColorCtrlAP ) ,
+              new PropertyMetadata ( false) , OnUseAttPropertiesChanged );
+        public static bool GetUseAttProperties ( DependencyObject d )
+        {
+            return ( bool ) d . GetValue ( UseAttPropertiesProperty );
+        }
+        public static void SetUseAttProperties ( DependencyObject d , bool value )
+        {
+                d . SetValue ( UseAttPropertiesProperty , value );
+        }
+        private static bool OnUseAttPropertiesChanged ( object value )
+        {
+            //Debug. WriteLine ( $"AP : OnBackgroundchanged = {value}" );
+            return true;
+        }
+        #endregion UseAttProperties
 
         #region Background 
         public static readonly DependencyProperty BackgroundProperty
@@ -23,12 +44,15 @@ namespace NewWpfDev. Views
               new PropertyMetadata(Brushes . Aquamarine) , OnBackgroundChanged);
         public static Brush GetBackground (DependencyObject d)
         {
-            return ( Brush )d . GetValue(BackgroundProperty);
+            if ( GetUseAttProperties ( d) )
+                return ( Brush )d . GetValue(BackgroundProperty);
+            return ( Brush ) null;
         }
         public static void SetBackground (DependencyObject d , Brush value)
         {
             //Debug. WriteLine ( $"AP : setting Background to {value}" );
-            d . SetValue(BackgroundProperty , value);
+            if( GetUseAttProperties(d) )
+                    d . SetValue(BackgroundProperty , value);
         }
         private static bool OnBackgroundChanged (object value)
         {
@@ -46,12 +70,15 @@ namespace NewWpfDev. Views
              new PropertyMetadata(Brushes . Aquamarine) , OnBackgroundColorChanged);
         public static Brush GetBackgroundColor (DependencyObject d)
         {
-            return ( Brush )d . GetValue(BackgroundColorProperty);
+            if ( GetUseAttProperties ( d ) )
+                return ( Brush )d . GetValue(BackgroundColorProperty);
+            return (Brush)null;
         }
         public static void SetBackgroundColor (DependencyObject d , Brush value)
         {
             //Debug. WriteLine ( $"AP : setting Background to {value}" );
-            d . SetValue(BackgroundColorProperty , value);
+            if ( GetUseAttProperties ( d ) )
+                d . SetValue(BackgroundColorProperty , value);
         }
         private static bool OnBackgroundColorChanged (object value)
         {// Debug. WriteLine ( $"AP : OnBackgroundColorchanged = {value}" );
@@ -62,12 +89,15 @@ namespace NewWpfDev. Views
         #region BorderBrush
         public static Brush GetBorderBrush (DependencyObject obj)
         {
-            return ( Brush )obj . GetValue(BorderBrushProperty);
+            if ( GetUseAttProperties ( obj ) )
+                return ( Brush )obj . GetValue(BorderBrushProperty);
+            return ( Brush )null;
         }
 
         public static void SetBorderBrush (DependencyObject obj , Brush value)
         {
-            obj . SetValue(BorderBrushProperty , value);
+            if ( GetUseAttProperties ( obj ) )
+                obj . SetValue(BorderBrushProperty , value);
         }
 
         // Using a DependencyProperty as the backing store for BorderBrush.  This enables animation, styling, binding, etc...
@@ -78,12 +108,15 @@ namespace NewWpfDev. Views
         #region BorderThickness
         public static Thickness GetBorderThickness (DependencyObject obj)
         {
-            return ( Thickness )obj . GetValue(BorderThicknessProperty);
+            if ( GetUseAttProperties ( obj ) )
+                return ( Thickness )obj . GetValue(BorderThicknessProperty);
+            return ( new Thickness { Top=0, Left=0, Bottom=0, Right=0} );
         }
 
         public static void SetBorderThickness (DependencyObject obj , Thickness value)
         {
-            obj . SetValue(BorderThicknessProperty , value);
+            if ( GetUseAttProperties ( obj ) )
+                obj . SetValue(BorderThicknessProperty , value);
         }
 
         // Using a DependencyProperty as the backing store for BorderThickness.  This enables animation, styling, binding, etc...
@@ -94,12 +127,15 @@ namespace NewWpfDev. Views
         #region FontSize
         public static double GetFontSize (DependencyObject obj)
         {
-            return ( double )obj . GetValue(FontSizeProperty);
+            if ( GetUseAttProperties ( obj ) )
+                return ( double )obj . GetValue(FontSizeProperty);
+            return ( double ) 12;
         }
 
         public static void SetFontSize (DependencyObject obj , double value)
         {
-            obj . SetValue(FontSizeProperty , value);
+            if ( GetUseAttProperties ( obj ) )
+                obj . SetValue(FontSizeProperty , value);
         }
 
         // Using a DependencyProperty as the backing store for FontSize.  This enables animation, styling, binding, etc...
@@ -110,12 +146,15 @@ namespace NewWpfDev. Views
         #region FontWeight
         public static FontWeight GetFontWeight (DependencyObject obj)
         {
-            return ( FontWeight )obj . GetValue(FontWeightProperty);
+            if ( GetUseAttProperties ( obj ) )
+                return ( FontWeight )obj . GetValue(FontWeightProperty);
+            return new FontWeight() ;
         }
 
         public static void SetFontWeight (DependencyObject obj , FontWeight value)
         {
-            obj . SetValue(FontWeightProperty , value);
+            if ( GetUseAttProperties ( obj ) )
+                obj . SetValue(FontWeightProperty , value);
         }
 
         // Using a DependencyProperty as the backing store for FontWeight.  This enables animation, styling, binding, etc...
@@ -126,12 +165,15 @@ namespace NewWpfDev. Views
         #region FontWeightSelected
         public static FontWeight GetFontWeightSelected (DependencyObject obj)
         {
-            return ( FontWeight )obj . GetValue(FontWeightSelectedProperty);
+            if ( GetUseAttProperties ( obj ) )
+                return ( FontWeight )obj . GetValue(FontWeightSelectedProperty);
+            return new FontWeight ( );
         }
 
         public static void SetFontWeightSelected (DependencyObject obj , FontWeight value)
         {
-            obj . SetValue(FontWeightSelectedProperty , value);
+            if ( GetUseAttProperties ( obj ) )
+                obj . SetValue(FontWeightSelectedProperty , value);
         }
 
         // Using a DependencyProperty as the backing store for FontWeight.  This enables animation, styling, binding, etc...
@@ -155,11 +197,14 @@ namespace NewWpfDev. Views
 
         public static Brush GetForeground (DependencyObject d)
         {
-            return ( Brush )d . GetValue(ForegroundProperty);
+            if ( GetUseAttProperties ( d) )
+                return ( Brush )d . GetValue(ForegroundProperty);
+            return ( Brush ) null;
         }
         public static void SetForeground (DependencyObject d , Brush value)
         {
-            d . SetValue(ForegroundProperty , value);
+            if ( GetUseAttProperties ( d ) )
+                d . SetValue(ForegroundProperty , value);
         }
         private static bool OnForegroundChanged (object value)
         {
@@ -178,11 +223,14 @@ namespace NewWpfDev. Views
 
         public static double GetItemHeight (DependencyObject d)
         {
-            return ( double )d . GetValue(ItemHeightProperty);
+            if ( GetUseAttProperties ( d ) )
+                return ( double )d . GetValue(ItemHeightProperty);
+            return ( double ) 12;
         }
         public static void SetItemHeight (DependencyObject d , double value)
         {
-            d . SetValue(ItemHeightProperty , value);
+            if ( GetUseAttProperties ( d) )
+                d . SetValue(ItemHeightProperty , value);
         }
         private static bool OnItemheightChanged (object value)
         {
@@ -195,12 +243,15 @@ namespace NewWpfDev. Views
         #region SelectionBackground 
         public static Brush GetSelectionBackground (DependencyObject obj)
         {
-            return ( Brush )obj . GetValue(SelectionBackgroundProperty);
+            if ( GetUseAttProperties ( obj ) )
+                return ( Brush )obj . GetValue(SelectionBackgroundProperty);
+            return (Brush )null;
         }
 
         public static void SetSelectionBackground (DependencyObject obj , Brush value)
         {
-            obj . SetValue(SelectionBackgroundProperty , value);
+            if ( GetUseAttProperties ( obj ) )
+                obj . SetValue(SelectionBackgroundProperty , value);
         }
 
         // Using a DependencyProperty as the backing store for SelectionBackground.  This enables animation, styling, binding, etc...
@@ -212,11 +263,14 @@ namespace NewWpfDev. Views
         #region SelectionForeground
         public static Brush GetSelectionForeground (DependencyObject obj)
         {
-            return ( Brush )obj . GetValue(SelectionForegroundProperty);
+            if ( GetUseAttProperties ( obj ) )
+                return ( Brush )obj . GetValue(SelectionForegroundProperty);
+            return (Brush)null;
         }
         public static void SetSelectionForeground (DependencyObject obj , Brush value)
         {
-            obj . SetValue(SelectionForegroundProperty , value);
+            if ( GetUseAttProperties ( obj ) )
+                obj . SetValue(SelectionForegroundProperty , value);
         }
         // Using a DependencyProperty as the backing store for SelectionForeground.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty SelectionForegroundProperty =
@@ -227,12 +281,15 @@ namespace NewWpfDev. Views
         #region MouseoverForeground
         public static Brush GetMouseoverForeground (DependencyObject obj)
         {
-            return ( Brush )obj . GetValue(MouseoverForegroundProperty);
+            if ( GetUseAttProperties ( obj ) )
+                return ( Brush )obj . GetValue(MouseoverForegroundProperty);
+            return ( Brush ) null;
         }
 
         public static void SetMouseoverForeground (DependencyObject obj , Brush value)
         {
-            obj . SetValue(MouseoverForegroundProperty , value);
+            if ( GetUseAttProperties ( obj ) )
+                obj . SetValue(MouseoverForegroundProperty , value);
         }
 
         // Using a DependencyProperty as the backing store for MouseoverForeground.  This enables animation, styling, binding, etc...
@@ -248,7 +305,8 @@ namespace NewWpfDev. Views
 
         public static void SetMouseoverBackground (DependencyObject obj , Brush value)
         {
-            obj . SetValue(MouseoverBackgroundProperty , value);
+            if ( GetUseAttProperties ( obj ) )
+                obj . SetValue(MouseoverBackgroundProperty , value);
         }
 
         // Using a DependencyProperty as the backing store for MouseoverBackground.  This enables animation, styling, binding, etc...
@@ -259,11 +317,14 @@ namespace NewWpfDev. Views
         #region MouseoverSelectedForeground 
         public static Brush GetMouseoverSelectedForeground (DependencyObject obj)
         {
-            return ( Brush )obj . GetValue(MouseoverSelectedForegroundProperty);
+            if ( GetUseAttProperties ( obj ) )
+                return ( Brush )obj . GetValue(MouseoverSelectedForegroundProperty);
+            return ( Brush ) null;
         }
         public static void SetMouseoverSelectedForeground (DependencyObject obj , Brush value)
         {
-            obj . SetValue(MouseoverSelectedForegroundProperty , value);
+            if ( GetUseAttProperties ( obj ) )
+                obj . SetValue(MouseoverSelectedForegroundProperty , value);
         }
         public static readonly DependencyProperty MouseoverSelectedForegroundProperty =
                 DependencyProperty . RegisterAttached("MouseoverSelectedForeground" , typeof(Brush) , typeof(ListboxColorCtrlAP) , new PropertyMetadata(Brushes . White));
@@ -272,17 +333,18 @@ namespace NewWpfDev. Views
         #region MouseoverSelectedBackground 
         public static Brush GetMouseoverSelectedBackground (DependencyObject obj)
         {
-            return ( Brush )obj . GetValue(MouseoverSelectedBackgroundProperty);
+            if ( GetUseAttProperties ( obj ) )
+                return ( Brush )obj . GetValue(MouseoverSelectedBackgroundProperty);
+            return ( Brush ) null;
         }
         public static void SetMouseoverSelectedBackground (DependencyObject obj , Brush value)
         {
-            obj . SetValue(MouseoverSelectedBackgroundProperty , value);
+            if ( GetUseAttProperties ( obj ) )
+                obj . SetValue(MouseoverSelectedBackgroundProperty , value);
         }
         public static readonly DependencyProperty MouseoverSelectedBackgroundProperty =
                 DependencyProperty . RegisterAttached("MouseoverSelectedBackground" , typeof(Brush) , typeof(ListboxColorCtrlAP) , new PropertyMetadata(Brushes . Red));
         #endregion MouseoverSelectedBackground
-
-
 
 
         #region dumyAPstring
@@ -296,7 +358,8 @@ namespace NewWpfDev. Views
         }
         public static void SetdummyAPstring (DependencyObject obj , string value)
         {
-            obj . SetValue(dummyAPstringProperty , value);
+            if ( GetUseAttProperties ( obj ) )
+                obj . SetValue(dummyAPstringProperty , value);
         }
         private static bool OnstringSet (object value)
         {
@@ -315,7 +378,8 @@ namespace NewWpfDev. Views
         }
         public static void Settest2 (DependencyObject obj , string value)
         {
-            obj . SetValue(test2Property , value);
+            if ( GetUseAttProperties ( obj ) )
+                obj . SetValue(test2Property , value);
         }
         #endregion test2 AP
 
@@ -330,7 +394,8 @@ namespace NewWpfDev. Views
         }
         public static void Settest (DependencyObject obj , int value)
         {
-            obj . SetValue(testProperty , value);
+            if ( GetUseAttProperties ( obj ) )
+                obj . SetValue(testProperty , value);
         }
 
 
@@ -349,7 +414,8 @@ namespace NewWpfDev. Views
 
         public static void Setdblvalue (DependencyObject obj , double value)
         {
-            obj . SetValue(dblvalueProperty , value);
+            if ( GetUseAttProperties ( obj ) )
+                obj . SetValue(dblvalueProperty , value);
         }
 
         // Using a DependencyProperty as the backing store for dblvalue.  This enables animation, styling, binding, etc...

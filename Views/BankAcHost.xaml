@@ -7,87 +7,211 @@
         xmlns:conv="clr-namespace:NewWpfDev.Converts"
         xmlns:user="clr-namespace:NewWpfDev.UserControls"
         xmlns:models="clr-namespace:NewWpfDev.Models"
-        mc:Ignorable="d"
+         mc:Ignorable="d"
         WindowChrome.ResizeGripDirection="BottomRight"
 	    ResizeMode="CanResizeWithGrip"
         SizeChanged="Window_SizeChanged"
         Loaded="HostLoaded"
         Closed="Window_Closed"
-       MinHeight="530" MinWidth="800"
+        FontWeight="Normal"
+       MinHeight="530" MinWidth="970"
+        Background="Black"
         x:Name="HostWin"
-        Title="BankAcHost" Height="530" Width="800">
-    
+        Foreground="White"
+        Height="530" Width="960">
+    <!--Style="{StaticResource local2:ResourceKey=CustomToolWindowStyle}"-->
+
+
+    <!--xmlns:theme="clr-namespace:NewWpfDev.Themes"-->
+    <!--Style="{Binding themes:deepdark}"-->
+
     <Window.DataContext>
         <models:BankAccountVM></models:BankAccountVM>
     </Window.DataContext>
-    
+
     <Window.Resources>
         <conv:ICommandParamsConverter x:Key="ICommandParamsConverter"/>
         <conv:AdjustIntSize x:Key="ReduceWidth"/>
         <conv:AddTwoValuesConverter x:Key="AddTwoValuesConverter"/>
+
+        <!--<ResourceDictionary Source="\Themes\Darktheme.xaml" x:Key="Darkmode"/>-->
+        <!--<ResourceDictionary Source="\Themes\LightTheme.xaml" x:Key="Ligtmode"/>-->
+
+        <!--DarkMode Menu Text  mouseover color (Orange => White)-->
+        <LinearGradientBrush x:Key="DarkModeTextOrangeWhite" StartPoint="0,1" EndPoint="1,0">
+            <GradientStop Color="Orange" Offset="1" />
+            <GradientStop Color="White" Offset="0" />
+        </LinearGradientBrush>
+
+        <!--DarkMode Menu Background mouseover color(Black with elegant daigonal orange strip at Left side)-->
+        <LinearGradientBrush  x:Key="BlackYellowStrip" EndPoint="0.2, 0" StartPoint="0, 1">
+            <GradientStop Offset="0" Color="#FF000000" />
+            <GradientStop Offset="4" Color="#FF000000" />
+            <GradientStop Offset="0.5" Color="#FF9C700A" />
+            <GradientStop Offset="6" Color="#FF000000" />
+            <GradientStop Offset="1" Color="#FF000000" />
+        </LinearGradientBrush>
+
+        <!--DarkMode Menu Background Normal color ( Black => nice Orange glow on right  end)-->
+        <LinearGradientBrush x:Key="YellowBlackStrip" EndPoint="0, 1" StartPoint="1, 0">
+            <GradientStop Offset="1" Color="#FF000000" />
+            <GradientStop Offset=".6" Color="#FF000000" />
+            <GradientStop Offset="0" Color="#FF9C700A" />
+        </LinearGradientBrush>
+
+        <Style x:Key="DarkMenuItemNormal" TargetType="{x:Type MenuItem}">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="Black" />
+            <Setter Property="BorderThickness" Value="1.5" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="HorizontalContentAlignment" Value="left" />
+            <Setter Property="VerticalAlignment" Value="Bottom" />
+            <Setter Property="VerticalContentAlignment" Value="Bottom" />
+            <Setter Property="MinHeight" Value="25" />
+
+            <!--// Handles DarkMode MenuItem mouseover colors-->
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type MenuItem}">
+                        <Border x:Name="Bd" 
+							  Padding="17,0,17,0" 
+							  BorderBrush="{TemplateBinding BorderBrush}" 
+							  BorderThickness="{TemplateBinding BorderThickness}" 
+							  Background="{TemplateBinding Background}" 
+							  SnapsToDevicePixels="True" 
+							  Uid="Border_38">
+                            <ContentPresenter x:Name="ContentPresenter"  
+										Content="{TemplateBinding Header}" 
+										Grid.Column="1" ContentSource="Header" 
+										Margin="{TemplateBinding Padding}" 
+										RecognizesAccessKey="True" 
+										SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+										Uid="ContentPresenter_33"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="false">
+                                <Setter Property="Height" TargetName="Bd" Value="35"/>
+                                <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource Black0}"/>-->
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource BlackYellowStrip}"/>
+                                <Setter Property="MenuItem.Foreground" TargetName="Bd" Value="{StaticResource White0}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Height" TargetName="Bd" Value="35"/>
+                                <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource Black0}"/>-->
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource YellowBlackStrip}"/>
+                                <Setter Property="MenuItem.Foreground" TargetName="Bd" Value="{StaticResource DarkModeTextOrangeWhite}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="MenuFocusVisualStyle1" TargetType="{x:Type Control}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Control}">
+                        <Grid Background="{StaticResource Black2OrangeSlant}">
+                            <Border x:Name="border" Background="{StaticResource Black2OrangeSlant}" Height="35" Width="800"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+
     </Window.Resources>
-    
-    <Grid x:Name="Contentgrid" >
+
+    <Grid x:Name="Contentgrid"  >
         <Grid.RowDefinitions>
-            <RowDefinition Height="35"/>
-            <RowDefinition x:Name="row1"/>
+            <RowDefinition x:Name="row0" Height="35" />
+            <RowDefinition x:Name="row1" />
             <RowDefinition  Height="5"/>
-            <RowDefinition  Height="45"/>
+            <RowDefinition  Height="55"/>
         </Grid.RowDefinitions>
 
-        <Grid.ColumnDefinitions>
+        <!--<Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="200"/>
-        </Grid.ColumnDefinitions>
- 
-        <Menu>
+            <ColumnDefinition x:Name="row2" Width="200"/>
+        </Grid.ColumnDefinitions>-->
+
+        <Menu FocusVisualStyle="{DynamicResource MenuFocusVisualStyle1}" x:Name="mainmenu" 
+              BorderBrush="{StaticResource Black2OrangeSlant}"
+              Background="{StaticResource Black2}" Padding="0 5 0 0" Grid.Row="0">
+
+            <!--#region 1st menu option-->
+
+            <MenuItem Background="Black">
+                <MenuItem.Header>
+                    <TextBlock 
+                        Text="File"
+                        Style="{StaticResource DarkmodeTBlock}"        
+                        FontSize="16"                        
+                        Padding="10 0 0 0"
+                        Margin="0 0 0 0"
+                        Width="100"/>
+                </MenuItem.Header>
+
+                <!--// Top Submenu item-->
+                <MenuItem Header="Open Settings Panel"
+                          Click="Settings_Click"
+                        Style="{StaticResource DarkMenuItemNormal}" 
+                        Background="{StaticResource YellowBlackStrip}"
+                        Foreground="{StaticResource White0}"
+                        BorderBrush="Black"
+                        Padding="0 5 0 0"
+                        FontSize="14"
+                        FontWeight="DemiBold"/>
+
+                <MenuItem Header="Exit System"
+                          Click="Closepane_Click"
+                        Style="{StaticResource DarkMenuItemNormal}" 
+                        Background="{StaticResource YellowBlackStrip}"
+                        Foreground="{StaticResource White0}"
+                        BorderBrush="Black"
+                        Padding="0 5 0 0"
+                        FontSize="14"
+                        FontWeight="DemiBold"/>
+
+            </MenuItem>
+
+            <!--#endregion 1st menu option-->
+
+            <!--#region 2nd menu option-->
+
             <MenuItem >
                 <MenuItem.Header>
                     <TextBlock 
-                                Text="File"
-                                FontSize="16"
-                                 Height="25"
-                                Padding="10 0 0 0"
-                                Margin="0 0 0 0"
-                                Width="150"/>
+                        Text="Options"
+                        Style="{StaticResource DarkmodeTBlock}"        
+                        FontSize="16"                        
+                        Padding="10 0 0 0"
+                        Margin="0 0 0 0"
+                        Width="100"/>
                 </MenuItem.Header>
 
-                <MenuItem Command="{Binding LoadSetup}">
-                    <MenuItem.Header>
-                        <TextBlock Text="Load Configuration"/>
-                    </MenuItem.Header>
-                </MenuItem>
-
-                <MenuItem Command="{Binding SaveSetup}">
-                    <MenuItem.Header>
-                        <TextBlock Text="Save Configuration"/>
-                    </MenuItem.Header>
-                </MenuItem>
-
-                <MenuItem x:Name="ExitComnand" Command="{Binding ExitFullSystem}">
-                    <MenuItem.Header >
-                        <TextBlock Text="Exit" />
-                    </MenuItem.Header>
-                </MenuItem>
+                <!--// Top Submenu item-->
+                <MenuItem  Header="Close All Searched Nodes if no match"
+                            x:Name="Closenodes"
+                        Style="{StaticResource DarkMenuItemNormal}" 
+                        Background="{StaticResource YellowBlackStrip}"
+                        Foreground="{StaticResource White0}"
+                        Padding="0 5 0 0"
+                        BorderBrush="Black"
+                        FontSize="14"
+                        FontWeight="DemiBold"/>
+                <MenuItem  Header="Show log when Searching/Expanding"
+                            x:Name="showlog"
+                        Style="{StaticResource DarkMenuItemNormal}" 
+                        Background="{StaticResource YellowBlackStrip}"
+                        Foreground="{StaticResource White0}"
+                        Padding="0 5 0 0"
+                        BorderBrush="Black"
+                        FontSize="14"
+                        FontWeight="DemiBold"/>
             </MenuItem>
 
-            <MenuItem >
-                <MenuItem.Header>
-                    <TextBlock 
-                                Text="Current"
-                                FontSize="16"
-                                 Height="25"
-                                Padding="10 0 0 0"
-                                Margin="0 0 0 0"
-                                Width="150"/>
-                </MenuItem.Header>
-
-                <MenuItem Command="{Binding LoadSetup}">
-                    <MenuItem.Header>
-                        <TextBlock Text="Load Configuration"/>
-                    </MenuItem.Header>
-                </MenuItem>
-            </MenuItem>
+            <!--#endregion 2nd menu option-->
 
         </Menu>
 
@@ -95,44 +219,51 @@
             Grid.Row="1" Grid.RowSpan="1" Grid.Column="0" 
             HorizontalAlignment="Left" VerticalAlignment="Bottom" 
             HorizontalContentAlignment="Center"
+                        Background="Black"
             Height="{Binding Path=ActualHeight, ElementName=Contentgrid}" 
-			Width="{Binding Path=ActualWidth, ElementName=HostWin,
-        	    Converter={StaticResource ReduceWidth}, ConverterParameter=0}"/>
+			Width="{Binding Path=ActualWidth, ElementName=HostWin
+        	    ,Converter={StaticResource ReduceWidth}, ConverterParameter=-220}"/>
 
-        <!--Background="{StaticResource Orange7}" Content="Blank
-                        ScreenUC"/>-->
- 
         <Grid x:Name="ButtonPanel"
-            Grid.Row="0"
-              Grid.RowSpan="2"
-            Grid.Column="1"
-             Panel.ZIndex="2"
-           Background="Gray" 
-              HorizontalAlignment="Right"
-              VerticalAlignment="Stretch"
-              Visibility="Visible">
-            <WrapPanel Orientation="Vertical" HorizontalAlignment="Right" Width="190" >
-                <Button x:Name="BankDetails" Height="45" 
-                        Content="Bank Account Details"  Width="190"
-                        Style="{StaticResource AnimatedButton}"
-                    Command="{Binding Path=SelectDetails}">
+                Grid.Row="0"
+                Grid.RowSpan="2"
+                Grid.Column="1"
+                Panel.ZIndex="2"
+                Background="{StaticResource Black2}" 
+                HorizontalAlignment="Right"
+                VerticalAlignment="Stretch"
+                Visibility="Visible">
+            <Grid.RowDefinitions >
+                <RowDefinition Height="400"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+
+            <WrapPanel Grid.Row="0" Orientation="Vertical" VerticalAlignment="Top" HorizontalAlignment="Right" Width="190" Height="Auto">
+
+                <!--#region main RH Button bar-->
+
+                <Button x:Name="BankDetails" Height="45"  BorderBrush="Black"
+                                Content="Bank Account Details"  Width="190"
+                                Style="{StaticResource DarkmodeButton}"
+                            Command="{Binding Path=SelectDetails}">
                     <!--Command="{Binding Path=SelectDetails, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type models:BankAccountVM}}}" >-->
-                    
+
                     <!--// The line <Binding />  wiill pass the current DataContext to the converter, 
-                    //plus whatever value is in the Converterparameter as a (parseable) string-->
+                            //plus whatever value is in the Converterparameter as a (parseable) string-->
                     <!--//the 2nd line passes whatever the value is in the (MUST BE) Ancestor (Window or UserControl etc) 
-                    //variable or property <HostWidth> (Actually this is a D.P (int) declared in this parent), -->
+                            //variable or property <HostWidth> (Actually this is a D.P (int) declared in this parent), -->
                     <Button.CommandParameter>
                         <MultiBinding Converter="{StaticResource AddTwoValuesConverter}" ConverterParameter="120">
                             <Binding  />
                             <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Window}" Path="HostWidth" />
-                             </MultiBinding>
-                     </Button.CommandParameter>
+                        </MultiBinding>
+                    </Button.CommandParameter>
                 </Button>
-                <Button x:Name="AllAccounts" Height="45" 
-                        Content="All Accounts DataGrid"  Width="190"
-                        Style="{StaticResource AnimatedButton}"
-                    Command="{Binding Path=SelectGrid}" >
+
+                <Button x:Name="AllAccounts" Height="45"  BorderBrush="Black"
+                                Content="All Accounts DataGrid"  Width="190"
+                                Style="{StaticResource DarkmodeButton}"
+                            Command="{Binding Path=SelectGrid}" >
                     <Button.CommandParameter>
                         <MultiBinding Converter="{StaticResource ICommandParamsConverter}">
                             <MultiBinding.Bindings>
@@ -142,65 +273,113 @@
                         </MultiBinding>
                     </Button.CommandParameter>
                 </Button>
-                <Button x:Name="GenericBtn" Height="45" 
-                        Content="Universal Table DataGrid"  Width="190"
-                        Style="{StaticResource AnimatedButton}"
-                    Command="{Binding Path=SelectGenericGrid}" >
+
+                <Label Background="{StaticResource Black4}" Margin="0 10 0 0"/>
+
+                <Button x:Name="GenericBtn" Height="45" BorderBrush="Black" Margin="0 10 0 0"
+                                Content="Universal Table DataGrid"  Width="190"
+                                Style="{StaticResource DarkmodeButton}"
+                            Command="{Binding SelectGenericGrid}" >
                     <Button.CommandParameter>
                         <MultiBinding Converter="{StaticResource ICommandParamsConverter}">
-                            <MultiBinding.Bindings>
-                                <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType={x:Type local:BankAcHost}}" Path="ThisWin" />
-                                <Binding />
-                            </MultiBinding.Bindings>
+                            <Binding RelativeSource="{RelativeSource AncestorType={x:Type local:BankAcHost}, Mode=FindAncestor}" Path="ThisWin" />
+                            <Binding />
                         </MultiBinding>
                     </Button.CommandParameter>
                 </Button>
-                <Button x:Name="Button3" Height="45" 
-                         Content="Comparisons" Width="190" Style="{StaticResource AnimatedButton}"/>
-                <Button x:Name="Button4" Height="45" 
-                         Content="button 1" Width="190" Style="{StaticResource AnimatedButton}"/>
-                <Button x:Name="updatebtn" Height="45" 
-                         Content="Update Record"  Width="190" Style="{StaticResource AnimatedButton}"
-                        Click="UpdateBankRecord"/>
 
-                          <!--ComboStyle="{StaticResource ComboxItemsStyle}"-->
-                <user:ComboboxPlus x:Name="combo" 
-                           HorizontalAlignment="Left" 
-                          Margin="0 20 0 0" 
-                           VerticalAlignment="Top" Width="190"
-                           Foreground="Black"
-                           DataContext="{Binding HostWin}"     
-                            IsEnabled="true"
-                            Opacity="1"
-                            DefaultText="Select a Db Table..."/>
-                
-                <Button x:Name="Closepane" Height="45" Margin="0 20 0 0"
-                         Content="Close This Window"  Width="190" Style="{StaticResource AnimatedButton}"
-                        Click="Closepane_Click"/>
 
+                <!--#endregion main RH Button bar-->
+
+                <!--#region Tables Combo box and labels-->
+
+                <Label Background="{StaticResource Green2}" Margin="0 20 0 0"/>
+                <WrapPanel>
+
+                    <TextBlock Text="Select Db Table" 
+                               Foreground="White" Background="{StaticResource Black1}" 
+                               HorizontalAlignment="Center" 
+                               Margin="0 10 0 0" Padding="30 0 0 0" 
+                               FontSize="14" Height="20"
+                               Visibility="Visible"/>
+                    <!--ComboStyle="{StaticResource ComboxItemsStyle}"-->
+                    <user:ComboboxPlus x:Name="combo" 
+                               Background="{StaticResource Black2OrangeSlant}"        
+                               HorizontalAlignment="Left" 
+                              Margin="0 5 0 0" 
+                               VerticalAlignment="Top"
+                               Height="30" Width="180"
+                               Foreground="Black"
+                               FontSize="14"
+                               DataContext="{Binding HostWin}"     
+                                IsEnabled="true"
+                                Opacity="1"
+                                DefaultText="Select a Db Table...">
+                    </user:ComboboxPlus>
+
+                    <Button x:Name="updatebtn" Height="45"  BorderBrush="Black" Margin="0 10 0 0"
+                                 Content="Update Record"  Width="190" Style="{StaticResource DarkmodeButton}"
+                                Click="UpdateBankRecord"/>
+
+                    <Label Background="{StaticResource Green3}"  Width="190" Margin="0 10 0 0"/>
+                    <Button x:Name="Closepane" Height="45" Margin="10 20 0 0" BorderBrush="Red"
+                                 Content="Close This Window"  Width="160" Style="{StaticResource DarkmodeButton}"
+                               Click="Closepane_Click"/>
+                </WrapPanel>
+
+
+            </WrapPanel>
+
+            <WrapPanel Grid.Row="0" Orientation="Vertical" VerticalAlignment="Top" HorizontalAlignment="Right" Width="190" Height="Auto">
+
+                <!--<ListBox
+                        Grid.Row="1"
+                        Grid.RowSpan="2"
+                        Margin="0 10 0 0"
+                        Panel.ZIndex="5"
+                        x:Name="StylesCombo" Height="30"       
+                        FontSize="14"
+                        Background="Blue"
+                        Foreground="White"
+                        SelectionChanged="StylesCombo_SelectionChanged"
+                    VerticalAlignment="Bottom"
+                        BorderThickness="2"
+                        MouseEnter="StylesCombo_MouseEnter"
+                        MouseLeave="StylesCombo_MouseLeave"
+                        BorderBrush="Red" OverridesDefaultStyle="False" >
+                </ListBox>-->
+                <!--#endregion Tables Combo box and labels-->
             </WrapPanel>
         </Grid>
 
-        <TextBlock x:Name="Info" Grid.Row="2" Grid.ColumnSpan="2" Background="{StaticResource Orange1}" Padding="0 10 0 0" TextAlignment="Center" FontSize="18"
+        <!--#region  bottom buttons/panel-->
+
+        <TextBlock x:Name="Info" Grid.Row="2" Grid.ColumnSpan="2" 
+                   Background="{StaticResource Black2}" Padding="0 10 0 0"
+                   TextAlignment="Center" FontSize="18"
+                   Text="{Binding Path=InfoText, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
                    Foreground="White" HorizontalAlignment="Left" Margin="0,5,0,0" Grid.RowSpan="2" 
                    			Width="{Binding Path=ActualWidth, ElementName=Contentgrid,
-			    Converter={StaticResource ReduceWidth}, ConverterParameter=-201}"/>
-        
-        <Button Content="Close App" Grid.Row="3" Grid.Column="1"
+			    Converter={StaticResource ReduceWidth}, ConverterParameter=-201}">
+        </TextBlock>
+
+        <Button x:Name="CloseApp" Content="Close App" Grid.Row="3" Grid.Column="1"
                 Height="40"  Width =" 80" HorizontalAlignment="Right" Margin="0 0 10 0"
-                 Style="{StaticResource AnimatedButton}" Foreground="White"
+                 Style="{StaticResource RedToBlackButton}" 
                 Command="{Binding ExitFullSystem}"/>
         <Button x:Name="HidePanel" Content="Hide Panels" Grid.Row="3" Grid.Column="1"
                 Height="40"  Width =" 100" HorizontalAlignment="Right" Margin="0 0 95 0"
-                 Style="{StaticResource AnimatedButton}" Foreground="White"
+                 Style="{StaticResource DarkmodeButton}"
               Command="{Binding Path=ShowBlank}">
-             <Button.CommandParameter>
-            <MultiBinding Converter="{StaticResource AddTwoValuesConverter}" ConverterParameter="120">
-                <Binding  />
+            <Button.CommandParameter>
+                <MultiBinding Converter="{StaticResource AddTwoValuesConverter}" ConverterParameter="120">
+                    <Binding  />
                     <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Window}" Path="CurrentPanel" />
-            </MultiBinding>
+                </MultiBinding>
             </Button.CommandParameter>
         </Button>
-        
+
+        <!--#endregion  bottom buttons/panel-->
+
     </Grid>
 </Window>

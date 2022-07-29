@@ -1,11 +1,8 @@
 ﻿using Dapper;
 
-using Microsoft . VisualBasic;
-
-using NewWpfDev. Dapper;
-using NewWpfDev. Models;
-using NewWpfDev. ViewModels;
-using NewWpfDev. Views;
+using NewWpfDev . Dapper;
+using NewWpfDev . ViewModels;
+using NewWpfDev . Views;
 
 using System;
 using System . Collections;
@@ -15,15 +12,12 @@ using System . Data;
 using System . Data . SqlClient;
 using System . Diagnostics;
 using System . Linq;
-using System . Text;
-using System . Threading . Tasks;
 using System . Windows;
 using System . Windows . Controls;
-using System . Windows . Input;
 
-namespace NewWpfDev. SQL
+namespace NewWpfDev . SQL
 {
-	public class SqlSupport
+    public class SqlSupport
 	{
 		//********************************************************************************************************************************************************************************//
 		#region Wrapper methods to Fetch data & return an Observablecollection

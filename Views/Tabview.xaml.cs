@@ -845,52 +845,78 @@ namespace NewWpfDev . Views {
         #region Remote triggers  for mouseover events
         public static void TriggerStoryBoardOn ( int Id ) {
             Storyboard sb;
+
+            sb = Id  switch
+            {
+               1  => tabvw . FindResource ( "TabAnimationOn1" ) as Storyboard,
+                2 => tabvw . FindResource ( "TabAnimationOn2" ) as Storyboard,
+                3 => tabvw . FindResource ( "TabAnimationOn3" ) as Storyboard,
+                4 => tabvw . FindResource ( "TabAnimationOn4" ) as Storyboard,
+                5 => tabvw . FindResource ( "TabAnimationOn5" ) as Storyboard,
+                _ => null
+            };
+            if(sb != null) sb . Begin ( );
+            return;
+
             switch ( Id ) {
-                case 1:
-                    sb = tabvw . FindResource ( "TabAnimationOn1" ) as Storyboard;
-                    sb . Begin ( );
-                    break;
-                case 2:
-                    sb = tabvw . FindResource ( "TabAnimationOn2" ) as Storyboard;
-                    sb . Begin ( );
-                    break;
-                case 3:
-                    sb = tabvw . FindResource ( "TabAnimationOn3" ) as Storyboard;
-                    sb . Begin ( );
-                    break;
-                case 4:
-                    sb = tabvw . FindResource ( "TabAnimationOn4" ) as Storyboard;
-                    sb . Begin ( );
-                    break;
-                case 5:
-                    sb = tabvw . FindResource ( "TabAnimationOn5" ) as Storyboard;
-                    sb . Begin ( );
-                    break;
+            //    case 1:
+            //        sb = tabvw . FindResource ( "TabAnimationOn1" ) as Storyboard;
+            //        sb . Begin ( );
+            //        break;
+            //    case 2:
+            //        sb = tabvw . FindResource ( "TabAnimationOn2" ) as Storyboard;
+            //        sb . Begin ( );
+            //        break;
+            //    case 3:
+            //        sb = tabvw . FindResource ( "TabAnimationOn3" ) as Storyboard;
+            //        sb . Begin ( );
+            //        break;
+            //    case 4:
+            //        sb = tabvw . FindResource ( "TabAnimationOn4" ) as Storyboard;
+            //        sb . Begin ( );
+            //        break;
+            //    case 5:
+            //        sb = tabvw . FindResource ( "TabAnimationOn5" ) as Storyboard;
+            //        sb . Begin ( );
+            //        break;
             }
         }
         public static void TriggerStoryBoardOff ( int Id ) {
             Storyboard sb;
+
+            sb = Id switch
+            {
+                1 => tabvw . FindResource ( "TabAnimationOff1" ) as Storyboard,
+                2 => tabvw . FindResource ( "TabAnimationOff2" ) as Storyboard,
+                3 => tabvw . FindResource ( "TabAnimationOff3" ) as Storyboard,
+                4 => tabvw . FindResource ( "TabAnimationOff4" ) as Storyboard,
+                5 => tabvw . FindResource ( "TabAnimationOff5" ) as Storyboard,
+                _ => null
+            };
+            if ( sb != null ) sb . Begin ( );
+            return;
+
             switch ( Id ) {
-                case 1:
-                    sb = tabvw . FindResource ( "TabAnimationOff1" ) as Storyboard;
-                    sb . Begin ( );
-                    break;
-                case 2:
-                    sb = tabvw . FindResource ( "TabAnimationOff2" ) as Storyboard;
-                    sb . Begin ( );
-                    break;
-                case 3:
-                    sb = tabvw . FindResource ( "TabAnimationOff3" ) as Storyboard;
-                    sb . Begin ( );
-                    break;
-                case 4:
-                    sb = tabvw . FindResource ( "TabAnimationOff4" ) as Storyboard;
-                    sb . Begin ( );
-                    break;
-                case 5:
-                    sb = tabvw . FindResource ( "TabAnimationOff5" ) as Storyboard;
-                    sb . Begin ( );
-                    break;
+                //case 1:
+                //    sb = tabvw . FindResource ( "TabAnimationOff1" ) as Storyboard;
+                //    sb . Begin ( );
+                //    break;
+                //case 2:
+                //    sb = tabvw . FindResource ( "TabAnimationOff2" ) as Storyboard;
+                //    sb . Begin ( );
+                //    break;
+                //case 3:
+                //    sb = tabvw . FindResource ( "TabAnimationOff3" ) as Storyboard;
+                //    sb . Begin ( );
+                //    break;
+                //case 4:
+                //    sb = tabvw . FindResource ( "TabAnimationOff4" ) as Storyboard;
+                //    sb . Begin ( );
+                //    break;
+                //case 5:
+                //    sb = tabvw . FindResource ( "TabAnimationOff5" ) as Storyboard;
+                //    sb . Begin ( );
+                //    break;
             }
         }
         #endregion Remote triggers  for mouseover events

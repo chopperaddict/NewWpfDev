@@ -427,10 +427,11 @@
 
 		<Setter Property="Background">
 			<Setter.Value>
-				<LinearGradientBrush StartPoint="1,0" EndPoint="1,1">
-					<GradientStop Offset="0.25" Color="Red" />
-					<GradientStop Offset="0.75" Color="#FFFFD190" />
-					<GradientStop Offset="1" Color="Black" />
+				<LinearGradientBrush StartPoint="0,0.2" EndPoint="0, 0.9">
+					<GradientStop Offset="0" Color="Red" />
+                    <GradientStop Offset="0.35" Color="#FFFFD190" />
+                    <GradientStop Offset="0.65" Color="#FFFFD190" />
+                    <GradientStop Offset="1" Color="Black" />
 				</LinearGradientBrush>
 			</Setter.Value>
 		</Setter>
@@ -439,9 +440,10 @@
 				<Setter Property="Background">
 					<Setter.Value>
 						<LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-							<GradientStop Offset="0" Color="#F9A68B" />
-							<GradientStop Offset="1" Color="#6B1D04" />
-						</LinearGradientBrush>
+							<GradientStop Offset="0" Color="Red" />
+							<GradientStop Offset="0.5" Color="White" />
+                            <GradientStop Offset="1" Color="Black" />
+                        </LinearGradientBrush>
 					</Setter.Value>
 				</Setter>
 			</Trigger>

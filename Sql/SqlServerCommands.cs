@@ -1,4 +1,5 @@
 ﻿using Dapper;
+
 using NewWpfDev. Dapper;
 using NewWpfDev. ViewModels;
 
@@ -29,6 +30,7 @@ namespace NewWpfDev. Sql
 	public partial class SqlServerCommands : Window
 	{
 		ObservableCollection<GenericClass> Generics= new ObservableCollection<GenericClass>();
+        GenericClass GenClass = new GenericClass ( );
 		//********************************************************************************************************************************************************************************//
 		public ObservableCollection<GenericClass> CreateGenericDatabase ( DataGrid dgrid , List<string> ReceivedDbData , bool LoadGrid = true )
 		//********************************************************************************************************************************************************************************//

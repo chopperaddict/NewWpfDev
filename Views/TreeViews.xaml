@@ -972,23 +972,7 @@
             </Setter>
         </Style>
 
-        <Style x:Key="ComboSelectionStyle" TargetType="ComboBoxItem">
-            <Setter Property="Focusable" Value="False"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ComboBoxItem">
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="TextElement.Background" Value="{StaticResource Red5}"/>
-                                <Setter Property="TextElement.Foreground" Value="{StaticResource White0}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!--#endregion ComboBox styles-->
+          <!--#endregion ComboBox styles-->
 
         <Style x:Key="LibraryTreeViewItemStyle" TargetType="{x:Type TreeViewItem}">
             <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
@@ -1384,22 +1368,10 @@
                 <!--<Menu.BitmapEffect>
                     <DropShadowBitmapEffect Color="Red" Softness="0.3" ShadowDepth="2" />
                 </Menu.BitmapEffect>-->
-
-                <!--<MenuItem Header="Context menu" 
-                            Background="{StaticResource Blue7}" 
-                            FontWeight="Medium"
-                            FontSize="15"
-                            Margin="0 0 0 0"
-                            Padding="0 2 0 0"
-                            Height="30" 
-                            Style="{StaticResource MenuItemCyan}"
-                            Click="CtxTest">-->
-                <!--<MenuItem.BitmapEffect>
-                    <DropShadowBitmapEffect Color="Red" Softness="0.3" ShadowDepth="2" />
-                </MenuItem.BitmapEffect>-->
-                <!--</MenuItem>-->
-
-                <MenuItem Header="Open Tree Options" 
+            
+                <!--#region 1st menu option-->                
+                
+                    <MenuItem Header="Open Tree Options" 
                           Click="TreviewOptions_Click"
                             Background="{StaticResource Blue7}" 
                             Foreground="White" 
@@ -1412,29 +1384,10 @@
                             HorizontalAlignment="Right"
                             HorizontalContentAlignment="Left"
                             Width="140"/>
-                <!--Style="{StaticResource TopMenuItemYellow}"--><!--
 
-                <MenuItem Header="TreeView Window" 
-                            Background="{StaticResource Green5}" 
-                            FontWeight="Medium"
-                            FontSize="15"
-                            Margin="0 0 0 0"
-                            Padding="0 0 0 0"
-                            Height="30" 
-                            Style="{StaticResource MenuItemCyan}"
-                            Click="TViiewert_Click" 
-                            GotFocus="MenuItem_GotFocus"/>
+                <!--#endregion 1st menu option-->
 
-                --><!--<MenuItem Header="Storyboard" 
-                            Background="{StaticResource Green5}" 
-                            FontWeight="Medium"
-                            FontSize="15"
-                            Margin="0 0 0 0"
-                            Padding="0 0 0 0"
-                            Height="30" 
-                            Style="{StaticResource MenuItemCyan}"
-                            Click="TVStoryboardstart_Click" 
-                            GotFocus="MenuItem_GotFocus"/>-->
+                <!--#region 2nd menu option-->
 
                 <MenuItem Header="Options"
                         x:Name="OptionsMenuItems"
@@ -1449,8 +1402,8 @@
                         Width="80" 
                         GotFocus="MenuItem_GotFocus"
                          PreviewMouseLeftButtonDown="MainTVMenu_MouseDown">
-
-                    <MenuItem Header="TreeView Options" 
+                    
+                  <MenuItem Header="TreeView Options" 
                             Background="{StaticResource Green5}" 
                             FontWeight="Medium"
                             FontSize="15"
@@ -1532,6 +1485,11 @@
                                 GotFocus="MenuItem_GotFocus"/>
                     </MenuItem>
                 </MenuItem>
+
+                <!--#endregion 2nd menu option-->
+
+                <!--#region 3rd menu option-->
+
                 <MenuItem Header="Search"
                             FontWeight="DemiBold"
                             BorderThickness="0"
@@ -1583,8 +1541,10 @@
                             FontWeight="Medium"
                             Click="CloseApp_Click"/>
                 </MenuItem>
-            
-                </Menu>
+                
+                <!--#endregion 3rd menu option-->
+
+            </Menu>
 
             <!--#endregion Main Menu-->
 

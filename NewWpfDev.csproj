@@ -11,6 +11,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="oldThemes\**" />
+    <EmbeddedResource Remove="oldThemes\**" />
+    <None Remove="oldThemes\**" />
+    <Page Remove="oldThemes\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Remove="ViewModels\DatagridUserControlViewModel.cs" />
     <Compile Remove="Views\UserCtrlHost.xaml.cs" />
   </ItemGroup>
@@ -201,22 +208,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Dicts\" />
     <Folder Include="AttachedProperties\" />
     <Folder Include="Models\" />
     <Folder Include="Dapper\" />
     <Folder Include="Menus\" />
     <Folder Include="Behaviors\" />
     <Folder Include="Extensions\" />
-    <Folder Include="Styles\" />
     <Folder Include="Sql\" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.0.123" />
-    <PackageReference Include="DocumentFormat.OpenXml" Version="2.16.0" />
+    <PackageReference Include="DocumentFormat.OpenXml" Version="2.17.1" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="4.1.0" />
-    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1245.22" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1264.42" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.39" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="ServiceStack.Interfaces" Version="6.1.0" />
@@ -224,6 +228,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\GenericSqlLib\GenericSqlLib.csproj" />
     <ProjectReference Include="..\WpfLib1\WpfLib1.csproj" />
   </ItemGroup>
 

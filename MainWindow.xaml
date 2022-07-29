@@ -30,11 +30,11 @@
         <Button x:Name="button3" Content="Tree View" HorizontalAlignment="Left" Margin="260,28,0,0" 
 			  VerticalAlignment="Top" Height="40" Width="102"  Click="Button3_Click"
 			Foreground="{StaticResource White0}" Template="{StaticResource GradientButtonTemplateBlue}"/>
-        <Button x:Name="button4" Content="ViewModel Tree" HorizontalAlignment="Left" Margin="380,26,0,0" 
-			  VerticalAlignment="Top" Height="40" Width="100" 
+        <Button x:Name="button4" Content="Dummy" HorizontalAlignment="Left" Margin="380,26,0,0" 
+			  VerticalAlignment="Top" Height="40" Width="100"  Click="Button4_Click" 
 			Foreground="{StaticResource White0}" Template="{StaticResource GradientButtonTemplateBlue}"/>
-        <Button x:Name="button5" Content="MVVM" HorizontalAlignment="Left" Margin="500,26,0,0" 
-			  VerticalAlignment="Top" Height="40" Width="102" 
+        <Button x:Name="button5" Content="Dummy" HorizontalAlignment="Left" Margin="497,136,0,0" 
+			  VerticalAlignment="Top" Height="40" Width="102"   Click="Button5_Cick"
 			Foreground="{StaticResource White0}" Template="{StaticResource GradientButtonTemplateBlue}" />
         <Button x:Name="button6" Content="Mullti Objects" HorizontalAlignment="Left" Margin="18,81,0,0" 
 			  VerticalAlignment="Top" Height="40" Width="100"   Click="Button6_Click"
@@ -45,10 +45,10 @@
         <Button x:Name="button8" Content="Dummy" HorizontalAlignment="Left" Margin="258,83,0,0" 
 			  VerticalAlignment="Top" Height="40" Width="102" 
 			Foreground="{StaticResource White0}" Template="{StaticResource GradientButtonTemplateBlue}"/>
-        <Button x:Name="button9" Content="Config" HorizontalAlignment="Left" Margin="378,81,0,0" 
+        <Button x:Name="button9" Content="Dummy" HorizontalAlignment="Left" Margin="378,81,0,0" 
 			  VerticalAlignment="Top" Height="40" Width="100" 
 			Foreground="{StaticResource White0}" Template="{StaticResource GradientButtonTemplateBlue}"/>
-        <Button x:Name="button10" Content="Close" HorizontalAlignment="Left" Margin="507,188,0,0" 
+        <Button x:Name="button10" Content="Close" HorizontalAlignment="Left" Margin="497,26,0,0" 
 			VerticalAlignment="Top" Height="40" Width="102"  Click="Button10_Click"
 			Foreground="{StaticResource White0}" Template="{StaticResource HorizontalGradientTemplateRed}" />
 
@@ -64,17 +64,17 @@
         <Button x:Name="button14" Content="Inter Processing" HorizontalAlignment="Left" Margin="376,138,0,0" 
             VerticalAlignment="Top" Height="40" Width="100" 
             Foreground="{StaticResource White0}" Template="{StaticResource GradientButtonTemplateBlue}"/>
-        <Button x:Name="button15" Content="MenuTest" HorizontalAlignment="Left" Margin="500,82,0,0" 
+        <Button x:Name="button15" Content="Dummy" HorizontalAlignment="Left" Margin="497,82,0,0" 
             VerticalAlignment="Top" Height="40" Width="102" 
             Foreground="{StaticResource White0}" Template="{StaticResource GradientButtonTemplateBlue}" />
-        <Button x:Name="button16" Content="Bank System" HorizontalAlignment="Left" Margin="499,138,0,0" 
+        <Button x:Name="button16" Content="Bank System" HorizontalAlignment="Left" Margin="497,186,0,0" 
             VerticalAlignment="Top" Height="40" Width="102" Click="Button16_Click"
             Foreground="{StaticResource White0}" Template="{StaticResource GradientButtonTemplateBlue}" />
         <Button x:Name="button17" Content="button" HorizontalAlignment="Left" Margin="375,187,0,0" 
             VerticalAlignment="Top" Height="40" Width="102" 
             Foreground="{StaticResource White0}" Template="{StaticResource GradientButtonTemplateBlue}" />
 
-        <Button x:Name="button18" Content="Info !" HorizontalAlignment="Left" Margin="15,187,0,0" 
+        <Button x:Name="button18" Content="Dummy" HorizontalAlignment="Left" Margin="15,187,0,0" 
             VerticalAlignment="Top" Height="40" Width="102" 
             Foreground="{StaticResource White0}" Template="{StaticResource GradientButtonTemplateBlue}" />
         <Button x:Name="button19" Content="Dummy" HorizontalAlignment="Left" Margin="136,187,0,0" 

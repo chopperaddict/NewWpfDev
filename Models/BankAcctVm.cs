@@ -1,9 +1,26 @@
-﻿namespace NewWpfDev . Models {
+﻿using System . ComponentModel;
+using System . Windows;
+
+using NewWpfDev . AttachedProperties;
+
+namespace NewWpfDev . Models {
     
     public  sealed class BankAcctVm {
         /// <summary>
         ///  Implementation of a (Working) Singleton class
         /// </summary>
+        ///       #region NotifyPropertyChanged
+        #region NotifyPropertyChanged
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void NotifyPropertyChanged ( string propertyName )
+        {
+            if ( PropertyChanged != null )
+            {
+                PropertyChanged ( this , new PropertyChangedEventArgs ( propertyName ) );
+            }
+        }
+         #endregion NotifyPropertyChanged
+
         BankAcctVm ( ) {
         }
         private static BankAcctVm instances = null;
@@ -17,7 +34,7 @@
                 }
             }
         }
-
+ 
         #region Event declarations
 
         public delegate void ConfirmMatchFound ( object sender , SelchangedArgs args );
@@ -68,5 +85,6 @@
             }
         }
         #endregion Event Triggers
-    }
+
+     }
 }   // namespace

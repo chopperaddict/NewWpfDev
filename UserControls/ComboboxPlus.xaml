@@ -68,24 +68,26 @@
     </UserControl.Resources>
 
       <Grid>
+
         <!--//ItemsList="{Binding Path=ItemsList, ElementName=comboBoxPlus}"-->
+        <!--Background="{Binding Path=Background, ElementName=comboBoxPlus}"-->
         <ComboBox x:Name="comboBox"
-                  SelectedItem="{Binding Path=SelectedItem, ElementName=comboBoxPlus}"
-                  IsEnabled="True"                  
+                  Background="{StaticResource Black2OrangeSlant}"
+                   IsEnabled="True"    
+                   SelectedItem="{Binding Path=ComboSelection0, ElementName=comboBoxPlus}"
+                  SelectionChanged="ComboBox_SelectionChanged"
                   HorizontalContentAlignment="Left" VerticalContentAlignment="Center">
-            <ComboBoxItem Style="{Binding Path=ComboStyle, ElementName=comboBoxPlus}"/>
-            <!--crashes on intialization-->
-            <!--<ComboBox.DataContext>
-                <view:BankAcHost/>
-            </ComboBox.DataContext>-->
-        </ComboBox>
+            <ComboBoxItem  Background="{StaticResource Black2OrangeSlant}"/>
+            <!--Style="{Binding Path=ComboStyle, ElementName=comboBoxPlus}"-->
+         </ComboBox>
 
         <!--// Hides the Label once a selection is made !!!!>-->
+               <!--Visibility="{Binding ElementName=comboBoxPlus, Path=selectioncount, Converter={StaticResource invNullVisibleConverter}}" Width="188"-->
         <Label x:Name="Promptlabel" HorizontalAlignment="Left" VerticalAlignment="Center" IsHitTestVisible="true"
                Background="White"
-               Visibility="{Binding ElementName=comboBoxPlus, Path=selectioncount, Converter={StaticResource invNullVisibleConverter}}" Width="188"
                Content="{Binding ElementName=comboBoxPlus, Path=DefaultText}"
-               PreviewMouseLeftButtonDown="Promptlabel_PreviewMouseLeftButtonDown">
+               PreviewMouseLeftButtonDown="Promptlabel_PreviewMouseLeftButtonDown"
+               Visibility="Hidden">
         </Label>
                <!--Visibility="{Binding ElementName=comboBoxPlus, Path=SelectedItem, Converter={StaticResource invNullVisibleConverter}}" Width="179"-->
  

@@ -13,7 +13,7 @@ namespace NewWpfDev . Converts {
             objout [ 0 ] = values [ 1 ];     // ConverterParameter
             objout [ 1 ] = parameter;     // parameter
             objout [ 2 ] = values [ 0 ];     // main value received (some parent object usually
-            Debug . WriteLine ( $"Converter arguments are :\n{objout [ 0 ] ?. ToString ( )},\n{objout [ 1 ]? . ToString ( )},\n{objout [ 2 ]? . ToString ( )}\n" );
+            //Debug . WriteLine ( $"Converter arguments are :\n{objout [ 0 ] ?. ToString ( )},\n{objout [ 1 ]? . ToString ( )},\n{objout [ 2 ]? . ToString ( )}\n" );
             
             return objout ;
 

@@ -30,12 +30,14 @@ namespace NewWpfDev
         public delegate void RunMenuCommand ( string command , object data );
 
         
-        // TextBoxWiithDataError.xaml.cs
-        public delegate void SendUserHandler ( object sender , MessageEventArgs args );
-        public event SendUserHandler SendUser;
         //YieldWindow.xaml.cs
         public delegate void UpdateBankAccountSelection ( object sender , DbArgs args );
 
+        // TextBoxWiithDataError.xaml.cs
+        // define the delegate handler signature and the event that will be raised
+        // to send the message using my own specific Arguments
+        public delegate void SendUserHandler ( object sender , MessageEventArgs args );
+        public event SendUserHandler SendUser;
 
     }
 }

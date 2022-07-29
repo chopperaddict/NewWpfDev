@@ -20,6 +20,7 @@ namespace NewWpfDev. Views
 {
     public static class Flags
     {
+        // NewWpfDev version 
         public static Dictionary<string , string> ConnectionStringsDict = new Dictionary<string , string>();
 
         public static bool USESDAPPERSTDPROCEDURES = false;

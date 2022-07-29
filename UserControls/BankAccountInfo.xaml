@@ -8,140 +8,169 @@
              xmlns:conv="clr-namespace:NewWpfDev.Converts"
              xmlns:models="clr-namespace:NewWpfDev.Models"
              mc:Ignorable="d" 
-             Background="LightBlue"
              x:Name="BankAccountinfo"
              SizeChanged="BankAccountinfo_SizeChanged"
-             MinHeight="450" MinWidth="785"
-             d:DesignHeight="470" d:DesignWidth="785">
+             MinHeight="450" MinWidth="765"
+             Background="{StaticResource Black2}"
+             d:DesignHeight="470" d:DesignWidth="765">
     <UserControl.Resources>
         <conv:ICommandParamsConverter x:Key="ICommandParamsConverter"/>
         <conv:AdjustIntSize x:Key="ReduceWidth"/>
 
     </UserControl.Resources>
-    
+
     <!--<UserControl.DataContext>
         <models:BankAccountVM></models:BankAccountVM>
     </UserControl.DataContext>-->
 
     <Grid x:Name="MainGrid"
-          Height="{Binding ActualHeight, ElementName=BankAccountinfo}" Width="{Binding ActualWidth, ElementName=BankAccountinfo}">
+          Height="{Binding ActualHeight, ElementName=BankAccountinfo}" 
+          Background="{StaticResource Orange2BlackSlant}"
+          Width="{Binding ActualWidth, ElementName=BankAccountinfo}">
 
         <Grid.RowDefinitions>
-            <RowDefinition Height="80"/>
-            <RowDefinition Height="45"/>
-            <RowDefinition Height="45"/>
-            <RowDefinition Height="*"/>
-          </Grid.RowDefinitions>
+            <RowDefinition Height="35"/>
+            <!--<RowDefinition Height="35"/>-->
+            <RowDefinition MaxHeight="260"/>
+            <RowDefinition Height="55"/>
+            <RowDefinition Height="35"/>
+        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="15"/>
             <ColumnDefinition Width="110"/>
-            <ColumnDefinition Width="150"/>
+            <ColumnDefinition Width="170"/>
             <ColumnDefinition Width="110"/>
             <ColumnDefinition Width="200"/>
-            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="130"/>
         </Grid.ColumnDefinitions>
+
+        <TextBlock Text="Bank Account Info" Grid.Row="0" 
+                   Grid.Column="0" 
+                   Foreground="White" Background="Red" 
+                   FontSize="14" 
+                   Grid.ColumnSpan="5" 
+                   Width="598"
+                   HorizontalAlignment="Left" TextAlignment="Center" 
+                   Padding="0 10 0 0"/>
+
+
+        <!--//customer data grid-->
+        <DataGrid x:Name="backinggrid" Visibility="Hidden" SelectionChanged="Customergrid_SelectionChanged"/>
+    
+        <!--#region left col labels-->
+        <!--// Left Columns-->
         
-         <TextBlock Text="Bank Account Info" Grid.Row="2" Grid.Column="0" Background="Red" FontSize="14" 
-                   Foreground="White" Grid.ColumnSpan="6" HorizontalAlignment="Left" TextAlignment="Center" Padding="0 5 0 0"
-                Width="{Binding Path=ActualWidth, ElementName=MainGrid,
-			    Converter={StaticResource ReduceWidth}, ConverterParameter=-200}"
- />
-            <!--#region left col labels-->
-            <!--// Left Columns-->
-    <DataGrid x:Name="customergrid" Visibility="Hidden" SelectionChanged="Customergrid_SelectionChanged"/>
-        <WrapPanel Orientation="Vertical" Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="1">
+        <WrapPanel x:Name="wrapper" Orientation="Vertical" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="1" Grid.RowSpan="6">
             <!--// Left columns (Labels)-->
-          <Label Content="Customer #" Grid.Column="1" Margin="0 11 0 0" Height="45" 
-                FontSize="16"  HorizontalAlignment="Left" Width="200" Background="LightBlue"/>
-        <Label Content="Bank A/c #" Grid.Column="1" Margin="0 5 0 0"  Height="45" 
-               FontSize="16"  HorizontalAlignment="Left" Width="120" Background="LightBlue"/>
-        <Label Content="First Name" Grid.Column="1" Margin="0 5 0 0"  Height="45" 
-               FontSize="16"  HorizontalAlignment="Left" Width="120" Background="LightBlue"/>
-        <Label Content="Surname"  Grid.Column="1" Margin="0 5 0 0"  Height="45" 
-               FontSize="16"  HorizontalAlignment="Left" Width="120" Background="LightBlue"/>
-        <Label Content="A/C Type" Grid.Column="1" Margin="0 5 0 0"  Height="45" 
-               FontSize="16"  HorizontalAlignment="Left" Width="120" Background="LightBlue"/>
-        <Label Content="Balance" Grid.Column="1" Margin="0 5 0  0"  Height="45" 
-               FontSize="16"  HorizontalAlignment="Left" Width="120" Background="LightBlue"/>
-        <Label Content="Interest %" Grid.Column="1" Margin="0 5 0 0"  Height="45" 
-               FontSize="16"  HorizontalAlignment="Left" Width="120" Background="LightBlue"/>
-    </WrapPanel>
+            <Label Content="Customer #" Grid.Column="1" Margin="0 8 0 0" Height="30" Foreground="White"
+                FontSize="14"  HorizontalAlignment="Left" Width="200" Background="{StaticResource Black2}"/>
+            <Label Content="Bank A/c #" Grid.Column="1" Margin="0 5 0 0"  Height="30"  Foreground="White"
+               FontSize="14"  HorizontalAlignment="Left" Width="120" Background="{StaticResource Black2}"/>
+            <Label Content="First Name" Grid.Column="1" Margin="0 5 0 0"  Height="30"  Foreground="White"
+               FontSize="14"  HorizontalAlignment="Left" Width="120" Background="{StaticResource Black2}"/>
+            <Label Content="Surname"  Grid.Column="1" Margin="0 5 0 0"  Height="30"  Foreground="White"
+               FontSize="14"  HorizontalAlignment="Left" Width="120" Background="{StaticResource Black2}"/>
+            <Label Content="A/C Type" Grid.Column="1" Margin="0 5 0 0"  Height="30"  Foreground="White"
+               FontSize="14"  HorizontalAlignment="Left" Width="120" Background="{StaticResource Black2}"/>
+            <Label Content="Balance" Grid.Column="1" Margin="0 5 0  0"  Height="30"  Foreground="White"
+               FontSize="14"  HorizontalAlignment="Left" Width="120" Background="{StaticResource Black2}"/>
+            <Label Content="Interest %" Grid.Column="1" Margin="0 5 0 0"  Height="30"  Foreground="White"
+               FontSize="14"  HorizontalAlignment="Left" Width="120" Background="{StaticResource Black2}"/>
+        </WrapPanel>
         <!--#endregion left col labels-->
 
         <!--#region left col fields-->
         <!--// Left columns (fields)-->
-        <WrapPanel Orientation="Vertical" Grid.Row="4" Grid.Column="2" Grid.ColumnSpan="1">
-            <TextBox x:Name="custnumber"   Grid.Column="1" Width="150" Margin="0 5 0 0"  
-                 TextAlignment="Center" FontSize="18" KeyDown="custnumber_KeyDown" Height="45"
-                 Background="White" Foreground="Black" HorizontalAlignment="Right"/>
-            <TextBox x:Name="banknumber"  Grid.Column="1" Width="150" Margin="0 5 0 0"  
-                 TextAlignment="Center" FontSize="18" Height="45" IsHitTestVisible="False"
-                 Background="White" Foreground="Black" HorizontalAlignment="Right"/>
-            <TextBox x:Name="firstname"   Grid.Column="1" Width="150"  Margin="0 5 0 0"  
-                 TextAlignment="Left" FontSize="18" Padding="5 0 0 0" Height="45"
-                 Background="White" Foreground="Black" HorizontalAlignment="Right"/>
+        <WrapPanel Orientation="Vertical" Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="1" Grid.RowSpan="6">
+            <TextBox x:Name="custnumber"   Grid.Column="1" Width="150" Margin="0 5 0 0"  Padding="0 5 0 0" 
+                 TextAlignment="Center" FontSize="15" KeyDown="custnumber_KeyDown" Height="30" ToolTip="A/c must start  with 105"
+                 Background="Transparent" Foreground="White" BorderBrush="White" BorderThickness="1" HorizontalAlignment="Right"/>
+            <TextBox x:Name="banknumber"  Grid.Column="1" Width="150" Margin="0 5 0 0"   Padding="0 5 0 0" 
+                 TextAlignment="Center" FontSize="15" Height="30" IsHitTestVisible="False" ToolTip="A/c # Must start  with 41"
+                 Background="Transparent" Foreground="White" BorderBrush="White" BorderThickness="1" HorizontalAlignment="Right"/>
+            <TextBox x:Name="firstname"   Grid.Column="1" Width="150"  Margin="0 5 0 0"   
+                 TextAlignment="Left" FontSize="15" Padding="5 5 0 0" Height="30"
+                 Background="Transparent" Foreground="White" BorderBrush="White" BorderThickness="1" HorizontalAlignment="Right"/>
             <TextBox x:Name="lastname"   Grid.Column="1" Width="150"  Margin="0 5 0 0"  
-                 TextAlignment="Left" FontSize="18" Padding="5 0 0 0" Height="45"
-                 Background="White" Foreground="Black" HorizontalAlignment="Right"/>
-            <TextBox x:Name="actype"   Grid.Column="1" Width="150"  Margin="0 5 0 0"  
-                 TextAlignment="Center" FontSize="18" Height="45"
-                 Background="White" Foreground="Black" HorizontalAlignment="Right"/>
-            <TextBox x:Name="balance"    Grid.Column="1" Width="150"  Margin="0 5 0 0"  
-                 TextAlignment="Center" FontSize="18" Height="45"
-                 Background="White" Foreground="Black" HorizontalAlignment="Right"/>
-            <TextBox x:Name="intrate"   Grid.Column="1" Width="150"  Margin="0 5 0 0"  
-                 TextAlignment="Center" FontSize="18" Height="45"
-                 Background="White" Foreground="Black" HorizontalAlignment="Right"/>
+                 TextAlignment="Left" FontSize="15" Padding="5 5 0 0" Height="30"
+                 Background="Transparent" Foreground="White" BorderBrush="White" BorderThickness="1" HorizontalAlignment="Right"/>
+            <TextBox x:Name="actype"   Grid.Column="1" Width="150"  Margin="0 5 0 0"    Padding="0 5 0 0"
+                 TextAlignment="Center" FontSize="15" Height="30" ToolTip="Valid range is 1,2,3, or 4 only"
+                 Background="Transparent" Foreground="White" BorderBrush="White" BorderThickness="1" HorizontalAlignment="Right"/>
+            <TextBox x:Name="balance"    Grid.Column="1" Width="150"  Margin="0 5 0 0"    Padding="0 5 0 0"
+                 TextAlignment="Center" FontSize="15" Height="30"
+                 Background="Transparent" Foreground="White" BorderBrush="White" BorderThickness="1" HorizontalAlignment="Right"/>
+            <TextBox x:Name="intrate"   Grid.Column="1" Width="150"  Margin="0 5 0 0"    Padding="0 5 0 0"
+                 TextAlignment="Center" FontSize="15" Height="30"
+                 Background="Transparent" Foreground="White" BorderBrush="White" BorderThickness="1" HorizontalAlignment="Right"/>
         </WrapPanel>
         <!--#endregion left col fields-->
 
         <!--#region right col labels-->
         <!--// Right columns (Labels)-->
-        <WrapPanel Orientation="Vertical" Grid.Row="4" Grid.Column="3" Grid.ColumnSpan="1">
-            <Label Content="Address 1"  Grid.Column="2" Margin="0 11 0 0" Height="45" 
-                FontSize="16"  HorizontalAlignment="Left" Width="200" Background="LightBlue"/>
-            <Label Content="Address 2"  Grid.Column="2" Margin="0 5 0 0"  Height="45" 
-               FontSize="16"  HorizontalAlignment="Left" Width="120" Background="LightBlue"/>
-            <Label Content="Town" Grid.Row="3" Grid.Column="2" Margin="0 5 0 0"  Height="45" 
-               FontSize="16"  HorizontalAlignment="Left" Width="120" Background="LightBlue"/>
-            <Label Content="County" Grid.Row="4" Grid.Column="2" Margin="0 5 0 0"  Height="45" 
-               FontSize="16"  HorizontalAlignment="Left" Width="120" Background="LightBlue"/>
-            <Label Content="Postcode/Zip" Grid.Row="5" Grid.Column="2" Margin="0 5 0 0"  Height="45" 
-               FontSize="16"  HorizontalAlignment="Left" Width="120" Background="LightBlue"/>
-            <Label Content="Date Opened" Grid.Row="6" Grid.Column="2" Margin="0 5 0 0"  Height="45" 
-               FontSize="16"  HorizontalAlignment="Left" Width="120" Background="LightBlue"/>
-            <Label Content="Close Date" Grid.Row="7" Grid.Column="2" Margin="0 5 0 0"  Height="45" 
-               FontSize="16"  HorizontalAlignment="Left" Width="120" Background="LightBlue"/>
+        <WrapPanel Orientation="Vertical" Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="1" Grid.RowSpan="6">
+            <Label Content="Address 1"  Grid.Column="2" Margin="0 11 0 0" Height="30"  Foreground="White"
+                FontSize="14"  HorizontalAlignment="Left" Width="200" Background="{StaticResource Black2}"/>
+            <Label Content="Address 2"  Grid.Column="2" Margin="0 5 0 0"  Height="30"  Foreground="White"
+               FontSize="14"  HorizontalAlignment="Left" Width="120" Background="{StaticResource Black2}"/>
+            <Label Content="Town" Grid.Row="3" Grid.Column="2" Margin="0 5 0 0"  Height="30"  Foreground="White"
+               FontSize="14"  HorizontalAlignment="Left" Width="120" Background="{StaticResource Black2}"/>
+            <Label Content="County" Grid.Row="4" Grid.Column="2" Margin="0 5 0 0"  Height="30"  Foreground="White"
+               FontSize="14"  HorizontalAlignment="Left" Width="120" Background="{StaticResource Black2}"/>
+            <Label Content="Postcode/Zip" Grid.Row="5" Grid.Column="2" Margin="0 5 0 0"  Height="30"  Foreground="White"
+               FontSize="14"  HorizontalAlignment="Left" Width="120" Background="{StaticResource Black2}"/>
+            <Label Content="Date Opened" Grid.Row="6" Grid.Column="2" Margin="0 5 0 0"  Height="30"  Foreground="White"
+               FontSize="14"  HorizontalAlignment="Left" Width="120" Background="{StaticResource Black2}"/>
+            <Label Content="Close Date" Grid.Row="7" Grid.Column="2" Margin="0 5 0 0"  Height="30"  Foreground="White"
+               FontSize="14"  HorizontalAlignment="Left" Width="120" Background="{StaticResource Black2}"/>
         </WrapPanel>
         <!--#endregion right col fields-->
-        
+
         <!--#region right col labels-->
         <!--// Right columns (fields)-->
-        <WrapPanel Orientation="Vertical" Grid.Row="4" Grid.Column="4" Grid.ColumnSpan="1">
-            <TextBox x:Name="addr1"  Grid.Row="1" Grid.Column="1" Width="190" Margin="0 5 0 0"  
-                 TextAlignment="Left" FontSize="18" KeyDown="custnumber_KeyDown" Height="45"
-                 Background="White" Foreground="Black" HorizontalAlignment="Right"/>
+        <WrapPanel Orientation="Vertical" Grid.Row="1" Grid.Column="4" Grid.ColumnSpan="1" Grid.RowSpan="6">
+            <TextBox x:Name="addr1"  Grid.Row="1" Grid.Column="1" Padding="0 5 0 0" Width="190" Margin="0 5 0 0"  
+                 TextAlignment="Left" FontSize="15" KeyDown="custnumber_KeyDown" Height="30"
+                 Background="Transparent" Foreground="White" BorderBrush="White" BorderThickness="1" HorizontalAlignment="Right"/>
             <TextBox x:Name="addr2"  Grid.Row="2" Grid.Column="1" Width="190" Margin="0 5 0 0"  
-                 TextAlignment="Left" FontSize="18" Height="45"
-                 Background="White" Foreground="Black" HorizontalAlignment="Right"/>
+                 TextAlignment="Left" FontSize="15" Height="30" Padding="0 5 0 0" 
+                 Background="Transparent" Foreground="White" BorderBrush="White" BorderThickness="1" HorizontalAlignment="Right"/>
             <TextBox x:Name="town"  Grid.Row="3" Grid.Column="1" Width="190"  Margin="0 5 0 0"  
-                 TextAlignment="Left" FontSize="18" Padding="5 0 0 0" Height="45"
-                 Background="White" Foreground="Black" HorizontalAlignment="Right"/>
+                 TextAlignment="Left" FontSize="15" Padding="5 5 0 0" Height="30"
+                 Background="Transparent" Foreground="White" BorderBrush="White" BorderThickness="1" HorizontalAlignment="Right"/>
             <TextBox x:Name="county"  Grid.Row="4" Grid.Column="2" Width="190"  Margin="0 5 0 0"  
-                 TextAlignment="Left" FontSize="18" Padding="5 0 0 0" Height="45"
-                 Background="White" Foreground="Black" HorizontalAlignment="Right"/>
+                 TextAlignment="Left" FontSize="15" Padding="5 5 0 0" Height="30"
+                 Background="Transparent" Foreground="White" BorderBrush="White" BorderThickness="1" HorizontalAlignment="Right"/>
             <TextBox x:Name="pcode"  Grid.Row="5" Grid.Column="2" Width="190"  Margin="0 5 0 0"  
-                 TextAlignment="Left" FontSize="18" Height="45"
-                 Background="White" Foreground="Black" HorizontalAlignment="Right"/>
+                 TextAlignment="Left" FontSize="15" Height="30" Padding="0 5 0 0" 
+                 Background="Transparent" Foreground="White" BorderBrush="White" BorderThickness="1" HorizontalAlignment="Right"/>
             <TextBox x:Name="odate"   Grid.Row="6" Grid.Column="2" Width="190"  Margin="0 5 0 0"  
-                 TextAlignment="Center" FontSize="18" Height="45" IsHitTestVisible="False"
-                 Background="White" Foreground="Black" HorizontalAlignment="Right"/>
-            <TextBox x:Name="cdate"   Grid.Row="7" Grid.Column="2" Width="190"  Margin="0 5 0 0"  
-                 TextAlignment="Center" FontSize="18" Height="45" IsHitTestVisible="False"
-                 Background="White" Foreground="Black" HorizontalAlignment="Right"/>
+                 TextAlignment="Center" FontSize="15" Height="30" IsHitTestVisible="True" Padding="0 5 0 0" 
+                 Background="Transparent" Foreground="White" BorderBrush="White" BorderThickness="1" HorizontalAlignment="Right"/>
+            <TextBox x:Name="cdate"   Grid.Row="7" Grid.Column="2" Width="190"  Margin="0 5 0 0"  ToolTip="Closing Date must be LATER than opened date, or  left empty..."
+                 TextAlignment="Center" FontSize="15" Height="30" IsHitTestVisible="True" Padding="0 5 0 0" 
+                 Background="Transparent" Foreground="White" BorderBrush="White" BorderThickness="1" HorizontalAlignment="Right"/>
         </WrapPanel>
         <!--#endregion right col labels-->
+        <Button x:Name="makenew" Grid.Row="2" Grid.Column="2" Style="{StaticResource DarkmodeButton}" Width="150" Height="35" Content="Create New A/c" Foreground="White" FontWeight="Bold" Click="Createnew"/>
         
+        <Button Grid.Row="2" Grid.Column="4" Style="{StaticResource DarkmodeButton}" Width="150" Height="35" 
+                Content="Delete Account" Foreground="White" FontWeight="Bold" Click="DeleteRecord"/>
+
+
+        <Button x:Name="previous" Grid.Row="1" Grid.Column="5" Height="45" Margin="25,40,0,6" BorderBrush="Red"
+                                 Content="Previous"  Width="105" Style="{StaticResource DarkmodeButton}"
+                                VerticalAlignment="Top" HorizontalAlignment="Left" Click="prevrecord"/>
+
+        <Button x:Name="Next" Grid.Row="1" Grid.Column="5" Height="45" Margin="25 100 0 6" BorderBrush="Red"
+                                 Content="Next -->"  Width="105" Style="{StaticResource DarkmodeButton}"
+                                VerticalAlignment="Top" HorizontalAlignment="Left" Click="nextrecord"/>
+        <!--// Click is handled by my generic TextBox Handler-->
+        <TextBox x:Name="Search" Grid.Row="1" Grid.Column="5" Height="25" Margin="25 77 0 0"
+                 BorderBrush="{StaticResource Green5}" Padding="0 4 0 0"
+                 HorizontalAlignment="Left" 
+                 TextAlignment="Center" Text="Search ..."  Width="105"
+                 Background="Transparent" Foreground="White" />
     </Grid>
-     <!--</Grid>-->
+    <!--</Grid>-->
 </UserControl>

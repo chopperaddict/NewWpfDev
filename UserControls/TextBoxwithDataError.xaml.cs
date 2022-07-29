@@ -15,6 +15,7 @@ using System . Windows . Media . Imaging;
 using System . Windows . Navigation;
 using System . Windows . Shapes;
 
+
 namespace NewWpfDev. UserControls
 {
     /// <summary>
@@ -29,8 +30,8 @@ namespace NewWpfDev. UserControls
         public event RoutedEventHandler OnSend;
 #pragma warning restore CS0067 // The event 'TextBoxwithDataError.OnSend' is never used
 
-        // define the delegate handler signature and the event that will be raised
-        // to send the message using my own specific Arguments
+        //// define the delegate handler signature and the event that will be raised
+        //// to send the message using my own specific Arguments
         public delegate void SendUserHandler ( object sender , MessageEventArgs args );
         public event SendUserHandler SendUser;
 
@@ -93,7 +94,7 @@ namespace NewWpfDev. UserControls
 
         private void UserControl_LostFocus ( object sender , RoutedEventArgs e )
         {   
-               if ( this . SendUser != null )
+               if ( SendUser != null )
             {
                 // This works fine, but have to parse out the arguments format
                 string str = e . OriginalSource.ToString();

@@ -42,6 +42,7 @@ namespace NewWpfDev. Converts
                     currentvalue = d + param;
                 }
                 //                Debug. WriteLine ($"value={value}, Cv= {currentvalue}");
+                Debug . WriteLine ($"Reduce = {currentvalue} from parameter {parameter}");
                 return currentvalue;
             }
             else
@@ -50,7 +51,6 @@ namespace NewWpfDev. Converts
                 currentvalue = d - ( double )35;
                 Debug. WriteLine($"ReduceByParamValue Converter has returned {currentvalue} from {d} - 35");
             }
-
             return currentvalue;
         }
 

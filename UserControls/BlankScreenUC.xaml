@@ -7,6 +7,8 @@
              xmlns:models="clr-namespace:NewWpfDev.Models"
              xmlns:user="clr-namespace:NewWpfDev.UserControls"
              mc:Ignorable="d" 
+             Background="{StaticResource Orange2}"
+             Opacity="0.8"
              x:Name="BlankWin"
              d:DesignHeight="430" d:DesignWidth="800">
 
@@ -68,12 +70,12 @@
 
     </UserControl.Resources>
 
-    <Grid Background="{Binding background}"
-  >
+    <Grid Background="{StaticResource Black2OrangeSlant}"
+                Margin="0 0 0 0"  >
 
         <!--DataGrid (alone) Usercontrol inside this UserControl !!-->
         <!--// DataContext is set (correctly) in  the GenericUC so it points to itself as is required-->
-        <user:GenericGridControl x:Name="dgrid2" 
+        <!--<user:GenericGridControl x:Name="dgrid2" 
                     Margin="10,15 0,0"
                     background="Blue"
                     foreground="Blue"
@@ -86,20 +88,20 @@
                     PreviewMouseLeftButtonDown="dgrid_PreviewMouseLeftButtonDown"
                     Selectionmode="Single"
                     Panel.ZIndex="0"                      
-                   >
+                   >-->
             <!--// This WORKS - Context is now correct !!!-->
             <!--<user:GenericGridControl.DataContext>
                 <user:GenericGridControl DataContext="{Binding}"/>
-            </user:GenericGridControl.DataContext>-->
-        </user:GenericGridControl>
+            </user:GenericGridControl.DataContext>--><!--
+        </user:GenericGridControl>-->
 
-        <DataGrid  x:Name="stdgrid" Margin="14,130,0,0" 
+        <!--<DataGrid  x:Name="stdgrid" Margin="14,10,0,0" 
                    AutoGenerateColumns="false"
                    Background="Blue"
                    PreviewMouseLeftButtonDown="dgrid_PreviewMouseLeftButtonDown"
                    Panel.ZIndex="0" MinHeight="100" MinWidth="400"
                     VerticalScrollBarVisibility="Auto"
-                   Visibility="Collapsed"
+                   Visibility="Visible"
                    SelectionMode="Single">
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding col1}"
@@ -107,16 +109,12 @@
                 <DataGridTextColumn Binding="{Binding col2}"
                                     Width="75" Header="item 2" />
                 <DataGridTextColumn Binding="{Binding col3}"
-                                    Width="75" Header="column  3" />
+                                    Width="75" Header="column  3" />-->
                 <!--<DataGridTextColumn Binding="{Binding}"-->
                 <!--Width="75" Header="item 1" />-->
                 <!--<DataGridTextColumn Binding="{Binding ProductCode, NotifyOnTargetUpdated=True, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                     Width="100" Header="Code"/>
-                <DataGridTextColumn Binding="{Binding ProductDescription, NotifyOnSourceUpdated=True, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
-                                    Width="100" Header="Description"/>
-                <DataGridTextColumn  Binding="{Binding ProductPrice, NotifyOnSourceUpdated=True, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
-                                    Width="100" Header="Price"/>
-                <DataGridTemplateColumn Header="Expiration date">
+             <DataGridTemplateColumn Header="Expiration date">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding ProductExpirationDate, StringFormat=\{0:d\}}" />
@@ -131,9 +129,9 @@
                 </DataGridTemplateColumn>
                 <DataGridCheckBoxColumn Binding="{Binding IsBio, NotifyOnSourceUpdated=True, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
                                     Width="100" Header="Bio"/>-->
-            </DataGrid.Columns>
+            <!--</DataGrid.Columns>
 
-        </DataGrid>
+        </DataGrid>-->
         <!--<Border Background="{StaticResource Orange3}">
             <Image x:Name="image" Source="\icons\cursor-arrow.png" Width="200" />
         </Border>-->
