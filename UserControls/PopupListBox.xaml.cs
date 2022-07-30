@@ -22,14 +22,14 @@ namespace NewWpfDev . UserControls
         //ListBox is being expanded/contracted
         public static event EventHandler<SizeChangedArgs> StyleSizeChanged;
 
-        [DefaultValue ( typeof ( Size ) , "300,30" )]
-        public Size Size { get; set; }
+        //[DefaultValue ( typeof ( Size ) , "300,30" )]
+        //public Size Size { get; set; }
 
-        [DefaultValue ( typeof ( double ) , "130" )]
-        new public double Width { get; set; }
+        //[DefaultValue ( typeof ( double ) , "130" )]
+        //new public double Width { get; set; }
 
-        [DefaultValue ( typeof ( double ) , "30" )]
-        new public double Height{ get; set; }
+        //[DefaultValue ( typeof ( double ) , "30" )]
+        //new public double Height{ get; set; }
 
         protected virtual void OnStylechanged ( StyleArgs e )
         {       // A different style has been selected
@@ -87,6 +87,7 @@ namespace NewWpfDev . UserControls
 
         private void StylesCombo_MouseEnter ( object sender , MouseEventArgs e )
         {
+            //return;
             ListBox lb = sender as ListBox;
             SizeChangedArgs args = new SizeChangedArgs ( );
             // Hide blocking TextBlock
@@ -110,8 +111,7 @@ namespace NewWpfDev . UserControls
                 // slide listbox UP - Working !!
                 // Move top of canvas UP first
                 CanvasTop = -( MaxListHeight );
-                th2 . Top = CanvasTop + 30; // 30 seems about right
-                Stylesgrid . Margin = th2;
+                 Stylesgrid . Margin = th2;
                 Stylesgrid . Height = MaxListHeight;
                 Stylesgrid . UpdateLayout ( );
                 Stylesgrid . Refresh ( );
@@ -122,29 +122,24 @@ namespace NewWpfDev . UserControls
             {
                 // slide listbox DOWN - Working !!!
                 CanvasTop = 0;
-                //CanvasHeight = MaxListHeight*2;
-                th2 . Bottom = (double)MaxListHeight /0.8;
+                th2 . Bottom =  ((double)MaxListHeight /0.8);
                 Stylesgrid . Margin = th2;
                 //Set Canvas Container to full Height
                 Stylesgrid . Height = MaxListHeight;
+                StylesCombo.Height= MaxListHeight;
                 Stylesgrid . UpdateLayout ( );
                 Stylesgrid . Refresh ( );
-                //Finally, get parent container to resize - has problems it seems !!!!!
-                //args . NewHeight = MaxListHeight;
-                //StylesCombo . Height = MaxListHeight*2;
-                //StylesCombo . UpdateLayout ( );
-                //StylesCombo . Refresh ( );
-                //OnStyleSizeChanged ( args );
+                args . NewHeight = MaxListHeight;
+                OnStyleSizeChanged ( args );
                 Debug . WriteLine ("");
             }
-//            Debug . WriteLine ( $"th2 = {th2 . Top}, {th2 . Bottom} : {Stylesgrid . Height} / {Stylesgrid . ActualHeight}" );
             ShadowText . Visibility = Visibility . Hidden;
             e . Handled = true;
         }
 
         private void StylesCombo_MouseLeave ( object sender , MouseEventArgs e )
         {
-           // return;
+           //return;
             StylesCombo . Height = DefaultHeight;
             Thickness th2 = new Thickness ( );
             th2 = Stylesgrid . Margin;
@@ -336,7 +331,7 @@ namespace NewWpfDev . UserControls
             set { SetValue ( CanvasHeightProperty , value ); }
         }
         public static readonly DependencyProperty CanvasHeightProperty =
-            DependencyProperty . Register ( "CanvasHeight" , typeof ( double ) , typeof ( PopupListBox ) , new PropertyMetadata ( ( double ) default ) );
+            DependencyProperty . Register ( "CanvasHeight" , typeof ( double ) , typeof ( PopupListBox ) , new PropertyMetadata ( ( double ) 30 ) );
         //======================================================================================//
         public double CanvasWidth
         {
@@ -344,8 +339,25 @@ namespace NewWpfDev . UserControls
             set { SetValue ( CanvasWidthProperty , value ); }
         }
         public static readonly DependencyProperty CanvasWidthProperty =
-            DependencyProperty . Register ( "CanvasWidth" , typeof ( double ) , typeof ( PopupListBox ) , new PropertyMetadata ( ( double ) default ) );
+            DependencyProperty . Register ( "CanvasWidth" , typeof ( double ) , typeof ( PopupListBox ) , new PropertyMetadata ( ( double ) 150 ) );
         //======================================================================================//
+        public double  CtrlHeight
+        {
+            get { return ( double  ) GetValue ( CtrlHeightProperty ); }
+            set { SetValue ( CtrlHeightProperty , value ); }
+        }
+        public static readonly DependencyProperty CtrlHeightProperty =
+            DependencyProperty . Register ( "CtrlHeight" , typeof ( double  ) , typeof ( PopupListBox ) , new PropertyMetadata ( (double)30 ) );
+        //======================================================================================//
+        public double CtrlWidth
+        {
+            get { return ( double ) GetValue ( CtrlWidthProperty ); }
+            set { SetValue ( CtrlWidthProperty , value ); }
+        }
+        public static readonly DependencyProperty CtrlWidthProperty =
+            DependencyProperty . Register ( "CtrlWidth" , typeof ( double ) , typeof ( PopupListBox ) , new PropertyMetadata ( (double)120 ) );
+        //======================================================================================//
+
 
         #endregion Dependency properties
 

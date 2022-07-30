@@ -3,6 +3,7 @@ using System . Collections;
 using System . Collections . Generic;
 using System . Collections . ObjectModel;
 using System . ComponentModel;
+using System . Configuration;
 using System . Data;
 using System . Diagnostics;
 using System . Reflection;
@@ -23,10 +24,9 @@ using GenericClass = NewWpfDev . ViewModels . GenericClass;
 
 namespace NewWpfDev . UserControls
 {
-
     public partial class GenericGridControl : UserControl
     {
-
+        #region Testing
         [DefaultValue ( typeof ( double ) , "130" )]
         new public double Width { get; set; }
 
@@ -36,7 +36,7 @@ namespace NewWpfDev . UserControls
         public Size GenGrid1Size;
         public Size GenGrid2Size;
         public Size GenContentSize;
-
+        #endregion Testing
 
         #region Event Handling
         //======================================================================================//
@@ -53,11 +53,9 @@ namespace NewWpfDev . UserControls
         //======================================================================================//
         #endregion Event Handling
 
+        #region normal variable Declarations {get;set;}
         public List<string> AllStyles { get; set; } = new List<string> ( );
-
-        #region normal File Declarations
-
-        private static bool ShowColumnNames { get; set; } = true;
+        public static bool ShowColumnNames { get; set; } = true;
         public bool isInsertMode = false;
         public static int colcount = 0;
         public bool isBeingEdited = false;
@@ -67,16 +65,18 @@ namespace NewWpfDev . UserControls
         public static string Style1 { get; set; } = "Dark Mode";
         public static string Style2 { get; set; } = "Dark Mode";
         public static bool NoUpdate { get; set; } = false;
-        public static DataTable dt { get; set; }
-        public static DataTable dt2 = new DataTable ( );
+        public static int ActiveGrid { get; set; } = 1;
+        public static DataTable dt { get; set; } = new DataTable ( );
+        public static DataTable dt2 { get; set; } = new DataTable ( );
         public static List<GenericClass> list = new List<GenericClass> ( );
-        //            IEnumerator ie = DataClass .GetEnumerator ();
         public static BankAcHost Host { get; set; }
+
         #endregion normal File Declarations
 
+        #region Data Models
         //Data Collections
-        public static ObservableCollection<GenericSqlLib . Models . GenericClass> Gencollection
-        { get; set; } = new ObservableCollection<GenericSqlLib . Models . GenericClass> ( );
+        public static ObservableCollection<GenericSqlLib . Models . GenericClass> Gencollection1 { get; set; } = new ObservableCollection<GenericSqlLib . Models . GenericClass> ( );
+        public static ObservableCollection<GenericSqlLib . Models . GenericClass> Gencollection2 { get; set; } = new ObservableCollection<GenericSqlLib . Models . GenericClass> ( );
         public static ObservableCollection<GGenericClass> gGencollection
         { get; set; } = new ObservableCollection<GenericSqlLib . Models . GGenericClass> ( );
         // Class records
@@ -84,6 +84,7 @@ namespace NewWpfDev . UserControls
         { get; set; } = new GenericSqlLib . Models . GenericClass ( );
         public static GenericSqlLib . Models . GGenericClass gGenClass
         { get; set; } = new GenericSqlLib . Models . GGenericClass ( );
+        #endregion Data Models
 
         #region Full Properties
 
@@ -120,7 +121,8 @@ namespace NewWpfDev . UserControls
 
         #endregion Full Properties
 
-        public GenericGridControl (BankAcHost host )
+        #region Constructor
+        public GenericGridControl ( BankAcHost host )
         {
             InitializeComponent ( );
             Utils . ClearAttachedProperties ( this );
@@ -163,14 +165,37 @@ namespace NewWpfDev . UserControls
                 GenGrid2Size . Height = Host . BankContent . Height;
                 GenGrid2Size . Width = Host . BankContent . Width;
             }
+            string ConString = "";
+           if( Utils . CheckResetDbConnection ( "IAN1" , out string constring ) == true)
+                Debug . WriteLine ($"Db IAN1 is set and Connectionstring is loaded successfully");
+           else
+                Debug . WriteLine ( $"Db IAN1 could not be set and Connectionstring has NOT been  loaded " );
+            // This fails
+            GenericDbUtilities<GGenericClass> . CheckDbDomain ( "IAN1" );
+            // This works
+            ConString = Flags . CurrentConnectionString;
         }
+        #endregion Constructor
+
         public void ResizeControl ( double height , double width )
         {
-            this . Height = height- 10;
+            this . Height = height;
             this . Width = width;
+
+            //datagrid1 . Width = this . Width;// - 20;
+            //datagrid1 . Height = this . Height;//  - 80;
+            //datagrid2 . Width = Host . BankContent . Width - 20;
+            //datagrid2 . Height = Host . BankContent . Height - 80;
+            ////datagrid1 . Height = height;
+            ////datagrid1 . Width = width;
+            ////datagrid2 . Height = height;
+            ////datagrid2 . Width = width;
+            //datagrid1 . UpdateLayout ( );
+            //datagrid1 . UpdateLayout ( );
+            //datagrid2 . UpdateLayout ( );
+            //datagrid2 . UpdateLayout ( );
             this . Refresh ( );
         }
-
         private void PopupListBox_StyleSizeChanged ( object sender , SizeChangedArgs e )
         {    //return;
             Debug . WriteLine ( $"{e . NewHeight}" );
@@ -178,7 +203,6 @@ namespace NewWpfDev . UserControls
             StylesList . UpdateLayout ( );
             StylesList . Refresh ( );
         }
-
         private void GenericGridControl_Stylechanged ( object sender , StyleArgs e )
         {
             if ( NoUpdate )
@@ -269,77 +293,76 @@ namespace NewWpfDev . UserControls
                 BankAcHost . GetColumnNames ( table , out retval , "IAN1" );
             return retval;
         }
-
         public async Task<bool> LoadGenericTable ( string table )
         {
+            int colcount = 0;
+            // How to access Config Mgr strings
+            //var dbString = ConfigurationManager . ConnectionStrings [ "Ian1Db" ] . ConnectionString;
+            //var AppPath = ConfigurationManager . AppSettings[ "NewWpfDev=C" ];
+
+
             //string con = $"Data Source=DINO-PC;Initial Catalog=\"IAN1\";Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+
             Utils . LoadConnectionStrings ( );
             string ConString = "";
             Utils . CheckResetDbConnection ( "IAN1" , out ConString );
             string con = Utils . GetDictionaryEntry ( Flags . ConnectionStringsDict , "IAN1" , out string dictvalue );
-            Stopwatch sw = new Stopwatch();
+            Stopwatch sw = new Stopwatch ( );
             sw . Start ( );
-            // ObservableCollection<GenericClass> LoadGeneric = 
-            //ObservableCollection<GenericSqlLib . Models . GenericClass> Gencoll =
-                Gencollection= await Task . Run ( ( ) => GenericSqlLib . LoadSql . LoadGeneric ( $"Select * from {table}" , out string ResultString , 0 , false , false , con )
-                );
-            sw . Stop ( );
-            Debug . WriteLine ($"Data load Task took {sw.ElapsedMilliseconds} msecs");
-           //Task . WaitAll ( );     
-              //Gencollection = GenericSqlLib . LoadSql .
-            //   LoadGeneric ( $"Select * from {table}" , out string ResultString , 0 , false , false , con ); 
-            
-            GenericSqlLib . SqlServerCommands . LoadActiveRowsOnlyInGrid (
-                datagrid1 , Gencollection ,
-                GenericSqlLib . SqlServerCommands . GetGenericColumnCount ( Gencollection ) );
-            int colcount = GenericSqlLib . SqlServerCommands . GetGenericColumnCount ( Gencollection );
-            GenericSqlLib . SqlServerCommands . LoadActiveRowsOnlyInGrid (
-                datagrid2 , Gencollection , colcount );
-            if ( ShowColumnNames )
+            if ( ActiveGrid == 1 )
             {
-                GenericDbUtilities . ReplaceDataGridFldNames ( table , ref datagrid1 );
-                GenericDbUtilities . ReplaceDataGridFldNames ( table , ref datagrid2 );
+                Gencollection1 = await Task . Run ( ( ) => GenericSqlLib . LoadSql . LoadGeneric ( $"Select * from {table}" , out string ResultString , 0 , false , false , con ) );
+                GenericSqlLib . SqlServerCommands . LoadActiveRowsOnlyInGrid ( datagrid1 , Gencollection1 , GenericSqlLib . SqlServerCommands . GetGenericColumnCount ( Gencollection1 ) );
+                colcount = GenericSqlLib . SqlServerCommands . GetGenericColumnCount ( Gencollection1 );
+                GenericSqlLib . SqlServerCommands . LoadActiveRowsOnlyInGrid ( datagrid1 , Gencollection1 , colcount ); if ( ShowColumnNames )
+                    GenericDbUtilities . ReplaceDataGridFldNames ( table , ref datagrid1 );
             }
-            Debug . WriteLine ( $"Both grids have {datagrid1 . Items . Count} items from {table}" );
+            if ( ActiveGrid == 2 || Gencollection2 . Count == 0 )
+            {
+                Gencollection2 = await Task . Run ( ( ) => GenericSqlLib . LoadSql . LoadGeneric ( $"Select * from {table}" , out string ResultString , 0 , false , false , con ) );
+                GenericSqlLib . SqlServerCommands . LoadActiveRowsOnlyInGrid ( datagrid2 , Gencollection2 , GenericSqlLib . SqlServerCommands . GetGenericColumnCount ( Gencollection2 ) );
+                colcount = GenericSqlLib . SqlServerCommands . GetGenericColumnCount ( Gencollection2 );
+                GenericSqlLib . SqlServerCommands . LoadActiveRowsOnlyInGrid ( datagrid2 , Gencollection2 , colcount ); if ( ShowColumnNames )
+                    GenericDbUtilities . ReplaceDataGridFldNames ( table , ref datagrid2 );
+            }
+            if ( Gencollection2 . Count == 0 )
+                Gencollection2 = Gencollection1;
+            else if ( Gencollection1 . Count == 0 )
+                Gencollection1 = Gencollection2;
+            sw . Stop ( );
+            Debug . WriteLine ( $"Data load Task took {sw . ElapsedMilliseconds} msecs" );
+
             CurrentTable = table;
+            SelectCorrectTable ( table );
             GenericTitle . Text = $"Table = {table . ToUpper ( )}";
             return true;
         }
-        public GenericClass ConvertClass ( GGenericClass GCollection , GenericClass collection )
+        private void SelectCorrectTable ( string table )
         {
-            collection . field1 = GCollection . field1;
-            collection . field2 = GCollection . field2;
-            collection . field3 = GCollection . field3;
-            collection . field4 = GCollection . field4;
-            collection . field5 = GCollection . field5;
-            collection . field6 = GCollection . field6;
-            collection . field7 = GCollection . field7;
-            collection . field8 = GCollection . field8;
-            collection . field9 = GCollection . field9;
-            collection . field10 = GCollection . field10;
-            collection . field11 = GCollection . field11;
-            collection . field12 = GCollection . field12;
-            collection . field13 = GCollection . field13;
-            collection . field14 = GCollection . field14;
-            collection . field15 = GCollection . field15;
-            collection . field16 = GCollection . field16;
-            collection . field17 = GCollection . field17;
-            collection . field18 = GCollection . field18;
-            collection . field19 = GCollection . field19;
-            collection . field20 = GCollection . field20;
-            return collection;
+            try
+            {
+                foreach ( string item in Host . combo . comboBox . Items )
+                {
+                    if ( item == table )
+                    {
+                        Host . combo . comboBox . SelectedItem = table;
+                        break;
+                    }
+                }
+            }
+            catch ( Exception ex ) { }
         }
 
-        static public void GetDbTablesList ( string DbName , out List<string> TablesList )
+        static public List<string> GetDbTablesList ( string DbName )
         {
-            TablesList = new List<string> ( );
+            List<string> TablesList = new List<string> ( );
             string SqlCommand = "";
             List<string> list = new List<string> ( );
             DbName = DbName . ToUpper ( );
             if ( Utils . CheckResetDbConnection ( DbName , out string constr ) == false )
             {
                 Debug . WriteLine ( $"Failed to set connection string for {DbName} Db" );
-                return;
+                return TablesList;
             }
             // All Db's have their own version of this SP.....
             SqlCommand = "spGetTablesList";
@@ -349,21 +372,29 @@ namespace NewWpfDev . UserControls
             DataTable dt = DataLoadControl . GetDataTable ( SqlCommand );
             // This how to access Row data from  a grid the easiest way.... parsed into a List <xxxxx>
             if ( dt != null )
-            { TablesList = Utils . GetDataDridRowsAsListOfStrings ( dt ); }
+            {
+                TablesList = Utils . GetDataDridRowsAsListOfStrings ( dt );
+            }
+            return TablesList;
         }
-
         private void genkeydown ( object sender , KeyEventArgs e )
         {
             if ( e . Key == Key . F8 )
                 Debugger . Break ( );
         }
-
-        private void GenGridControl_SizeChanged ( object sender , SizeChangedEventArgs e )
+        public void GenGridControl_SizeChanged ( object sender , SizeChangedEventArgs e )
         {
-            datagrid1 . Width = this . ActualWidth - 30;
-            datagrid1 . Height = this . ActualHeight - 85;
-            datagrid2 . Width = this . ActualWidth - 30;
-            datagrid2 . Height = this . ActualHeight - 80;
+            double height = Host . BankContent . ActualHeight;
+            double width = Host . BankContent . ActualWidth;
+            if ( height != 0 && width != 0 )
+            {
+                datagrid1 . Width = width - 30;
+                datagrid1 . Height = height - 85;
+                datagrid2 . Width = width - 30;
+                datagrid2 . Height = height - 80;
+            }
+            else
+                this . UpdateLayout ( );
         }
 
         #region Buttons handlers
@@ -380,10 +411,11 @@ namespace NewWpfDev . UserControls
         // Toggle columhn header content
         private void Button2_Click ( object sender , RoutedEventArgs e )
         {
-            if ( ShowColumnNames )
+            if ( ShowColumnNames == false )
             {
+                // Show generic column names
                 int indexer = 1;
-                ShowColumnNames = false;
+                ShowColumnNames = true;
                 maskcols . Content = "Show Columns";
                 foreach ( var item in datagrid1 . Columns )
                 {
@@ -403,7 +435,8 @@ namespace NewWpfDev . UserControls
             }
             else
             {
-                ShowColumnNames = true;
+                // Show true column names
+                ShowColumnNames = false;
                 maskcols . Content = "Mask Columns";
                 DataGrid tmpgrid = new DataGrid ( );
                 tmpgrid = datagrid1;
@@ -418,15 +451,30 @@ namespace NewWpfDev . UserControls
             if ( addnewrow . Content . ToString ( ) == "Add New" )
             {
                 canUserAddRows = true;
-                Gencollection . Add ( new GenericSqlLib . Models . GenericClass ( ) );
-                datagrid1 . ItemsSource = Gencollection;
-                datagrid1 . SelectedIndex = datagrid1 . Items . Count;
-                datagrid1 . Refresh ( );
-                datagrid1 . UpdateLayout ( );
-                updaterow . IsEnabled = false;
-                Utils . ScrollRecordIntoView ( datagrid1 , datagrid1 . SelectedIndex );
-                addnewrow . Content = "Save Account";
-                datagrid1 . Focus ( );
+                if ( ActiveGrid == 1 )
+                {
+                    Gencollection1 . Add ( new GenericSqlLib . Models . GenericClass ( ) );
+                    datagrid1 . ItemsSource = Gencollection1;
+                    datagrid1 . SelectedIndex = datagrid1 . Items . Count;
+                    datagrid1 . Refresh ( );
+                    datagrid1 . UpdateLayout ( );
+                    updaterow . IsEnabled = false;
+                    Utils . ScrollRecordIntoView ( datagrid1 , datagrid1 . SelectedIndex );
+                    addnewrow . Content = "Save Account";
+                    datagrid1 . Focus ( );
+                }
+                else
+                {
+                    Gencollection2 . Add ( new GenericSqlLib . Models . GenericClass ( ) );
+                    datagrid2 . ItemsSource = Gencollection1;
+                    datagrid2 . SelectedIndex = datagrid2 . Items . Count;
+                    datagrid2 . Refresh ( );
+                    datagrid2 . UpdateLayout ( );
+                    updaterow . IsEnabled = false;
+                    Utils . ScrollRecordIntoView ( datagrid2 , datagrid2 . SelectedIndex );
+                    addnewrow . Content = "Save Account";
+                    datagrid2 . Focus ( );
+                }
             }
             else
             {
@@ -462,44 +510,193 @@ namespace NewWpfDev . UserControls
             //Debugger . Break ( );
         }
 
-        private void Togglegrid_Click ( object sender , RoutedEventArgs e )
+        public async void Togglegrid_Click ( object sender , RoutedEventArgs e )
         {
-            if ( datagrid1 . Visibility == Visibility . Visible )
+            StyleArgs args = new StyleArgs ( );
+            Thickness thhost = new Thickness ( );
+            Thickness th = new Thickness ( );
+            thhost . Right = Host . Width;
+            thhost . Bottom = Host . Height;
+            if ( e == null )
             {
+                datagrid2 . Visibility = Visibility . Visible;
+                datagrid1 . Visibility = Visibility . Hidden;
+            }
+            if ( ActiveGrid == 1 )
+            {
+                //Switching to Grid 2
                 datagrid1 . Visibility = Visibility . Collapsed;
                 datagrid2 . Visibility = Visibility . Visible;
                 GenericGrid = datagrid2;
                 Togglegrid . Content = "= Grid 2";
-                //datagrid2 . Width -= 10;
-                Thickness th = datagrid2 . Margin;
-                th . Bottom = 20;
-                datagrid2 . Margin = th;
-                datagrid2 . Refresh ( );
+                if ( thhost . Right != 0 && thhost . Bottom != 0 )
+                {
+                    datagrid2 . Height = thhost . Bottom - 210;
+                    datagrid2 . Width = thhost . Right - 230;
+                }
+                else
+                {
+                    th = datagrid2 . Margin;
+                    th = datagrid2 . Margin;
+                    th . Bottom = 20;
+                    datagrid2 . Margin = th;
+                }
+                if ( datagrid2 . Items . Count == 0 )
+                {
+                    //Task task = Task . Run ( async ( ) =>
+                    //{
+                    //    this . Dispatcher . Invoke (async  ( ) =>
+                    //    {
+                    //Setup default connection string
+                    Debug . WriteLine ( $"Connection string = [{Flags . GetConnectionStringForTable ( "BANKACCOUNT" )}]");
+                    Debug . WriteLine ( $"Loading data ..." );
+                    LoadTableGeneric ( "Select * from BankAccount" , Gencollection2 );
+                    //    } );
+                    //} );
+                    //task . Wait ( 1000 );
+                }
+                GenericSqlLib . SqlServerCommands . LoadActiveRowsOnlyInGrid ( datagrid2 , Gencollection2 , GenericSqlLib . SqlServerCommands . GetGenericColumnCount ( Gencollection2 ) );
+                colcount = GenericSqlLib . SqlServerCommands . GetGenericColumnCount ( Gencollection2 );
+                GenericSqlLib . SqlServerCommands . LoadActiveRowsOnlyInGrid ( datagrid2 , Gencollection2 , colcount );
+                if ( ShowColumnNames )
+                    GenericDbUtilities . ReplaceDataGridFldNames ( "BANKACCOUNT" , ref datagrid2 );
                 datagrid2 . UpdateLayout ( );
+                datagrid2 . Refresh ( );
+                datagrid1 . Visibility = Visibility . Collapsed;
+                datagrid2 . Visibility = Visibility . Visible;
+
                 GenericTitle . Text = Title2;
-                StyleArgs args = new StyleArgs ( );
+                var v = datagrid2 . ItemsSource?.ToString ( );
+                if ( Title2 != null && Title2 != "" )
+                    GenericTitle . Text = Title1;
+                else
+                    GenericTitle . Text = "BANKACCOUNT";
                 args . style = Style2;
-                TriggerStyleSwitch ( this , args );
+                SelectCorrectTable ( GenericTitle . Text );
+                ActiveGrid = 2;
             }
             else
             {
+                //Switching to Grid 1
                 datagrid2 . Visibility = Visibility . Collapsed;
                 datagrid1 . Visibility = Visibility . Visible;
                 GenericGrid = datagrid1;
                 Togglegrid . Content = "= Grid 1";
-                Thickness th = datagrid1 . Margin;
-                th . Bottom =50;
-                th . Right =20;
-                datagrid1 . Margin = th;
-                //datagrid1 . Width -= 10;
-                //datagrid1. Height -= 10;
+                if ( thhost . Right != 0 && thhost . Bottom != 0 )
+                {
+                    datagrid1 . Height = thhost . Bottom - 205;
+                    datagrid1 . Width = thhost . Right - 230;
+                }
+                else
+                {
+                    th = datagrid1 . Margin;
+                    th . Bottom = 50;
+                    th . Right = 20;
+                    datagrid1 . Margin = th;
+                }
+                datagrid1 . UpdateLayout ( );
                 datagrid1 . Refresh ( );
-                GenericTitle . Text = Title1;
-                StyleArgs args = new StyleArgs ( );
+                if ( Title1 != null && Title1 != "" )
+                    GenericTitle . Text = Title1;
+                else
+                    GenericTitle . Text = "BANKACCOUNT";
                 args . style = Style1;
-                TriggerStyleSwitch ( this , args );
+                //Update Sql Table combo to match this grids content
+                SelectCorrectTable ( GenericTitle . Text );
+                ActiveGrid = 1;
             }
+            TriggerStyleSwitch ( this , args );
         }
+
+        #region DP's
+        public SelectionMode Selectionmode
+        {
+            get { return ( SelectionMode ) GetValue ( SelectionmodeProperty ); }
+            set { SetValue ( SelectionmodeProperty , value ); }
+        }
+        public static readonly DependencyProperty SelectionmodeProperty =
+            DependencyProperty . Register ( "Selectionmode" , typeof ( SelectionMode ) , typeof ( GenericGridControl ) , new PropertyMetadata ( SelectionMode . Multiple ) );
+
+        public bool autoGenerateColumns
+        {
+            get { return ( bool ) GetValue ( autoGenerateColumnsProperty ); }
+            set { SetValue ( autoGenerateColumnsProperty , value ); }
+        }
+        public static readonly DependencyProperty autoGenerateColumnsProperty =
+            DependencyProperty . Register ( "autoGenerateColumns" , typeof ( bool ) , typeof ( GenericGridControl ) , new PropertyMetadata ( false ) );
+
+        public bool canUserAddRows
+        {
+            get { return ( bool ) GetValue ( canUserAddRowsProperty ); }
+            set { SetValue ( canUserAddRowsProperty , value ); }
+        }
+        public static readonly DependencyProperty canUserAddRowsProperty =
+            DependencyProperty . Register ( "canUserAddRows" , typeof ( bool ) , typeof ( GenericGridControl ) , new PropertyMetadata ( false ) );
+
+        public Brush Rowbackground
+        {
+            get { return ( Brush ) GetValue ( RowbackgroundProperty ); }
+            set { SetValue ( RowbackgroundProperty , value ); }
+        }
+        public static readonly DependencyProperty RowbackgroundProperty =
+           DependencyProperty . Register ( "Rowbackground" , typeof ( Brush ) , typeof ( GenericGridControl ) , new PropertyMetadata ( Brushes . Transparent ) );
+
+        public Brush background
+        {
+            get { return ( Brush ) GetValue ( backgroundProperty ); }
+            set { SetValue ( backgroundProperty , value ); }
+        }
+        public static readonly DependencyProperty backgroundProperty =
+           DependencyProperty . Register ( "background" , typeof ( Brush ) , typeof ( GenericGridControl ) , new PropertyMetadata ( Brushes . Gray ) );
+
+        public Brush foreground
+        {
+            get { return ( Brush ) GetValue ( foregroundProperty ); }
+            set { SetValue ( foregroundProperty , value ); }
+        }
+        public static readonly DependencyProperty foregroundProperty =
+           DependencyProperty . Register ( "foreground" , typeof ( Brush ) , typeof ( GenericGridControl ) , new PropertyMetadata ( Brushes . White ) );
+
+        public Thickness margin
+        {
+            get { return ( Thickness ) GetValue ( marginProperty ); }
+            set { SetValue ( marginProperty , value ); }
+        }
+        public static readonly DependencyProperty marginProperty =
+           DependencyProperty . Register ( "margin" , typeof ( Thickness ) , typeof ( GenericGridControl ) , new PropertyMetadata ( new Thickness { Left = 10 , Top = 10 , Bottom = 10 , Right = 10 } ) );
+
+        public double fontsize
+        {
+            get { return ( double ) GetValue ( fontsizeProperty ); }
+            set { SetValue ( fontsizeProperty , value ); }
+        }
+        public static readonly DependencyProperty fontsizeProperty =
+            DependencyProperty . Register ( "fontsize" , typeof ( double ) , typeof ( GenericGridControl ) , new PropertyMetadata ( ( double ) 15 ) );
+
+        public ScrollBarVisibility vscrollBar
+        {
+            get { return ( ScrollBarVisibility ) GetValue ( vscrollBarProperty ); }
+            set { SetValue ( vscrollBarProperty , value ); }
+        }
+        public static readonly DependencyProperty vscrollBarProperty =
+            DependencyProperty . Register ( "vscrollBar" , typeof ( ScrollBarVisibility ) ,
+                typeof ( GenericGridControl ) , new PropertyMetadata ( ( ScrollBarVisibility ) 1 ) );
+
+        #endregion DP's
+
+
+        #region Edit/Add/Update
+        private void dgProducts_AddingNewItem ( object sender , AddingNewItemEventArgs e )
+        { isInsertMode = true; }
+        private void dgProducts_BeginningEdit ( object sender , DataGridBeginningEditEventArgs e )
+        { isBeingEdited = true; }
+        private void dgProducts_RowEditEnding ( object sender , DataGridRowEditEndingEventArgs e )
+        { }
+        private void dgProducts_PreviewKeyDown ( object sender , KeyEventArgs e )
+        { }
+        #endregion Edit/Add/Update
+
+        #region UNUSED METHODS
 
         private void CreateGenericColumns ( int maxcols , DataGrid grid1 )
         {
@@ -628,94 +825,58 @@ namespace NewWpfDev . UserControls
 
         private void StylesCombo_MouseEnter ( object sender , MouseEventArgs e )
         {
-            StylesList . Opacity = 0.7;
+            Thickness th = new Thickness ( );
+            th . Left = 0;
+            th . Right = 0;
+            th . Top = 0;
+            th . Bottom = 0;
+            StylesList . BorderThickness = th;
+            StylesList . Opacity = 1.0;
+            StylesList . BorderBrush = FindResource ( "Red5" ) as SolidColorBrush;
             return;
         }
 
         private void StylesCombo_MouseLeave ( object sender , MouseEventArgs e )
         {
-            StylesList . Opacity = 1.0;
+            PopupListBox popup = sender as PopupListBox;
+            StylesList . Opacity = 0.7;
+            Thickness th = new Thickness ( );
+            th . Left = 5;
+            th . Right = 5;
+            th . Top = 5;
+            th . Bottom = 5;
+            StylesList . BorderThickness = th;
+            popup . Stylesgrid . Background = FindResource ( "White0" ) as SolidColorBrush;
+            StylesList . Opacity = 0.5;
+            popup . ShadowText . Opacity = 0.8;
             return;
         }
 
-        #region DP's
-        public SelectionMode Selectionmode
+        public GenericClass ConvertClass ( GGenericClass GCollection , GenericClass collection )
         {
-            get { return ( SelectionMode ) GetValue ( SelectionmodeProperty ); }
-            set { SetValue ( SelectionmodeProperty , value ); }
+            collection . field1 = GCollection . field1;
+            collection . field2 = GCollection . field2;
+            collection . field3 = GCollection . field3;
+            collection . field4 = GCollection . field4;
+            collection . field5 = GCollection . field5;
+            collection . field6 = GCollection . field6;
+            collection . field7 = GCollection . field7;
+            collection . field8 = GCollection . field8;
+            collection . field9 = GCollection . field9;
+            collection . field10 = GCollection . field10;
+            collection . field11 = GCollection . field11;
+            collection . field12 = GCollection . field12;
+            collection . field13 = GCollection . field13;
+            collection . field14 = GCollection . field14;
+            collection . field15 = GCollection . field15;
+            collection . field16 = GCollection . field16;
+            collection . field17 = GCollection . field17;
+            collection . field18 = GCollection . field18;
+            collection . field19 = GCollection . field19;
+            collection . field20 = GCollection . field20;
+            return collection;
         }
-        public static readonly DependencyProperty SelectionmodeProperty =
-            DependencyProperty . Register ( "Selectionmode" , typeof ( SelectionMode ) , typeof ( GenericGridControl ) , new PropertyMetadata ( SelectionMode . Multiple ) );
-
-        public bool autoGenerateColumns
-        {
-            get { return ( bool ) GetValue ( autoGenerateColumnsProperty ); }
-            set { SetValue ( autoGenerateColumnsProperty , value ); }
-        }
-        public static readonly DependencyProperty autoGenerateColumnsProperty =
-            DependencyProperty . Register ( "autoGenerateColumns" , typeof ( bool ) , typeof ( GenericGridControl ) , new PropertyMetadata ( false ) );
-
-        public bool canUserAddRows
-        {
-            get { return ( bool ) GetValue ( canUserAddRowsProperty ); }
-            set { SetValue ( canUserAddRowsProperty , value ); }
-        }
-        public static readonly DependencyProperty canUserAddRowsProperty =
-            DependencyProperty . Register ( "canUserAddRows" , typeof ( bool ) , typeof ( GenericGridControl ) , new PropertyMetadata ( false ) );
-
-        public Brush Rowbackground
-        {
-            get { return ( Brush ) GetValue ( RowbackgroundProperty ); }
-            set { SetValue ( RowbackgroundProperty , value ); }
-        }
-        public static readonly DependencyProperty RowbackgroundProperty =
-           DependencyProperty . Register ( "Rowbackground" , typeof ( Brush ) , typeof ( GenericGridControl ) , new PropertyMetadata ( Brushes . Transparent ) );
-
-        public Brush background
-        {
-            get { return ( Brush ) GetValue ( backgroundProperty ); }
-            set { SetValue ( backgroundProperty , value ); }
-        }
-        public static readonly DependencyProperty backgroundProperty =
-           DependencyProperty . Register ( "background" , typeof ( Brush ) , typeof ( GenericGridControl ) , new PropertyMetadata ( Brushes . Gray ) );
-
-        public Brush foreground
-        {
-            get { return ( Brush ) GetValue ( foregroundProperty ); }
-            set { SetValue ( foregroundProperty , value ); }
-        }
-        public static readonly DependencyProperty foregroundProperty =
-           DependencyProperty . Register ( "foreground" , typeof ( Brush ) , typeof ( GenericGridControl ) , new PropertyMetadata ( Brushes . White ) );
-
-        public Thickness margin
-        {
-            get { return ( Thickness ) GetValue ( marginProperty ); }
-            set { SetValue ( marginProperty , value ); }
-        }
-        public static readonly DependencyProperty marginProperty =
-           DependencyProperty . Register ( "margin" , typeof ( Thickness ) , typeof ( GenericGridControl ) , new PropertyMetadata ( new Thickness { Left = 10 , Top = 10 , Bottom = 10 , Right = 10 } ) );
-
-        public double fontsize
-        {
-            get { return ( double ) GetValue ( fontsizeProperty ); }
-            set { SetValue ( fontsizeProperty , value ); }
-        }
-        public static readonly DependencyProperty fontsizeProperty =
-            DependencyProperty . Register ( "fontsize" , typeof ( double ) , typeof ( GenericGridControl ) , new PropertyMetadata ( ( double ) 15 ) );
-
-        public ScrollBarVisibility vscrollBar
-        {
-            get { return ( ScrollBarVisibility ) GetValue ( vscrollBarProperty ); }
-            set { SetValue ( vscrollBarProperty , value ); }
-        }
-        public static readonly DependencyProperty vscrollBarProperty =
-            DependencyProperty . Register ( "vscrollBar" , typeof ( ScrollBarVisibility ) ,
-                typeof ( GenericGridControl ) , new PropertyMetadata ( ( ScrollBarVisibility ) 1 ) );
-
-        #endregion DP's
-
-        #region UNUSED METHODS
-
+        //Not used ??
         static private ObservableCollection<GenericSqlLib . Models . GenericClass> LoadTableGeneric (
             string SqlCommand , ObservableCollection<GenericSqlLib . Models . GenericClass> GenCollection )
         {
@@ -723,6 +884,7 @@ namespace NewWpfDev . UserControls
             GenCollection . Clear ( );
             string errormsg = "";
             int DbCount = 0;
+
             DbCount = GenericSqlLib . Dapper . DapperSupport . CreateGenericCollection (
             ref GenCollection ,
            SqlCommand ,
@@ -734,18 +896,6 @@ namespace NewWpfDev . UserControls
 
             return GenCollection;
         }
-
-        #region Edit/Add/Update
-        private void dgProducts_AddingNewItem ( object sender , AddingNewItemEventArgs e )
-        { isInsertMode = true; }
-        private void dgProducts_BeginningEdit ( object sender , DataGridBeginningEditEventArgs e )
-        { isBeingEdited = true; }
-        private void dgProducts_RowEditEnding ( object sender , DataGridRowEditEndingEventArgs e )
-        { }
-        private void dgProducts_PreviewKeyDown ( object sender , KeyEventArgs e )
-        { }
-        #endregion Edit/Add/Update
-
         public void LoadGenericTableStatic ( string table )
         {
             LoadGenericTable ( table );

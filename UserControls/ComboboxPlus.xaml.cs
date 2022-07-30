@@ -23,13 +23,15 @@ using NewWpfDev . Sql;
 using NewWpfDev . ViewModels;
 using NewWpfDev . Views;
 
-namespace NewWpfDev . UserControls {
+namespace NewWpfDev . UserControls
+{
     /// <summary>
     /// Interaction logic for ComboboxPlus.xaml
     /// </summary>
 
 
-    public enum Panels {
+    public enum Panels
+    {
         BLANK = 0,
         GEN = 1,
         PANEL3,
@@ -37,7 +39,8 @@ namespace NewWpfDev . UserControls {
         PANEL5
     };
 
-    public class ComboChangedArgs {
+    public class ComboChangedArgs
+    {
         public ComboBox CBplus = null;
         public BankAcHost BHost = null;
         public BlankScreenUC BlankCtrl = null;
@@ -46,14 +49,17 @@ namespace NewWpfDev . UserControls {
         public string Activepanel = "";
         public string ActiveTablename = "";
     }
-    public partial class ComboboxPlus : UserControl {
+    public partial class ComboboxPlus : UserControl
+    {
 
         static public event EventHandler<ComboChangedArgs> ComboboxChanged;
 
         #region NotifyPropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;
-        private void NotifyPropertyChanged ( string propertyName ) {
-            if ( PropertyChanged != null ) {
+        private void NotifyPropertyChanged ( string propertyName )
+        {
+            if ( PropertyChanged != null )
+            {
                 PropertyChanged ( this , new PropertyChangedEventArgs ( propertyName ) );
             }
         }
@@ -85,31 +91,41 @@ namespace NewWpfDev . UserControls {
         #region Full properties
         // current;ly active panel
         private string currentPanel;
-        public string CurrentPanel {
+        public string CurrentPanel
+        {
             get { return currentPanel; }
             set { currentPanel = value; NotifyPropertyChanged ( nameof ( CurrentPanel ) ); }
         }
 
         // Default binded value for tables combo
         private string currentcomboSelection;
-        public string currentComboSelection {
+        public string currentComboSelection
+        {
             get { return currentcomboSelection; }
             set { currentcomboSelection = value; NotifyPropertyChanged ( nameof ( currentComboSelection ) ); }
         }
-        private string comboSelection0;
-        public string ComboSelection0 {
-            get { return comboSelection0; }
-            set { comboSelection0 = value; NotifyPropertyChanged ( nameof ( ComboSelection0 ) ); }
+        private string comboSelection1;
+        public string ComboSelection1
+        {
+            get { return comboSelection1; }
+            set { comboSelection1 = value; NotifyPropertyChanged ( nameof ( ComboSelection1 ) ); }
         }
-         private object selectedItem;
-        public object SelectedItem {
+        private string comboSelection2;
+        public string ComboSelection2
+        {
+            get { return comboSelection2; }
+            set { comboSelection2 = value; NotifyPropertyChanged ( nameof ( ComboSelection2 ) ); }
+        }
+        private object selectedItem;
+        public object SelectedItem
+        {
             get { return selectedItem; }
             set { selectedItem = value; NotifyPropertyChanged ( nameof ( SelectedItem ) ); }
         }
 
         #endregion Full properties
 
-         #region DP's
+        #region DP's
         //+++++++++++++++++++++
         public List<string> ItemsList
         {
@@ -138,26 +154,34 @@ namespace NewWpfDev . UserControls {
             DependencyProperty . Register ( "MyItemsSource" , typeof ( IEnumerable ) , typeof ( ComboboxPlus ) , new PropertyMetadata ( default ) );
         //++++++++++++++++++++++++++++++
         public Style ComboStyle
-        {get { return ( Style ) GetValue ( ComboStyleProperty ); }
-            set { SetValue ( ComboStyleProperty , value ); }}
+        {
+            get { return ( Style ) GetValue ( ComboStyleProperty ); }
+            set { SetValue ( ComboStyleProperty , value ); }
+        }
         public static readonly DependencyProperty ComboStyleProperty =
             DependencyProperty . Register ( "ComboStyle" , typeof ( Style ) , typeof ( ComboboxPlus ) , new PropertyMetadata ( default ) );
         //++++++++++++++++++++++++++++++
         public string DefaultText
-        {get { return ( string ) GetValue ( DefaultTextProperty ); }
-            set { SetValue ( DefaultTextProperty , value ); }}
+        {
+            get { return ( string ) GetValue ( DefaultTextProperty ); }
+            set { SetValue ( DefaultTextProperty , value ); }
+        }
         public static readonly DependencyProperty DefaultTextProperty =
                 DependencyProperty . Register ( "DefaultText" , typeof ( string ) , typeof ( ComboboxPlus ) , new PropertyMetadata ( "Select Item ..." ) );
         //++++++++++++++++++++++++++++++
         new public Brush Background
-        {get { return ( Brush ) GetValue ( BackgroundProperty ); }
-            set { SetValue ( BackgroundProperty , value ); }}
+        {
+            get { return ( Brush ) GetValue ( BackgroundProperty ); }
+            set { SetValue ( BackgroundProperty , value ); }
+        }
         new public static readonly DependencyProperty BackgroundProperty =
             DependencyProperty . Register ( "Background" , typeof ( Brush ) , typeof ( ComboboxPlus ) , new PropertyMetadata ( Brushes . Transparent ) );
         //++++++++++++++++++++++++++++++
         public int ItemSelected
-        {get { return ( int ) GetValue ( ItemSelectedProperty ); }
-            set { SetValue ( ItemSelectedProperty , value ); }}
+        {
+            get { return ( int ) GetValue ( ItemSelectedProperty ); }
+            set { SetValue ( ItemSelectedProperty , value ); }
+        }
         public static readonly DependencyProperty ItemSelectedProperty =
             DependencyProperty . Register ( "ItemSelected" , typeof ( int ) , typeof ( ComboboxPlus ) , new PropertyMetadata ( 0 ) );
         //++++++++++++++++++++++++++++++
@@ -184,18 +208,21 @@ namespace NewWpfDev . UserControls {
 
         public bool SelectActive { get; set; } = false;
 
-        public ComboboxPlus ( ) {
+        public ComboboxPlus ( )
+        {
             InitializeComponent ( );
             //DataContext = this;
             comboBox . SelectionChanged += ComboBox_SelectionChanged;
             // initialize dataggrids array
-            for ( int i = 0 ; i < 5 ; i++ ) {
+            for ( int i = 0 ; i < 5 ; i++ )
+            {
                 datagrids [ i ] = new DataGrid ( );
                 gridtablenames [ i ] = "";
             }
             ItemSelected = 0;
         }
-        public void SetHost ( BankAcHost host ) {
+        public void SetHost ( BankAcHost host )
+        {
             Host = host;
             SetBankHost ( ( DependencyObject ) host , host );
         }
@@ -206,7 +233,8 @@ namespace NewWpfDev . UserControls {
             GenericGridControl GenCtrl ,
             DataGrid [ ] grids ,
             string Activepanel ,
-            string ActiveTablename = "" ) {
+            string ActiveTablename = "" )
+        {
             ComboChangedArgs args = new ComboChangedArgs ( );
             args . CBplus = CBplus;
             args . BHost = BHost;
@@ -216,13 +244,15 @@ namespace NewWpfDev . UserControls {
             args . ActiveTablename = ActiveTablename;
             return args;
         }
-        private void ComboboxPlus_ComboboxChanged ( object sender , ComboChangedArgs e ) {
-            int DbCount = 0, index = 0;
+        private void ComboboxPlus_ComboboxChanged ( object sender , ComboChangedArgs e )
+        {
+            int index = 0;
             string tablename = e . ActiveTablename . ToUpper ( );
             //**************************
             // BLANKPANEL IS ACTIVE  
             //**************************
-            if ( e . Activepanel == "BLANKSCREEN" ) {
+            if ( e . Activepanel == "BLANKSCREEN" )
+            {
                 index = 0;
                 if ( e . BHost != null )
                     e . BHost . Title = "BLANK GRID VIEWER";
@@ -230,7 +260,8 @@ namespace NewWpfDev . UserControls {
                 if ( e . grids [ index ] . Items . Count == 0 )
                     LoadGenericTable ( tablename , e . grids [ index ] );
 
-                if ( e . grids [ index ] . Items . Count == 0 ) {
+                if ( e . grids [ index ] . Items . Count == 0 )
+                {
                     // load new data 
                     e . grids [ index ] . ItemsSource = null;
                     e . grids [ index ] . Items . Clear ( );
@@ -240,11 +271,13 @@ namespace NewWpfDev . UserControls {
                 }
                 e . grids [ index ] . Refresh ( );
             }
-            else if ( CurrentPanel == "GENERICGRID" ) {
+            else if ( CurrentPanel == "GENERICGRID" )
+            {
             }
         }
 
-        public void LoadNewData ( object sender , string tablename , string activepane , DataGrid grid ) {
+        public void LoadNewData ( object sender , string tablename , string activepane , DataGrid grid )
+        {
             LoadGenericTable ( tablename , grid );
 
             //Pass data loading back to BankAcHost to process
@@ -259,9 +292,11 @@ namespace NewWpfDev . UserControls {
             //bh = GetBankHost ( ( DependencyObject ) bh );
         }
 
-        static public bool LoadGenericTable ( string table , DataGrid grid ) {
+        static public bool LoadGenericTable ( string table , DataGrid grid )
+        {
             int DbCount = LoadTableGeneric ( $"Select * from {table}" , ref GenCollection );
-            if ( DbCount > 0 ) {
+            if ( DbCount > 0 )
+            {
                 SqlServerCommands . LoadActiveRowsOnlyInGrid ( grid , GenCollection , SqlServerCommands . GetGenericColumnCount ( GenCollection ) );
                 GenericDbUtilities . ReplaceDataGridFldNames ( table , ref grid );
                 Debug . WriteLine ( $"grid has {grid . Items . Count} items from {table}" );
@@ -269,7 +304,8 @@ namespace NewWpfDev . UserControls {
             }
             return false;
         }
-        static private int LoadTableGeneric ( string SqlCommand , ref ObservableCollection<GenericClass> GenCollection ) {
+        static private int LoadTableGeneric ( string SqlCommand , ref ObservableCollection<GenericClass> GenCollection )
+        {
             List<string> list2 = new ( );
             GenCollection . Clear ( );
             string errormsg = "";
@@ -285,7 +321,8 @@ namespace NewWpfDev . UserControls {
 
             return DbCount;
         }
-        public ComboChangedArgs CreateComboArgs ( ) {
+        public ComboChangedArgs CreateComboArgs ( )
+        {
             ComboChangedArgs args = new ComboChangedArgs ( );
             args . CBplus = comboBox;
             args . BHost = null;
@@ -297,33 +334,40 @@ namespace NewWpfDev . UserControls {
             return args;
         }
 
-        private void ComboBox_SelectionChanged ( object sender , SelectionChangedEventArgs e ) {
+        private void ComboBox_SelectionChanged ( object sender , SelectionChangedEventArgs e )
+        {
             if ( SelectActive ) return;
             SelectedItem = ( object ) e . AddedItems [ 0 ];
             string activepanel = BankAcHost . CurrentPanel;
-            if ( activepanel == "GENERICGRID" ) {
-                if ( ComboSelection0 == null || ComboSelection0 != "" ) {
-                    //********************************************************
-                    // Send data request to GenericGridControl to handle it
-                    //********************************************************
+            if ( activepanel == "GENERICGRID" )
+            {
+                var args = new ComboChangedArgs ( );
+                //********************************************************
+                // Send data request to GenericGridControl to handle it
+                //********************************************************
+                if ( GenericGridControl . ActiveGrid == 1 )
+                {
                     this . gridtablenames [ 0 ] = selectedItem . ToString ( ) . ToUpper ( );
-                    //GenericGridControl genctrl = BankAcHost . GenericGrid;
-                    //genctrl . LoadGenericTableStatic ( this . gridtablenames [ 0 ] );
-
-                    var args = new ComboChangedArgs ( );
+                    comboSelection1 = SelectedItem . ToString ( );
+                    currentcomboSelection = comboSelection1;
                     args . ActiveTablename = this . gridtablenames [ 0 ];
-                    args . Activepanel = activepanel;
-                    //args . grids [ 0] =
-                    ComboboxChanged . Invoke ( this , args );
                 }
-                comboSelection0 = SelectedItem . ToString ( );
-                currentcomboSelection = comboSelection0;
-                ItemSelected = comboBox.SelectedIndex;
+                else
+                {
+                    this . gridtablenames [ 1 ] = selectedItem . ToString ( ) . ToUpper ( );
+                    comboSelection2 = SelectedItem . ToString ( );
+                    currentcomboSelection = comboSelection2;
+                    args . ActiveTablename = this . gridtablenames [ 1 ];
+                }
+                args . Activepanel = activepanel;
+                ComboboxChanged . Invoke ( this , args );
             }
+            ItemSelected = comboBox . SelectedIndex;
         }
 
- 
-        private void Promptlabel_PreviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e ) {
+
+        private void Promptlabel_PreviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
+        {
             Promptlabel . Visibility = Visibility . Collapsed;
             comboBox . Visibility = Visibility . Visible;
         }

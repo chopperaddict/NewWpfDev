@@ -1079,6 +1079,7 @@ namespace NewWpfDev
                     con = new SqlConnection ( Flags . CurrentConnectionString );
                     if ( con != null )
                     {
+                        //test it
                         constring = connstring;
                         con . Close ( );
                         return true;
@@ -1089,17 +1090,17 @@ namespace NewWpfDev
                         return false;
                     }
                 }
+                else
                 {
-                    constring = connstring;
+                    constring = "";
                     return false;
                 }
             }
             else
             {
-                constring = connstring;
+                constring = "";
                 return false;
             }
-
         }
         /// <summary>
         /// A Generic data reader for any ObservableCollection&lt;T&gt; type

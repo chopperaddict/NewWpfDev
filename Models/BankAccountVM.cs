@@ -157,10 +157,14 @@ namespace NewWpfDev . Models {
                 // This receives [3] arguments created by AddTwoValuesConverter
                 // I define these to be string, calling class, generic object
                 if ( parameters == null ) return;
-                Debug . WriteLine ( $"{parameters [ 0 ]?.GetType ( ) . ToString ( )}" );
-                Debug . WriteLine ( $"{parameters [ 1 ]?.GetType ( ) . ToString ( )}" );
+                if ( parameters . Length >= 1 )
+                    Debug . WriteLine ( $"{parameters [ 0 ]?.GetType ( ) . ToString ( )}" );
+                if ( parameters . Length >= 2 )
+                    Debug . WriteLine ( $"{parameters [ 1 ]?.GetType ( ) . ToString ( )}" );
+                if(parameters.Length >= 3)
                 Debug . WriteLine ( $"{parameters [ 2 ]?.GetType ( ) . ToString ( )}" );
-                Host . SetActivePanel ( parameters [0] . ToString ( ) );
+                if ( parameters [0] != null)
+                    Host . SetActivePanel ( parameters [0] . ToString ( ) );
             }
             else
             Host . SetActivePanel ( obj.ToString() );

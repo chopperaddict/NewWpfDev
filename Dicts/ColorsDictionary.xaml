@@ -92,8 +92,9 @@
 	<!--#region SolidColorBushes  (SOLIDCOLORBRUSH)-->
 
 	<!--// General declarations-->
-	<SolidColorBrush x:Key="Menu.Static.Border" Color="#FF999999"/>
-	<SolidColorBrush x:Key="Menu.Static.Background" Color="#F1943EB9"/>
+    <SolidColorBrush x:Key="Transparent0" Color="#00000000"/>
+    <SolidColorBrush x:Key="Menu.Static.Border" Color="#FF999999"/>
+    <SolidColorBrush x:Key="Menu.Static.Background" Color="#F1943EB9"/>
 	<SolidColorBrush x:Key="Menu.Static.Separator" Color="#FFD7D7D7"/>
 	<SolidColorBrush x:Key="Menu.Static.Foreground" Color="#FF212121" />
 

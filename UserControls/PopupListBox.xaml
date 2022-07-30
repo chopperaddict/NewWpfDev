@@ -6,25 +6,33 @@
              xmlns:local="clr-namespace:NewWpfDev.UserControls"
              mc:Ignorable="d" 
              x:Name="BorderGrid"
-             Width="{Binding Path=CanvasWidth, ElementName=parent}"
-                d:DesignHeight="30" d:DesignWidth="179">
+            Height="{Binding CttrlHeight}" Width="{Binding CtrlWidth}"
+            d:DesignHeight="30" d:DesignWidth="200">
 
     <UserControl.Resources>
         <!--allows us to switch  etween datatemplates to change view of each row-->
         <DataTemplate x:Key="Notselected">
-            <TextBlock Text="{Binding}" Foreground="White" Background="{StaticResource Blue1}" Width="{Binding ActualWidth, ElementName=StylesCombo}" />
+            <TextBlock Text="{Binding}" Foreground="White" Background="{StaticResource Blue1}" 
+                       Width="{Binding Width, ElementName=Stylesgrid}"
+                       Height="{Binding Height, ElementName=CtrlHeight}"/>
         </DataTemplate>
 
         <DataTemplate x:Key="IsSelected">
-            <TextBlock Text="{Binding}" Foreground="White" Background="Red" Width="{Binding ActualWidth, ElementName=StylesCombo}"/>
+            <TextBlock Text="{Binding}" Foreground="White" Background="Red"
+                       Width="{Binding Width, ElementName=Stylesgrid}"
+                       Height="{Binding Height, ElementName=CtrlHeight}"/>
         </DataTemplate>
 
         <DataTemplate x:Key="UnSelectedMouseover">
-            <TextBlock Text="{Binding}" Foreground="White" Background="Orange" Width="{Binding ActualWidth, ElementName=StylesCombo}"/>
+            <TextBlock Text="{Binding}" Foreground="White" Background="Orange" 
+                       Width="{Binding Width, ElementName=Stylesgrid}"
+                       Height="{Binding Height, ElementName=CtrlHeight}"/>
         </DataTemplate>
 
         <DataTemplate x:Key="SelectedMouseover">
-            <TextBlock Text="{Binding}" Foreground="White" Background="Green" Width="{Binding ActualWidth, ElementName=StylesCombo}"/>
+            <TextBlock Text="{Binding}" Foreground="White" Background="Green" 
+                       Width="{Binding Width, ElementName=Stylesgrid}"
+                        Height="{Binding Height, ElementName=CtrlHeight}"/>
         </DataTemplate>
 
         <Style TargetType="{x:Type ListBoxItem}" x:Key="ContainerStyle">
@@ -74,8 +82,10 @@
         </Style>
 
     </UserControl.Resources>
+
     <Canvas x:Name="Stylesgrid" 
-               Width="{Binding Path=CanvasWidth, ElementName=parent}" >
+            Height="{Binding CtrlHeight}"
+            Width="{Binding CtrlWidth}" >
 
         <ListBox x:Name="StylesCombo"
                     Panel.ZIndex="8"
@@ -97,7 +107,10 @@
                     ItemContainerStyle="{StaticResource ContainerStyle}" 
                     d:ItemsSource="{d:SampleData ItemCount=5}"
                     BorderBrush="Transparent" OverridesDefaultStyle="False"
-                 Height="27" Width="174" Canvas.Left="3" Canvas.Top="1">
+                   Height="{Binding CtrlHeight}"
+                   Width="{Binding CtrlWidth}"
+   
+                 Canvas.Left="0" Canvas.Top="0">
             <ListBox.RenderTransform>
                 <TransformGroup>
                     <ScaleTransform ScaleY="1" ScaleX="1"/>
@@ -122,8 +135,8 @@
                     MouseLeave="StylesCombo_MouseLeave" 
                     VerticalAlignment="Top"            
                     HorizontalAlignment="Center"
-                   Height="27"
-                   Width="176"
-                    Visibility="Visible" Canvas.Top="1" Canvas.Left="1"/>
+                   Height="{Binding CtrlHeight}"
+                   Width="{Binding CtrlWidth}"
+                    Visibility="Visible" Canvas.Top="0" Canvas.Left="0"/>
     </Canvas>
 </UserControl>

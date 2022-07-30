@@ -297,7 +297,7 @@
         <models:BankAccountVM></models:BankAccountVM>
     </UserControl.DataContext>
 
-    <Grid x:Name="maingrid" Height="Auto" Width="Auto" >
+    <Grid x:Name="maingrid"  >
 
         <Grid.RowDefinitions>
             <RowDefinition Height="35"/>
@@ -312,7 +312,7 @@
         <!--.. Column headrs working !!-->
         <DataGrid  x:Name="datagrid1"      
                   ColumnHeaderStyle="{StaticResource ColumnHeaderStyle}"
-                  Grid.Row="1" Grid.RowSpan="2"
+                  Grid.Row="1" Grid.RowSpan="1"
                   Background="{StaticResource Black2OrangeSlant}"
                   AutoGenerateColumns="true"
                   DataContext="{Binding ElementName=GenGridControl}"
@@ -332,19 +332,22 @@
                   RowEditEnding="dgProducts_RowEditEnding"     
                   BorderBrush="Green"
                   Foreground="White"                  
+                  HorizontalAlignment="Left" 
+                  VerticalAlignment="Top"
                   AddingNewItem="dgProducts_AddingNewItem" 
                   BeginningEdit="dgProducts_BeginningEdit" 
                   PreviewKeyDown="dgProducts_PreviewKeyDown" 
                   PreviewMouseLeftButtonDown="dgProducts_PreviewMouseLeftButtonDown"
-                  Visibility="Visible" 
-/>
+                  Visibility="Visible" Grid.ColumnSpan="4"/>
+
         <DataGrid x:Name="datagrid2"   
-                   Grid.Row="1" Grid.RowSpan="2"
+                   Grid.Row="1" Grid.RowSpan="1"
                   ColumnHeaderStyle="{StaticResource ColumnHeaderStyle}"
                   Background="{StaticResource Black2OrangeSlant}"
                   AutoGenerateColumns="True"
                   DataContext="{Binding ElementName=GenGridControl}"
                   CanUserAddRows="{Binding Path=canUserAddRows, ElementName=GenGridControl}"
+                  Margin="{Binding Path=margin,ElementName=GenGridControl}"                  
                   Height="{Binding Path=ActualHeight, ElementName=GenGridControl, Converter={StaticResource ReduceWidth}, ConverterParameter=-20}" 
                   Width="{Binding Path=Width,ElementName=GenGridControl  ,Converter={StaticResource ReduceWidth}, ConverterParameter=-10}"
                   FontSize="{Binding fontsize,ElementName=GenGridControl}"
@@ -355,31 +358,13 @@
                   RowHeight="22"
                   VerticalGridLinesBrush="White"
                   VerticalScrollBarVisibility="{Binding vscrollBar}"         
-                  BorderBrush="White"
+                  BorderBrush="LightGreen"
                   Foreground="White"
                   HorizontalAlignment="Left" 
                   VerticalAlignment="Top"
                   PreviewKeyDown="dgProducts_PreviewKeyDown" 
                   PreviewMouseLeftButtonDown="dgProducts_PreviewMouseLeftButtonDown"
-                  Visibility="Collapsed" Grid.ColumnSpan="4">
-            <!--<DataGridTextColumn Binding="{Binding field1, RelativeSource={RelativeSource AncestorType=DataGrid}, Mode=TwoWay}">-->
-            <!--<DataGridTextColumn>
-                <DataGridTextColumn.HeaderStyle>
-                    <Style TargetType="{x:Type DataGridColumnHeader}">
-                        <Style.Setters>
-                            <Setter Property="ContentTemplate">
-                                <Setter.Value>
-                                <DataTemplate>
-                                    <TextBox Text="{Binding Path=field1}" Background="Red" Foreground="White" />
-                                </DataTemplate>
-                                </Setter.Value>
-                            </Setter>
-                        </Style.Setters>
-                
-                    </Style>
-                </DataGridTextColumn.HeaderStyle>
-            </DataGridTextColumn>-->
-            <!--</DataGridTextColumn>-->
+                  Visibility="Hidden" Grid.ColumnSpan="4">
         </DataGrid>
 
         <!--#region bottom button bar-->
@@ -427,11 +412,10 @@
             <!--ItemContainerStyle="{StaticResource CBitemContainerStyle}"-->
             <Button  x:Name="Togglegrid" HorizontalAlignment="Left" Height="35" Width="70" Click="Togglegrid_Click"
                     Style="{StaticResource DarkmodeButton}" Foreground="White" Margin="5 0 20 0" Content="= Grid 1"/>
-        </StackPanel>
 
-        <!--#endregion bottom button bar-->
+            <!--#endregion bottom button bar-->
 
-        <!--<ListBox x:Name="xStylesCombo" 
+            <!--<ListBox x:Name="xStylesCombo" 
                 Grid.Row="2"
                 Margin="0,0,20,8"
                 Panel.ZIndex="5"
@@ -451,25 +435,26 @@
                 ItemContainerStyle="{StaticResource ContainerStyle}" d:ItemsSource="{d:SampleData ItemCount=5}" Grid.Column="3"/>-->
 
 
-        <!--// Default to growing Up, so we set bottom to zero (GrowDirection =0)-->
-        <user:PopupListBox x:Name="StylesList"
+            <!--// Default to growing Up, so we set bottom to zero (GrowDirection =0)-->
+        </StackPanel>
+
+        <user:PopupListBox x:Name="StylesList" 
                 Background="{StaticResource Blue3}"
                 Foreground="White"
                 MaxListHeight="110"
-                GrowDirection="1"       
+                GrowDirection="0"       
                 Panel.ZIndex="25"
                 DefaultHeight="30"   
                 FontSize="14"
-                Height="130"
-                HorizontalAlignment="Left"
+                CtrlHeight="30"
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                  ScrollViewer.VerticalScrollBarVisibility="Disabled"
                  VerticalAlignment="Bottom"            
                 BorderThickness="1"
                 MouseEnter="StylesCombo_MouseEnter"
                 MouseLeave="StylesCombo_MouseLeave" 
-                Width="184" Grid.RowSpan="2" RenderTransformOrigin="-0.584,0.573" Margin="572,-38,0,38" 
-                            />
-    </Grid>
+                CtrlWidth="204" Margin="550,2,46,8" Grid.Row="2" 
+                           />
 
+    </Grid>
 </UserControl>

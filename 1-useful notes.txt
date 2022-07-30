@@ -1,4 +1,16 @@
 ﻿==============================================================================================================
+	// How to access ConfigurationManager Sql Connectioin strings
+	// Not correctly implemented  -- YET !!!!
+===============================================================================================================
+            <connectionStrings>
+           var dbString = ConfigurationManager . ConnectionStrings [ "Ian1" ] . ConnectionString;
+            </connectionStrings>
+			<AppSettings>
+		   var AppPath = ConfigurationManager . AppSettings[ "NewWpfDev-C" ];
+			</AppSettings>
+
+
+==============================================================================================================
 	// How to fix resource no found in VS2022
 	=============================================================================================================
 setx VSXAML_DISABLE_ON_DEMAND_RESOURCE_VALUES 1
