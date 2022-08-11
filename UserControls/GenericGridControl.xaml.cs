@@ -922,9 +922,9 @@ namespace NewWpfDev . UserControls
                         }
                         else if ( dglayoutlist [ x ] . Fieldtype == "date" || dglayoutlist [ x ] . Fieldtype == "datetime" )
                         {   // DateTime
-                            SqlParameter param = new SqlParameter ( dglayoutlist [ x ] . DataValue.ToString() , new DateTime ( dglayoutlist [ x ] . DataValue.ToString() ));
+                           //SqlParameter param = new SqlParameter ( dglayoutlist [ x ] . DataValue.ToString() , new DateTime ( Convert.ToUInt32(dglayoutlist [ x ] . DataValue )) .ToString());
                             
-                              cmd . Parameters . AddWithValue ( dglayoutlist [ x ] . Fieldname , param);
+                              cmd . Parameters . AddWithValue ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . DataValue .ToString ( ));
                            // cmd . Parameters . AddWithValue ( dglayoutlist [ x ] . Fieldname , str);
                         }
                         else if ( dglayoutlist [ x ] . Fieldtype == "bool" )
