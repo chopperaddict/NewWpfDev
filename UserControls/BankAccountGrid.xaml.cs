@@ -45,7 +45,7 @@ namespace NewWpfDev . UserControls
         #endregion NotifyPropertyChanged
 
         #region Properties
-        public BankAccountGrid ThisWin { get; set; }
+        public static BankAccountGrid ThisWin { get; set; }
 
         private static BankAcctVm BankAcctVm { get; set; }
         private static BankAccountVM BankAccountvm { get; set; }
@@ -101,7 +101,12 @@ namespace NewWpfDev . UserControls
             BankAcctVm . Findmatch += BANKACCOUNTLIST_Findmatch;
             BankAcctVm . DoUpdate += BankAccountList_DoUpdate;
             datagrid = grid1;
+            LoadBank ( );
             loading = false;
+        }
+        public static BankAccountGrid GetBankAccountGridHandle ( )
+        {
+            return ThisWin;
         }
 
         private void BankAccountList_DoUpdate ( object sender , SelchangedArgs args )
@@ -126,8 +131,8 @@ namespace NewWpfDev . UserControls
             success = BankCollection . UpdateBankDb ( bv , "CUSTOMER" );
             if ( !success || error )
                 MessageBox . Show ( "An error occured during the update processing...." , "Database update system" );
-            else BankAccountvm.InfoText = "Database Table updated successfully ...";
-            
+            else BankAccountvm . InfoText = "Database Table updated successfully ...";
+
             Host . Info . UpdateLayout ( );
             grid1 . Refresh ( );
             grid1 . UpdateLayout ( );
@@ -255,16 +260,19 @@ namespace NewWpfDev . UserControls
         #region Data Loading
         public async Task LoadBank ( bool update = true )
         {
-            Application . Current . Dispatcher . Invoke ( ( ) =>
-            {
-                if ( Bvm == null ) Bvm = new ObservableCollection<BankAccountViewModel> ( );
-                grid1 . ItemsSource = null;
-                grid1 . Items . Clear ( );
-                //grid1 . CellStyle = FindResource ( "MAINCustomerGridStyle" ) as Style;
-            } );
-
-            Bvm = ( ObservableCollection<BankAccountViewModel> ) UserControlDataAccess . GetBankObsCollectionAsync ( Bvm , "" , true , "BANKACCOUNTLIST" );
-            return;
+            grid1 . ItemsSource = null;
+            grid1 . Items . Clear ( );
+            if ( Bvm == null )
+                Bvm = new ObservableCollection<BankAccountViewModel> ( );
+           Task . Run ( async ( ) =>
+                await  UserControlDataAccess . GetBankObsCollectionAsync ( Bvm , "" , true , "BANKACCOUNTLIST" )
+                );
+           // Bvm = task as ObservableCollection<BankAccountViewModel> ;
+            //Application . Current . Dispatcher . Invoke ( ( ) =>
+            //{
+            //    grid1 . ItemsSource = Bvm;
+            //} );
+            // return;
         }
 
         public void EventControl_BankDataLoaded ( object sender , LoadedEventArgs e )

@@ -47,8 +47,8 @@ namespace NewWpfDev . UserControls
 
         #region full properties
 
-        private BankAccountInfo thiswin;
-        public BankAccountInfo ThisWin
+        private static  BankAccountInfo thiswin;
+        public static  BankAccountInfo ThisWin
         {
             get { return ( BankAccountInfo ) thiswin; }
             set { thiswin = value; }
@@ -123,6 +123,10 @@ namespace NewWpfDev . UserControls
             //LoadCustomer ( );
             backinggrid . ItemsSource = Cvm;
             loading = false;
+        }
+        public static BankAccountInfo GetBankAccountInfoHandle ( )
+        {
+            return ThisWin;
         }
 
         private void Custnumber_LostKeyboardFocus ( object sender , KeyboardFocusChangedEventArgs e )
@@ -415,6 +419,8 @@ namespace NewWpfDev . UserControls
         }
         public void ResizeControl ( double height , double width )
         {
+            this . VerticalAlignment = VerticalAlignment . Top;
+            this . HorizontalAlignment = HorizontalAlignment . Left;
             this . Height = height;
             this . Width = width;
             this . Refresh ( );

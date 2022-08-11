@@ -7,25 +7,54 @@
             <MultiTrigger >
                 <MultiTrigger.Conditions>
                     <Condition Property="IsMouseOver" Value="false"/>
+                    <Condition Property="IsSelected" Value="false"/>
                 </MultiTrigger.Conditions>
                 <MultiTrigger.Setters>
-                    <Setter Property="Background" Value="{StaticResource Green2}" />
-                    <Setter Property="Foreground" Value="{StaticResource White1}" />
-                    <Setter Property="BorderBrush" Value="{StaticResource Green2}" />
+                    <Setter Property="Background" Value="{StaticResource Green1}" />
+                    <Setter Property="Foreground" Value="{StaticResource Yellow0}" />
+                    <Setter Property="BorderBrush" Value="{StaticResource White0}" />
                     <Setter Property="BorderThickness" Value="0" />
                 </MultiTrigger.Setters>
             </MultiTrigger>
             <MultiTrigger >
                 <MultiTrigger.Conditions>
-                    <Condition Property="IsMouseOver" Value="true"/>
+                    <Condition Property="IsMouseOver" Value="false"/>
+                    <Condition Property="IsSelected" Value="true"/>
                 </MultiTrigger.Conditions>
                 <MultiTrigger.Setters>
                     <!--<Setter Property="DataGrid.Background" Value="{StaticResource Red2}" />-->
                     <Setter Property="Background" Value="{StaticResource Green7}" />
-                    <Setter Property="Foreground" Value="{StaticResource Red5}" />
+                    <Setter Property="Foreground" Value="{StaticResource White0}" />
                     <Setter Property="BorderBrush" Value="{StaticResource Green7}" />
                     <Setter Property="BorderThickness" Value="0" />
                 </MultiTrigger.Setters>
+            </MultiTrigger>
+            
+            <MultiTrigger >
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsMouseOver" Value="true"/>
+                    <Condition Property="IsSelected" Value="false"/>
+                </MultiTrigger.Conditions>
+                <MultiTrigger.Setters>
+                    <Setter Property="Background" Value="{StaticResource White7}"/>
+                    <Setter Property="Foreground" Value="{StaticResource Red2}" />
+                    <Setter Property="BorderBrush" Value="{StaticResource Red5}" />
+                    <Setter Property="BorderThickness" Value="0" />
+                </MultiTrigger.Setters>
+            </MultiTrigger>
+            
+            <MultiTrigger >
+                <MultiTrigger.Conditions>
+                <Condition Property="IsMouseOver" Value="true"/>
+                <Condition Property="IsSelected" Value="True"/>
+            </MultiTrigger.Conditions>
+            <MultiTrigger.Setters>
+                <!--<Setter Property="DataGrid.Background" Value="{StaticResource Red2}" />-->
+                <Setter Property="Background" Value="{StaticResource Red5}" />
+                <Setter Property="Foreground" Value="{StaticResource White0}" />
+                <Setter Property="BorderBrush" Value="{StaticResource Green7}" />
+                <Setter Property="BorderThickness" Value="0" />
+            </MultiTrigger.Setters>
             </MultiTrigger>
 
             <!--//=======================================================================================//-->

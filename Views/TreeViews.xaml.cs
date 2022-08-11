@@ -1325,9 +1325,6 @@ namespace NewWpfDev. Views
 
         #region TestTree Expanding Handling methods
 
-        //        int iterations = 0;
-        //        public Task t1;
-        //        public DispatcherOperation operation;
         private bool ExpandAll3 ( TreeViewItem items , bool expand , int levels )
         {
             if ( items == null )
@@ -1834,6 +1831,7 @@ namespace NewWpfDev. Views
         }
 
         #endregion Expand // Collapse
+
         private void ShowDriveInfo ( object sender , RoutedEventArgs e )
         {
             string output = "";
@@ -4520,22 +4518,11 @@ namespace NewWpfDev. Views
 
         private void TREEViews_MouseMove ( object sender , MouseEventArgs e )
         {
-            //ActiveTree . Refresh ( );
-
             Point pt = new Point ( );
             pt = e . GetPosition ( TestTree );
             IInputElement dropNode = TestTree . InputHitTest ( pt );
             IInputElement ie = ActiveTree . InputHitTest ( pt );
-            //var res =  ie.GetType();
-            //        var parent = Utils . FindVisualParent<TextBlock> ( dropNode.Text as UIElement);
-            //Debug. WriteLine ( $"IE : {ie}, {pt . X}, {pt . Y} dropNode={dropNode}" );
-            //Debug. WriteLine ( $"MOVE : {pt . X}, {pt . Y} Parent=" );
-            //VisualTreeHelper . GetParent ( )
-
-            //TreeViewItem tvi = ActiveTree . SelectedItem as TreeViewItem;
-            //string str = tvi != null ? tvi . Tag . ToString ( ) : "  None";
-            //Debug. WriteLine ( $"MouseMove{str}" );
-        }
+         }
         private void Opt1cbox_Click ( object sender , RoutedEventArgs e )
         {
             ClosePreviousNode = ( bool ) Opt1cbox . IsChecked;

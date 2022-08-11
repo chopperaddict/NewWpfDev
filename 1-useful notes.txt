@@ -1,4 +1,25 @@
 ﻿==============================================================================================================
+	// How to access movement of a  splitter bar & control its   contents
+===============================================================================================================
+
+		Add this  to DragStarted method
+           var heightDescriptor = DependencyPropertyDescriptor . FromProperty ( RowDefinition . HeightProperty , typeof ( ItemsControl ) ); 
+            heightDescriptor . AddValueChanged ( SplitterGrid . RowDefinitions [ 0 ] , SplitterHeightChanged );
+
+        private void SplitterHeightChanged ( object sender , EventArgs e )
+        {
+            datagrid1 . Height = SplitterGrid . RowDefinitions [ 0 ] . ActualHeight - 30;
+            datagrid2 . Height = SplitterGrid . RowDefinitions [ 1 ] . ActualHeight - 110;
+        }
+==============================================================================================================
+	// How to discover all instances of a specified control (DataGrid) in a given parent (this)
+===============================================================================================================
+                // This WORKS = returns all DataGrids in selected Parent (this)
+                var result = WpfLib1.Utils . FindVisualChildren<DataGrid> ( this  );
+				OR
+				IEnumerable<DataGrid> collection = this.Children.OfType<DataGrid>(); 
+
+==============================================================================================================
 	// How to access ConfigurationManager Sql Connectioin strings
 	// Not correctly implemented  -- YET !!!!
 ===============================================================================================================

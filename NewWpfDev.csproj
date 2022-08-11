@@ -212,7 +212,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="AttachedProperties\" />
+    <Folder Include="Properties\AttachedProperties\" />
     <Folder Include="Models\" />
     <Folder Include="Dapper\" />
     <Folder Include="Menus\" />
@@ -240,6 +240,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DapperGenericsLib\DapperGenericsLib.csproj" />
     <ProjectReference Include="..\GenericSqlLib\GenericSqlLib.csproj" />
     <ProjectReference Include="..\WpfLib1\WpfLib1.csproj" />
   </ItemGroup>

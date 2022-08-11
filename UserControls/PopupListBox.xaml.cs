@@ -18,19 +18,48 @@ namespace NewWpfDev . UserControls
     {
         //======================================================================================//
         // A different style has been selected
-        public event EventHandler<StyleArgs> Stylechanged;
+        public static  event EventHandler<StyleArgs> Stylechanged;
         //ListBox is being expanded/contracted
         public static event EventHandler<SizeChangedArgs> StyleSizeChanged;
+        public static PopupListBox ThisWin { get; set; }
+        public BankAcHost HostWin { get; set; }
+        public GenericGridControl ggc { get; set; }
+        public bool NoUpdate { get; set; } = false;
+        public double Ctrlwidth { get; set; } = 0;
+        public static bool ResetPopup { get; set; }
+        private double maxListHeight;
+        public double MaxListHeight
+        {
+            get { return maxListHeight; }
+            set { maxListHeight = value; }
+        }
+        private double defaultHeight;
+        public double DefaultHeight
+        {
+            get { return defaultHeight; }
+            set { defaultHeight = value; }
+        }
+        private int growDirection;
+        public int GrowDirection
+        {
+            get { return growDirection; ; }
+            set { growDirection = value; }
+        }
 
-        //[DefaultValue ( typeof ( Size ) , "300,30" )]
-        //public Size Size { get; set; }
 
-        //[DefaultValue ( typeof ( double ) , "130" )]
-        //new public double Width { get; set; }
-
-        //[DefaultValue ( typeof ( double ) , "30" )]
-        //new public double Height{ get; set; }
-
+        public PopupListBox ( )
+        {
+            InitializeComponent ( );
+            // DataContext set to ourselves
+            DataContext = this;
+            ThisWin = this;
+            // listen for style changes
+            BankAcHost . StylesSwitch += GenericGridControl_StylesSwitch;
+            ggc = GenericGridControl . GetGenGridHandle ( );
+            //StartMargin = this . Margin;
+        }
+        public static PopupListBox GetPopupLbHandle ( )
+        { return ThisWin; }
         protected virtual void OnStylechanged ( StyleArgs e )
         {       // A different style has been selected
             if ( Stylechanged != null )
@@ -55,20 +84,13 @@ namespace NewWpfDev . UserControls
         }
         //======================================================================================//
 
-        public Control HostWin { get; set; }
-        public bool NoUpdate { get; set; } = false;
-        public PopupListBox ( )
-        {
-            InitializeComponent ( );
-            // DataContext set to ourselves
-            DataContext = this;
-            // listen for style changes
-            GenericGridControl . StylesSwitch += GenericGridControl_StylesSwitch;
-        }
+
         public void SetHost ( object host )
         {
             Type type = host . GetType ( );
-            HostWin = ( Control ) host;
+            HostWin = host as BankAcHost;
+            //if ( type is GenericGridControl )
+            //    ggc = GenericGridControl . GetGenGridHandle ( );
         }
         private void GenericGridControl_StylesSwitch ( object sender , StyleArgs e )
         {     // Handle style changes
@@ -77,88 +99,13 @@ namespace NewWpfDev . UserControls
             if ( StylesCombo . SelectedItem == null ) StylesCombo . SelectedIndex = 0;
             for ( int x = 0 ; x < Stylescount ; x++ )
             {
-                //if ( StylesCombo . SelectedItem . ToString ( ) == e . style )
-                //{
-                //    StylesCombo . SelectedIndex = x;
-                //    break;
-                //}
+                if ( StylesCombo . SelectedItem . ToString ( ) == e . style )
+                {
+                    StylesCombo . SelectedIndex = x;
+                    break;
+                }
             }
         }
-
-        private void StylesCombo_MouseEnter ( object sender , MouseEventArgs e )
-        {
-            //return;
-            ListBox lb = sender as ListBox;
-            SizeChangedArgs args = new SizeChangedArgs ( );
-            // Hide blocking TextBlock
-            this . ShadowText . Visibility = Visibility . Hidden;
-            this . ShadowText . UpdateLayout ( );
-            this . ShadowText . Refresh ( );
-            // 0=PopUP, 1=PopDN
-            args . GrowDirection = GrowDirection;
-            //Ensure ListBox is Visible, and at its normal (specified) height
-            StylesCombo . Visibility = Visibility . Visible;
-            StylesCombo . Height = MaxListHeight;
-            StylesCombo . UpdateLayout ( );
-            StylesCombo . Refresh ( );
-            // force the parent (Canvas ) to be full height
-            Thickness th2 = new Thickness ( );
-            th2 = Stylesgrid . Margin;
-            Stylesgrid . UpdateLayout ( );
-            this . StylesCombo . Visibility = Visibility . Visible;
-            if ( GrowDirection == 0 )
-            {
-                // slide listbox UP - Working !!
-                // Move top of canvas UP first
-                CanvasTop = -( MaxListHeight );
-                 Stylesgrid . Margin = th2;
-                Stylesgrid . Height = MaxListHeight;
-                Stylesgrid . UpdateLayout ( );
-                Stylesgrid . Refresh ( );
-                args . NewHeight = MaxListHeight;
-                OnStyleSizeChanged ( args );
-            }
-            else
-            {
-                // slide listbox DOWN - Working !!!
-                CanvasTop = 0;
-                th2 . Bottom =  ((double)MaxListHeight /0.8);
-                Stylesgrid . Margin = th2;
-                //Set Canvas Container to full Height
-                Stylesgrid . Height = MaxListHeight;
-                StylesCombo.Height= MaxListHeight;
-                Stylesgrid . UpdateLayout ( );
-                Stylesgrid . Refresh ( );
-                args . NewHeight = MaxListHeight;
-                OnStyleSizeChanged ( args );
-                Debug . WriteLine ("");
-            }
-            ShadowText . Visibility = Visibility . Hidden;
-            e . Handled = true;
-        }
-
-        private void StylesCombo_MouseLeave ( object sender , MouseEventArgs e )
-        {
-           //return;
-            StylesCombo . Height = DefaultHeight;
-            Thickness th2 = new Thickness ( );
-            th2 = Stylesgrid . Margin;
-            th2 . Top = 0;
-            Stylesgrid . Margin = th2;
-            this . Stylesgrid . Height = DefaultHeight;
-            Stylesgrid . Refresh ( );
-            Stylesgrid . Refresh ( );
-            StylesCombo . Refresh ( );
-            SizeChangedArgs args = new SizeChangedArgs ( );
-            args . NewHeight = DefaultHeight;
-            OnStyleSizeChanged ( args );
-            ShadowText . Visibility = Visibility . Visible;
-            Stylesgrid . UpdateLayout ( );
-            StylesCombo . UpdateLayout ( );
-            e . Handled = true;
-            return;
-        }
-
         public void Clear ( object sender , SelectionChangedEventArgs e )
         {
             try
@@ -167,7 +114,6 @@ namespace NewWpfDev . UserControls
             }
             catch ( Exception ex ) { }
         }
-
         private void StylesCombo_SelectionChanged ( object sender , SelectionChangedEventArgs e )
         {
             if ( NoUpdate )
@@ -177,6 +123,7 @@ namespace NewWpfDev . UserControls
             string str = e . AddedItems [ 0 ] . ToString ( );
             args . style = str;
             args . sender = this;
+            args . ActiveGrid = GenericGridControl . ActiveGrid;
             TriggerStyleChanged ( this , args );
         }
         public void AddItems ( List<string> all )
@@ -189,10 +136,108 @@ namespace NewWpfDev . UserControls
         {
             StylesCombo . ItemsSource = null;
         }
+        private void StylesCombo_MouseEnter ( object sender , MouseEventArgs e )
+        {
+            if ( IsOpen == true )
+                return;
+            ListBox lb = sender as ListBox;
+            SizeChangedArgs args = new SizeChangedArgs ( );
+            // Hide blocking TextBlock
+            this . ShadowText . Visibility = Visibility . Hidden;
+            this . ShadowText . UpdateLayout ( );
+            this . ShadowText . Refresh ( );
+            // 0=PopUP, 1=PopDN
+            args . GrowDirection = GrowDirection;
+            //Ensure ListBox is Visible, and at its normal (specified) height
+            StylesCombo . Visibility = Visibility . Visible;
+            StylesCombo . Height = MaxListHeight;
+            this . Height = MaxListHeight;
+            StylesCombo . UpdateLayout ( );
+            StylesCombo . Refresh ( );
+            Panel . SetZIndex ( this , 5 );
+            // force the parent (Canvas ) to be full height
+            if ( GrowDirection == 0 )
+            {
+                // slide listbox UP -  !!
+                // WORKING
+                Thickness th2 = this . Margin;
+                th2 . Top = -( MaxListHeight - th2 . Top - DefaultHeight );
+                this . Margin = th2;
+                this . UpdateLayout ( );
+                Stylesgrid . Height = MaxListHeight;
+                StylesCombo . Height = MaxListHeight;
+                Stylesgrid . UpdateLayout ( );
+                Stylesgrid . Refresh ( );
+            }
+            else
+            {
+                //Slide Listbox DOWN
+                //WORKING correctly
+                Stylesgrid . Height = MaxListHeight;
+                StylesCombo . Height = MaxListHeight;
+                Stylesgrid . UpdateLayout ( );
+                Stylesgrid . Refresh ( );
+            }
+            ShadowText . Visibility = Visibility . Hidden;
+            StylesCombo . Visibility = Visibility . Visible;
+            Stylesgrid . Visibility = Visibility . Visible;
+            Panel . SetZIndex ( this , 5 );
+            IsOpen = true;
+        }
+
+        private void StylesCombo_MouseLeave ( object sender , MouseEventArgs e )
+        {
+            // Working OK - resets popup position after sliding UP or DOWN
+            if ( IsOpen == false )
+                return;
+            IsOpen = false;
+            // ButtonPanel
+            Grid grid = this . Parent as Grid;
+            HostWin . Refresh ( );
+           if ( GrowDirection == 0 )
+            {
+                Thickness th2 = this . Margin;
+                th2 . Top = 10;
+                th2 . Bottom = 0;
+                this . Margin = th2;
+            }
+            //ShadowText . Text = "RERERlhhhjRRRW";
+            this . Height = DefaultHeight;
+            Stylesgrid . Height = DefaultHeight;
+            StylesCombo . Height = DefaultHeight;
+            ShadowText . Visibility = Visibility . Visible;
+            ShadowText . UpdateLayout ( );
+            Stylesgrid . Refresh ( );
+            StylesCombo . Refresh ( );
+            SizeChangedArgs args = new SizeChangedArgs ( );
+            ShadowText . UpdateLayout ( );
+            Panel . SetZIndex ( this , 0 );
+            ShadowText . UpdateLayout ( );
+            IsOpen = false;
+            return;
+        }
 
         #region Dependency properties
+
+        #region Popup settings
         //======================================================================================//
-          public string Text
+        public double PopupOpenHeight
+        {
+            get { return ( double ) GetValue ( PopupOpenHeightProperty ); }
+            set { SetValue ( PopupOpenHeightProperty , value ); }
+        }
+        public static readonly DependencyProperty PopupOpenHeightProperty =
+            DependencyProperty . Register ( "PopupOpenHeight" , typeof ( double ) , typeof ( PopupListBox ) , new PropertyMetadata ( ( double ) default ) );
+        //======================================================================================//
+        public bool IsOpen
+        {
+            get { return ( bool ) GetValue ( IsOpenProperty ); }
+            set { SetValue ( IsOpenProperty , value ); }
+        }
+        public static readonly DependencyProperty IsOpenProperty =
+            DependencyProperty . Register ( "IsOpen" , typeof ( bool ) , typeof ( PopupListBox ) , new PropertyMetadata ( ( bool ) false ) );
+        //======================================================================================//
+        public string Text
         {
             get { return ( string ) GetValue ( TextProperty ); }
             set { SetValue ( TextProperty , value ); }
@@ -216,26 +261,6 @@ namespace NewWpfDev . UserControls
         new public static readonly DependencyProperty ForegroundProperty =
             DependencyProperty . Register ( "Foreground" , typeof ( Brush ) , typeof ( PopupListBox ) , new PropertyMetadata ( Brushes . Black ) );
         //======================================================================================//
-        public double MaxListHeight
-        {
-            get { return ( double ) GetValue ( MaxListHeightProperty ); }
-            set { SetValue ( MaxListHeightProperty , value ); }
-        }
-        public static readonly DependencyProperty MaxListHeightProperty =
-            DependencyProperty . Register ( "MaxListHeight" , typeof ( double ) , typeof ( PopupListBox ) , new PropertyMetadata ( ( double ) 0 ) );
-        //======================================================================================//
-        public int GrowDirection
-        {            // 0 == UP ,1 == down
-            get { return ( int ) GetValue ( GrowDirectionProperty ); }
-            set { SetValue ( GrowDirectionProperty , value ); }
-        }
-        public static readonly DependencyProperty GrowDirectionProperty =
-            DependencyProperty . Register ( "GrowDirection" , typeof ( int ) , typeof ( PopupListBox ) , new PropertyMetadata ( ( int ) 0 ) , SetVerticalAlignment );
-        private static bool SetVerticalAlignment ( object value )
-        {
-            return true;
-        }
-        //======================================================================================//
         new public VerticalAlignment VerticalAlignment
         {
             get { return ( VerticalAlignment ) GetValue ( VerticalAlignmentProperty ); }
@@ -245,29 +270,8 @@ namespace NewWpfDev . UserControls
             DependencyProperty . Register ( "VerticalAlignment" , typeof ( VerticalAlignment ) , typeof ( Popup ) , new PropertyMetadata ( default ) );//, SetGrowDirection);
         private static bool SetGrowDirection ( object value )
         {            // Top grows UP
-            PopupListBox sc = new PopupListBox ( );
-            if ( ( int ) sc . GetValue ( GrowDirectionProperty ) == 0 )
-                sc . VerticalAlignment = VerticalAlignment . Bottom;
-            else
-                sc . VerticalAlignment = VerticalAlignment . Top;
             return true;
         }
-        //======================================================================================//
-        new public Thickness Margin
-        {
-            get { return ( Thickness ) GetValue ( MarginProperty ); }
-            set { SetValue ( MarginProperty , value ); }
-        }
-        new public static readonly DependencyProperty MarginProperty =
-            DependencyProperty . Register ( "Margin" , typeof ( Thickness ) , typeof ( Popup ) , new PropertyMetadata ( ( default ) ) );
-        //======================================================================================//
-        public double DefaultHeight
-        {
-            get { return ( double ) GetValue ( DefaultHeightProperty ); }
-            set { SetValue ( DefaultHeightProperty , value ); }
-        }
-        public static readonly DependencyProperty DefaultHeightProperty =
-            DependencyProperty . Register ( "DefaultHeight" , typeof ( double ) , typeof ( PopupListBox ) , new PropertyMetadata ( ( double ) 30 ) );
         //======================================================================================//
         public string SelectedItem
         {
@@ -317,46 +321,18 @@ namespace NewWpfDev . UserControls
         public static readonly DependencyProperty StylescountProperty =
             DependencyProperty . Register ( "Stylescount" , typeof ( int ) , typeof ( PopupListBox ) , new PropertyMetadata ( default ) );
         //======================================================================================//
-        public double CanvasTop
+        public double RowHeight
         {
-            get { return ( double ) GetValue ( CanvasTopProperty ); }
-            set { SetValue ( CanvasTopProperty , value ); }
+            get { return ( double ) GetValue ( RowHeightProperty ); }
+            set { SetValue ( RowHeightProperty , value ); }
         }
-        public static readonly DependencyProperty CanvasTopProperty =
-            DependencyProperty . Register ( "CanvasTop" , typeof ( double ) , typeof ( PopupListBox ) , new PropertyMetadata ( ( double ) default ) );
+        public static readonly DependencyProperty RowHeightProperty =
+            DependencyProperty . Register ( "RowHeight" , typeof ( double ) , typeof ( PopupListBox ) , new PropertyMetadata ( (double)25 ) );
         //======================================================================================//
-        public double CanvasHeight
-        {
-            get { return ( double ) GetValue ( CanvasHeightProperty ); }
-            set { SetValue ( CanvasHeightProperty , value ); }
-        }
-        public static readonly DependencyProperty CanvasHeightProperty =
-            DependencyProperty . Register ( "CanvasHeight" , typeof ( double ) , typeof ( PopupListBox ) , new PropertyMetadata ( ( double ) 30 ) );
-        //======================================================================================//
-        public double CanvasWidth
-        {
-            get { return ( double ) GetValue ( CanvasWidthProperty ); }
-            set { SetValue ( CanvasWidthProperty , value ); }
-        }
-        public static readonly DependencyProperty CanvasWidthProperty =
-            DependencyProperty . Register ( "CanvasWidth" , typeof ( double ) , typeof ( PopupListBox ) , new PropertyMetadata ( ( double ) 150 ) );
-        //======================================================================================//
-        public double  CtrlHeight
-        {
-            get { return ( double  ) GetValue ( CtrlHeightProperty ); }
-            set { SetValue ( CtrlHeightProperty , value ); }
-        }
-        public static readonly DependencyProperty CtrlHeightProperty =
-            DependencyProperty . Register ( "CtrlHeight" , typeof ( double  ) , typeof ( PopupListBox ) , new PropertyMetadata ( (double)30 ) );
-        //======================================================================================//
-        public double CtrlWidth
-        {
-            get { return ( double ) GetValue ( CtrlWidthProperty ); }
-            set { SetValue ( CtrlWidthProperty , value ); }
-        }
-        public static readonly DependencyProperty CtrlWidthProperty =
-            DependencyProperty . Register ( "CtrlWidth" , typeof ( double ) , typeof ( PopupListBox ) , new PropertyMetadata ( (double)120 ) );
-        //======================================================================================//
+
+
+        #endregion Popup settings
+
 
 
         #endregion Dependency properties

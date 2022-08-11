@@ -21,7 +21,6 @@ using System . Windows . Documents;
 using System . Windows . Controls;
 using NewWpfDev . Dapper;
 using NewWpfDev . Sql;
-//using NewWpfDev. Sql;
 
 namespace NewWpfDev . Models
 {
@@ -66,25 +65,26 @@ namespace NewWpfDev . Models
         }
         private static Dictionary<string , string> GetSpArgs ( ref ObservableCollection<GenericClass> Gencollection , ref List<string> list , string dbName , string DbDomain , ref List<int> VarCharLength )
         {
-#pragma warning disable CS0219 // The variable 'output' is assigned but its value is never used
-            string output = "";
-#pragma warning restore CS0219 // The variable 'output' is assigned but its value is never used
-#pragma warning disable CS0219 // The variable 'errormsg' is assigned but its value is never used
-            string errormsg = "";
-#pragma warning restore CS0219 // The variable 'errormsg' is assigned but its value is never used
-#pragma warning disable CS0219 // The variable 'columncount' is assigned but its value is never used
-            int columncount = 0;
-#pragma warning restore CS0219 // The variable 'columncount' is assigned but its value is never used
-#pragma warning disable CS0219 // The variable 'IsSuccess' is assigned but its value is never used
-            bool IsSuccess = false;
-#pragma warning restore CS0219 // The variable 'IsSuccess' is assigned but its value is never used
-            DataTable dt = new DataTable ( );
+//#pragma warning disable CS0219 // The variable 'output' is assigned but its value is never used
+//            string output = "";
+//#pragma warning restore CS0219 // The variable 'output' is assigned but its value is never used
+//#pragma warning disable CS0219 // The variable 'errormsg' is assigned but its value is never used
+//            string errormsg = "";
+//#pragma warning restore CS0219 // The variable 'errormsg' is assigned but its value is never used
+//#pragma warning disable CS0219 // The variable 'columncount' is assigned but its value is never used
+//            int columncount = 0;
+//#pragma warning restore CS0219 // The variable 'columncount' is assigned but its value is never used
+//#pragma warning disable CS0219 // The variable 'IsSuccess' is assigned but its value is never used
+//            bool IsSuccess = false;
+//#pragma warning restore CS0219 // The variable 'IsSuccess' is assigned but its value is never used
+//            DataTable dt = new DataTable ( );
             GenericClass genclass = new GenericClass ( );
             Dictionary<string , string> dict = new Dictionary<string , string> ( );
             try
             {
                 // also get a List<int> of (nvarchar) string lengths
-                Gencollection = LoadDbAsGenericData ( ref list , "spGetTableColumnWithSize" , dbName , DbDomain , ref VarCharLength , true );
+                //Gencollection = LoadDbAsGenericData ( ref list , "spGetTableColumnWithSize" , dbName , DbDomain , ref VarCharLength , true );
+                Gencollection = LoadDbAsGenericData ( ref list , "spGetTableColumns" , dbName , DbDomain , ref VarCharLength , true );
             }
             catch ( Exception ex )
             {
@@ -279,12 +279,6 @@ namespace NewWpfDev . Models
             List<int> VarCharLength = new List<int> ( );
             dict = GenericDbUtilities . GetDbTableColumns ( ref GenericClass , ref list , CurrentType , Domain , ref VarCharLength );
             int index = 0;
-            // Add data  for field size
-            foreach ( var item in GenericClass )
-            {
-                //save column width to column 3 ????
-                item . field3 = VarCharLength [ index++ ] . ToString ( );
-            }
             if ( list . Count > 0 )
             {
                 index = 0;
@@ -294,8 +288,8 @@ namespace NewWpfDev . Models
                     DataGridColumn dgc = item;
                      try
                     {
+                        dgc . Header = "";
                         dgc . Header = list [ index++ ];
-                        //dgc . Width = Convert.ToInt32(GenericClass [ 3 ] . field3);
                         if ( index >= dict . Count )
                         {
                            break;
@@ -304,6 +298,7 @@ namespace NewWpfDev . Models
                     catch ( ArgumentOutOfRangeException  ex ) { Debug . WriteLine ( $"TODO - BAD Columns - 300 GenericDbHandlers.cs" ); }
                 }
             }
+            Grid1 . UpdateLayout ( );
         }
 
         public static List<string> GetDataDridRowsWithSizes ( DataTable dt )

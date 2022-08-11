@@ -20,7 +20,7 @@ using System . Windows . Data;
 namespace NewWpfDev. ViewModels
 {
     [Serializable]
-    public partial class BankAccountViewModel
+    public partial class BankAccountViewModel : IEditableObject
     {
         private  ObservableCollection<BankAccountViewModel> BankCollection { get; set; } = new ObservableCollection<BankAccountViewModel> ( );
         private CollectionView BankCollectionView { get; set; }//; = new CollectionView ( CollectionViewSource . GetDefaultView ( BankCollection ) );
@@ -304,6 +304,21 @@ namespace NewWpfDev. ViewModels
                 { reslt = indx; break; }
             }
             return reslt;
+        }
+
+        public void BeginEdit ( )
+        {
+            throw new NotImplementedException ( );
+        }
+
+        public void CancelEdit ( )
+        {
+            throw new NotImplementedException ( );
+        }
+
+        public void EndEdit ( )
+        {
+            throw new NotImplementedException ( );
         }
     }
 }

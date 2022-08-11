@@ -34,6 +34,7 @@ using System . Runtime . Serialization . Formatters . Binary;
 using System . Reflection;
 using NewWpfDev . AttachedProperties;
 using NewWpfDev . Properties;
+using System . Runtime . CompilerServices;
 
 namespace NewWpfDev
 {
@@ -1205,6 +1206,7 @@ namespace NewWpfDev
                 return false;
             }
         }
+
 
         #endregion Nullable handlers
 

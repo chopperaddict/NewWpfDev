@@ -48,6 +48,7 @@ namespace NewWpfDev . UserControls
         public DataGrid [ ] grids = { null , null , null , null , null };
         public string Activepanel = "";
         public string ActiveTablename = "";
+        public bool ReloadDb = false;
     }
     public partial class ComboboxPlus : UserControl
     {
@@ -68,6 +69,7 @@ namespace NewWpfDev . UserControls
         #region declarations
         public static ObservableCollection<GenericClass> GenCollection = new ObservableCollection<GenericClass> ( );
         public static GenericClass GenClass = new GenericClass ( );
+        public static ComboboxPlus CbPlus { get; set; }
 
         // NB : 0=GenericGrid, 1 = BlankPanel grid
         public DataGrid [ ] datagrids = new DataGrid [ 5 ];
@@ -90,6 +92,7 @@ namespace NewWpfDev . UserControls
 
         #region Full properties
         // current;ly active panel
+        public static ComboboxPlus ThisWin;
         private string currentPanel;
         public string CurrentPanel
         {
@@ -128,11 +131,9 @@ namespace NewWpfDev . UserControls
         #region DP's
         //+++++++++++++++++++++
         public List<string> ItemsList
-        {
-            get { return ( List<string> ) GetValue ( ItemsListProperty ); }
+        {   get { return ( List<string> ) GetValue ( ItemsListProperty ); }
             set
-            {
-                SetValue ( ItemsListProperty , value );
+            {   SetValue ( ItemsListProperty , value );
                 this . MyItemsSource = value;
             }
         }
@@ -143,8 +144,7 @@ namespace NewWpfDev . UserControls
         {
             get { return ( IEnumerable ) GetValue ( MyItemsSourceProperty ); }
             set
-            {
-                SetValue ( MyItemsSourceProperty , value );
+            {   SetValue ( MyItemsSourceProperty , value );
                 comboBox . ItemsSource = null;
                 comboBox . Items . Clear ( );
                 comboBox . ItemsSource = ItemsList;
@@ -162,47 +162,42 @@ namespace NewWpfDev . UserControls
             DependencyProperty . Register ( "ComboStyle" , typeof ( Style ) , typeof ( ComboboxPlus ) , new PropertyMetadata ( default ) );
         //++++++++++++++++++++++++++++++
         public string DefaultText
-        {
-            get { return ( string ) GetValue ( DefaultTextProperty ); }
+        {   get { return ( string ) GetValue ( DefaultTextProperty ); }
             set { SetValue ( DefaultTextProperty , value ); }
         }
         public static readonly DependencyProperty DefaultTextProperty =
                 DependencyProperty . Register ( "DefaultText" , typeof ( string ) , typeof ( ComboboxPlus ) , new PropertyMetadata ( "Select Item ..." ) );
         //++++++++++++++++++++++++++++++
         new public Brush Background
-        {
-            get { return ( Brush ) GetValue ( BackgroundProperty ); }
+        {   get { return ( Brush ) GetValue ( BackgroundProperty ); }
             set { SetValue ( BackgroundProperty , value ); }
         }
         new public static readonly DependencyProperty BackgroundProperty =
             DependencyProperty . Register ( "Background" , typeof ( Brush ) , typeof ( ComboboxPlus ) , new PropertyMetadata ( Brushes . Transparent ) );
         //++++++++++++++++++++++++++++++
         public int ItemSelected
-        {
-            get { return ( int ) GetValue ( ItemSelectedProperty ); }
+        {  get { return ( int ) GetValue ( ItemSelectedProperty ); }
             set { SetValue ( ItemSelectedProperty , value ); }
         }
         public static readonly DependencyProperty ItemSelectedProperty =
             DependencyProperty . Register ( "ItemSelected" , typeof ( int ) , typeof ( ComboboxPlus ) , new PropertyMetadata ( 0 ) );
         //++++++++++++++++++++++++++++++
-
-
-
-        //public object SelectedItem {
-        //    get { return GetValue ( SelectedItemProperty ); }
-        //    set { SetValue ( SelectedItemProperty , value ); }
-        //}
-        //public static DependencyProperty SelectedItemProperty =
-        //    DependencyProperty . Register ( "SelectedItem" , typeof ( object ) , typeof ( ComboboxPlus ) , new PropertyMetadata ( default ) );
         //++++++++++++++++++++++++++++++
         public int selectioncount
-        {
-            get { return ( int ) GetValue ( selectioncountProperty ); }
+        {    get { return ( int ) GetValue ( selectioncountProperty ); }
             set { SetValue ( selectioncountProperty , value ); }
         }
         public static readonly DependencyProperty selectioncountProperty =
             DependencyProperty . Register ( "selectioncount" , typeof ( int ) , typeof ( ComboboxPlus ) , new PropertyMetadata ( -1 ) );
         //++++++++++++++++++++++++++++++
+        public bool ReloadDb
+        { get { return ( bool ) GetValue ( ReloadDbProperty ); }
+            set { SetValue ( ReloadDbProperty , value ); }
+        }
+        public static readonly DependencyProperty ReloadDbProperty =
+            DependencyProperty . Register ( "ReloadDb" , typeof ( bool ) , typeof ( ComboboxPlus ) , new PropertyMetadata ( ( bool ) false ) );
+        //++++++++++++++++++++++++++++++
+
 
         #endregion DP's
 
@@ -220,7 +215,18 @@ namespace NewWpfDev . UserControls
                 gridtablenames [ i ] = "";
             }
             ItemSelected = 0;
+            ThisWin = this;
+            CbPlus = this;
         }
+        public static ComboboxPlus GetCBP( )
+        {
+                return CbPlus;
+        }
+        public static ComboboxPlus GetComboPlusHandle ( )
+        {
+            return ThisWin;
+        }
+
         public void SetHost ( BankAcHost host )
         {
             Host = host;
@@ -360,6 +366,7 @@ namespace NewWpfDev . UserControls
                     args . ActiveTablename = this . gridtablenames [ 1 ];
                 }
                 args . Activepanel = activepanel;
+                e.Handled= true;
                 ComboboxChanged . Invoke ( this , args );
             }
             ItemSelected = comboBox . SelectedIndex;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System . Collections . Generic;
+using System . Collections . ObjectModel;
 using System . ComponentModel;
 using System . Diagnostics;
 using System . Linq;
@@ -26,15 +27,22 @@ namespace NewWpfDev . Models {
         }
         #endregion NotifyPropertyChanged
 
+        public static ObservableCollection<ViewModels . GenericClass> Gencollection1 { get; set; } = new ObservableCollection<ViewModels.GenericClass> ( );
+        public static ObservableCollection<ViewModels . GenericClass> Gencollection2 { get; set; } = new ObservableCollection<ViewModels . GenericClass> ( );
+
+        public static BankAcHost BankHost { get; set; }
+        public static GenericGridControl GenericGridHost { get; set; }
+        public static BankAccountInfo BankAcctInfoHost { get; set; }
+        public static BankAccountGrid BankAcctGridHost { get; set; }
+        public static PopupListBox PopupListCtlr { get; set; }
+        public static ComboboxPlus ComboPlusCtrl  {get; set; }
+
         public BankAccountVM ( ) {
             if ( Host == null )
                 Host = BankAcHost . GetHost ( );
         }
         public static BankAccountGrid BANKACCOUNTLIST = new BankAccountGrid ( );
-        // How to create working commands
-        // All working 8/6/22
-        // This is the ViewModel for BankAcHost
-
+  
         public static BankAcHost Host { get; set; }
 
         #region Full Props
@@ -231,9 +239,16 @@ namespace NewWpfDev . Models {
         private bool CanExecuteShowBlank ( object arg ) { return true; }
         #endregion ShowBlank
 
-
-
-
+        public  static void TriggerGetControlsPointers ( )
+        {
+            // Only  called by BankAcHost at end of its Constructor
+            // Setup Viewmodel pointers to all relevant cobntrols used in  thiis area
+            BankAcctInfoHost = BankAccountInfo . GetBankAccountInfoHandle ( );
+            BankAcctGridHost = BankAccountGrid . GetBankAccountGridHandle ( );
+            GenericGridHost = GenericGridControl . GetGenGridHandle ( );
+            PopupListCtlr = PopupListBox . GetPopupLbHandle ( );
+            ComboPlusCtrl = ComboboxPlus . GetComboPlusHandle ( );
+        }
         public BankAccountVM GetHost ( ) {
             return this;
         }

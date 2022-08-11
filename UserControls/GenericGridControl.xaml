@@ -8,10 +8,12 @@
              xmlns:user="clr-namespace:NewWpfDev.UserControls"
               xmlns:att="clr-namespace:NewWpfDev.AttachedProperties"
              mc:Ignorable="d" 
+             Loaded="GenGridControl_Loaded"
              PreviewKeyDown="genkeydown"
              SizeChanged="GenGridControl_SizeChanged"
             x:Name="GenGridControl"
-             d:DesignHeight="450" d:DesignWidth="800"
+             
+             d:DesignHeight="550" d:DesignWidth="960"
              Foreground="White"
              >
     <!--xmlns:theme="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2">-->
@@ -24,6 +26,27 @@
         <conv:ResourceToBrushConverter x:Key="ResourceToBrushConverter"/>
         <BooleanToVisibilityConverter x:Key="bool2VisibilityConverter"/>
 
+        <DataTemplate x:Key="DisplayColumnTemplate2" >
+            <StackPanel Width="120" Height="30">
+                       <TextBox Text="{Binding Field2}" FontSize="8" FontWeight="Bold" HorizontalAlignment="Center" />
+            </StackPanel>
+        </DataTemplate>
+        <DataTemplate x:Key="DisplayColumnTemplate3" >
+            <StackPanel Width="120" Height="30">
+                     <TextBox Text="{Binding field3}"  FontSize="8" HorizontalAlignment="Center" />
+            </StackPanel>
+        </DataTemplate>
+        <DataTemplate x:Key="DisplayColumnTemplate4" >
+            <StackPanel Width="120" Height="30">
+                <Border Background="LightBlue" BorderBrush="Black" BorderThickness="1">
+                    <TextBox Text="{Binding field4}"  FontSize="8" HorizontalAlignment="Center" />
+                </Border>
+            </StackPanel>
+        </DataTemplate>
+        <!--DataTemplate for the Published Date column when in edit mode. --><!--
+        <DataTemplate x:Key="EditingColumnTemplate">
+            <DatePicker SelectedDate="{Binding PublishDate}"  />
+        </DataTemplate>-->
         <Style x:Key="RowHeaderGripperStyle" TargetType="{x:Type Thumb}">
             <Setter Property="Height" Value="8"/>
             <Setter Property="Background" Value="Purple"/>
@@ -51,7 +74,7 @@
         <Style x:Key="ColumnHeaderStyle" TargetType="{x:Type DataGridColumnHeader}">
             <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="Background" Value="Transparent" />
-            <Setter Property="Foreground" Value="{StaticResource Orange3}" />
+            <Setter Property="Foreground" Value="{StaticResource Yellow0}" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="DataGridColumnHeader">
@@ -60,7 +83,7 @@
                                     Width="{Binding}"
                                     CornerRadius="2" 
                                     Background="Transparent"
-                                    BorderBrush="{StaticResource Orange3}">
+                                    BorderBrush="{StaticResource Yellow0}">
 
                                 <TextBlock Text="{TemplateBinding  Content}" 
                                             VerticalAlignment="Center" 
@@ -83,98 +106,6 @@
         </Style>
         <!--#endregion DataGrid Column header row-->
 
-        <!--#region unused-->
-        <!--<SolidColorBrush x:Key="ComboBoxItem.ItemsviewHover.Background" Color="Transparent"/>
-        <SolidColorBrush x:Key="ComboBoxItem.ItemsviewHover.Border" Color="#A826A0DA"/>
-        <SolidColorBrush x:Key="ComboBoxItem.ItemsviewSelected.Background" Color="#3D26A0DA"/>
-        <SolidColorBrush x:Key="ComboBoxItem.ItemsviewSelected.Border" Color="#FF26A0DA"/>
-        <SolidColorBrush x:Key="ComboBoxItem.ItemsviewSelectedHover.Background" Color="#2E0080FF"/>
-        <SolidColorBrush x:Key="ComboBoxItem.ItemsviewSelectedHover.Border" Color="#99006CD9"/>
-        <SolidColorBrush x:Key="ComboBoxItem.ItemsviewSelectedNoFocus.Background" Color="Transparent"/>
-        <SolidColorBrush x:Key="ComboBoxItem.ItemsviewSelectedNoFocus.Border" Color="#FFDADADA"/>
-        <SolidColorBrush x:Key="ComboBoxItem.ItemsviewFocus.Border" Color="#FFFF0000"/>
-        <SolidColorBrush x:Key="ComboBoxItem.ItemsviewHoverFocus.Background" Color="#5426A0DA"/>
-        <SolidColorBrush x:Key="ComboBoxItem.ItemsviewHoverFocus.Border" Color="#FF00ff00"/>-->
-
-        <!--x:Key="CBitemContainerStyle"-->
-        <!--<Style TargetType="{x:Type ComboBoxItem}">
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="Padding" Value="4,1"/>
-            <Setter Property="HorizontalContentAlignment" Value="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
-            <Setter Property="VerticalContentAlignment" Value="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderBrush" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type ComboBoxItem}">
-                        <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
-                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
-                            </Trigger>
-                            <MultiTrigger>
-                                <MultiTrigger.Conditions>
-                                    <Condition Property="IsSelected" Value="False"/>
-                                    <Condition Property="IsMouseOver" Value="True"/>
-                                    <Condition Property="IsKeyboardFocused" Value="False"/>
-                                </MultiTrigger.Conditions>
-                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource ComboBoxItem.ItemsviewHover.Background}"/>
-                                <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource ComboBoxItem.ItemsviewHover.Border}"/>
-                            </MultiTrigger>
-                            <MultiTrigger>
-                                <MultiTrigger.Conditions>
-                                    <Condition Property="IsSelected" Value="True"/>
-                                    <Condition Property="IsMouseOver" Value="False"/>
-                                    <Condition Property="IsKeyboardFocused" Value="True"/>
-                                </MultiTrigger.Conditions>
-                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource ComboBoxItem.ItemsviewSelected.Background}"/>
-                                <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource ComboBoxItem.ItemsviewSelected.Border}"/>
-                            </MultiTrigger>
-                            <MultiTrigger>
-                                <MultiTrigger.Conditions>
-                                    <Condition Property="IsSelected" Value="True"/>
-                                    <Condition Property="IsMouseOver" Value="True"/>
-                                </MultiTrigger.Conditions>
-                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource ComboBoxItem.ItemsviewSelectedHover.Background}"/>
-                                <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource ComboBoxItem.ItemsviewSelectedHover.Border}"/>
-                            </MultiTrigger>
-                            <MultiTrigger>
-                                <MultiTrigger.Conditions>
-                                    <Condition Property="IsSelected" Value="True"/>
-                                    <Condition Property="IsMouseOver" Value="False"/>
-                                    <Condition Property="IsKeyboardFocused" Value="False"/>
-                                </MultiTrigger.Conditions>
-                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource ComboBoxItem.ItemsviewSelectedNoFocus.Background}"/>
-                                <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource ComboBoxItem.ItemsviewSelectedNoFocus.Border}"/>
-                            </MultiTrigger>
-                            <MultiTrigger>
-                                <MultiTrigger.Conditions>
-                                    <Condition Property="IsSelected" Value="False"/>
-                                    <Condition Property="IsMouseOver" Value="False"/>
-                                    <Condition Property="IsKeyboardFocused" Value="True"/>
-                                </MultiTrigger.Conditions>
-                                <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource ComboBoxItem.ItemsviewFocus.Border}"/>
-                            </MultiTrigger>
-                            <MultiTrigger>
-                                <MultiTrigger.Conditions>
-                                    <Condition Property="IsSelected" Value="False"/>
-                                    <Condition Property="IsMouseOver" Value="True"/>
-                                    <Condition Property="IsKeyboardFocused" Value="True"/>
-                                </MultiTrigger.Conditions>
-                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource ComboBoxItem.ItemsviewHoverFocus.Background}"/>
-                                <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource ComboBoxItem.ItemsviewHoverFocus.Border}"/>
-                            </MultiTrigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>-->
-
-        <!--#endregion unused-->
 
         <!--//not used-->
         <Style TargetType="{x:Type ListBox}" x:Key="LbStyle1">
@@ -206,20 +137,6 @@
                                 <Setter Property="Background" Value="Blue"/>
                                 <Setter Property="Foreground" Value="White"/>
                             </MultiTrigger>
-                            <!--<MultiTrigger>-->
-                            <!--<MultiTrigger.Conditions>
-                                    <Condition Property="IsMouseOver" Value="True" />
-                                </MultiTrigger.Conditions>
-                                <Setter Property="Background" Value="{StaticResource Cyan0}"/>
-                                <Setter Property="Foreground" Value="Black"/>
-                            </MultiTrigger>
-                            <MultiTrigger>-->
-                            <!--<MultiTrigger.Conditions>
-                                    <Condition Property="IsGrouping" Value="true" />
-                                    <Condition Property="VirtualizingPanel.IsVirtualizingWhenGrouping" Value="false" />
-                                </MultiTrigger.Conditions>
-                                <Setter Property="ScrollViewer.CanContentScroll" Value="false"/>
-                            </MultiTrigger>-->
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
@@ -228,6 +145,7 @@
 
         <!--#region ListBox styling - Works very well July 2022-->
         <!--allows us to switch  etween datatemplates to change view of each row-->
+        <!--
         <DataTemplate x:Key="Notselected">
             <TextBlock Text="{Binding}" Foreground="White" Background="{StaticResource Blue1}" Width="{Binding ActualWidth, ElementName=StylesCombo}" />
         </DataTemplate>
@@ -251,7 +169,9 @@
                     <MultiTrigger.Conditions>
                         <Condition Property="IsMouseOver" Value="false" />
                         <Condition Property="IsSelected" Value="false" />
-                        <!--<Condition Property="IsFocused"  Value="false" />-->
+                        -->
+        <!--<Condition Property="IsFocused"  Value="false" />-->
+        <!--
                     </MultiTrigger.Conditions>
                     <Setter Property="ContentTemplate"   Value="{StaticResource Notselected}"/>
                     <Setter Property="BorderThickness"   Value="0"/>
@@ -261,7 +181,9 @@
                     <MultiTrigger.Conditions>
                         <Condition Property="IsMouseOver" Value="false" />
                         <Condition Property="IsSelected"  Value="True" />
-                        <!--<Condition Property="IsFocused"  Value="True" />-->
+                        -->
+        <!--<Condition Property="IsFocused"  Value="True" />-->
+        <!--
                     </MultiTrigger.Conditions>
                     <Setter Property="ContentTemplate"   Value="{StaticResource IsSelected}"/>
                     <Setter Property="BorderThickness"   Value="0"/>
@@ -271,7 +193,9 @@
                     <MultiTrigger.Conditions>
                         <Condition Property="IsMouseOver" Value="True" />
                         <Condition Property="IsSelected" Value="false" />
-                        <!--<Condition Property="IsFocused"  Value="True" />-->
+                        -->
+        <!--<Condition Property="IsFocused"  Value="True" />-->
+        <!--
                     </MultiTrigger.Conditions>
                     <Setter Property="ContentTemplate"   Value="{StaticResource UnSelectedMouseover}"/>
                     <Setter Property="BorderThickness"   Value="0"/>
@@ -281,18 +205,24 @@
                     <MultiTrigger.Conditions>
                         <Condition Property="IsMouseOver" Value="True" />
                         <Condition Property="IsSelected"  Value="True" />
-                        <!--<Condition Property="IsFocused"  Value="True" />-->
+                        -->
+        <!--<Condition Property="IsFocused"  Value="True" />-->
+        <!--
                     </MultiTrigger.Conditions>
                     <Setter Property="ContentTemplate"   Value="{StaticResource SelectedMouseover}"/>
                     <Setter Property="BorderThickness"   Value="0"/>
-                    <!--<Setter Property="BorderBrush"   Value="White"/>-->
+                    -->
+        <!--<Setter Property="BorderBrush"   Value="White"/>-->
+        <!--
                 </MultiTrigger>
             </Style.Triggers>
         </Style>
+        -->
         <!--#endregion ListBox styleing-->
 
     </UserControl.Resources>
 
+    <!--//Setup Data Context here, NOT in Class file-->
     <UserControl.DataContext>
         <models:BankAccountVM></models:BankAccountVM>
     </UserControl.DataContext>
@@ -300,72 +230,167 @@
     <Grid x:Name="maingrid"  >
 
         <Grid.RowDefinitions>
-            <RowDefinition Height="35"/>
+            <RowDefinition Height="1"/>
             <RowDefinition x:Name="row1" Height="*"/>
             <RowDefinition  Height="45"/>
         </Grid.RowDefinitions>
 
-        <TextBlock x:Name="GenericTitle" Grid.Row="0" Text="Title bar"
-                   TextAlignment="Center" HorizontalAlignment="Left" Background="Blue" FontSize="18" Padding="0 8 0 0" PreviewKeyDown="genkeydown"
-                   Width="{Binding Path=ActualWidth, ElementName=GenGridControl}" Style="{DynamicResource DarkmodeTBlock}" Grid.ColumnSpan="4" Margin="0,2,0,3"/>
+        <!--// splitters content grid-->
+        <!--Height="{Binding ActualHeight, ElementName=row1, Converter={StaticResource ReduceWidth}, ConverterParameter=5}"-->
+        <Grid  x:Name="SplitterGrid" Grid.Row="1" Grid.RowSpan="1" 
+               VerticalAlignment="Top">
+            <Grid.RowDefinitions>
+                <RowDefinition x:Name="rw1" MinHeight="100"/>
+                <RowDefinition x:Name="rw2" MinHeight="100"/>
+            </Grid.RowDefinitions>
 
-        <!--.. Column headrs working !!-->
-        <DataGrid  x:Name="datagrid1"      
-                  ColumnHeaderStyle="{StaticResource ColumnHeaderStyle}"
-                  Grid.Row="1" Grid.RowSpan="1"
-                  Background="{StaticResource Black2OrangeSlant}"
-                  AutoGenerateColumns="true"
-                  DataContext="{Binding ElementName=GenGridControl}"
-                  CanUserAddRows="{Binding Path=canUserAddRows, ElementName=GenGridControl}"
-                  CanUserResizeColumns="True"
-                  Margin="{Binding Path=margin,ElementName=GenGridControl}"                  
-                  Height="{Binding Path=ActualHeight, ElementName=GenGridControl, Converter={StaticResource ReduceWidth}, ConverterParameter=-20}" 
-                  Width="{Binding Width, ConverterParameter=-10, Converter={StaticResource ReduceWidth}, ElementName=GenGridControl}"
-                  FontSize="{Binding fontsize,ElementName=GenGridControl}"
-                  FontWeight="{Binding FontWeight, ElementName=GenGridControl}"
-                  SelectionMode="Single"
-                  IsSynchronizedWithCurrentItem="False" 
-                  RowBackground="Transparent"
-                  RowHeight="22"
-                  VerticalGridLinesBrush="White"
-                  VerticalScrollBarVisibility="{Binding vscrollBar}"         
-                  RowEditEnding="dgProducts_RowEditEnding"     
-                  BorderBrush="Green"
-                  Foreground="White"                  
-                  HorizontalAlignment="Left" 
-                  VerticalAlignment="Top"
-                  AddingNewItem="dgProducts_AddingNewItem" 
-                  BeginningEdit="dgProducts_BeginningEdit" 
-                  PreviewKeyDown="dgProducts_PreviewKeyDown" 
-                  PreviewMouseLeftButtonDown="dgProducts_PreviewMouseLeftButtonDown"
-                  Visibility="Visible" Grid.ColumnSpan="4"/>
+            <!--// Top datagrid-->
+            <StackPanel Orientation="Vertical" Grid.Row="0" Height="{Binding ActualHeight, ElementName=maingrid}" VerticalAlignment="Top">
 
-        <DataGrid x:Name="datagrid2"   
-                   Grid.Row="1" Grid.RowSpan="1"
-                  ColumnHeaderStyle="{StaticResource ColumnHeaderStyle}"
-                  Background="{StaticResource Black2OrangeSlant}"
-                  AutoGenerateColumns="True"
-                  DataContext="{Binding ElementName=GenGridControl}"
-                  CanUserAddRows="{Binding Path=canUserAddRows, ElementName=GenGridControl}"
-                  Margin="{Binding Path=margin,ElementName=GenGridControl}"                  
-                  Height="{Binding Path=ActualHeight, ElementName=GenGridControl, Converter={StaticResource ReduceWidth}, ConverterParameter=-20}" 
-                  Width="{Binding Path=Width,ElementName=GenGridControl  ,Converter={StaticResource ReduceWidth}, ConverterParameter=-10}"
-                  FontSize="{Binding fontsize,ElementName=GenGridControl}"
-                  FontWeight="{Binding FontWeight, ElementName=GenGridControl}"
-                  SelectionMode="Single"
-                  IsSynchronizedWithCurrentItem="True" 
-                  RowBackground="Transparent"
-                  RowHeight="22"
-                  VerticalGridLinesBrush="White"
-                  VerticalScrollBarVisibility="{Binding vscrollBar}"         
-                  BorderBrush="LightGreen"
-                  Foreground="White"
-                  HorizontalAlignment="Left" 
-                  VerticalAlignment="Top"
-                  PreviewKeyDown="dgProducts_PreviewKeyDown" 
-                  PreviewMouseLeftButtonDown="dgProducts_PreviewMouseLeftButtonDown"
-                  Visibility="Hidden" Grid.ColumnSpan="4">
-        </DataGrid>
+                <TextBlock x:Name="GenericTitle1" Grid.Row="0" Text="Title bar"
+                        TextAlignment="Center" HorizontalAlignment="Left" 
+                        Background="{StaticResource Red5}" FontSize="18" 
+                         Padding="0 0 0 0" 
+                        PreviewKeyDown="genkeydown" Height="25"
+                        Width="{Binding Path=ActualWidth, ElementName=GenGridControl}" 
+                        Style="{DynamicResource DarkmodeTBlock}" 
+                        Margin="10,0,10,0"/>
+                <!--.. Column headrs working !!-->
+
+                <!--// On Top section in Splitter-->
+                <DataGrid  x:Name="datagrid1"      
+                      AddingNewItem="dgProducts_AddingNewItem" 
+                      AutoGenerateColumns="true"
+                      AutoGeneratingColumn="datagrid1_AutoGeneratingColumn"
+                      Background="{StaticResource Black2OrangeSlant}"
+                      BeginningEdit="dgProducts_BeginningEdit" 
+                      BorderBrush="Blue"
+                      ColumnHeaderStyle="{StaticResource ColumnHeaderStyle}"
+                      CanUserAddRows="{Binding Path=canUserAddRows, ElementName=GenGridControl}"
+                      CanUserResizeColumns="True"
+                      DataContext="{Binding ElementName=GenGridControl}"
+                      FontSize="{Binding fontsize,ElementName=GenGridControl}"
+                      FontWeight="{Binding FontWeight, ElementName=GenGridControl}"
+                      Foreground="White"                  
+                      HorizontalAlignment="Left" 
+                      Grid.Row="0"
+                      Grid.ColumnSpan="4"
+                      Grid.RowSpan="1"
+                      Height="{Binding Path=ActualHeight, ElementName=GenGridControl, Converter={StaticResource ReduceWidth}, ConverterParameter=-20}" 
+                      IsReadOnly="false"
+                      IsSynchronizedWithCurrentItem="True" 
+                      Margin="10 3 0 0"
+                      PreviewKeyDown="dgProducts_PreviewKeyDown1" 
+                      PreviewMouseLeftButtonDown="MouseLeftButtonDown1"
+                      PreviewMouseDoubleClick="datagrid1_PreviewMouseDoubleClick"
+                      RowBackground="Transparent"
+                       DataGridRow.Selected="Grid_Selected"
+                      RowHeight="22"
+                      RowEditEnding="dgProducts_RowEditEnding"     
+                      SelectionMode="Single"
+                      VerticalAlignment="Top"
+                      VerticalGridLinesBrush="White"
+                      VerticalScrollBarVisibility="{Binding vscrollBar}"         
+                      Visibility="Visible" 
+                      Width="{Binding Path=Width, ElementName=GenGridControl, Converter={StaticResource ReduceWidth}, ConverterParameter=-10}" GotFocus="datagrid1_GotFocus" IsTabStop="True">
+                    <!--<DataGrid.ItemTemplate>
+                        <DataTemplate>
+                            
+                            <TextBox Text="{Binding Path=Field1}"/>
+                        </DataTemplate>
+                    </DataGrid.ItemTemplate>-->
+                    <!--<DataGrid.Columns>
+                        <DataGridTemplateColumn Header="Field2" CellTemplate="{StaticResource DisplayColumnTemplate2}"/>
+                        <DataGridTemplateColumn Header="Field3" CellTemplate="{StaticResource DisplayColumnTemplate3}"/>
+                        <DataGridTemplateColumn Header="Field4" CellTemplate="{StaticResource DisplayColumnTemplate4}"/>
+
+                    </DataGrid.Columns>-->
+                    
+                </DataGrid>
+
+            </StackPanel>
+
+            <!--// bottom section in Splitter-->
+            <StackPanel Orientation="Vertical" Grid.Row="1"  Margin="0 10 0 0" Height="{Binding ActualHeight, ElementName=maingrid}" VerticalAlignment="Top">
+                <TextBlock x:Name="GenericTitle2" Grid.Row="0" Text="Title bar" Margin="10 10 10 0"
+                   TextAlignment="Center" HorizontalAlignment="Left" Background="{StaticResource Red5}" FontSize="18" Padding="0 0 0 0" 
+                   PreviewKeyDown="genkeydown" Height="25"
+                   Width="{Binding Path=ActualWidth, ElementName=GenGridControl}" Style="{DynamicResource DarkmodeTBlock}" />
+
+                <DataGrid x:Name="datagrid2"   
+                      AddingNewItem="dgProducts_AddingNewItem" 
+                      AutoGenerateColumns="True"
+                      Background="{StaticResource Black2OrangeSlant}"
+                      BeginningEdit="dgProducts_BeginningEdit" 
+                      BorderBrush="LightGreen"
+                      ColumnHeaderStyle="{StaticResource ColumnHeaderStyle}"
+                      CanUserAddRows="{Binding Path=canUserAddRows, ElementName=GenGridControl}"
+                      CanUserResizeColumns="True"
+                      DataContext="{Binding ElementName=GenGridControl}"
+                      Height="{Binding Path=ActualHeight, ElementName=GenGridControl, Converter={StaticResource ReduceWidth}, ConverterParameter=-20}" 
+                      FontSize="{Binding fontsize,ElementName=GenGridControl}"
+                      Foreground="White"
+                      FontWeight="{Binding FontWeight, ElementName=GenGridControl}"
+                      Grid.Row="1"
+                      Grid.ColumnSpan="4"
+                      Grid.RowSpan="2"
+                      HorizontalAlignment="Left" 
+                      IsReadOnly="False"
+                      IsSynchronizedWithCurrentItem="True" 
+                      Margin="10 5 0 0"                          
+                      PreviewKeyDown="dgProducts_PreviewKeyDown2" 
+                      PreviewMouseLeftButtonDown="MouseLeftButtonDown2"
+                      PreviewMouseDoubleClick="datagrid2_PreviewMouseDoubleClick"
+                      RowBackground="Transparent"
+                      RowEditEnding="dgProducts_RowEditEnding"     
+                      RowHeight="22"
+                      SelectionMode="Single"
+                      VerticalAlignment="Top"
+                      VerticalGridLinesBrush="White"
+                      VerticalScrollBarVisibility="{Binding vscrollBar}"         
+                      Visibility="Visible" 
+                      Width="{Binding Path=Width, ElementName=GenGridControl, Converter={StaticResource ReduceWidth}, ConverterParameter=-10}" GotFocus="datagrid2_GotFocus">
+                    <!--MouseEnter="datagrid2_MouseEnter"
+                      MouseLeave="datagrid2_MouseLeave"-->
+                </DataGrid>
+
+            </StackPanel>
+
+            <GridSplitter x:Name="Splitter"
+                    ResizeDirection="Rows"         
+                    Grid.Row="1"
+                    Height="26"
+                    Margin="10 0 10 0"
+                    DragStarted="Splitter_DragStarted"  
+                    DragCompleted="Splitter_DragCompleted"
+                    PreviewMouseLeftButtonDown="Splitter_PreviewMouseLeftButtonDown"
+                    PreviewMouseLeftButtonUp="Splitter_PreviewMouseLeftButtonUp"
+                    Panel.ZIndex="2"   
+                    VerticalAlignment="Top"
+                    HorizontalAlignment="Stretch">
+                <GridSplitter.Template>
+                    <ControlTemplate>
+                        <Border  Height="12" BorderThickness="2" BorderBrush="{StaticResource Cyan2}" 
+                                 Margin="0 0 0 0"  Background="{StaticResource Yellow1}">
+                            <Grid 
+						        Background="Transparent">
+                                <!--// Create Rows for each datagrid that are part of the splitter -->
+                                <Grid.RowDefinitions>
+                                    <RowDefinition  Height="{Binding ActualHeight, ElementName=maingrid}"/>
+                                    <RowDefinition Height="{Binding ActualHeight, ElementName=maingrid}"/>
+                                </Grid.RowDefinitions>
+                                <!--<TextBlock Text="Drag ^v to resize grids..." Height="20" HorizontalAlignment="Center" 
+                                           Background="Green" Foreground="Black" 
+                                           FontWeight="DemiBold" 
+                                           Margin="0 0 0 0"
+                                           Padding="0 0 0 0"/>-->
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </GridSplitter.Template>
+
+            </GridSplitter>
+        </Grid>
 
         <!--#region bottom button bar-->
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Grid.Row="2" Background="Transparent" Grid.ColumnSpan="4">
@@ -374,87 +399,22 @@
                     FontWeight="Bold" Padding="40 0 0 0"
                     Style="{StaticResource DarkmodeButton}"
                     Margin="10 0 5 0" Content="Show Columns"/>
-            <Button HorizontalAlignment="Left" Height="35" Width="80" Click="Button1_Click"
+            <!--<Button HorizontalAlignment="Left" Height="35" Width="80" Click="Button1_Click"
                     FontWeight="Bold" Content="Clear Grid"
-                    Style="{StaticResource DarkmodeButton}" Margin="0 0 5 0" />
+                    Style="{StaticResource DarkmodeButton}" Margin="0 0 5 0" />-->
             <Button  x:Name="addnewrow" HorizontalAlignment="Left" Height="35" Width="80" Click="AddNew"
                     Style="{StaticResource DarkmodeButton}" Margin="0 0 5 0" Content="Add New"/>
             <Button  x:Name="updaterow" HorizontalAlignment="Left" Height="35" Width="70" Click="UpdateRecord"
                     Style="{StaticResource DarkmodeButton}" Foreground="White" Margin="0 0 5 0" Content="Update"/>
-            <Button  x:Name="deleterow" HorizontalAlignment="Left" Height="35" Width="70" 
+            <Button  x:Name="deleterow" HorizontalAlignment="Left" Height="35" Width="70"  Click="DeleteRecord"
                     Style="{StaticResource DarkmodeButton}" Foreground="White" Margin="0 0 20 0" Content="Delete"/>
 
-            <!--Style="{DynamicResource ComboBoxStyle1}"-->
-            <!--Template="{StaMticResource ComboBoxEditableTemplate}"-->
-            <!--Style="{DynamicResource ComboBoxStyle1}"-->
-            <!--Background="{StaticResource Black2OrangeSlant}"-->
-            <!--<ComboBox
-                      x:Name="StylesCombo"  Width="220" Height="25"       
-                      FontSize="14"
-                      Background="Blue"
-                     IsEditable="False"
-                      SelectionChanged="StylesCombo_SelectionChanged"
-                      BorderThickness="4"
-                       BorderBrush="Red" OverridesDefaultStyle="False" >
-                <Style>
-                    <Style.Resources>
-                        <Border x:Key="aaa" Background="Green"/>
-                    </Style.Resources>
-                </Style>
-                -->
-            <!--<ComboBox.BindingGroup>
-                    <BindingGroup/>
-                </ComboBox.BindingGroup>-->
-            <!--<ComboBoxItem  />-->
-            <!--
-            </ComboBox>-->
 
             <!--ItemContainerStyle="{StaticResource CBitemContainerStyle}"-->
             <Button  x:Name="Togglegrid" HorizontalAlignment="Left" Height="35" Width="70" Click="Togglegrid_Click"
-                    Style="{StaticResource DarkmodeButton}" Foreground="White" Margin="5 0 20 0" Content="= Grid 1"/>
+                    Style="{StaticResource DarkmodeButton}" Foreground="White" Margin="5 0 20 0" Content=" Grid 1"/>
 
-            <!--#endregion bottom button bar-->
-
-            <!--<ListBox x:Name="xStylesCombo" 
-                Grid.Row="2"
-                Margin="0,0,20,8"
-                Panel.ZIndex="5"
-                Height="25"   
-                Width="210"
-                FontSize="14"
-                HorizontalAlignment="Right"
-                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                 ScrollViewer.VerticalScrollBarVisibility="Disabled"
-                 VerticalAlignment="Bottom"            
-                BorderThickness="2"
-                MouseEnter="StylesCombo_MouseEnter"
-                MouseLeave="StylesCombo_MouseLeave"
-                 Background="Blue"
-                 Visibility="Hidden"
-                BorderBrush="Orange" OverridesDefaultStyle="False" 
-                ItemContainerStyle="{StaticResource ContainerStyle}" d:ItemsSource="{d:SampleData ItemCount=5}" Grid.Column="3"/>-->
-
-
-            <!--// Default to growing Up, so we set bottom to zero (GrowDirection =0)-->
         </StackPanel>
-
-        <user:PopupListBox x:Name="StylesList" 
-                Background="{StaticResource Blue3}"
-                Foreground="White"
-                MaxListHeight="110"
-                GrowDirection="0"       
-                Panel.ZIndex="25"
-                DefaultHeight="30"   
-                FontSize="14"
-                CtrlHeight="30"
-                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                 ScrollViewer.VerticalScrollBarVisibility="Disabled"
-                 VerticalAlignment="Bottom"            
-                BorderThickness="1"
-                MouseEnter="StylesCombo_MouseEnter"
-                MouseLeave="StylesCombo_MouseLeave" 
-                CtrlWidth="204" Margin="550,2,46,8" Grid.Row="2" 
-                           />
-
+        <!--#endregion bottom button bar-->
     </Grid>
 </UserControl>

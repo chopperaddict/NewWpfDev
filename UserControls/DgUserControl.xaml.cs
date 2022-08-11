@@ -194,8 +194,9 @@ namespace NewWpfDev . UserControls {
 
             Task task = Task . Run ( ( ) => {
                 // This is pretty fast - uses Dapper and Linq
-                this . Dispatcher . Invoke ( ( ) => {
-                    Bvm = ( ObservableCollection<BankAccountViewModel> ) UserControlDataAccess . GetBankObsCollectionAsync ( Bvm , "" , true , "DgUserControl" );
+                this . Dispatcher . Invoke ( async ( ) => {
+                    await UserControlDataAccess . GetBankObsCollectionAsync ( Bvm , "" , true , "DgUserControl" );
+                    //                    Bvm = ( ObservableCollection<BankAccountViewModel> ) UserControlDataAccess . GetBankObsCollectionAsync ( Bvm , "" , true , "DgUserControl" );
                 } );
             } );
             return;

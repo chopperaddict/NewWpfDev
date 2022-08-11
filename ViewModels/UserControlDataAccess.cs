@@ -174,7 +174,7 @@ namespace NewWpfDev . ViewModels {
 
 
         // MAIN "ASYNC" DIECT CALL METHOD - 
-        public static ObservableCollection<BankAccountViewModel> GetBankObsCollectionAsync ( ObservableCollection<BankAccountViewModel> collection , string SqlCommand = "" , bool Notify = false , string Caller = "" ) {
+        public async  static Task<ObservableCollection<BankAccountViewModel>> GetBankObsCollectionAsync ( ObservableCollection<BankAccountViewModel> collection , string SqlCommand = "" , bool Notify = false , string Caller = "" ) {
             //This is a clever variation that uses Dapper and LINQ to load Data via SQL directly into a List<>
             //that is then converted into the requested Obs.Collection directly within this method
             // sort of one stop shop !
@@ -222,7 +222,7 @@ namespace NewWpfDev . ViewModels {
                        );
                 }
             } );
-            return null;
+            return bvmcollection;
         }
         #endregion BANKACCOUNT Data Access
 

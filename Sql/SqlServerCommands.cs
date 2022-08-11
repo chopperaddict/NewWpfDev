@@ -308,6 +308,7 @@ namespace NewWpfDev. Sql
 		// support  the getgrenrows above by cunting the active rows
 		public static int GetGenericColumnCount ( ObservableCollection<GenericClass> collection , GenericClass gcc = null )
 		{
+            if ( collection == null ) return 0;
 			GenericClass gc = new GenericClass();
 			try
 			{

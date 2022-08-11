@@ -74,7 +74,7 @@
         <ComboBox x:Name="comboBox"
                   Background="{StaticResource Black2OrangeSlant}"
                    IsEnabled="True"    
-                   SelectedItem="{Binding Path=ComboSelection0, ElementName=comboBoxPlus}"
+                   SelectedItem="{Binding Path=ComboSelection1, ElementName=comboBoxPlus}"
                   SelectionChanged="ComboBox_SelectionChanged"
                   HorizontalContentAlignment="Left" VerticalContentAlignment="Center">
             <ComboBoxItem  Background="{StaticResource Black2OrangeSlant}"/>

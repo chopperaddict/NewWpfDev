@@ -83,34 +83,35 @@
 
     </UserControl.Resources>
 
-    <Canvas x:Name="Stylesgrid" 
+    <Grid x:Name="Stylesgrid" 
+            MouseLeave="StylesCombo_MouseLeave" 
             Height="{Binding CtrlHeight}"
             Width="{Binding CtrlWidth}" >
+        <!--MouseEnter="StylesCombo_MouseEnter"-->
 
         <ListBox x:Name="StylesCombo"
-                    Panel.ZIndex="8"
-                    FontSize="14"
+                    d:ItemsSource="{d:SampleData ItemCount=1}"
+                   FontSize="14"
                     Padding="0 0 0 0"
                    HorizontalContentAlignment="Left"
                     IsHitTestVisible="true"
                     ItemsSource="{Binding AllStyles}"
                     HorizontalAlignment="Center"
-                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                   ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                     ScrollViewer.VerticalScrollBarVisibility="Disabled"
                     VerticalAlignment="Top"
                     SelectionChanged="StylesCombo_SelectionChanged"
-                    BorderThickness="2"
+                    BorderThickness="0"
                     MouseEnter="StylesCombo_MouseEnter"
-                    MouseLeave="StylesCombo_MouseLeave" 
                     Background="{Binding Background}"
                     Foreground="{Binding Foreground}"
+                    BorderBrush="Transparent" 
+                    OverridesDefaultStyle="False"
                     ItemContainerStyle="{StaticResource ContainerStyle}" 
-                    d:ItemsSource="{d:SampleData ItemCount=5}"
-                    BorderBrush="Transparent" OverridesDefaultStyle="False"
-                   Height="{Binding CtrlHeight}"
-                   Width="{Binding CtrlWidth}"
-   
-                 Canvas.Left="0" Canvas.Top="0">
+                   Height="{Binding Path=ActualHeight, ElementName=Stylesgrid}"
+                   Width="{Binding Path=ActualWidth, ElementName=Stylesgrid}">
+            <!--Canvas.Left="{Binding LeftPos}" Canvas.Top="{Binding TopPos}">-->
+            <!--MouseLeave="StylesCombo_MouseLeave"-->
             <ListBox.RenderTransform>
                 <TransformGroup>
                     <ScaleTransform ScaleY="1" ScaleX="1"/>
@@ -126,17 +127,15 @@
         <TextBlock x:Name="ShadowText"      
                     Padding="20 3 0 0"
                     IsHitTestVisible="true"
-                    Panel.ZIndex="9"
                     Text="{Binding SelectedItem, ElementName=StylesCombo}"
                     FontSize="14"
                     Background="{Binding Background}"
                     Foreground="{Binding Foreground}"
-                    MouseEnter="StylesCombo_MouseEnter"
-                    MouseLeave="StylesCombo_MouseLeave" 
                     VerticalAlignment="Top"            
                     HorizontalAlignment="Center"
-                   Height="{Binding CtrlHeight}"
-                   Width="{Binding CtrlWidth}"
+                   Height="{Binding Path=Height, ElementName=Stylesgrid}"
+                   Width="{Binding Path=ActualWidth, ElementName=Stylesgrid}"
+                    MouseEnter="StylesCombo_MouseEnter"
                     Visibility="Visible" Canvas.Top="0" Canvas.Left="0"/>
-    </Canvas>
+     </Grid>
 </UserControl>

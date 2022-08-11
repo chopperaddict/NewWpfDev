@@ -11,7 +11,7 @@
              mc:Ignorable="d" 
              x:Name="BankAcctList"
              SizeChanged="ResizeControl"
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="530" d:DesignWidth="965">
     
     <UserControl.Resources>
         <conv:ICommandParamsConverter x:Key="ICommandParamsConverter"/>        

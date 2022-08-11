@@ -170,6 +170,7 @@
                                                Foreground="Black"/>
                         </StackPanel>
                     </Grid>
+                    
                 </ControlTemplate>
             </GridSplitter.Template>
         </GridSplitter>
@@ -363,6 +364,7 @@
 
 
                 <Grid x:Name="DataAccessPanel" Grid.Row="1" VerticalAlignment="Top">
+ 
                     <!--#region checkboxes-->
 
                     <CheckBox x:Name="Showinfo"

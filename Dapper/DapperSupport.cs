@@ -1,5 +1,4 @@
-﻿using NewWpfDev. Views;
-using System;
+﻿using System;
 using System . Collections;
 using System . Collections . Generic;
 using System . Collections . ObjectModel;
@@ -13,6 +12,7 @@ using System . Windows . Controls;
 using System . Windows;
 using Dapper;
 using System . ComponentModel;
+using NewWpfDev. Views;
 using NewWpfDev. ViewModels;
 using NewWpfDev. Models;
 
@@ -4513,19 +4513,27 @@ namespace NewWpfDev. Dapper
 					index+= 1;
 					if ( item . Key == "" || (item . Value == null && item . Key . Contains ( "character_maximum_length" )  == false))
 						break;
-					if (GetLength &&  item . Key . Contains ( "character_maximum_length" ) )
-					{
-						varcharlen . Add ( item.Value==null ? 0 : item.Value );
-					}
-					else
-						dict . Add ( item . Key , item . Value );
-
-					//var v = buff .ToString();
-					//varcharlen.Add(item.Key, buff [ 2 ]);
+                    if ( GetLength && item . Key . Contains ( "character_maximum_length" ) )
+                    {
+                        varcharlen . Add ( item . Value == null ? 0 : item . Value );
+                    }
+                    else
+                    {
+                        dict . Add ( item . Key , item . Value != null ? item . Value : 0 );
+                        if ( colcount == 0 )
+                            GenRow . field1 = item . Value;
+                        else if ( colcount == 1 )
+                            GenRow . field2 = item . Value;
+                        else if ( colcount == 2 )
+                            GenRow . field3 =( item . Value != null ? item . Value : 0).ToString();
+                    }
+                    //	var v = buff .ToString();
+                    //	varcharlen.Add( v);
+                    colcount++;
 				}
 				catch ( Exception ex )
 				{
-					MessageBox . Show ( $"ParseDapper error was : \n{ex . Message}\nKey={item . Key} Value={item . Value . ToString ( )}" );
+					//MessageBox . Show ( $"ParseDapper error was : \n{ex . Message}\nKey={item . Key} Value={item . Value . ToString ( )}" );
 					break;
 				}
 			}

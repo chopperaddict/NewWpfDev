@@ -84,10 +84,10 @@ namespace NewWpfDev . UserControls
 
         private void dgrid_PreviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
         {
-            GenericGridControl . GenericGrid . RowHeight = 25;
-            GenericGridControl . GenericGrid . SelectedIndex = 2;
-            GenericGridControl . GenericGrid . SelectedItem = 2;
-            Debug . WriteLine ( $"{GenericGridControl . GenericGrid . RowHeight}, {GenericGridControl . GenericGrid . Items . Count}, {GenericGridControl . GenericGrid . FontSize}, {GenericGridControl . GenericGrid . Foreground}, {GenericGridControl . GenericGrid . Background}" );
+            GenericGridControl . GenericGrid1 . RowHeight = 25;
+            GenericGridControl . GenericGrid1 . SelectedIndex = 2;
+            GenericGridControl . GenericGrid1 . SelectedItem = 2;
+            Debug . WriteLine ( $"{GenericGridControl . GenericGrid1 . RowHeight}, {GenericGridControl . GenericGrid1 . Items . Count}, {GenericGridControl . GenericGrid1 . FontSize}, {GenericGridControl . GenericGrid1 . Foreground}, {GenericGridControl . GenericGrid1 . Background}" );
         }
     }
 }
