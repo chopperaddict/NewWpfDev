@@ -5,7 +5,7 @@ using System . Text;
 using System . Threading . Tasks;
 using System . Windows . Threading;
 using System . Windows;
-using NewWpfDev. ViewModels;
+using NewWpfDev . ViewModels;
 using System . Windows . Media;
 using System . Diagnostics;
 using System . Runtime . CompilerServices;
@@ -26,46 +26,72 @@ namespace NewWpfDev
             output = path == null ? "No file path" : $"\t{path}  : ";
             output += line < 0 ? "No line  : " : "Line " + $"{line} : ";
             output += name == null ? " No member name" : $"( {name} )";
-            Debug. WriteLine ( $"{output}\n{message}\n" );
+            Debug . WriteLine ( $"{output}\n{message}\n" );
         }
-        public static void CW ( 
+
+        public static void CW (
             this string message ,
-            [CallerMemberName] string name = null,
+            int level = 1 ,
+            [CallerFilePath] string path = null ,
+            [CallerMemberName] string name = null ,
             [CallerLineNumber] int line = -1 )
         {
-            Debug. WriteLine ( $"{line} : {name} : {message}" );
+            if ( level == 0 ) return;
+            string [ ] tmp = path . Split ( '\\' );
+            Debug . WriteLine ( $"{line} ** {message} ** : : {name} (.) in {tmp [ 5 ] + "\\" + tmp [ 6 ]}" );
         }
+        //-------------------------------------------------------------------------------------------------------//
         //Snippet = cwe
         //[Conditional ( "USECW" )]
         public static void cwerror (
             this string message ,
+            int level = 1 ,
+            [CallerFilePath] string path = null ,
+            [CallerMemberName] string name = null ,
             [CallerLineNumber] int line = -1 )
         {
-            Debug. WriteLine ( $"ERR  : {line} : {message}" );
+            if ( level == 0 ) return;
+            string [ ] tmp = path . Split ( '\\' );
+            Debug . WriteLine ( $"** ERROR ** : {line} ** {message} ** : : {name} (.) in {tmp [ 5 ] + "\\" + tmp [ 6 ]}" );
         }
+        //-------------------------------------------------------------------------------------------------------//
         //Snippet = cww
         //[Conditional ( "USECW" )]
         public static void cwwarn (
             this string message ,
+            int level = 1 ,
+            [CallerFilePath] string path = null ,
+            [CallerMemberName] string name = null ,
             [CallerLineNumber] int line = -1 )
         {
-            Debug. WriteLine ( $"WARN : {line} : {message}" );
+            if ( level == 0 ) return;
+            string [ ] tmp = path . Split ( '\\' );
+            Debug . WriteLine ( $"WARN : {line} ** {message} ** : : {name} (.) in {tmp [ 5 ] + "\\" + tmp [ 6 ]}" );
         }
+        //-------------------------------------------------------------------------------------------------------//
         //Snippet = cwi
         //[Conditional ( "USECW" )]
         public static void cwinfo (
             this string message ,
+            int level = 1 ,
+            [CallerFilePath] string path = null ,
+            [CallerMemberName] string name = null ,
             [CallerLineNumber] int line = -1 )
         {
-            Debug. WriteLine ( $"INFO : {line} : {message}" );
+            if ( level == 0 ) return;
+            string [ ] tmp = path . Split ( '\\' );
+            string namestr = $"{name + " ()" . PadRight ( 25 )}";
+        Debug . WriteLine ( $"INFO : {line . ToString ( ) . PadRight ( 6 )} : {namestr} ::** {message . PadRight ( 20 )}  : : File= {tmp [ 5 ] + "\\" + tmp [ 6 ]}" );
         }
+        //-------------------------------------------------------------------------------------------------------//
+
         public static void Refresh ( this UIElement uiElement )
         {
             try
             {
                 uiElement . Dispatcher . Invoke ( DispatcherPriority . Render , EmptyDelegate );
             }
-            catch ( Exception ex ) { Debug . WriteLine ($"REFRESH FAILEd !!  {ex.Message}"); }
+            catch ( Exception ex ) { Debug . WriteLine ( $"REFRESH FAILEd !!  {ex . Message}" ); }
         }
         public static Brush ToSolidColorBrush ( this string HexColorString )
         {
@@ -83,7 +109,7 @@ namespace NewWpfDev
             }
             catch ( Exception ex )
             {
-                Debug. WriteLine ( $"ToSolidColorBrush failed - input = {HexColorString}" );
+                Debug . WriteLine ( $"ToSolidColorBrush failed - input = {HexColorString}" );
                 return null;
             }
         }
@@ -104,7 +130,7 @@ namespace NewWpfDev
             }
             catch ( Exception ex )
             {
-                Debug. WriteLine ( $"ToSolidbrush failed - input = {HexColorString}" );
+                Debug . WriteLine ( $"ToSolidbrush failed - input = {HexColorString}" );
                 return null;
             }
         }
@@ -116,7 +142,7 @@ namespace NewWpfDev
             }
             catch ( Exception ex )
             {
-                Debug. WriteLine ( $"ToLinearGradientbrush failed - input = {Colorstring}" );
+                Debug . WriteLine ( $"ToLinearGradientbrush failed - input = {Colorstring}" );
                 return null;
             }
             //return ( LinearGradientBrush ) ( new BrushConverter ( ) . ConvertFrom ( color ) );
@@ -132,7 +158,7 @@ namespace NewWpfDev
             }
             catch ( Exception ex )
             {
-                Debug. WriteLine ( $"BrushtoText failed - input = {brush}" );
+                Debug . WriteLine ( $"BrushtoText failed - input = {brush}" );
                 return null;
             }
         }

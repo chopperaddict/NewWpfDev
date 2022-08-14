@@ -81,10 +81,10 @@ namespace  NewWpfDev. ViewModels
             /// The default value is false, but subclasses used by unit tests might
             /// override this property's getter to return true.
             /// </summary>
-            protected virtual bool ThrowOnInvalidPropertyName
-            {
-                  get; private set;
-            }
+            //protected virtual bool ThrowOnInvalidPropertyName
+            //{
+            //      get; private set;
+            //}
 
             #region declarations
 

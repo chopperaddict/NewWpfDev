@@ -65,25 +65,12 @@ namespace NewWpfDev . Models
         }
         private static Dictionary<string , string> GetSpArgs ( ref ObservableCollection<GenericClass> Gencollection , ref List<string> list , string dbName , string DbDomain , ref List<int> VarCharLength )
         {
-//#pragma warning disable CS0219 // The variable 'output' is assigned but its value is never used
-//            string output = "";
-//#pragma warning restore CS0219 // The variable 'output' is assigned but its value is never used
-//#pragma warning disable CS0219 // The variable 'errormsg' is assigned but its value is never used
-//            string errormsg = "";
-//#pragma warning restore CS0219 // The variable 'errormsg' is assigned but its value is never used
-//#pragma warning disable CS0219 // The variable 'columncount' is assigned but its value is never used
-//            int columncount = 0;
-//#pragma warning restore CS0219 // The variable 'columncount' is assigned but its value is never used
-//#pragma warning disable CS0219 // The variable 'IsSuccess' is assigned but its value is never used
-//            bool IsSuccess = false;
-//#pragma warning restore CS0219 // The variable 'IsSuccess' is assigned but its value is never used
-//            DataTable dt = new DataTable ( );
+            
             GenericClass genclass = new GenericClass ( );
             Dictionary<string , string> dict = new Dictionary<string , string> ( );
             try
             {
                 // also get a List<int> of (nvarchar) string lengths
-                //Gencollection = LoadDbAsGenericData ( ref list , "spGetTableColumnWithSize" , dbName , DbDomain , ref VarCharLength , true );
                 Gencollection = LoadDbAsGenericData ( ref list , "spGetTableColumns" , dbName , DbDomain , ref VarCharLength , true );
             }
             catch ( Exception ex )
@@ -95,7 +82,22 @@ namespace NewWpfDev . Models
 
             dict . Clear ( );
             list . Clear ( );
+            
             //			int charlenindex=0;
+            //List<string> templist = new List<string> ( );
+            //int indx = 0;
+            //foreach ( var item in Gencollection )
+            //{
+            //    switch(indx)
+            //    {
+            //        case 0:
+            //            templist . Add ( item  field1 . ToString ( ) ); ;
+            //            break;
+            //    }
+            //    templist . Add ( item.);
+            //}
+
+
             try
             {
                 foreach ( var item in Gencollection )
@@ -131,9 +133,7 @@ namespace NewWpfDev . Models
             bool GetLengths = false )
         {
             string result = "";
-#pragma warning disable CS0219 // The variable 'IsSuccess' is assigned but its value is never used
             bool IsSuccess = false;
-#pragma warning restore CS0219 // The variable 'IsSuccess' is assigned but its value is never used
             string arg1 = "", arg2 = "", arg3 = "", arg4 = "";
             // provide a default connection string
             string ConString = "BankSysConnectionString";
@@ -277,6 +277,7 @@ namespace NewWpfDev . Models
             Dictionary<string , string> dict = new Dictionary<string , string> ( );
             // This returns a Dictionary<sting,string> PLUS a collection  and a List<string> passed by ref....
             List<int> VarCharLength = new List<int> ( );
+            // really need the ref list item to be populated with column info (name in particular)
             dict = GenericDbUtilities . GetDbTableColumns ( ref GenericClass , ref list , CurrentType , Domain , ref VarCharLength );
             int index = 0;
             if ( list . Count > 0 )
@@ -331,9 +332,6 @@ namespace NewWpfDev . Models
         {
             SqlConnection con;
             DataTable dt = new DataTable ( );
-#pragma warning disable CS0219 // The variable 'filterline' is assigned but its value is never used
-            string filterline = "";
-#pragma warning restore CS0219 // The variable 'filterline' is assigned but its value is never used
             //string ConString = Flags . CurrentConnectionString;
             string ConString = ( string ) Properties . Settings . Default [ "BankSysConnectionString" ];
             //Debug . WriteLine ( $"Making new SQL connection in DETAILSCOLLECTION,  Time elapsed = {timer . ElapsedMilliseconds}" );

@@ -254,7 +254,7 @@ namespace NewWpfDev . UserControls
         {
             this . Height = height;
             this . Width = width;
-            this . Refresh ( );
+            //this . Refresh ( );
         }
 
         #region Data Loading

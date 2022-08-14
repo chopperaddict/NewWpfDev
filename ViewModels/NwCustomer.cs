@@ -35,22 +35,22 @@ namespace NewWpfDev. ViewModels
             /// a public property with the specified name. This
             /// method does not exist in a Release build.
             /// </summary>
-            [Conditional ( "DEBUG" )]
-            [DebuggerStepThrough]
-            public virtual void VerifyPropertyName ( string propertyName )
-            {
-                  // Verify that the property name matches a real,
-                  // public, instance property on this object.
-                  if ( TypeDescriptor . GetProperties ( this ) [ propertyName ] == null )
-                  {
-                        string msg = "Invalid property name: " + propertyName;
+            //[Conditional ( "DEBUG" )]
+            //[DebuggerStepThrough]
+            //public virtual void VerifyPropertyName ( string propertyName )
+            //{
+            //      // Verify that the property name matches a real,
+            //      // public, instance property on this object.
+            //      if ( TypeDescriptor . GetProperties ( this ) [ propertyName ] == null )
+            //      {
+            //            string msg = "Invalid property name: " + propertyName;
 
-                        if ( this . ThrowOnInvalidPropertyName )
-                              throw new Exception ( msg );
-                        else
-                              Debug . Fail ( msg );
-                  }
-            }
+            //            if ( this . ThrowOnInvalidPropertyName )
+            //                  throw new Exception ( msg );
+            //            else
+            //                  Debug . Fail ( msg );
+            //      }
+            //}
 
             /// <summary>
             /// Returns whether an exception is thrown, or if a Debug.Fail() is used
@@ -58,10 +58,10 @@ namespace NewWpfDev. ViewModels
             /// The default value is false, but subclasses used by unit tests might
             /// override this property's getter to return true.
             /// </summary>
-            protected virtual bool ThrowOnInvalidPropertyName
-            {
-                  get; private set;
-            }
+            //protected virtual bool ThrowOnInvalidPropertyName
+            //{
+            //      get; private set;
+            //}
 
             #endregion PropertyChanged
 

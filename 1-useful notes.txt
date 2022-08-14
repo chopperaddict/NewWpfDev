@@ -896,7 +896,6 @@ NB See DataErrorWindow for a different Method
 	  <Grid>	// Main Wrapper for window (can be any type)
 
 		// the UserControl MUST always be named ""Flowdoc""   EXACTLY (case sensitive)
-
 		// You need to wrap the entire window area in a Canvas (I suggest it is named ""canvas"")
 		// but it can be placed anywhere inside the main Grid or whatever is used  to wrap the entire window
 		// Ensure it is set as Visibility="COLLAPSED"

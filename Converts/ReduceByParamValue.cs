@@ -8,6 +8,8 @@ using System . Threading . Tasks;
 using System . Windows;
 using System . Windows . Data;
 
+using DapperGenericsLib;
+
 namespace NewWpfDev. Converts
 {
     public class ReduceByParamValue : IValueConverter
@@ -41,28 +43,20 @@ namespace NewWpfDev. Converts
                 {
                     currentvalue = d + param;
                 }
-                //                Debug. WriteLine ($"value={value}, Cv= {currentvalue}");
-                Debug . WriteLine ($"Reduce = {currentvalue} from parameter {parameter}");
+                 $"Reduce = {currentvalue} from parameter {parameter}" . cwinfo(0);
                 return currentvalue;
             }
             else
             {
                 d = ( double )value;
                 currentvalue = d - ( double )35;
-                Debug. WriteLine($"ReduceByParamValue Converter has returned {currentvalue} from {d} - 35");
+                $"ReduceByParamValue Converter has returned {currentvalue} from {d} - 35" . cwinfo(0);
             }
             return currentvalue;
         }
 
         public object ConvertBack (object value , Type targetType , object parameter , CultureInfo culture)
         {
-            //if ( temp <= 255 )
-            //	return ( string ) temp . ToString ( "X2" );
-            //else if ( temp <= 65535 )
-            //	return ( string ) temp . ToString ( "X4" );
-            //else if ( temp <= 16777215 )
-            //	return ( string ) temp . ToString ( "X6" );
-
             return value;
         }
     }

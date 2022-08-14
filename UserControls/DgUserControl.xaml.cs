@@ -290,6 +290,7 @@ namespace NewWpfDev . UserControls {
 
         #region DataGrid columns creation
         private void CreateBankColumns ( ) {
+            $"Creating Bank Datagrid Columns " . cwinfo ( );
             grid1 . Columns . Clear ( );
             //Debug . WriteLine ( $"CREATING BANK COLUMNS" );
             DataGridTextColumn c1 = new DataGridTextColumn ( );
@@ -320,8 +321,10 @@ namespace NewWpfDev . UserControls {
             c7 . Header = "Closed";
             c7 . Binding = new Binding ( "CDate" );
             grid1 . Columns . Add ( c7 );
+            $"Exiting Bank Datagrid Columns " . cwinfo ( );
         }
         private void CreateCustomerColumns ( ) {
+            $"Creating Customer Datagrid Columns " . cwinfo ( );
             grid1 . Columns . Clear ( );
             //Debug . WriteLine ( $"CREATING CUSTOMER COLUMNS" );
             DataGridTextColumn c1 = new DataGridTextColumn ( );
@@ -368,9 +371,11 @@ namespace NewWpfDev . UserControls {
             c11 . Header = "Closed";
             c11 . Binding = new Binding ( "CDate" );
             grid1 . Columns . Add ( c11 );
+            $"Exitting Customer Datagrid Columns " . cwinfo ( );
         }
 
         private void CreateGenericColumns ( int maxcols ) {
+            $"Creating Generic Datagrid Columns " . cwinfo ( );
             grid1 . Columns . Clear ( );
             //Debug . WriteLine ( $"CREATING CUSTOMER COLUMNS" );
             DataGridTextColumn c1 = new DataGridTextColumn ( );
@@ -477,6 +482,7 @@ namespace NewWpfDev . UserControls {
             c21 . Header = "Col 21";
             c21 . Binding = new Binding ( "field21" );
             grid1 . Columns . Add ( c21 );
+            $"Exiting Generic Datagrid Columns " . cwinfo ( );
         }
         #endregion DataGrid columns creation
 

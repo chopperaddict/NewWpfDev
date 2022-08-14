@@ -4,7 +4,6 @@ using System . Collections . Generic;
 using System . Collections . ObjectModel;
 using System . ComponentModel;
 using System . Diagnostics;
-using System . DirectoryServices . ActiveDirectory;
 using System . Runtime . InteropServices;
 using System . Threading . Tasks;
 using System . Windows;
@@ -14,11 +13,7 @@ using System . Windows . Media;
 
 using DapperGenericsLib;
 
-using DocumentFormat . OpenXml . Drawing;
-
-using NewWpfDev . Dapper;
 using NewWpfDev . Models;
-using NewWpfDev . Sql;
 using NewWpfDev . UserControls;
 using NewWpfDev . ViewModels;
 
@@ -252,31 +247,32 @@ namespace NewWpfDev . Views
                     GenericGrid . datagrid1 . Items . Clear ( );
                     if ( cbp . ReloadDb == true )
                     {
+                        GenericGridControl . dglayoutlist1 . Clear ( );
                         Task . Run ( ( ) =>
                         {
                             DapperGenLib . LoadTableGeneric ( $"Select * from {tablename}" , ref Gencollection1 );
                             Application . Current . Dispatcher . Invoke ( ( ) =>
-                            {
-                                DapperLibSupport . LoadActiveRowsOnlyInGrid ( GenericGrid . datagrid1 , Gencollection1 , DapperLibSupport . GetGenericColumnCount ( Gencollection1 ) );
-                                //int colcount = DapperLibSupport . GetGenericColumnCount ( Gencollection1 );
-                                //DapperLibSupport . LoadActiveRowsOnlyInGrid ( GenericGrid . datagrid1 , Gencollection1 , colcount );
+                            {   // load grid 1
+                                int colcount = DapperLibSupport . GetGenericColumnCount ( Gencollection1 );
+                                DapperLibSupport . LoadActiveRowsOnlyInGrid ( GenericGrid . datagrid1 , Gencollection1 , colcount );
+
+                                GenericGridControl . CurrentTable1 = tablename;
+                                GenericGridControl . Title1 = tablename;
+                                //st<DapperGenericsLib . DataGridLayout> dglayoutlist = new List<DapperGenericsLib . DataGridLayout> ( );
+                                if ( GenericGrid . maskcols . Content . ToString ( ) == "Mask Columns" )
+                                    DapperLibSupport . ReplaceDataGridFldNames ( tablename , ref GenericGrid . datagrid1 , ref GenericGridControl . dglayoutlist1 , colcount );
+                                else
+                                    GenericGrid . SetDefColumnHeaderText ( GenericGrid . datagrid1 , false );
+                                // Setup new label and default table name
+                                GenericGrid . GenericTitle1 . Text = $"Table = {tablename . ToUpper ( )}";
+                                GenericGridControl . CurrentTable1 = tablename;
+                                GenericGridControl . Title1 = tablename;
                                 Debug . WriteLine ( $"[{tablename}] Data  for datagrid1 Loaded in Task and Datagrid fully updated" );
                                 GenericGrid . datagrid1 . SelectedIndex = 0;
                                 GenericGrid . datagrid1 . Refresh ( );
                             } );
                         } );
                     }
-                    GenericGridControl . CurrentTable1 = tablename;
-                    GenericGridControl . Title1 = tablename;
-                     List<DapperGenericsLib . DataGridLayout> dglayoutlist = new  List< DapperGenericsLib. DataGridLayout >( );
-                    if ( GenericGrid . maskcols . Content . ToString ( ) == "Mask Columns" )
-                        DapperLibSupport . ReplaceDataGridFldNames ( tablename , ref GenericGrid . datagrid1, ref dglayoutlist );
-                    else
-                        GenericGrid . SetDefColumnHeaderText ( GenericGrid . datagrid1 , false );
-                    // Setup new label and default table name
-                    GenericGrid . GenericTitle1 . Text = $"Table = {tablename . ToUpper ( )}";
-                    GenericGridControl . CurrentTable1 = tablename;
-                    GenericGridControl . Title1 = tablename;
                 }
                 else if ( GenericGridControl . ActiveGrid == 2 )
                 {
@@ -284,26 +280,35 @@ namespace NewWpfDev . Views
                     GenericGrid . datagrid2 . Items . Clear ( );
                     if ( cbp . ReloadDb == true )
                     {
-                        GenericGrid . datagrid2 . ItemsSource = null;
-                        GenericGrid . datagrid2 . Items . Clear ( );
-                        GenericGrid . LoadGenericTable ( tablename , "datagrid2" );
+                        GenericGridControl . dglayoutlist2 . Clear ( );
+                        Task . Run ( ( ) =>
+                        {
+                            DapperGenLib . LoadTableGeneric ( $"Select * from {tablename}" , ref Gencollection2 );
+                            Application . Current . Dispatcher . Invoke ( ( ) =>
+                            {
+                                int colcount = DapperLibSupport . GetGenericColumnCount ( Gencollection2 );
+                                DapperLibSupport . LoadActiveRowsOnlyInGrid ( GenericGrid . datagrid2 , Gencollection2 , colcount );
 
-                        GenericGridControl . CurrentTable2 = tablename;
-                        GenericGridControl . Title2 = tablename;
-                        //LoadGenericTable ( tablename , GenericGrid . datagrid2 );
-                        //DapperLibSupport . LoadActiveRowsOnlyInGrid ( GenericGrid . datagrid2 , Gencollection2 , DapperLibSupport . GetGenericColumnCount ( Gencollection2 ) );
-                        //GenericGrid . datagrid2 . SelectedIndex = 0;
-                        //GenericGrid . datagrid2 . Refresh ( );
+                                GenericGridControl . CurrentTable2 = tablename;
+                                GenericGridControl . Title2 = tablename;
+                                //st<DapperGenericsLib . DataGridLayout> dglayoutlist = new List<DapperGenericsLib . DataGridLayout> ( );
+                                if ( GenericGrid . maskcols . Content . ToString ( ) == "Mask Columns" )
+                                    DapperLibSupport . ReplaceDataGridFldNames ( tablename , ref GenericGrid . datagrid2 , ref GenericGridControl . dglayoutlist2 , colcount );
+                                else
+                                    GenericGrid . SetDefColumnHeaderText ( GenericGrid . datagrid2 , false );
+                                // Setup new label and default table name
+                                GenericGrid . GenericTitle2 . Text = $"Table = {tablename . ToUpper ( )}";
+                                GenericGridControl . CurrentTable2 = tablename;
+                                GenericGridControl . Title2 = tablename;
+                                Debug . WriteLine ( $"[{tablename}] Data  for datagrid1 Loaded in Task and Datagrid fully updated" );
+                                GenericGrid . datagrid1 . SelectedIndex = 0;
+                                GenericGrid . datagrid1 . Refresh ( );
+                            } );
+                        } );
                     }
-                    List<DapperGenericsLib . DataGridLayout> dglayoutlist = new List<DapperGenericsLib . DataGridLayout> ( );
-                    if ( GenericGrid . maskcols . Content . ToString ( ) == "Mask Columns" )
-                        DapperLibSupport . ReplaceDataGridFldNames ( tablename , ref GenericGrid . datagrid2 , ref dglayoutlist );
-                    else
-                        GenericGrid . SetDefColumnHeaderText ( GenericGrid . datagrid2 , false );
-                    GenericGrid . GenericTitle2 . Text = $"Table = {tablename . ToUpper ( )}";
+                    // Setup new label and default table name
+                    // Reset flag so it will load data unless something else toggles it off !!
                 }
-                // Setup new label and default table name
-                // Reset flag so it will load data unless something else toggles it off !!
                 cbp . ReloadDb = true;
             }
         }
@@ -403,18 +408,18 @@ namespace NewWpfDev . Views
             // local Collection only
             ObservableCollection<GenericClass> GenericClass = new ObservableCollection<GenericClass> ( );
             Dictionary<string , string> dict = new Dictionary<string , string> ( );
-                 List<Dictionary<string , string>> ColumntypesList =new List<Dictionary<string , string>> ( );
+            List<Dictionary<string , string>> ColumntypesList = new List<Dictionary<string , string>> ( );
             // This returns a Dictionary<sting,string> PLUS a collection  and a List<string> passed by ref....
             Dictionary<string , string> Columntypes = new Dictionary<string , string> ( );
             List<DapperGenericsLib . DataGridLayout> dglayoutlist = new List<DapperGenericsLib . DataGridLayout> ( );
-            dict = DapperGenLib . GetDbTableColumns ( ref GenericClass , ref ColumntypesList , ref list , tablename , domain , ref  dglayoutlist );
+            dict = DapperGenLib . GetDbTableColumns ( ref GenericClass , ref ColumntypesList , ref list , tablename , domain , ref dglayoutlist );
 
             indx = 0;
-            if ( dglayoutlist. Count > 0 )
+            if ( dglayoutlist . Count > 0 )
             {
                 foreach ( var item in GenericClass )
                 {
-                    item . field3 = dglayoutlist [ indx++ ].Fieldlength . ToString ( );
+                    item . field3 = dglayoutlist [ indx++ ] . Fieldlength . ToString ( );
                 }
             }
             count = indx - 1;
@@ -502,23 +507,26 @@ namespace NewWpfDev . Views
                         combo . gridtablenames [ 1 ] = "BANKACCOUNT";
                         // preload data if needed (runs as a task & loads & formats Grid)
                         // Intial startup of system
-                        List<Dictionary<string , string>> ColumntypesList = new List<Dictionary<string , string>> ();
-                       List<DapperGenericsLib . DataGridLayout> dglayoutlist = new List<DapperGenericsLib . DataGridLayout> ( );
-                        if ( GenericGrid . datagrid2 . Items . Count == 0 )
-                            Gencollection2 = DapperGenLib . LoadDbAsGenericData (
-                                "Select * from BankAccount" ,
-                               Gencollection2 ,
-                                ref ColumntypesList,
-                                "" ,
-                                "IAN1" ,
-                                ref dglayoutlist );
-                        if ( GenericGrid . datagrid2 . Items . Count == 0 )
-                            Gencollection2 = Gencollection1;
-                        int colcount = DapperLibSupport . GetGenericColumnCount ( Gencollection2 );
-                        DapperLibSupport . LoadActiveRowsOnlyInGrid ( GenericGrid . datagrid1 , Gencollection2 , colcount );
-                        colcount = DapperLibSupport . GetGenericColumnCount ( Gencollection2 );
-                        DapperLibSupport . LoadActiveRowsOnlyInGrid ( GenericGrid . datagrid2 , Gencollection2 , colcount );
-                        GenericGridControl . SelectCorrectTable ( "BANKACCOUNT" );
+                        //List<Dictionary<string , string>> ColumntypesList = new List<Dictionary<string , string>> ( );
+                        //List<DapperGenericsLib . DataGridLayout> dglayoutlist = new List<DapperGenericsLib . DataGridLayout> ( );
+                        //if ( GenericGrid . datagrid2 . Items . Count == 0 )
+                        //    Gencollection2 = DapperGenLib . LoadDbAsGenericData (
+                        //        "Select * from BankAccount" ,
+                        //       Gencollection2 ,
+                        //        ref ColumntypesList ,
+                        //        "" ,
+                        //        "IAN1" ,
+                        //        ref dglayoutlist );
+                        //if ( GenericGrid . datagrid2 . Items . Count == 0 )
+                        //    Gencollection2 = Gencollection1;
+                        //int colcount = DapperLibSupport . GetGenericColumnCount ( Gencollection2 );
+                        //DapperLibSupport . LoadActiveRowsOnlyInGrid ( GenericGrid . datagrid1 , Gencollection2 , colcount );
+                        //colcount = DapperLibSupport . GetGenericColumnCount ( Gencollection2 );
+                        //DapperLibSupport . LoadActiveRowsOnlyInGrid ( GenericGrid . datagrid2 , Gencollection2 , colcount );
+                        //GenericGridControl . SelectCorrectTable ( "BANKACCOUNT" );
+                        // preload data if needed by calling method in GenericGridControl itself
+                        if ( GenericGrid . datagrid1 . Items . Count == 0 )
+                            GenericGrid . LoadGenericTable ( "BANKACCOUNT" , "datagrid1" );
                         GenericGridControl . Title2 = "BANKACCOUNT";
                         Debug . WriteLine ( $"[BANKACCOUNT] Data  for datagrid2 Loaded in Task and Datagrid fully updated" );
                         comboPlus . ComboSelection2 = comboPlus . SelectedItem?.ToString ( ) . ToUpper ( );
@@ -600,6 +608,10 @@ namespace NewWpfDev . Views
         {
             try
             {
+                // Set dapperlib scope flag to convert datetime to date string only for display usage in datagrids etc.
+                // used by GenericGrid only right now
+                DapperGenLib . ConvertDateTimeToNvarchar = false;
+
                 if ( BankContent == null )
                 {
                     GenContentSize . Height = BankContent . Height - 65;
@@ -637,6 +649,9 @@ namespace NewWpfDev . Views
             {
                 this . BankContent . Content = GenericGrid;
                 GenericGrid . Height = BankContent . Height;
+                // Set dapperlib scope flag to convert datetime to date string only for displqay usage inj datagrids etc.
+                DapperGenLib . ConvertDateTimeToNvarchar = true;
+
                 GenericGrid . UpdateLayout ( );
                 GenericGridControl . Host = this;
                 if ( IsStartup )
@@ -644,13 +659,9 @@ namespace NewWpfDev . Views
                     // Intial startup of system
                     if ( GenericGrid . datagrid1 . Items . Count == 0 )
                     {
-                        GenericGrid . LoadGenericTable ( "BankAccount" , "datagrid1" );
-                        //await Task . Run ( ( ) => GenericGrid . LoadGenericTable ( "BankAccount" , "datagrid1" ));
+                        //GenericGrid . LoadGenericTable ( "BankAccount" , "datagrid1" );
+                        await Task . Run ( ( ) => GenericGrid . LoadGenericTable ( "BankAccount" , "datagrid1" ));
                     }
-                    ////    // clear flag & thn call it iteratvely so it now does the grid setup stuff
-                    // IsStartup = false;
-                    //SetActivePanel ( "GENERICGRID" );
-                    //}
                 }
                 if ( this . BankContent . Width != 0 && this . BankContent . Height != 0 )
                 {
@@ -659,27 +670,17 @@ namespace NewWpfDev . Views
                     GenericGrid . datagrid2 . Width = BankContent . Width - 20;
                     GenericGrid . datagrid2 . Height = BankContent . Height - 90;
                 }
-                else
-                {
-                    //GenericGrid . datagrid1 . Width = 675;// GenGrid1Size . Width;
-                    //GenericGrid . datagrid1 . Height = 300;// GenGrid1Size . Height;
-                    //GenericGrid . datagrid2 . Width = 750;// GenGrid2Size . Width;
-                    //GenericGrid . datagrid2 . Height = 300;// GenGrid2Size . Height;
-                    //GenericGridControl . ShowColumnNames = true;
-                }
-                GenericGrid . Refresh ( );
-                this . BankContent . Refresh ( );
+                //GenericGrid . Refresh ( );
+                //this . BankContent . Refresh ( );
                 comboPlus . Promptlabel . Opacity = 1.0;
                 // Setup the banner title string
                 SetGenGridTitleBar ( );
                 combo . IsEnabled = true;
                 combo . Opacity = 1.0;
-                //if ( ( GenericGrid . datagrid1 . Visibility == GenericGrid . datagrid2 . Visibility ) == true )
-                //    GenericGrid . datagrid2 . Visibility = Visibility . Hidden;
                 GenericGrid . Height += 1;
 
                 GenericGrid . UpdateLayout ( );
-                GenericGrid . Refresh ( );
+                //GenericGrid . Refresh ( );
             }
             else if ( newpanel == "BLANKSCREEN" )
             {
@@ -732,11 +733,12 @@ namespace NewWpfDev . Views
             args . bv = bv;
             args . cv = cv;
             BankAcctVm . TriggerUpdate ( sender , args );
-
         }
 
         private void BankAcctVm_DoClosePanel ( object sender , SelchangedArgs args )
         {
+            // Set dapperlib scope flag to convert datetime to date string only for displqay usage inj datagrids etc.
+            DapperGenLib . ConvertDateTimeToNvarchar = false;
             SetActivePanel ( "" );
         }
 
@@ -755,6 +757,8 @@ namespace NewWpfDev . Views
         public void ClosePanel ( object sender , string newpanel )
         {
             // called by all UC panels  to switch panes
+            // Set dapperlib scope flag to convert datetime to date string only for displqay usage inj datagrids etc.
+            DapperGenLib . ConvertDateTimeToNvarchar = false;
             SetActivePanel ( newpanel );
             return;
         }
@@ -762,6 +766,8 @@ namespace NewWpfDev . Views
         private void DoClosePanel ( object sender , string newpanel )
         {
             // open specified panel
+            // Set dapperlib scope flag to convert datetime to date string only for displqay usage inj datagrids etc.
+            DapperGenLib . ConvertDateTimeToNvarchar = false;
             SetActivePanel ( newpanel );
             return;
         }
@@ -771,6 +777,8 @@ namespace NewWpfDev . Views
             if ( sender == null )
             {
                 // hide all panes
+                // Set dapperlib scope flag to convert datetime to date string only for displqay usage inj datagrids etc.
+                DapperGenLib . ConvertDateTimeToNvarchar = false;
                 BankAcctGrid . Visibility = Visibility . Collapsed;
                 BankAcDetails . Visibility = Visibility . Collapsed;
                 BlankScreen = new BlankScreenUC ( );
@@ -816,7 +824,6 @@ namespace NewWpfDev . Views
                 this . BankContent . Width = newsize . Width - 200;
                 BankAcctGrid . ResizeControl ( newsize . Height - 110 , newsize . Width - 240 );
                 BankAcDetails . ResizeControl ( newsize . Height - 190 , newsize . Width - 230 );
-                //GenericGrid . ResizeControl ( Offset2 , newsize . Width - 250 );
                 GenericGrid . ResizeControl ( newsize . Height - 90 , newsize . Width - 250 );
                 if ( setSplitter )
                 {
@@ -827,12 +834,6 @@ namespace NewWpfDev . Views
                     GenericGrid . datagrid1 . Height = Offset1 - 230;
                     GenericGrid . datagrid1 . Height = Offset2 - 330;
                 }
-                //GenericGrid . Splitter . Focus ( );
-                //GenericGrid . .ResizeControl ( Offset1 , newsize . Width - 250 );
-                //    GenericGrid . datagrid1 . Width = this . Width;
-                //    GenericGrid . datagrid1 . Height = newsize . Height - 240;
-                //    GenericGrid . datagrid2 . Width = this . Width;
-                //    GenericGrid . datagrid2 . Height = newsize . Height - 240;
             }
         }
         private bool setSplitter = false;
@@ -858,7 +859,6 @@ namespace NewWpfDev . Views
             comboPlus = null;
             Gencollection1 = null;
             Gencollection2 = null;
-            //GenClass = null;
             this . Close ( );
         }
         public ComboChangedArgs CreateComboArgs ( )

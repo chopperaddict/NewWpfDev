@@ -292,7 +292,9 @@
                       VerticalGridLinesBrush="White"
                       VerticalScrollBarVisibility="{Binding vscrollBar}"         
                       Visibility="Visible" 
-                      Width="{Binding Path=Width, ElementName=GenGridControl, Converter={StaticResource ReduceWidth}, ConverterParameter=-10}" GotFocus="datagrid1_GotFocus" IsTabStop="True">
+                      Width="{Binding Path=Width, ElementName=GenGridControl, Converter={StaticResource ReduceWidth}, ConverterParameter=-10}"
+                           GotFocus="datagrid1_GotFocus" 
+                           IsTabStop="True">
                     <!--<DataGrid.ItemTemplate>
                         <DataTemplate>
                             
@@ -402,6 +404,8 @@
             <!--<Button HorizontalAlignment="Left" Height="35" Width="80" Click="Button1_Click"
                     FontWeight="Bold" Content="Clear Grid"
                     Style="{StaticResource DarkmodeButton}" Margin="0 0 5 0" />-->
+            <Button  x:Name="viewSchema" HorizontalAlignment="Left" Height="35" Width="80" Click="viewschema"
+                    Style="{StaticResource DarkmodeButton}" Margin="0 0 5 0" Content="Schema ?"/>
             <Button  x:Name="addnewrow" HorizontalAlignment="Left" Height="35" Width="80" Click="AddNew"
                     Style="{StaticResource DarkmodeButton}" Margin="0 0 5 0" Content="Add New"/>
             <Button  x:Name="updaterow" HorizontalAlignment="Left" Height="35" Width="70" Click="UpdateRecord"
@@ -416,5 +420,41 @@
 
         </StackPanel>
         <!--#endregion bottom button bar-->
+
+        <!--// the UserControl MUST always be named ""Flowdoc""   EXACTLY (case sensitive)
+		// You need to wrap the entire window area in a Canvas (I suggest it is named ""canvas"")
+		// but it can be placed anywhere inside the main Grid or whatever is used  to wrap the entire window
+		// Ensure it is set as Visibility="COLLAPSED"
+		// It s recommended to always name if just "canvas" for contiinuty across all controls using Flowdoc-->
+
+        <Canvas x:Name="canvas" Grid.Row="0"
+				Canvas.Left="0" Canvas.Top="0"
+				HorizontalAlignment="Stretch"
+				VerticalAlignment="Stretch"
+				Height="{Binding Path=Height, ElementName=maingrid}"
+				Width="{Binding Path=Width, ElementName=maingrid}"
+				Panel.ZIndex="4"
+                PreviewKeyDown="Flowdoc_PreviewKeyDown"
+				Background="Transparent"
+                Visibility="Collapsed">
+
+            <user:FlowDoc x:Name="Flowdoc"
+				backGround="{StaticResource Gray5}"
+				borderColor="{StaticResource Orange1}"
+				Canvas.Left="45"
+				Canvas.Top="64"
+				Height="300"
+				Margin="0 0 0 0"
+				MouseLeftButtonUp="Flowdoc_MouseLeftButtonUp"
+                PreviewKeyDown="Flowdoc_PreviewKeyDown"
+				MouseMove="Flowdoc_MouseMove"
+				LostFocus="Flowdoc_LostFocus"
+				Opacity="1"
+				Panel.ZIndex="4"
+				PreviewMouseLeftButtonDown="LvFlowdoc_PreviewMouseLeftButtonDown"
+				Visibility="Collapsed"
+				Width="520" />
+        </Canvas>
+
     </Grid>
 </UserControl>

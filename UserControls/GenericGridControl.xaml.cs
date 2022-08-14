@@ -6,6 +6,8 @@ using System . Data;
 using System . Data . SqlClient;
 using System . Diagnostics;
 using System . Diagnostics . Metrics;
+using System . Globalization;
+using System . Linq;
 using System . Reflection;
 using System . Threading . Tasks;
 using System . Windows;
@@ -17,13 +19,8 @@ using System . Windows . Media;
 
 using DapperGenericsLib;
 
-using DocumentFormat . OpenXml . Office . Word;
-using DocumentFormat . OpenXml . Spreadsheet;
-
-using Microsoft . VisualBasic . FileIO;
-
 using NewWpfDev . Models;
-//using NewWpfDev . ViewModels;
+using NewWpfDev . ViewModels;
 using NewWpfDev . Views;
 
 using GenericClass = DapperGenericsLib . GenericClass;
@@ -51,6 +48,14 @@ namespace NewWpfDev . UserControls
         public ExtendSplitter splithandler { set; get; }
         #endregion Testing
 
+        // Flowdoc file wide variables
+        // Pointer to the special library FlowdocLib.cs 
+        FlowdocLib fdl = new FlowdocLib ( );
+        private double XLeft = 0;
+        private double YTop = 0;
+        private bool UseFlowdoc = true;
+        public static object MovingObject { get; set; }
+
         //#region Event Handling
         ////======================================================================================//
         //public static event EventHandler<StyleArgs> StylesSwitch;
@@ -68,23 +73,24 @@ namespace NewWpfDev . UserControls
         //#endregion Event Handling
 
         #region normal variable Declarations {get;set;}
-        public static bool ShowColumnNames { get; set; } = true;
-        public static bool IsMousedown { get; set; } = false;
-        public static double MaxTopHeight { get; set; } = 0;
+        public static bool ShowColumnNames = true;
+        public static string procname = "";
+        public static bool IsMousedown = false;
+        public static double MaxTopHeight = 0;
         public bool isInsertMode = false;
         public static int colcount = 0;
         public bool isBeingEdited = false;
-        public static string CurrentTable1 { get; set; }
-        public static string CurrentTable2 { get; set; }
-        public static string Title1 { get; set; }
-        public static string Title2 { get; set; }
-        public static string Style1 { get; set; } = "Dark Mode";
-        public static string Style2 { get; set; } = "Dark Mode";
-        public static bool NoUpdate { get; set; } = false;
+        public static string CurrentTable1;
+        public static string CurrentTable2;
+        public static string Title1;
+        public static string Title2;
+        public static string Style1 = "Dark Mode";
+        public static string Style2 = "Dark Mode";
+        public static bool NoUpdate = false;
         public static bool Startup = true;
         public static int ActiveGrid { get; set; } = 1;
-        public static DataTable dt { get; set; } = new DataTable ( );
-        public static DataTable dt2 { get; set; } = new DataTable ( );
+        public static DataTable dt = new DataTable ( );
+        public static DataTable dt2 = new DataTable ( );
         public static List<GenericClass> list = new List<GenericClass> ( );
         public static BankAcHost Host { get; set; }
         public static GenericGridControl ThisWin { get; set; }
@@ -94,22 +100,17 @@ namespace NewWpfDev . UserControls
         #region Data Models
 
         //Data Collections
-        public static ObservableCollection<GenericClass> Gencollection1 = new ObservableCollection<GenericClass> ( ); // new ObservableCollection<GenericClass> ( );
-        public static ObservableCollection<GenericClass> Gencollection2 = new ObservableCollection<GenericClass> ( );
-        public static List<GenericClass> Listcollection1 = new List<GenericClass> ( );
-        public static List<GenericClass> Listcollection2 = new List<GenericClass> ( );
-        //public static List<Dictionary<string , int>> fieldnames1 = new List<Dictionary<string , int>> ( );
-        //public static List<Dictionary<string , int>> fieldnames2 = new List<Dictionary<string , int>> ( );
-        //public static Dictionary<string , int> VarCharLength1 = new Dictionary<string , int> ( );
-        //public static Dictionary<string , int> VarCharLength2 = new Dictionary<string , int> ( );
-        //public static List<Dictionary<string , int>> FieldSizes1 = new List<Dictionary<string , int>> ( );
-        //public static List<Dictionary<string , int>> FieldSizes2 = new List<Dictionary<string , int>> ( );
-        public static DapperGenericsLib . DataGridLayout dglayout = new DapperGenericsLib . DataGridLayout ( );
-        public static List<DapperGenericsLib . DataGridLayout> dglayoutlist = new List<DapperGenericsLib . DataGridLayout> ( );
-        public static IEditableObject Gencollection11 { get; set; }
-        public static IEditableObject Gencollection12 { get; set; }
-        // Class records
-        public static GenericClass GenClass { get; set; } = new GenericClass ( );
+        public static ObservableCollection<GenericClass>? Gencollection1 = new ( );
+        public static ObservableCollection<GenericClass>? Gencollection2 = new ( );
+        public static List<GenericClass>? Listcollection1 { get; set; } = new ( );
+        public static List<GenericClass>? Listcollection2 { get; set; } = new ( );
+
+        public static DapperGenericsLib . DataGridLayout? dglayout { get; set; } = new ( );
+        public static List<DapperGenericsLib . DataGridLayout>? dglayoutlist1 = new ( );
+        public static List<DapperGenericsLib . DataGridLayout>? dglayoutlist2 = new ( );
+
+        // Current Generic selection in use record
+        public static GenericClass? GenClass = DapperGenLib . GenClass;
 
         #endregion Data Models
 
@@ -179,6 +180,9 @@ namespace NewWpfDev . UserControls
             Thickness th = new Thickness ( );
             if ( host != null ) Host = host;
             th . Left = 10;
+            // Set dapperlib scope flag to convert datetime to date string only for displqay usage inj datagrids etc.
+            DapperGenLib . ConvertDateTimeToNvarchar = true;
+
             GenericGrid1 = datagrid1;
             GenericGrid2 = datagrid2;
             datagrid1 . Margin = th;
@@ -214,6 +218,11 @@ namespace NewWpfDev . UserControls
             double Offset1 = SplitterGrid . RowDefinitions [ 0 ] . ActualHeight;
             double Offset2 = SplitterGrid . RowDefinitions [ 1 ] . ActualHeight;
             Togglegrid . Content = "< Grid 2";
+            //Maximize hook  +/- statements - dont forget to remove them (Unsubscribe on closing)
+            Flowdoc . ExecuteFlowDocMaxmizeMethod += new EventHandler ( MaximizeFlowDoc );
+            Flowdoc . ExecuteFlowDocMaxmizeMethod -= new EventHandler ( MaximizeFlowDoc );
+            FlowDoc . FlowDocClosed += Flowdoc_FlowDocClosed;
+
         }
 
         private void Splitter_SizeChanged ( object sender , SizeChangedEventArgs e )
@@ -344,6 +353,7 @@ namespace NewWpfDev . UserControls
         public async Task<bool> LoadGenericTable ( string table , string grid )
         {
             int colcount = 0;
+            bool success = true;
             // How to access Config Mgr strings
             //var dbString = ConfigurationManager . ConnectionStrings [ "Ian1Db" ] . ConnectionString;
             //var AppPath = ConfigurationManager . AppSettings[ "NewWpfDev=C" ];
@@ -362,38 +372,60 @@ namespace NewWpfDev . UserControls
                 {
                     // Task 1
                     DapperGenLib . LoadTableGeneric ( $"Select * from {table}" , ref Gencollection1 );
-                    //CreateGenericColumns ( 0 , datagrid );
-                    // load data for datagrid1
-                    Application . Current . Dispatcher . Invoke ( ( ) =>
+                    if ( Gencollection1 == null )
                     {
-                        //CreateGenericColumns ( DapperLibSupport . GetGenericColumnCount ( Gencollection1 ) , datagrid1 );
-                        Listcollection1 . Clear ( );
-                        Listcollection2 . Clear ( );
-
-                        foreach ( var item in Gencollection1 )
+                        $"FATAL ERROR - Unable to load Db table {table}" . cwerror ( );
+                        success = false;
+                    }
+                    else
+                    {
+                        //CreateGenericColumns ( 0 , datagrid );
+                        // load data for datagrid1
+                        Application . Current . Dispatcher . Invoke ( ( ) =>
                         {
-                            Listcollection1 . Add ( item );
-                            Listcollection2 . Add ( item );
-                        }
-                        // datagrid1
-                        colcount = GetColumnsCount ( Listcollection1 );
-                        DapperLibSupport . LoadActiveRowsOnlyInGrid ( datagrid1 , Listcollection1 , colcount );
-                        datagrid1 . ItemsSource = Listcollection1;
-                        //                        DapperLibSupport . LoadActiveRowsOnlyInGrid ( datagrid1 , Gencollection1 , DapperLibSupport . GetGenericColumnCount ( Gencollection1 ) );
-                        if ( ShowColumnNames )
-                            ColumntypesList = DapperLibSupport . ReplaceDataGridFldNames ( table , ref datagrid1 , ref dglayoutlist );
-                        Debug . WriteLine ( $"LOADGENERICTABLE : {Listcollection1 . Count} records in [{table}] Loaded to datagrid1 in Task " );
-                        CurrentTable1 = table;
+                            //CreateGenericColumns ( DapperLibSupport . GetGenericColumnCount ( Gencollection1 ) , datagrid1 );
+                            Listcollection1 . Clear ( );
+                            Listcollection2 . Clear ( );
 
-                        // datagrid2
-                        DapperLibSupport . LoadActiveRowsOnlyInGrid ( datagrid2 , Listcollection2 , colcount );
-                        //                      colcount = DapperLibSupport . GetGenericColumnCount ( Listcollection2 );
-                        if ( ShowColumnNames )
-                            DapperLibSupport . ReplaceDataGridFldNames ( table , ref datagrid2 , ref dglayoutlist );
-                        Debug . WriteLine ( $"LOADGENERICTABLE : {Listcollection2 . Count} records in [{table}] Loaded to datagrid2 in Task " );
+                            foreach ( var item in Gencollection1 )
+                            {
+                                Listcollection1 . Add ( item );
+                                Listcollection2 . Add ( item );
+                            }
+                            // datagrid1
+                            // get column count for LIST
+                            colcount = GetColumnsCount ( Listcollection1 );
+                            datagrid1 . ItemsSource = Listcollection1;
+                            DapperLibSupport . LoadActiveRowsOnlyInGrid ( datagrid1 , Listcollection1 , colcount );
+                            if ( maskcols . Content . ToString ( ) == "Mask Columns" )
+                                ColumntypesList = DapperLibSupport . ReplaceDataGridFldNames ( table , ref datagrid1 , ref dglayoutlist1 , colcount );
+                            Debug . WriteLine ( $"LOADGENERICTABLE : {Listcollection1 . Count} records in [{table}] Loaded to datagrid1 in Task " );
+                            CurrentTable1 = table;
+                            GenericTitle1 . Text = Title1 = $"Table = {CurrentTable1 . ToUpper ( )}";
+                            datagrid1 . Focus ( );
+                            SelectCorrectTable ( CurrentTable1 . ToUpper ( ) );
 
-                    } );
+                            // datagrid2
+                            datagrid2 . ItemsSource = Listcollection2;
+                            DapperLibSupport . LoadActiveRowsOnlyInGrid ( datagrid2 , Listcollection2 , colcount );
+                            if ( maskcols . Content . ToString ( ) == "Mask Columns" )
+                                DapperLibSupport . ReplaceDataGridFldNames ( table , ref datagrid2 , ref dglayoutlist2 , colcount );
+                            Debug . WriteLine ( $"LOADGENERICTABLE : {Listcollection2 . Count} records in [{table}] Loaded to datagrid2 in Task " );
+                            CurrentTable2 = table;
+                            GenericTitle2 . Text = Title2 = $"Table = {CurrentTable2 . ToUpper ( )}";
+                            datagrid2 . Focus ( );
+                            SelectCorrectTable ( CurrentTable2 . ToUpper ( ) );
+                        } );
+                    }
                 } );
+                if ( success == false || Listcollection2 . Count == 0 || Listcollection1 . Count == 0 )
+                {
+                    Debug . WriteLine ( $"Data load Task Failed.........." );
+                    sw . Stop ( );
+                    return false;
+                }
+                sw . Stop ( );
+                return true;
             }
             else if ( ActiveGrid == 2 && Gencollection2 . Count == 0 )
             {
@@ -401,39 +433,47 @@ namespace NewWpfDev . UserControls
                 await Task . Run ( ( ) =>
                 {
                     DapperGenLib . LoadTableGeneric ( $"Select * from {table}" , ref Gencollection2 );
-                    Application . Current . Dispatcher . Invoke ( ( ) =>
+                    if ( Gencollection2 == null )
                     {
-                        DapperLibSupport . LoadActiveRowsOnlyInGrid ( datagrid2 , Gencollection2 , DapperLibSupport . GetGenericColumnCount ( Gencollection2 ) );
-                        colcount = DapperLibSupport . GetGenericColumnCount ( Gencollection2 );
-                        DapperLibSupport . LoadActiveRowsOnlyInGrid ( datagrid2 , Gencollection2 , colcount );
-                        if ( ShowColumnNames )
-                            DapperLibSupport . ReplaceDataGridFldNames ( table , ref datagrid2 , ref dglayoutlist );
-                        Debug . WriteLine ( $"LOADGENERICTABLE : {Gencollection2 . Count} records in [{table}] Loaded to datagrid2 in Task " );
-                    } );
+                        $"FATAL ERROR - Unable to load Db table {table}" . cwerror ( );
+                        success = false;
+                    }
                 } );
-                CurrentTable2 = table;
-            }
-
-            // Tidy up after ourselves
-            if ( sw . IsRunning == false )
+                if ( success == false )
+                {
+                    sw . Stop ( );
+                    return false;
+                }
+                await Task . Run ( ( ) =>
+                {
+                    Application . Current . Dispatcher . Invoke ( ( ) =>
+                        {
+                            // get column count for Obscollection , no list
+                            colcount = DapperLibSupport . GetGenericColumnCount ( Gencollection2 );
+                            DapperLibSupport . LoadActiveRowsOnlyInGrid ( datagrid2 , Gencollection2 , DapperLibSupport . GetGenericColumnCount ( Gencollection2 ) );
+                            DapperLibSupport . LoadActiveRowsOnlyInGrid ( datagrid2 , Gencollection2 , colcount );
+                            if ( maskcols . Content . ToString ( ) == "Mask Columns" )
+                                DapperLibSupport . ReplaceDataGridFldNames ( table , ref datagrid2 , ref dglayoutlist2 , colcount );
+                            Debug . WriteLine ( $"LOADGENERICTABLE : {Gencollection2 . Count} records in [{table}] Loaded to datagrid2 in Task " );
+                            CurrentTable2 = table;
+                            if ( Gencollection2 . Count == 0 )
+                            {
+                                Debug . WriteLine ( $"Data load Task Failed.........." );
+                                sw . Stop ( );
+                                return false;
+                            }
+                            Debug . WriteLine ( $"Total Task took {sw . ElapsedMilliseconds} msecs" );
+                            GenericTitle2 . Text = Title2 = $"Table = {CurrentTable2 . ToUpper ( )}";
+                            datagrid2 . Focus ( );
+                            SelectCorrectTable ( CurrentTable2 . ToUpper ( ) );
+                            sw . Stop ( );
+                            return true;
+                        } );
+                } );        // end task
+                sw . Stop ( );
                 return true;
-            if ( Gencollection2 . Count == 0 || Gencollection1 . Count == 0 )
-                Debug . WriteLine ( $"Data load Task Failed.........." );
+            }   // outer else
             sw . Stop ( );
-
-            Debug . WriteLine ( $"Total Task took {sw . ElapsedMilliseconds} msecs" );
-            GenericTitle1 . Text = Title1 = $"Table = {CurrentTable1 . ToUpper ( )}";
-            GenericTitle2 . Text = Title2 = $"Table = {CurrentTable2 . ToUpper ( )}";
-            if ( ActiveGrid == 1 )
-            {
-                datagrid1 . Focus ( );
-                SelectCorrectTable ( CurrentTable1 . ToUpper ( ) );
-            }
-            else
-            {
-                datagrid2 . Focus ( );
-                SelectCorrectTable ( CurrentTable2 . ToUpper ( ) );
-            }
             return true;
         }
 
@@ -514,7 +554,7 @@ namespace NewWpfDev . UserControls
             }
             colcount = maxcol - 1;
             // Adjust to actual columns count
-            return counter - 1;
+            return colcount;
         }
         public static void SelectCorrectTable ( string table )
         {
@@ -623,12 +663,18 @@ namespace NewWpfDev . UserControls
                 DataGrid tmpgrid = new DataGrid ( );
                 tmpgrid = datagrid1;
                 if ( Title1 != null )
-                    GenericDbUtilities . ReplaceDataGridFldNames ( CurrentTable1 , ref tmpgrid );
-                datagrid1 . UpdateLayout ( );
+                {
+                    colcount = DapperLibSupport . GetGenericColumnCount ( Gencollection1 );
+                    DapperLibSupport . ReplaceDataGridFldNames ( CurrentTable1 , ref tmpgrid , ref dglayoutlist1 , colcount );
+                    datagrid1 . UpdateLayout ( );
+                }
                 tmpgrid = datagrid2;
                 if ( Title2 != null )
-                    GenericDbUtilities . ReplaceDataGridFldNames ( CurrentTable2 , ref tmpgrid );
-                datagrid2 . UpdateLayout ( );
+                {
+                    colcount = DapperLibSupport . GetGenericColumnCount ( Gencollection2 );
+                    DapperLibSupport . ReplaceDataGridFldNames ( CurrentTable2 , ref tmpgrid , ref dglayoutlist2 , colcount );
+                    datagrid2 . UpdateLayout ( );
+                }
                 maskcols . Content = "Mask Columns";
             }
         }
@@ -664,7 +710,7 @@ namespace NewWpfDev . UserControls
                     colcount = DapperLibSupport . GetGenericColumnCount ( Gencollection1 );
                     DapperLibSupport . LoadActiveRowsOnlyInGrid ( datagrid1 , Gencollection1 , colcount );
                     if ( ShowColumnNames )
-                        DapperLibSupport . ReplaceDataGridFldNames ( CurrentTable1 , ref datagrid1 , ref dglayoutlist );
+                        DapperLibSupport . ReplaceDataGridFldNames ( CurrentTable1 , ref datagrid1 , ref dglayoutlist1 , colcount );
                     datagrid1 . SelectedIndex = datagrid1 . Items . Count - 1;
                     datagrid1 . Refresh ( );
                     Utils . ScrollRecordIntoView ( datagrid1 , datagrid1 . SelectedIndex );
@@ -681,7 +727,7 @@ namespace NewWpfDev . UserControls
                     colcount = DapperLibSupport . GetGenericColumnCount ( Gencollection2 );
                     DapperLibSupport . LoadActiveRowsOnlyInGrid ( datagrid2 , Gencollection2 , colcount );
                     if ( ShowColumnNames )
-                        DapperLibSupport . ReplaceDataGridFldNames ( CurrentTable2 , ref datagrid2 , ref dglayoutlist );
+                        DapperLibSupport . ReplaceDataGridFldNames ( CurrentTable2 , ref datagrid2 , ref dglayoutlist2 , colcount );
                     datagrid2 . SelectedIndex = datagrid2 . Items . Count - 1;
                     datagrid2 . Refresh ( );
                     Utils . ScrollRecordIntoView ( datagrid2 , datagrid2 . SelectedIndex );
@@ -702,28 +748,48 @@ namespace NewWpfDev . UserControls
                 UpdateRecord ( sender , e );
             }
         }
+        #endregion Buttons handlers
 
-        private void UpdateRecord ( object sender , RoutedEventArgs e )
+        public void UpdateRecord ( object sender , RoutedEventArgs e )
         {
             // Update record
             int MaxCols = 0;
-            if ( ActiveGrid == 1 )
-                MaxCols = datagrid1 . Columns . Count;
-            else
-                MaxCols = datagrid2 . Columns . Count;
-            string [ ] fieldnames = new string [ 20 ];
             int index = 0;
-            GenClass = datagrid1 . SelectedItem as GenericClass;
-            /// initialize array
-            for ( int x = 0 ; x < MaxCols ; x++ )
-            { fieldnames [ x ] = ""; }
-            MaxCols = 0;
-            foreach ( DataGridColumn dgc in datagrid1 . Columns )
+            if ( ActiveGrid == 1 )
             {
-                if ( dgc . Header . ToString ( ) . Contains ( "field" ) == true )
-                    break;
-                fieldnames [ index++ ] = dgc . Header . ToString ( );
-                MaxCols++;
+                MaxCols = datagrid1 . Columns . Count;
+            }
+            else
+            {
+                MaxCols = datagrid2 . Columns . Count;
+            }
+            string [ ] fieldnames = new string [ MaxCols ];
+            if ( ActiveGrid == 1 )
+            {
+                for ( int x = 0 ; x < MaxCols ; x++ )
+                { fieldnames [ x ] = ""; }
+                GenericClass GenClass1 = new GenericClass ( );
+                //var GenClass1 = datagrid1 . SelectedItem as GenericClass;
+                GenClass1 = datagrid1 . SelectedItem as GenericClass;
+                //GenClass = GenClass1;
+                foreach ( DataGridColumn dgc in datagrid1 . Columns )
+                {
+                    if ( dgc . Header . ToString ( ) . Contains ( "Field" ) == true )
+                        break;
+                    fieldnames [ index++ ] = dgc . Header . ToString ( );
+                }
+            }
+            else
+            {
+                for ( int x = 0 ; x < MaxCols ; x++ )
+                { fieldnames [ x ] = ""; }
+                GenClass = datagrid2 . SelectedItem as GenericClass;
+                foreach ( DataGridColumn dgc in datagrid2 . Columns )
+                {
+                    if ( dgc . Header . ToString ( ) . Contains ( "Field" ) == true )
+                        break;
+                    fieldnames [ index++ ] = dgc . Header . ToString ( );
+                }
             }
             if ( MaxCols == 0 )
             {
@@ -738,74 +804,38 @@ namespace NewWpfDev . UserControls
                     return;
                 }
             }
-            string [ ] fldnames = new string [ index ];
-            for ( int x = 0 ; x < index ; x++ )
+            index = 0;
+            //string [ ] fieldnames = new string [ MaxCols ];
+
+            for ( int x = 0 ; x < MaxCols ; x++ )
             {
-                fldnames [ x ] = fieldnames [ x ];
+                if ( fieldnames [ x ] == null )
+                {
+                    index++;
+                    break;
+                }
+                if ( fieldnames [ x ] . Contains ( "field" ) )
+                    index++;
             }
+            if ( index >= 1 )
+            {
+                MessageBox . Show ( $"You need to have the 'TRUE' Column Names for the table in use in \nthe selected datagrid if you want to update it on the Server\n\nUse the 'Show Columns' button to achieve this and then try the update again" , "Data Format Error" );
+                return;
+            }
+            //string [ ] fldnames = new string [ index ];
+            //for ( int x = 0 ; x < index ; x++ )
+            //    fldnames [ x ] = fieldnames [ x ];
+
+            //for ( int x = 0 ; x < index ; x++ )
+            //{
+            //    fldnames [ x ] = fieldnames [ x ];
+            //}
             //MaxCols--;
-            string cmd = CreateSqlCommand ( fldnames , MaxCols );
-            UpdateGenericTable ( cmd , fldnames , dglayoutlist , GenClass );
-        }
-        public string GetFieldValueFromIndex ( int index )
-        {
-            // Return valid data for specidic column of data in generic table (field1-19)
-            string result = "";
-            if ( index == 0 ) return GenClass . field1 . ToString ( );
-            if ( index == 1 ) return GenClass . field2 . ToString ( );
-            if ( index == 2 ) return GenClass . field3 . ToString ( );
-            if ( index == 3 ) return GenClass . field4 . ToString ( );
-            if ( index == 4 ) return GenClass . field5 . ToString ( );
-            if ( index == 5 ) return GenClass . field6 . ToString ( );
-            if ( index == 6 ) return GenClass . field7 . ToString ( );
-            if ( index == 7 ) return GenClass . field8 . ToString ( );
-            if ( index == 8 ) return GenClass . field9 . ToString ( );
-            if ( index == 9 ) return GenClass . field10 . ToString ( );
-            if ( index == 10 ) return GenClass . field11 . ToString ( );
-            if ( index == 11 ) return GenClass . field12 . ToString ( );
-            if ( index == 12 ) return GenClass . field13 . ToString ( );
-            if ( index == 13 ) return GenClass . field14 . ToString ( );
-            if ( index == 14 ) return GenClass . field15 . ToString ( );
-            if ( index == 15 ) return GenClass . field16 . ToString ( );
-            if ( index == 16 ) return GenClass . field17 . ToString ( );
-            if ( index == 17 ) return GenClass . field18 . ToString ( );
-            if ( index == 18 ) return GenClass . field19 . ToString ( );
-            if ( index == 19 ) return GenClass . field20 . ToString ( );
-            else return "";
-        }
-        public string CheckForDate ( int count )
-        {
-            string cmdline = "";
-            cmdline = $"{CreateCmdLine ( ref count , GetFieldValueFromIndex ( count ) )}";
-            Debug . WriteLine ( $"Line[{count}]={cmdline}" );
-            return cmdline;
-        }
-        public string CreateCmdLine ( ref int count , string fieldname )
-        {
-            string cmdline = "";
-            if ( count == 1 )
-            {
-                cmdline = $"{dglayoutlist [ count ] . Fieldname}=";
-                if ( dglayoutlist [ count ] . Fieldtype == "nvarchar" )
-                    cmdline += $"{GetFieldValueFromIndex ( count )}";
-                else if ( dglayoutlist [ count ] . Fieldtype == "date" || dglayoutlist [ count ] . Fieldtype == "datetime" )
-                    cmdline += $"'{GetFieldValueFromIndex ( count )}'";
-                else
-                    cmdline += $"{GetFieldValueFromIndex ( count )}";
-            }
+            string cmd = CreateSqlCommand ( fieldnames , MaxCols );
+            if ( ActiveGrid == 1 )
+                UpdateGenericTable ( cmd , fieldnames , dglayoutlist1 , GenClass );
             else
-            {
-                cmdline = $", {dglayoutlist [ count ] . Fieldname}=";
-                if ( dglayoutlist [ count ] . Fieldtype == "nvarchar" )
-                    cmdline += $"{GetFieldValueFromIndex ( count )}";
-                else if ( dglayoutlist [ count ] . Fieldtype == "datetime" || dglayoutlist [ count ] . Fieldtype == "date" )
-                    cmdline += $"'{GetFieldValueFromIndex ( count )}'";
-                else
-                    cmdline += $"{GetFieldValueFromIndex ( count )}";
-            }
-            dglayoutlist [ count ] . DataValue = GetFieldValueFromIndex ( count );
-            //count++;
-            return cmdline;
+                UpdateGenericTable ( cmd , fieldnames , dglayoutlist2 , GenClass );
         }
         public string CreateSqlCommand ( string [ ] fldnames , int MaxCols )
         {
@@ -816,18 +846,107 @@ namespace NewWpfDev . UserControls
             {
                 for ( int x = 0 ; x < MaxCols ; x++ )
                 {
-                    if ( x > 0 )
-                        cmd += CheckForDate ( x );
+                    //if ( x > 0 )
+                    cmd += CheckForDate ( x );
                 }
             }
-            cmd += $" where {fldnames [ 2 ]}= {GenClass . field2}";
-            Debug . WriteLine ( $"SqlCommand is {cmd}" );
+            //            cmd += $" where {fldnames [ 2 ]}={fldnames [ 2 ]}";
+            //            Debug . WriteLine ( $"SqlCommand is {cmd}" );
             return cmd;
         }
+        public string CheckForDate ( int count )
+        {
+            // called by CreateSqlCommand above to create an Update Sql Command
+            string cmdline = "";
+            cmdline = $"{CreateCmdLine ( ref count , GetFieldValueFromIndex ( count ) )}";
+            //          Debug . WriteLine ( $"Line[{count}]={cmdline}" );
+            return cmdline;
+        }
+
+        public string CreateCmdLine ( ref int count , string fieldname )
+        {
+            // called by Checkfodate above
+            // We are creating an Update command in thiis function 
+            string cmdline = "";
+            if ( ActiveGrid == 1 )
+            {
+                // special handling to exlcude "Id" from Sql command Generation  cos we CANNOT usaully update Id in any table
+                // as it is almost always a Sql Db generated value
+                cmdline = $"{dglayoutlist1 [ count ] . Fieldname}=";
+                if ( dglayoutlist1 [ count ] . Fieldname == "Id" )
+                {
+                    cmdline = "";
+                    return cmdline;
+                }
+                //else
+                //{
+                //    cmdline = $"{dglayoutlist1 [ count ] . Fieldname}=";
+                //}
+                if ( count <= 1 )
+                {
+                    if ( dglayoutlist1 [ count ] . Fieldtype == "nvarchar" )
+                        cmdline += $"{GetFieldValueFromIndex ( count )}";
+                    else if ( dglayoutlist1 [ count ] . Fieldtype == "date" || dglayoutlist1 [ count ] . Fieldtype == "datetime" )
+                        cmdline += $"{GetFieldValueFromIndex ( count )}";
+                    else
+                        cmdline += $"{GetFieldValueFromIndex ( count )}";
+                }
+                else
+                {
+                    cmdline = $", {dglayoutlist1 [ count ] . Fieldname}=";
+                    if ( dglayoutlist1 [ count ] . Fieldtype == "nvarchar" )
+                        cmdline += $"{GetFieldValueFromIndex ( count )}";
+                    else if ( dglayoutlist1 [ count ] . Fieldtype == "datetime" || dglayoutlist1 [ count ] . Fieldtype == "date" )
+                    {
+                        string fulldate = GetFieldValueFromIndex ( count );
+                        string str = RemoveTimeFromDate ( fulldate );
+                        cmdline += $"'{str}'";
+                    }
+                    else
+                        cmdline += $"{GetFieldValueFromIndex ( count )}";
+                }
+                dglayoutlist1 [ count ] . DataValue = GetFieldValueFromIndex ( count );
+            }
+            else
+            {
+                if ( dglayoutlist2 [ count ] == null ) return cmdline;
+
+                cmdline = $"{dglayoutlist2 [ count ] . Fieldname}=";
+                if ( dglayoutlist2 [ count ] . Fieldname == "Id" )
+                {
+                    cmdline = "";
+                    return cmdline;
+                }
+                if ( count == 1 )
+                {
+                    if ( dglayoutlist2 [ count ] . Fieldtype == "nvarchar" )
+                        cmdline += $"{GetFieldValueFromIndex ( count )}";
+                    else if ( dglayoutlist2 [ count ] . Fieldtype == "date" || dglayoutlist2 [ count ] . Fieldtype == "datetime" )
+                        cmdline += $"{GetFieldValueFromIndex ( count )}";
+                    else
+                        cmdline += $"{GetFieldValueFromIndex ( count )}";
+                }
+                else
+                {
+                    cmdline = $", {dglayoutlist2 [ count ] . Fieldname}=";
+                    if ( dglayoutlist2 [ count ] . Fieldtype == "nvarchar" )
+                        cmdline += $"{GetFieldValueFromIndex ( count )}";
+                    else if ( dglayoutlist2 [ count ] . Fieldtype == "datetime" || dglayoutlist2 [ count ] . Fieldtype == "date" )
+                    {
+                        string fulldate = GetFieldValueFromIndex ( count );
+                        string str = RemoveTimeFromDate ( fulldate );
+                        cmdline += $"{str}";
+                    }
+                    else
+                        cmdline += $"{GetFieldValueFromIndex ( count )}";
+                }
+                dglayoutlist2 [ count ] . DataValue = GetFieldValueFromIndex ( count );
+            }
+            return cmdline;
+        }
+
         public static bool UpdateGenericTable ( string SqlCommand , string [ ] fldnames , List<DapperGenericsLib . DataGridLayout> dglayoutlist , GenericClass GenClass )
         {
-
-            //varcharlength holds field type and length if string
             bool success = false;
             int index = 0;
             SqlConnection con;
@@ -843,52 +962,52 @@ namespace NewWpfDev . UserControls
             //List<Tuple<string , string , object>> fielddata = new List<Tuple<string , string , object>> ( );
             //for ( int x = 0 ; x < dglayoutlist . Count ; x++ )
 
-           {
-            //    Tuple<string , string , object> tuple;
-            //    if ( x == 0 )
-            //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
-            //    else if ( x == 1 )
-            //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
-            //    else if ( x == 2 )
-            //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
-            //    else if ( x == 3 )
-            //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
-            //    else if ( x == 4 )
-            //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
-            //    else if ( x == 5 )
-            //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
-            //    else if ( x == 6 )
-            //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
-            //    else if ( x == 7 )
-            //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
-            //    else if ( x == 8 )
-            //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
-            //    else if ( x == 9 )
-            //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
-            //    else if ( x == 10 )
-            //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
-            //    else if ( x == 11 )
-            //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
-            //    else if ( x == 12 )
-            //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
-            //    else if ( x == 13 )
-            //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
-            //    else if ( x == 14 )
-            //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
-            //    else if ( x == 15 )
-            //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
-            //    else if ( x == 16 )
-            //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
-            //    else if ( x == 17 )
-            //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
-            //    else if ( x == 18 )
-            //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
-            //    else if ( x == 19 )
-            //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
-            //    else
-            //        tuple = new Tuple<string , string , object> ( "" , "" , null );
+            {
+                //    Tuple<string , string , object> tuple;
+                //    if ( x == 0 )
+                //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
+                //    else if ( x == 1 )
+                //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
+                //    else if ( x == 2 )
+                //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
+                //    else if ( x == 3 )
+                //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
+                //    else if ( x == 4 )
+                //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
+                //    else if ( x == 5 )
+                //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
+                //    else if ( x == 6 )
+                //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
+                //    else if ( x == 7 )
+                //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
+                //    else if ( x == 8 )
+                //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
+                //    else if ( x == 9 )
+                //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
+                //    else if ( x == 10 )
+                //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
+                //    else if ( x == 11 )
+                //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
+                //    else if ( x == 12 )
+                //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
+                //    else if ( x == 13 )
+                //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
+                //    else if ( x == 14 )
+                //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
+                //    else if ( x == 15 )
+                //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
+                //    else if ( x == 16 )
+                //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
+                //    else if ( x == 17 )
+                //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
+                //    else if ( x == 18 )
+                //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
+                //    else if ( x == 19 )
+                //        tuple = new Tuple<string , string , object> ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . Fieldtype , dglayoutlist [ x ] . DataValue );
+                //    else
+                //        tuple = new Tuple<string , string , object> ( "" , "" , null );
 
-            //    fielddata . Add ( tuple );
+                //    fielddata . Add ( tuple );
             }
 
             con = new SqlConnection ( ConString );
@@ -900,8 +1019,8 @@ namespace NewWpfDev . UserControls
                     int intval = 0;
                     con . Open ( );
                     cmd = new SqlCommand ( SqlCommand , con );
-                    Debug . WriteLine ("Parameters are :");
-                    for ( int x = 0 ; x < dglayoutlist . Count ; x++ )
+                    Debug . WriteLine ( "Parameters are :" );
+                    for ( int x = 1 ; x < dglayoutlist . Count ; x++ )
                     {
                         if ( dglayoutlist [ x ] . Fieldtype == "int" || dglayoutlist [ x ] . Fieldtype == "smallint" || dglayoutlist [ x ] . Fieldtype == "tinyint" ||
                              dglayoutlist [ x ] . Fieldtype == "bigint" || dglayoutlist [ x ] . Fieldtype == "numeric" )
@@ -922,10 +1041,10 @@ namespace NewWpfDev . UserControls
                         }
                         else if ( dglayoutlist [ x ] . Fieldtype == "date" || dglayoutlist [ x ] . Fieldtype == "datetime" )
                         {   // DateTime
-                           //SqlParameter param = new SqlParameter ( dglayoutlist [ x ] . DataValue.ToString() , new DateTime ( Convert.ToUInt32(dglayoutlist [ x ] . DataValue )) .ToString());
-                            
-                              cmd . Parameters . AddWithValue ( dglayoutlist [ x ] . Fieldname , dglayoutlist [ x ] . DataValue .ToString ( ));
-                           // cmd . Parameters . AddWithValue ( dglayoutlist [ x ] . Fieldname , str);
+                            string str = RemoveTimeFromDate ( dglayoutlist [ x ] . DataValue );
+                            dglayoutlist [ x ] . DataValue = str;
+                            cmd . Parameters . AddWithValue ( dglayoutlist [ x ] . Fieldname , $"TRY_CONVERT(DATE, {dglayoutlist [ x ] . DataValue}, 105) as [date], TRY_CAST('00:00:00' as [TIME]" );
+                            //cmd . Parameters . AddWithValue ( dglayoutlist [ x ] . Fieldname , Convert.ToDateTime(dglayoutlist [ x ] . DataValue));
                         }
                         else if ( dglayoutlist [ x ] . Fieldtype == "bool" )
                         {   // boolean
@@ -952,8 +1071,12 @@ namespace NewWpfDev . UserControls
                         }
 
                         Debug . WriteLine ( $"{dglayoutlist [ x ] . Fieldname} : {dglayoutlist [ x ] . DataValue}" );
-
+                        foreach ( var item in cmd . Parameters )
+                        {
+                            Debug . WriteLine ( item . ToString ( ) ); ;
+                        }
                     }
+                    Debug . WriteLine ( $"[{SqlCommand}]" );
                     cmd . ExecuteNonQuery ( );
                     Debug . WriteLine ( "SQL Update of All Db's successful..." );
                     success = true;
@@ -961,6 +1084,7 @@ namespace NewWpfDev . UserControls
             }
             catch ( Exception ex )
             {
+                // TODO fails  when date fields are "date" or "datetime" !!!!
                 Debug . WriteLine ( $"BANKACCOUNT Update FAILED : {ex . Message}, {ex . Data}" );
                 success = false;
             }
@@ -971,6 +1095,83 @@ namespace NewWpfDev . UserControls
             return success;
         }
 
+        #region SQL parsing utilitites
+
+        //====================================================================//
+        public static string LocalDateToISODate ( string _strDate )
+        {
+            //CultureInfo _cinLocInfo = getCulture ( _strLocalLanguage );
+            if ( IsLocalDate ( _strDate ) )
+            {
+                return String . Format ( "{0:yyyy/MM/dd}" , DateTime . Parse ( _strDate , null ) );
+            }
+            else
+            {
+                return null;
+            }
+        }
+        public static bool IsLocalDate ( string _strDate )
+        {
+            //            CultureInfo _cinLocInfo = getCulture ( _strLocalLanguage );
+            DateTime dtOut = new DateTime ( );
+            return DateTime . TryParse ( _strDate , null , DateTimeStyles . AdjustToUniversal , out dtOut );
+        }
+        public static CultureInfo getCulture ( string _strLocalLanguage )
+        {
+            return CultureInfo . CreateSpecificCulture ( _strLocalLanguage );
+        }
+
+        public static string RemoveTimeFromDate ( object date )
+        {
+            var str = date . ToString ( );
+            string [ ] items;
+            items = str . Split ( "00:" );
+            return items [ 0 ] . Trim ( );
+        }
+        //====================================================================//
+        public static bool IsValidSqlDatetime ( string someval )
+        {
+            bool valid = false;
+            DateTime testDate = DateTime . MinValue;
+            DateTime minDateTime = DateTime . MaxValue;
+            DateTime maxDateTime = DateTime . MinValue;
+
+            minDateTime = new DateTime ( 1753 , 1 , 1 );
+            maxDateTime = new DateTime ( 9999 , 12 , 31 , 23 , 59 , 59 , 997 );
+
+            if ( DateTime . TryParse ( someval , out testDate ) )
+            {
+                if ( testDate >= minDateTime && testDate <= maxDateTime )
+                    valid = true;
+            }
+            return valid;
+        }
+        public string GetFieldValueFromIndex ( int index )
+        {
+            // Return valid data for specidic column of data in generic table (field1-19)
+            string result = "";
+            if ( index == 0 ) return GenClass?.field1?.ToString ( );  // returns ID - not wanted??
+            if ( index == 1 ) return GenClass?.field2?.ToString ( );
+            if ( index == 2 ) return GenClass?.field3?.ToString ( );
+            if ( index == 3 ) return GenClass?.field4?.ToString ( );
+            if ( index == 4 ) return GenClass?.field5?.ToString ( );
+            if ( index == 5 ) return GenClass?.field6?.ToString ( );
+            if ( index == 6 ) return GenClass?.field7?.ToString ( );
+            if ( index == 7 ) return GenClass?.field8?.ToString ( );
+            if ( index == 8 ) return GenClass?.field9?.ToString ( );
+            if ( index == 9 ) return GenClass?.field10?.ToString ( );
+            if ( index == 10 ) return GenClass?.field11?.ToString ( );
+            if ( index == 11 ) return GenClass?.field12?.ToString ( );
+            if ( index == 12 ) return GenClass?.field13?.ToString ( );
+            if ( index == 13 ) return GenClass?.field14?.ToString ( );
+            if ( index == 14 ) return GenClass?.field15?.ToString ( );
+            if ( index == 15 ) return GenClass?.field16?.ToString ( );
+            if ( index == 16 ) return GenClass?.field17?.ToString ( );
+            if ( index == 17 ) return GenClass?.field18?.ToString ( );
+            if ( index == 18 ) return GenClass?.field19?.ToString ( );
+            if ( index == 19 ) return GenClass?.field20?.ToString ( );
+            else return "";
+        }
 
         public static int GetValueFromIndex ( int x , GenericClass GenClass , DapperGenericsLib . DataGridLayout dgfieldvalues )
         {
@@ -1020,7 +1221,7 @@ namespace NewWpfDev . UserControls
             }
             return val;
         }
-        #endregion Buttons handlers
+        #endregion SQL parsing utilitites
 
 
 
@@ -1774,6 +1975,280 @@ namespace NewWpfDev . UserControls
         private void datagrid2_PreviewMouseDoubleClick ( object sender , MouseButtonEventArgs e )
         {
             datagrid2 . BeginEdit ( );
+        }
+
+        bool ShowFullScript = false;
+        bool showall = true;
+
+        private void viewschema ( object sender , RoutedEventArgs e )
+        {
+            string str = "";
+            if ( ActiveGrid == 1 )
+                str = GetSpArgs ( CurrentTable1 );
+            else
+                str = GetSpArgs ( CurrentTable2 );
+        }
+
+        public string GetSpArgs ( string spName , bool showfull = false )
+        {
+            string output = "";
+            string errormsg = "";
+            int columncount = 0;
+            DataTable dt = new DataTable ( );
+            ObservableCollection<GenericClass> Generics = new ObservableCollection<GenericClass> ( );
+            //        ObservableCollection<BankAccountViewModel> bvmparam = new ObservableCollection<BankAccountViewModel> ( );
+            List<string> genericlist = new List<string> ( );
+            try
+            {
+                DapperGenLib . CreateGenericCollection (
+                "spGetTableColumnWithSize" ,
+                $"{spName}" ,
+                "" ,
+                "" ,
+                 ref errormsg );
+                dt = ProcessSqlCommand ( "spGetTableColumnWithSize  " + spName );
+                if ( dt . Rows . Count == 0 )
+                {
+                    if ( errormsg == "" )
+                        MessageBox . Show ( $"No Argument information is available" , $"[{spName}] SP Script Information" , MessageBoxButton . OK , MessageBoxImage . Warning );
+                    return "";
+                }
+            }
+            catch ( Exception ex )
+            {
+                MessageBox . Show ( $"SQL ERROR 1125 - {ex . Message}" );
+                return "";
+            }
+            columncount = 0;
+            foreach ( var item in dt . Rows )
+            {
+                GenericClass gc = new GenericClass ( );
+                string store = "";
+                DataRow dr = item as DataRow;
+                columncount = dr . ItemArray . Count ( );
+                if ( columncount == 0 )
+                    columncount = 1;
+                // we only need max cols - 1 here !!!
+                for ( int x = 0 ; x < columncount ; x++ )
+                    store += dr . ItemArray [ x ] . ToString ( ) + ",";
+                output += store;
+            }
+            if ( showfull == false )
+            {
+                // we now have the result, so lets process them
+                // data is fieldname, sql-datatype, size (where appropriate)
+                string buffer = output;
+                string [ ] lines = buffer . Split ( ',' );
+                output = "";
+                int counter = 0;
+                string type = "";
+                string tmp = "";
+                foreach ( var item in lines )
+                {
+                    switch ( counter )
+                    {
+                        //----------------------------------------//
+                        case 0:     //field name
+                            output += $"{item},";
+                            break;
+                        //----------------------------------------//
+                        case 1: //field type
+                            output += $"{item},";
+                            type = item;
+                            break;
+                        //----------------------------------------//
+                        case 2: // size (1)
+                            if ( type == "int" || type == "decimal" )
+                                break;
+                                else
+                                    output += $"{item},";
+                            break;
+                        //----------------------------------------//
+                        case 3: // Size 2 (Decimal root)
+                            if ( type == "int" )
+                            {
+                                output += $"{item},";
+                                    break;
+                            }
+                            else if ( type == "nvarchar" )
+                            {
+                                output += $"{item},\n";
+                                break;
+                            }
+                            else if ( type == "decimal" )
+                            {
+                                output += $"{item},";
+                                break;
+                            }
+                            else
+                            {  
+                                if ( type != "int" && type != "nvarchar" && type != "decimal")
+                                    output += $"{item},";
+                                else
+                                    output += $",";
+                                  break;
+                            }
+                        //----------------------------------------//
+                        case 4: // Size 3 (decimal Radix)
+                            if ( type == "int" )
+                            {
+                                output += $"0,\n";
+                                break;
+                            }
+                            else
+                            {
+                                if ( item != "" )
+                                    output += $"{item}\n";
+                                break;
+                            }
+                        //----------------------------------------//
+                        default:
+                            counter = 0;
+                            break;
+                    }
+                    if ( counter < 4 )
+                        counter++;
+                    else 
+                        counter = 0;
+                }
+                output = output . Substring ( 0 , output . Length - 1 );
+                // we now have a list of the Args for the selected SP in output
+                // Show it in a TextBox if it takes 1 or more args
+                // format is ("fielddname, fieldtype, size1, size2\n,")
+                if ( output != "" )
+                {
+                    string fdinput = $"Procedure Name : {spName . ToUpper ( )}\n\n";
+                    fdinput += output;
+                    fdinput += $"\n\nPress ESCAPE to close this window...\n";
+//                    FlowDoc fdl = new FlowDoc ();
+
+                   fdl . ShowInfo ( Flowdoc , canvas, line1: fdinput , clr1: "Black0" , line2: "" , clr2: "Black0" , line3: "" , clr3: "Black0" , header: "" , clr4: "Black0" );
+                    canvas.Visibility = Visibility.Visible;
+                    Flowdoc . Visibility = Visibility . Visible;
+                    //GridData_Display . Visibility = Visibility . Visible;
+                    //SetViewButtons ( 2 , ( GridData_Display . Visibility == Visibility . Visible ? true : false ) , ( DisplayGrid . Visibility == Visibility . Visible ? true : false ) );
+                    //GridData_Display . Focus ( );
+                }
+                else
+                {
+                    Mouse . OverrideCursor = Cursors . Arrow;
+                    //Utils . Mbox ( this , string1: $"Procedure [{Storedprocs . SelectedItem . ToString ( ) . ToUpper ( )}] \ndoes not Support / Require any arguments" , string2: "" , caption: "" , iconstring: "\\icons\\Information.png" , Btn1: MB . OK , Btn2: MB . NNULL , defButton: MB . OK );
+                    //               fdl . ShowInfo ( Flowdoc , canvas , line1: $"Procedure [{Storedprocs . SelectedItem . ToString ( ) . ToUpper ( )}] \ndoes not Support / Require any arguments" , clr1: "Black0" , line2: "" , clr2: "Black0" , line3: "" , clr3: "Black0" , header: "" , clr4: "Black0" );
+                }
+            }
+            //       ShowLoadtime ( );
+            return output;
+        }
+        public static DataTable ProcessSqlCommand ( string SqlCommand )
+        {
+            SqlConnection con;
+            DataTable dt = new DataTable ( );
+            string filterline = "";
+            string ConString = Flags . CurrentConnectionString;
+            //			string ConString = ( string ) Properties . Settings . Default [ "BankSysConnectionString" ];
+            //Debug . WriteLine ( $"Making new SQL connection in DETAILSCOLLECTION,  Time elapsed = {timer . ElapsedMilliseconds}" );
+            //SqlCommand += " TempDb";
+            con = new SqlConnection ( ConString );
+            try
+            {
+                Debug . WriteLine ( $"Using new SQL connection in PROCESSSQLCOMMAND" );
+                using ( con )
+                {
+                    SqlCommand cmd = new SqlCommand ( SqlCommand , con );
+                    SqlDataAdapter sda = new SqlDataAdapter ( cmd );
+                    sda . Fill ( dt );
+                }
+            }
+            catch ( Exception ex )
+            {
+                Debug . WriteLine ( $"ERROR in PROCESSSQLCOMMAND(): Failed to load Datatable :\n {ex . Message}, {ex . Data}" );
+                MessageBox . Show ( $"ERROR in PROCESSSQLCOMMAND(): Failed to load datatable\n{ex . Message}" );
+            }
+            finally
+            {
+                Debug . WriteLine ( $" SQL data loaded from SQLCommand [{SqlCommand . ToUpper ( )}]" );
+                con . Close ( );
+            }
+            return dt;
+        }
+        #region FlowDoc support
+        /// <summary>
+        ///  These are the only methods any window needs to provide support for my FlowDoc system.
+
+        // This is triggered/Broadcast by FlowDoc so that the parent controller can Collapse the 
+        // Canvas so it  does not BLOCK other controls after being closed.
+        private void Flowdoc_FlowDocClosed ( object sender , EventArgs e )
+        {
+            canvas . Visibility = Visibility . Collapsed;
+        }
+
+        protected void MaximizeFlowDoc ( object sender , EventArgs e )
+        {
+            // Clever "Hook" method that Allows the flowdoc to be resized to fill window
+            // or return to its original size and position courtesy of the Event declard in FlowDoc
+            fdl . MaximizeFlowDoc ( Flowdoc , canvas , e );
+        }
+
+        private void Flowdoc_MouseLeftButtonUp ( object sender , MouseButtonEventArgs e )
+        {
+            // Window wide  !!
+            // Called  when a Flowdoc MOVE has ended
+            MovingObject = fdl . Flowdoc_MouseLeftButtonUp ( sender , Flowdoc , MovingObject , e );
+            ReleaseMouseCapture ( );
+        }
+
+        // CALLED WHEN  LEFT BUTTON PRESSED
+        private void Flowdoc_PreviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
+        {
+            //In this event, we get current mouse position on the control to use it in the MouseMove event.
+            MovingObject = fdl . Flowdoc_PreviewMouseLeftButtonDown ( sender , Flowdoc , e );
+            Debug . WriteLine ( $"MvvmDataGrid Btn down {MovingObject}" );
+        }
+
+        private void Flowdoc_MouseMove ( object sender , MouseEventArgs e )
+        {
+            // We are Resizing the Flowdoc using the mouse on the border  (Border.Name=FdBorder)
+            fdl . Flowdoc_MouseMove ( Flowdoc , canvas , MovingObject , e );
+        }
+
+        // Shortened version proxy call		
+        private void Flowdoc_LostFocus ( object sender , RoutedEventArgs e )
+        {
+            Flowdoc . BorderClicked = false;
+        }
+
+        public void FlowDoc_ExecuteFlowDocBorderMethod ( object sender , EventArgs e )
+        {
+            // EVENTHANDLER to Handle resizing
+            FlowDoc fd = sender as FlowDoc;
+            Point pt = Mouse . GetPosition ( canvas );
+            double dLeft = pt . X;
+            double dTop = pt . Y;
+        }
+
+        private void LvFlowdoc_PreviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
+        {
+            //In this event, we get current mouse position on the control to use it in the MouseMove event.
+            MovingObject = fdl . Flowdoc_PreviewMouseLeftButtonDown ( sender , Flowdoc , e );
+        }
+
+        public void fdmsg ( string line1 , string line2 = "" , string line3 = "" )
+        {
+            //We have to pass the Flowdoc.Name, and Canvas.Name as well as up   to 3 strings of message
+            //  you can  just provie one if required
+            // eg fdmsg("message text");
+            fdl . FdMsg ( Flowdoc , canvas , line1 , line2 , line3 );
+        }
+
+        #endregion Flowdoc support via library
+
+        private void Flowdoc_PreviewKeyDown ( object sender , KeyEventArgs e )
+        {
+            if ( e . Key == Key . Escape )
+            {
+                Flowdoc . Visibility = Visibility . Collapsed;
+                canvas . Visibility = Visibility . Collapsed;
+            }
         }
     }
 }

@@ -4508,6 +4508,7 @@ namespace NewWpfDev. Dapper
 			colcount = 0;
 			foreach ( var item in buff )
 			{
+                // Name  and datatype only in buff
 				try
 				{
 					index+= 1;
@@ -4527,8 +4528,7 @@ namespace NewWpfDev. Dapper
                         else if ( colcount == 2 )
                             GenRow . field3 =( item . Value != null ? item . Value : 0).ToString();
                     }
-                    //	var v = buff .ToString();
-                    //	varcharlen.Add( v);
+                    //	no size info avaialble here !
                     colcount++;
 				}
 				catch ( Exception ex )
