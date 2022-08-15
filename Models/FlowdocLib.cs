@@ -78,9 +78,7 @@ namespace NewWpfDev. Models
 		public   double flowdocWidth=0;
 		public   double flowdocTop=0;
 		public   double flowdocLeft=0;
-		//		private double XLeft=0;
-		//		private double YTop=0;
-		// This IS USED
+			// This IS USED
 		public   bool TvMouseCaptured = false;
 		public  double newWidth=0;
 		public  double newHeight =0;

@@ -203,6 +203,12 @@ namespace NewWpfDev. Dapper
 											string buffer = "";
 											List< int> VarcharList = new List<int>();
 											gc = ParseDapperRow ( item , dict , out colcount , ref VarcharList );
+                                            if(gc == null)
+
+                                            {
+                                                MessageBox . Show ("problem loading datra - see output screen" );
+                                                return 0;
+                                            }
 											dictcount = 1;
 											fldcount = dict . Count;
 #pragma warning disable CS0219 // The variable 'index' is assigned but its value is never used
@@ -4533,8 +4539,8 @@ namespace NewWpfDev. Dapper
 				}
 				catch ( Exception ex )
 				{
-					//MessageBox . Show ( $"ParseDapper error was : \n{ex . Message}\nKey={item . Key} Value={item . Value . ToString ( )}" );
-					break;
+                    Debug . WriteLine ( $"ParseDapper error was : \n{ex . Message}\nKey={item . Key} Value={item . Value . ToString ( )}" );
+                    return null;
 				}
 			}
 			colcount = index;

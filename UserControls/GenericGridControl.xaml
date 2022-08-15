@@ -283,6 +283,7 @@
                       PreviewKeyDown="dgProducts_PreviewKeyDown1" 
                       PreviewMouseLeftButtonDown="MouseLeftButtonDown1"
                       PreviewMouseDoubleClick="datagrid1_PreviewMouseDoubleClick"
+                           PreviewMouseRightButtonUp="datagrid1_PreviewMouseRightButtonUp"
                       RowBackground="Transparent"
                        DataGridRow.Selected="Grid_Selected"
                       RowHeight="22"
@@ -454,7 +455,9 @@
 				PreviewMouseLeftButtonDown="LvFlowdoc_PreviewMouseLeftButtonDown"
 				Visibility="Collapsed"
 				Width="520" />
-        </Canvas>
 
+            <!--<user:GenericSelectBoxControl  x:Name="SelectionListbox" />-->
+
+        </Canvas>
     </Grid>
 </UserControl>

@@ -445,6 +445,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="allfonts.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="AppSettings.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

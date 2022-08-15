@@ -17,13 +17,17 @@ using System . Windows . Data;
 using System . Windows . Input;
 using System . Windows . Media;
 
+//using AutoMapper;
+
 using DapperGenericsLib;
+
+using GenericSqlLib . Models;
 
 using NewWpfDev . Models;
 using NewWpfDev . ViewModels;
 using NewWpfDev . Views;
 
-using GenericClass = DapperGenericsLib . GenericClass;
+///using DapperGenericsLib . GenericClass = DapperGenericsLib . DapperGenericsLib . GenericClass;
 
 namespace NewWpfDev . UserControls
 {
@@ -55,6 +59,8 @@ namespace NewWpfDev . UserControls
         private double YTop = 0;
         private bool UseFlowdoc = true;
         public static object MovingObject { get; set; }
+
+        //public static MapperConfiguration MapperCfg;
 
         //#region Event Handling
         ////======================================================================================//
@@ -91,7 +97,7 @@ namespace NewWpfDev . UserControls
         public static int ActiveGrid { get; set; } = 1;
         public static DataTable dt = new DataTable ( );
         public static DataTable dt2 = new DataTable ( );
-        public static List<GenericClass> list = new List<GenericClass> ( );
+        public static List<DapperGenericsLib . GenericClass> list = new List<DapperGenericsLib . GenericClass> ( );
         public static BankAcHost Host { get; set; }
         public static GenericGridControl ThisWin { get; set; }
 
@@ -100,23 +106,23 @@ namespace NewWpfDev . UserControls
         #region Data Models
 
         //Data Collections
-        public static ObservableCollection<GenericClass>? Gencollection1 = new ( );
-        public static ObservableCollection<GenericClass>? Gencollection2 = new ( );
-        public static List<GenericClass>? Listcollection1 { get; set; } = new ( );
-        public static List<GenericClass>? Listcollection2 { get; set; } = new ( );
+        public static ObservableCollection<DapperGenericsLib . GenericClass>? Gencollection1 = new ( );
+        public static ObservableCollection<DapperGenericsLib . GenericClass>? Gencollection2 = new ( );
+        public static List<DapperGenericsLib . GenericClass>? Listcollection1 { get; set; } = new ( );
+        public static List<DapperGenericsLib . GenericClass>? Listcollection2 { get; set; } = new ( );
 
         public static DapperGenericsLib . DataGridLayout? dglayout { get; set; } = new ( );
         public static List<DapperGenericsLib . DataGridLayout>? dglayoutlist1 = new ( );
         public static List<DapperGenericsLib . DataGridLayout>? dglayoutlist2 = new ( );
 
         // Current Generic selection in use record
-        public static GenericClass? GenClass = DapperGenLib . GenClass;
+        public static DapperGenericsLib . GenericClass? GenClass = DapperGenLib . GenClass;
 
         #endregion Data Models
 
         #region Full Properties
 
-        private static ObservableCollection<GenericClass> genclass;
+        private static ObservableCollection<DapperGenericsLib . GenericClass> genclass;
         private static DataGrid genericgrid1;
         private static DataGrid genericgrid2;
 
@@ -223,6 +229,7 @@ namespace NewWpfDev . UserControls
             Flowdoc . ExecuteFlowDocMaxmizeMethod -= new EventHandler ( MaximizeFlowDoc );
             FlowDoc . FlowDocClosed += Flowdoc_FlowDocClosed;
 
+ //           DapperGenericsLib.Utils . GetFontsList ( );
         }
 
         private void Splitter_SizeChanged ( object sender , SizeChangedEventArgs e )
@@ -477,7 +484,7 @@ namespace NewWpfDev . UserControls
             return true;
         }
 
-        public static int GetColumnsCount ( List<GenericClass> list )
+        public static int GetColumnsCount ( List<DapperGenericsLib . GenericClass> list )
         {
             int counter = 1;
             int maxcol = 0;
@@ -625,6 +632,15 @@ namespace NewWpfDev . UserControls
                 else
                     PopupListBox . ResetPopup = false;
             }
+            if ( e . Key == Key . Escape )
+            {   // used by Flowdoc (only)
+                if ( Flowdoc != null )
+                {
+                    Flowdoc . Visibility = Visibility . Collapsed;
+                    canvas . Visibility = Visibility . Collapsed;
+                }
+            }
+
         }
         private double oldheight { get; set; }
         private double oldwidth { get; set; }
@@ -704,7 +720,7 @@ namespace NewWpfDev . UserControls
                     //datagrid1 . Items . Clear ( );
                     //datagrid1 . UpdateLayout ( );
                     //datagrid1 . Refresh ( );
-                    Gencollection1 . Add ( new GenericClass ( ) );
+                    Gencollection1 . Add ( new DapperGenericsLib . GenericClass ( ) );
                     datagrid1 . AutoGenerateColumns = true;
                     DapperLibSupport . LoadActiveRowsOnlyInGrid ( datagrid1 , Gencollection1 , DapperLibSupport . GetGenericColumnCount ( Gencollection1 ) );
                     colcount = DapperLibSupport . GetGenericColumnCount ( Gencollection1 );
@@ -722,7 +738,7 @@ namespace NewWpfDev . UserControls
                 }
                 else
                 {
-                    Gencollection2 . Add ( new GenericClass ( ) );
+                    Gencollection2 . Add ( new DapperGenericsLib . GenericClass ( ) );
                     DapperLibSupport . LoadActiveRowsOnlyInGrid ( datagrid2 , Gencollection1 , DapperLibSupport . GetGenericColumnCount ( Gencollection2 ) );
                     colcount = DapperLibSupport . GetGenericColumnCount ( Gencollection2 );
                     DapperLibSupport . LoadActiveRowsOnlyInGrid ( datagrid2 , Gencollection2 , colcount );
@@ -768,9 +784,9 @@ namespace NewWpfDev . UserControls
             {
                 for ( int x = 0 ; x < MaxCols ; x++ )
                 { fieldnames [ x ] = ""; }
-                GenericClass GenClass1 = new GenericClass ( );
-                //var GenClass1 = datagrid1 . SelectedItem as GenericClass;
-                GenClass1 = datagrid1 . SelectedItem as GenericClass;
+                DapperGenericsLib . GenericClass GenClass1 = new DapperGenericsLib . GenericClass ( );
+                //var GenClass1 = datagrid1 . SelectedItem as DapperGenericsLib . GenericClass;
+                GenClass1 = datagrid1 . SelectedItem as DapperGenericsLib . GenericClass;
                 //GenClass = GenClass1;
                 foreach ( DataGridColumn dgc in datagrid1 . Columns )
                 {
@@ -783,7 +799,7 @@ namespace NewWpfDev . UserControls
             {
                 for ( int x = 0 ; x < MaxCols ; x++ )
                 { fieldnames [ x ] = ""; }
-                GenClass = datagrid2 . SelectedItem as GenericClass;
+                GenClass = datagrid2 . SelectedItem as DapperGenericsLib . GenericClass;
                 foreach ( DataGridColumn dgc in datagrid2 . Columns )
                 {
                     if ( dgc . Header . ToString ( ) . Contains ( "Field" ) == true )
@@ -945,7 +961,7 @@ namespace NewWpfDev . UserControls
             return cmdline;
         }
 
-        public static bool UpdateGenericTable ( string SqlCommand , string [ ] fldnames , List<DapperGenericsLib . DataGridLayout> dglayoutlist , GenericClass GenClass )
+        public static bool UpdateGenericTable ( string SqlCommand , string [ ] fldnames , List<DapperGenericsLib . DataGridLayout> dglayoutlist , DapperGenericsLib . GenericClass GenClass )
         {
             bool success = false;
             int index = 0;
@@ -1173,7 +1189,7 @@ namespace NewWpfDev . UserControls
             else return "";
         }
 
-        public static int GetValueFromIndex ( int x , GenericClass GenClass , DapperGenericsLib . DataGridLayout dgfieldvalues )
+        public static int GetValueFromIndex ( int x , DapperGenericsLib . GenericClass GenClass , DapperGenericsLib . DataGridLayout dgfieldvalues )
         {
             int val = 0;
             if ( dgfieldvalues . Fieldtype == "int" )
@@ -1559,7 +1575,7 @@ namespace NewWpfDev . UserControls
             grid1 . Columns . Add ( c24 );
         }
 
-        public GenericClass ConvertClass ( GenericClass GCollection , GenericClass collection )
+        public DapperGenericsLib . GenericClass ConvertClass ( DapperGenericsLib . GenericClass GCollection , DapperGenericsLib . GenericClass collection )
         {
             collection . field1 = GCollection . field1;
             collection . field2 = GCollection . field2;
@@ -1995,7 +2011,7 @@ namespace NewWpfDev . UserControls
             string errormsg = "";
             int columncount = 0;
             DataTable dt = new DataTable ( );
-            ObservableCollection<GenericClass> Generics = new ObservableCollection<GenericClass> ( );
+            ObservableCollection<DapperGenericsLib . GenericClass> Generics = new ObservableCollection<DapperGenericsLib . GenericClass> ( );
             //        ObservableCollection<BankAccountViewModel> bvmparam = new ObservableCollection<BankAccountViewModel> ( );
             List<string> genericlist = new List<string> ( );
             try
@@ -2022,7 +2038,7 @@ namespace NewWpfDev . UserControls
             columncount = 0;
             foreach ( var item in dt . Rows )
             {
-                GenericClass gc = new GenericClass ( );
+                DapperGenericsLib . GenericClass gc = new DapperGenericsLib . GenericClass ( );
                 string store = "";
                 DataRow dr = item as DataRow;
                 columncount = dr . ItemArray . Count ( );
@@ -2060,15 +2076,15 @@ namespace NewWpfDev . UserControls
                         case 2: // size (1)
                             if ( type == "int" || type == "decimal" )
                                 break;
-                                else
-                                    output += $"{item},";
+                            else
+                                output += $"{item},";
                             break;
                         //----------------------------------------//
                         case 3: // Size 2 (Decimal root)
                             if ( type == "int" )
                             {
                                 output += $"{item},";
-                                    break;
+                                break;
                             }
                             else if ( type == "nvarchar" )
                             {
@@ -2081,12 +2097,12 @@ namespace NewWpfDev . UserControls
                                 break;
                             }
                             else
-                            {  
-                                if ( type != "int" && type != "nvarchar" && type != "decimal")
+                            {
+                                if ( type != "int" && type != "nvarchar" && type != "decimal" )
                                     output += $"{item},";
                                 else
                                     output += $",";
-                                  break;
+                                break;
                             }
                         //----------------------------------------//
                         case 4: // Size 3 (decimal Radix)
@@ -2108,7 +2124,7 @@ namespace NewWpfDev . UserControls
                     }
                     if ( counter < 4 )
                         counter++;
-                    else 
+                    else
                         counter = 0;
                 }
                 output = output . Substring ( 0 , output . Length - 1 );
@@ -2120,10 +2136,10 @@ namespace NewWpfDev . UserControls
                     string fdinput = $"Procedure Name : {spName . ToUpper ( )}\n\n";
                     fdinput += output;
                     fdinput += $"\n\nPress ESCAPE to close this window...\n";
-//                    FlowDoc fdl = new FlowDoc ();
+                    //                    FlowDoc fdl = new FlowDoc ();
 
-                   fdl . ShowInfo ( Flowdoc , canvas, line1: fdinput , clr1: "Black0" , line2: "" , clr2: "Black0" , line3: "" , clr3: "Black0" , header: "" , clr4: "Black0" );
-                    canvas.Visibility = Visibility.Visible;
+                    fdl . ShowInfo ( Flowdoc , canvas , line1: fdinput , clr1: "Black0" , line2: "" , clr2: "Black0" , line3: "" , clr3: "Black0" , header: "" , clr4: "Black0" );
+                    canvas . Visibility = Visibility . Visible;
                     Flowdoc . Visibility = Visibility . Visible;
                     //GridData_Display . Visibility = Visibility . Visible;
                     //SetViewButtons ( 2 , ( GridData_Display . Visibility == Visibility . Visible ? true : false ) , ( DisplayGrid . Visibility == Visibility . Visible ? true : false ) );
@@ -2171,6 +2187,7 @@ namespace NewWpfDev . UserControls
             }
             return dt;
         }
+        //=================================================================//
         #region FlowDoc support
         /// <summary>
         ///  These are the only methods any window needs to provide support for my FlowDoc system.
@@ -2181,14 +2198,12 @@ namespace NewWpfDev . UserControls
         {
             canvas . Visibility = Visibility . Collapsed;
         }
-
         protected void MaximizeFlowDoc ( object sender , EventArgs e )
         {
             // Clever "Hook" method that Allows the flowdoc to be resized to fill window
             // or return to its original size and position courtesy of the Event declard in FlowDoc
             fdl . MaximizeFlowDoc ( Flowdoc , canvas , e );
         }
-
         private void Flowdoc_MouseLeftButtonUp ( object sender , MouseButtonEventArgs e )
         {
             // Window wide  !!
@@ -2196,7 +2211,6 @@ namespace NewWpfDev . UserControls
             MovingObject = fdl . Flowdoc_MouseLeftButtonUp ( sender , Flowdoc , MovingObject , e );
             ReleaseMouseCapture ( );
         }
-
         // CALLED WHEN  LEFT BUTTON PRESSED
         private void Flowdoc_PreviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
         {
@@ -2204,7 +2218,6 @@ namespace NewWpfDev . UserControls
             MovingObject = fdl . Flowdoc_PreviewMouseLeftButtonDown ( sender , Flowdoc , e );
             Debug . WriteLine ( $"MvvmDataGrid Btn down {MovingObject}" );
         }
-
         private void Flowdoc_MouseMove ( object sender , MouseEventArgs e )
         {
             // We are Resizing the Flowdoc using the mouse on the border  (Border.Name=FdBorder)
@@ -2241,6 +2254,7 @@ namespace NewWpfDev . UserControls
         }
 
         #endregion Flowdoc support via library
+        //=================================================================//
 
         private void Flowdoc_PreviewKeyDown ( object sender , KeyEventArgs e )
         {
@@ -2250,5 +2264,132 @@ namespace NewWpfDev . UserControls
                 canvas . Visibility = Visibility . Collapsed;
             }
         }
+
+        private void datagrid1_PreviewMouseRightButtonUp ( object sender , MouseButtonEventArgs e )
+        {
+            string output = "", temp = "";
+            string [ ] lines,vals;
+            string colName = "";
+            int maxCols = 0, index = 0;
+            //MapperConfiguration cfg;
+            // fetch records data anddisplayin FlowDoc
+
+            var genrecord = datagrid1 . SelectedItem . ToString ( );
+            maxCols = datagrid1 . Columns . Count;
+            string [ ] names = new string [ maxCols];
+            foreach ( var item in datagrid1 . Columns )
+            {
+                temp = item . Header . ToString ( );
+                names [index++] = temp ;
+            }
+            genrecord = genrecord . Substring ( 1 , genrecord . Length - 2 );
+            lines = genrecord . Split ( "," );
+            index = 0;
+            foreach ( var item in lines)
+            {
+                if ( index == maxCols )
+                    break;
+                vals = item . Split ( "=" );
+                output += names[index].PadRight(20 - names [index].Length ) + " = " + vals [1] + "\n";
+                index++;
+            }
+//            FdMsg ( FlowDoc Flowdoc , Canvas canvas , string line1 = "" , string line2 = "" , string line3 = "" , bool beep = false )
+            fdl . FdMsg ( Flowdoc , canvas , line1: "Current Record Data is :\n"+ output, line2: "" , line3: "" , true );
+            canvas . Visibility = Visibility . Visible;
+            Flowdoc . Visibility = Visibility . Visible;
+
+            //output = output . TrimEnd ( );
+            output = output . Substring ( 0 , output . Length - 3 ) +  "\nPress Escape to close viewer...";
+        }
+        //public MapperConfiguration Getmap ( MapperConfiguration MapperCfg )
+        //{
+        //   return  MapperCfg . CreateMap<DapperGenericsLib . GenericClass , DapperGenericsLib . DapperGenericsLib . GenericClass> ( );
+        //}
+        //public static string GetGenericFieldData ( Mapper  gc , int index )
+        //{
+        //    string output = "";
+        //    //var record = gc as DapperGenericsLib . GenericClass;
+        //    //switch ( index )
+        //    //{
+        //    //    case 0:
+        //    //        output += gc . field1 + "\n";
+        //    //        break;
+        //    //    case 1:
+        //    //        output += gc . field2 + "\n";
+        //    //        break;
+        //    //    case 2:
+        //    //        output += gc . field3 + "\n";
+        //    //        break;
+        //    //    case 3:
+        //    //        output += gc . field4 + "\n";
+        //    //        break;
+        //    //    case 4:
+        //    //        output += gc . field5 + "\n";
+        //    //        break;
+        //    //    case 5:
+        //    //        output += gc . field6 + "\n";
+        //    //        break;
+        //    //    case 6:
+        //    //        output += gc . field7 + "\n";
+        //    //        break;
+        //    //    case 7:
+        //    //        output += gc . field8 + "\n";
+        //    //        break;
+        //    //    case 8:
+        //    //        output += gc . field9 + "\n";
+        //    //        break;
+        //    //    case 9:
+        //    //        output += gc . field10 + "\n";
+        //    //        break;
+        //    //    case 10:
+        //    //        output += gc . field11 + "\n";
+        //    //        break;
+        //    //    case 11:
+        //    //        output += gc . field12 + "\n";
+        //    //        break;
+        //    //    case 12:
+        //    //        output += gc . field13 + "\n";
+        //    //        break;
+        //    //    case 13:
+        //    //        output += gc . field14 + "\n";
+        //    //        break;
+        //    //    case 14:
+        //    //        output += gc . field15 + "\n";
+        //    //        break;
+        //    //    case 15:
+        //    //        output += gc . field16 + "\n";
+        //    //        break;
+        //    //    case 16:
+        //    //        output += gc . field17 + "\n";
+        //    //        break;
+        //    //    case 17:
+        //    //        output += gc . field18 + "\n";
+        //    //        break;
+        //    //    case 18:
+        //    //        output += gc . field19 + "\n";
+        //    //        break;
+        //    //    case 19:
+        //    //        output += gc . field20 + "\n";
+        //    //        break;
+        //    //}
+        //    return output;
+        //}
+        //public MapperConfiguration  IntializeMapper(object ggc  )
+        //{
+
+        //    var config = new MapperConfiguration ( cfg =>
+        //    {
+        //         cfg . CreateMap<DapperGenericsLib .  GenericClass , DapperGenericsLib . GenericClass> ( );
+        //     } );
+        //    //var cfg = new MapperConfigurationExpression ( );
+        //    //cfg . AddProfile<AppProfile> ( );
+        //   // Mapper .InitAutoMapper ( config );
+
+        //    //var mapperConfig = new MapperConfiguration ( cfg );
+        //    //IMapper mapper = new Mapper ( mapperConfig );
+        //    ////var config = new MapperConfiguration ( cfg => cfg . CreateMap<typeof(type)>, DapperGenericsLib . GenericClass> ( ) );
+        //    //var mapper = config.CreateMapper ();
+        //    return config;
+        //}
     }
 }

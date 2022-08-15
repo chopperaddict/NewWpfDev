@@ -715,10 +715,10 @@
         <!--#region List Box/views-->
 
         <!--ItemTemplate="{StaticResource MyDataTemplate}"-->
+                <!--ItemTemplate="{DynamicResource BankDataTemplate0}"-->
         <ListBox x:Name="listBox"
 				Background="Transparent"
 				ItemContainerStyle="{StaticResource _ListBoxItemStyle1}"
-                ItemTemplate="{DynamicResource BankDataTemplate0}"
 				FontSize="12"
 				Grid.Column="1"
 				Grid.Row="2"
@@ -988,6 +988,7 @@
 			att:MenuAttachedProperties.NormalForeground="{StaticResource Black0}"
 			att:MenuAttachedProperties.MouseoverBackground="{StaticResource Orange0}"
 			att:MenuAttachedProperties.MousoverForeground="{StaticResource White0}"
+			Foreground="{StaticResource Red5}"
 			  Grid.Row="3"
 			  Grid.Column="1"
 			  Height="25"
@@ -1002,13 +1003,13 @@
 			  Text="Db Name..."
 			  VerticalAlignment="Top"
 			  Width="231">
-            <ComboBox.ItemTemplate>
+            <!--<ComboBox.ItemTemplate>
                 <DataTemplate>
                     <Label Style="{StaticResource ComboBoxTextBlockStyle1}"
 								Content="{Binding}"
 								Width="{Binding ActualWidth, ElementName=DataTemplatesLb}" />
                 </DataTemplate>
-            </ComboBox.ItemTemplate>
+            </ComboBox.ItemTemplate>-->
         </ComboBox>
 
         <ComboBox  x:Name="DataTemplatesLv"
@@ -1019,6 +1020,7 @@
 			att:MenuAttachedProperties.NormalForeground="{StaticResource Black0}"
 			att:MenuAttachedProperties.MouseoverBackground="{StaticResource Orange0}"
 			att:MenuAttachedProperties.MousoverForeground="{StaticResource White0}"
+			Foreground="{StaticResource Red5}"
 			  Grid.Row="3"
 			  Grid.Column="3"
 			  Height="25"
@@ -1033,13 +1035,13 @@
 			  Text="Db Name..."
 			  VerticalAlignment="Top"
 			  Width="231">
-            <ComboBox.ItemTemplate>
+            <!--<ComboBox.ItemTemplate>
                 <DataTemplate>
                     <Label Style="{StaticResource ComboBoxTextBlockStyle1}"
 								Content="{Binding}"
 								Width="{Binding ActualWidth, ElementName=DataTemplatesLv}" />
                 </DataTemplate>
-            </ComboBox.ItemTemplate>
+            </ComboBox.ItemTemplate>-->
         </ComboBox>
 
         <ComboBox  x:Name="DbMain"
@@ -1050,6 +1052,7 @@
 				att:MenuAttachedProperties.NormalForeground="{StaticResource White0}"
 				att:MenuAttachedProperties.MouseoverBackground="{StaticResource Red5}"
 				att:MenuAttachedProperties.MousoverForeground="{StaticResource White0}"
+			Foreground="{StaticResource Red5}"
 				Grid.Row="4"
 				Grid.Column="3"
 				Height="25"
@@ -1065,13 +1068,13 @@
 				Text="Db Name..."
 				VerticalAlignment="Top"
 				Width="227">
-            <ComboBox.ItemTemplate>
+            <!--<ComboBox.ItemTemplate>
                 <DataTemplate>
                     <Label Style="{StaticResource ComboBoxTextBlockStyle1}"
 								Content="{Binding}"
 								Width="{Binding ActualWidth, ElementName=dbMain}" />
                 </DataTemplate>
-            </ComboBox.ItemTemplate>
+            </ComboBox.ItemTemplate>-->
         </ComboBox>
 
         <ComboBox  x:Name="fontSize"
@@ -1096,13 +1099,13 @@
 			   Text="Db Name..."
 			  VerticalAlignment="Center"
 			  Width="50">
-            <ComboBox.ItemTemplate>
+            <!--<ComboBox.ItemTemplate>
                 <DataTemplate>
                     <Label Style="{StaticResource ComboBoxTextBlockStyle1}"
 							Content="{Binding}"
 							Width="{Binding ActualWidth, ElementName=fontSize}" />
                 </DataTemplate>
-            </ComboBox.ItemTemplate>
+            </ComboBox.ItemTemplate>-->
         </ComboBox>
 
         <ComboBox  x:Name="rowheight"
@@ -1128,13 +1131,13 @@
 			  Text="Db Name..."
 			  VerticalAlignment="Center"
 			  Width="50">
-            <ComboBox.ItemTemplate>
+            <!--<ComboBox.ItemTemplate>
                 <DataTemplate>
                     <Label Style="{StaticResource ComboBoxTextBlockStyle1}"
 							Content="{Binding}"
 							Width="{Binding ActualWidth, ElementName=rowheight}" />
                 </DataTemplate>
-            </ComboBox.ItemTemplate>
+            </ComboBox.ItemTemplate>-->
         </ComboBox>
         
         <ComboBox x:Name="dbNameLv"
@@ -1146,6 +1149,7 @@
 			att:MenuAttachedProperties.NormalForeground="{StaticResource White0}"
 			att:MenuAttachedProperties.MouseoverBackground="{StaticResource Red5}"
 			att:MenuAttachedProperties.MousoverForeground="{StaticResource White0}"
+			Foreground="{StaticResource Red5}"
 			  Grid.Column="3"
 			  Height="25"
 			  HorizontalAlignment="Right"
@@ -1161,13 +1165,13 @@
 			  ToolTip="Right Click to refresh list of Tables... "
 			  VerticalAlignment="Top"
 			  Width="231">
-            <ComboBox.ItemTemplate>
+            <!--<ComboBox.ItemTemplate>
                 <DataTemplate>
                     <Label Style="{StaticResource ComboBoxTextBlockStyle1}"
 								Content="{Binding}"
 								Width="{Binding ActualWidth, ElementName=dbNameLv}" />
                 </DataTemplate>
-            </ComboBox.ItemTemplate>
+            </ComboBox.ItemTemplate>-->
         </ComboBox>
         
         <ComboBox  x:Name="dbNameLb"
@@ -1178,6 +1182,7 @@
 			att:MenuAttachedProperties.NormalForeground="{StaticResource White0}"
 			att:MenuAttachedProperties.MouseoverBackground="{StaticResource Red5}"
 			att:MenuAttachedProperties.MousoverForeground="{StaticResource White0}"
+			Foreground="{StaticResource Red5}"
 			  Grid.Row="3"
 			  Grid.Column="1"
 			  Height="25"
@@ -1194,13 +1199,13 @@
 			  ToolTip="Right Click to refresh list of Tables... "
 			  VerticalAlignment="Top"
 			  Width="231">
-            <ComboBox.ItemTemplate>
+            <!--<ComboBox.ItemTemplate>
                 <DataTemplate>
                     <Label Style="{StaticResource ComboBoxTextBlockStyle1}"
 								Content="{Binding}"
 								Width="{Binding ActualWidth, ElementName=dbNameLb}" />
                 </DataTemplate>
-            </ComboBox.ItemTemplate>
+            </ComboBox.ItemTemplate>-->
         </ComboBox>
 
         <!--#endregion Combos-->

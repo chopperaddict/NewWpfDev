@@ -867,7 +867,16 @@ NB See DataErrorWindow for a different Method
 			// eg fdmsg("message text");
 			fdl . FdMsg ( Flowdoc , canvas , line1 , line2 , line3 );
 		}
-
+           
+		// finally add this  to your Form/Window/UserControl keyboard handler method so ESCworks to close Flowdoc   
+		if ( e . Key == Key . Escape )
+        {
+            if ( Flowdoc != null )
+            {
+                Flowdoc . Visibility = Visibility . Collapsed;
+                canvas . Visibility = Visibility . Collapsed;
+            }
+        }
 		#endregion Flowdoc support via library
 
 =======================================================================================

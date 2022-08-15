@@ -34,7 +34,13 @@
                     <Image Source="/Icons/symlink_directory_30px.png" />
                 </MenuItem.Icon>
             </MenuItem>
-              
+
+            <MenuItem  Name="Choosefont" Header="Select Font"  
+                      Click="SelectFont_Click">
+                <MenuItem.Icon>
+                    <Image Source="/Icons/symlink_directory_30px.png" />
+                </MenuItem.Icon>
+            </MenuItem>
         </ContextMenu>
 
         <ControlTemplate x:Key="GreenRadialButtonTemplate" TargetType="{x:Type Button}">
@@ -225,6 +231,7 @@
 							ContextMenu="{StaticResource OptionsContextmenu}"
 							Focusable="true"
 							 FontSize="{Binding Fontsize}"
+       						FontFamily="{Binding fontFamily}"
 							 Foreground="{StaticResource Black5}"
 							 GotFocus="doc_GotFocus"
 							 Grid.Row="1"
@@ -250,10 +257,11 @@
 					<!--MouseLeftButtonDown="doc_PreviewMouseLeftButtonDown"-->
 
                                               <!--FontSize="11"-->
+						<!--FontFamily="Arial"-->
 					<FlowDocumentScrollViewer x:Name="fdviewer"
 						ContextMenu="{StaticResource OptionsContextmenu}"
 						Focusable="true"
-						FontFamily="Arial"
+						FontFamily="{Binding fontFamily}"
 						FontSize="{Binding Fontsize}"
 						Grid.Row="1"
 						Grid.Column="1"
