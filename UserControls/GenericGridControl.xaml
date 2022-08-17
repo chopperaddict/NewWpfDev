@@ -6,7 +6,9 @@
              xmlns:models="clr-namespace:NewWpfDev.Models"
              xmlns:conv="clr-namespace:NewWpfDev.Converts"
              xmlns:user="clr-namespace:NewWpfDev.UserControls"
-              xmlns:att="clr-namespace:NewWpfDev.AttachedProperties"
+             xmlns:view="clr-namespace:NewWpfDev.Views"
+              xmlns:att="clr-namespace:NewWpfDev.AttachedProperties" 
+             xmlns:view1="clr-namespace:NewWpfDev.Views"
              mc:Ignorable="d" 
              Loaded="GenGridControl_Loaded"
              PreviewKeyDown="genkeydown"
@@ -456,8 +458,12 @@
 				Visibility="Collapsed"
 				Width="520" />
 
-            <!--<user:GenericSelectBoxControl  x:Name="SelectionListbox" />-->
+            <view1:GenericSelectBoxControl  x:Name="SelectionListbox" 
+				Panel.ZIndex="5"
+                Visibility="Collapsed"
+               Height="350" Width="400"/>
 
+                <!--Margin="65 35 0 0"-->
         </Canvas>
     </Grid>
 </UserControl>

@@ -226,11 +226,30 @@ namespace NewWpfDev . UserControls
             Togglegrid . Content = "< Grid 2";
             //Maximize hook  +/- statements - dont forget to remove them (Unsubscribe on closing)
             Flowdoc . ExecuteFlowDocMaxmizeMethod += new EventHandler ( MaximizeFlowDoc );
-            Flowdoc . ExecuteFlowDocMaxmizeMethod -= new EventHandler ( MaximizeFlowDoc );
             FlowDoc . FlowDocClosed += Flowdoc_FlowDocClosed;
-
- //           DapperGenericsLib.Utils . GetFontsList ( );
+            FlowDoc . ShowGenListBox += FlowDoc_ShowGenListBox;
+            GenericSelectBoxControl . ListSelection += GenericSelectBoxControl_ListSelection1;
+            //           DapperGenericsLib.Utils . GetFontsList ( );
         }
+
+
+        private void GenericSelectBoxControl_ListSelection1 ( object sender , SelectionArgs e )
+        {
+            //SelectionListbox . listbox . ItemsSource = DapperGenericsLib . Utils . GetFontsList ( );
+            FontFamily FontFamily = new FontFamily ( e.selection );
+            Flowdoc.fontFamily = FontFamily;
+
+        }
+        private void FlowDoc_ShowGenListBox ( object sender , SelectListboxArgs e )
+
+        {
+            // Shows  the populated fonts listbox
+            SelectionListbox . listbox . ItemsSource = DapperGenericsLib . Utils . GetFontsList ( );
+            GenericSelectBoxControl . GcCanvas = e . gcc;
+            SelectionListbox . Visibility = Visibility . Visible;
+            GenericSelectBoxControl . Isopen = false;
+        }
+
 
         private void Splitter_SizeChanged ( object sender , SizeChangedEventArgs e )
         {
@@ -2268,7 +2287,7 @@ namespace NewWpfDev . UserControls
         private void datagrid1_PreviewMouseRightButtonUp ( object sender , MouseButtonEventArgs e )
         {
             string output = "", temp = "";
-            string [ ] lines,vals;
+            string [ ] lines, vals;
             string colName = "";
             int maxCols = 0, index = 0;
             //MapperConfiguration cfg;
@@ -2276,30 +2295,30 @@ namespace NewWpfDev . UserControls
 
             var genrecord = datagrid1 . SelectedItem . ToString ( );
             maxCols = datagrid1 . Columns . Count;
-            string [ ] names = new string [ maxCols];
+            string [ ] names = new string [ maxCols ];
             foreach ( var item in datagrid1 . Columns )
             {
                 temp = item . Header . ToString ( );
-                names [index++] = temp ;
+                names [ index++ ] = temp;
             }
             genrecord = genrecord . Substring ( 1 , genrecord . Length - 2 );
             lines = genrecord . Split ( "," );
             index = 0;
-            foreach ( var item in lines)
+            foreach ( var item in lines )
             {
                 if ( index == maxCols )
                     break;
                 vals = item . Split ( "=" );
-                output += names[index].PadRight(20 - names [index].Length ) + " = " + vals [1] + "\n";
+                output += names [ index ] . PadRight ( 20 - names [ index ] . Length ) + " = " + vals [ 1 ] + "\n";
                 index++;
             }
-//            FdMsg ( FlowDoc Flowdoc , Canvas canvas , string line1 = "" , string line2 = "" , string line3 = "" , bool beep = false )
-            fdl . FdMsg ( Flowdoc , canvas , line1: "Current Record Data is :\n"+ output, line2: "" , line3: "" , true );
+            //            FdMsg ( FlowDoc Flowdoc , Canvas canvas , string line1 = "" , string line2 = "" , string line3 = "" , bool beep = false )
+            fdl . FdMsg ( Flowdoc , canvas , line1: "Current Record Data is :\n" + output , line2: "" , line3: "" , true );
             canvas . Visibility = Visibility . Visible;
             Flowdoc . Visibility = Visibility . Visible;
 
             //output = output . TrimEnd ( );
-            output = output . Substring ( 0 , output . Length - 3 ) +  "\nPress Escape to close viewer...";
+            output = output . Substring ( 0 , output . Length - 3 ) + "\nPress Escape to close viewer...";
         }
         //public MapperConfiguration Getmap ( MapperConfiguration MapperCfg )
         //{

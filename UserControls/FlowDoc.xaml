@@ -297,27 +297,7 @@
 						Tag="CloseBtn"
 						Template="{StaticResource GreenRadialButtonTemplate}"
 						Content="Close" />
-
-						<!--<Label  x:Name="SaveLabel"
-						Content="Using Auto Height ="
-						Foreground="{StaticResource Red5}"
-						Grid.Column="1"
-						Grid.Row="2"
-                        Visibility="Hidden"
-						HorizontalAlignment="Right" Margin="0,8,40,10"
-		/>
-					<Image x:Name="KeepIcon"
-						Grid.Column="1"
-						Grid.Row="2"
-						Height="20"
-						HorizontalAlignment="Right"
-						Margin="0,13,20,13"
-						 Panel.ZIndex="5"
-						PreviewMouseLeftButtonUp="KeepSize_PreviewMouseLeftButtonUp"
-						Source="/Icons/up arroiw red.png" 
-						Visibility="Hidden"
-						Width="20"/>-->
-
+	
 				</Grid>
 			</Border>
 		</Border>

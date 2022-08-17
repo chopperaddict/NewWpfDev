@@ -480,7 +480,7 @@ namespace NewWpfDev. Models
 					}
 				return;
 			}
-				else
+			else
 			{
 				if ( MovingObject != null && e . LeftButton == MouseButtonState . Pressed && Flowdoc . BorderClicked == false )
 				{
@@ -566,47 +566,11 @@ namespace NewWpfDev. Models
 			if ( WpfLib1 . Utils . HitTestScrollBar ( sender , e ) )
 			{
 				IsScrollbarActive = true;
-				//return null;
-				//// Over the Scrollbar so let user scroll contents
-				//if ( e . OriginalSource . ToString ( ) . Contains ( ".Run" ) )
-				//{
-				//	if ( Flags . UseScrollView )
-				////		fdviewer . IsEnabled = true;
-				////	else
-				////		doc . IsEnabled = true;
-				////}
-				////else
-				//{
-				////	if ( Flags . UseScrollView )
-				////	{
-				////		// We get here when clicking on scrollbar
-				////		fdviewer . IsEnabled = false;
-				////		if ( fdviewer . VerticalScrollBarVisibility == ScrollBarVisibility . Visible )
-				////		{
-				////			fdviewer . IsEnabled = true;
-				////			fdviewer . ReleaseMouseCapture ( );
-				////			flowDoc . ReleaseMouseCapture ( );
-				////			return;
-				////		}
-				////	}
-				////	else
-				////	{
-				////		doc . IsEnabled = false;
-				////		if ( doc . VerticalScrollBarVisibility == ScrollBarVisibility . Visible )
-				////		{
-				////			doc . IsEnabled = true;
-				////			fdviewer . ReleaseMouseCapture ( );
-				////			flowDoc . ReleaseMouseCapture ( );
-				////			return;
-				////		}
-				//	}
-				//}
 			}
 
 			Border border = e . OriginalSource as Border;
 			if ( border != null )
 			{
-				//Mouse . SetCursor ( Cursors . SizeAll );
 				FlowdocResizing = true;
 				flowdocLeft = e . GetPosition ( Flowdoc ) . X;
 				flowdocTop = e . GetPosition ( Flowdoc ) . Y;

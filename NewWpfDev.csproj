@@ -435,6 +435,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Update="Views\GenericSelectBoxControl.xaml.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>

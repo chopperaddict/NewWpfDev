@@ -18,7 +18,7 @@
         Background="Black"
         x:Name="HostWin"
         Foreground="White"
-        Height="530" Width="960"
+        Height="730" Width="1000"
         >
     <!--Style="{StaticResource local2:ResourceKey=CustomToolWindowStyle}"-->
 
