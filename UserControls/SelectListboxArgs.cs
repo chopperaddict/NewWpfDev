@@ -11,5 +11,6 @@ namespace NewWpfDev . UserControls
         public bool IsOpen;
         public GenericGridControl grictrl;
         public Point InitPoint = new Point ( 50 , 20 );
+        public object caller;
     }
 }

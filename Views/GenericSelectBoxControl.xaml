@@ -6,48 +6,112 @@
              xmlns:local="clr-namespace:NewWpfDev.Views"
              mc:Ignorable="d" 
              x:Name="LbSelector"
+             Panel.ZIndex =" 10"
              MouseMove="titlebar_MouseMove"
              MouseLeave="titlebar_MouseLeave"
              Loaded="IsLoaded"
              Visibility="{Binding IsVisble}"
-             PreviewMouseLeftButtonUp="titlebar_PreviewMouseLeftButtonUp"
+             PreviewMouseLeftButtonUp="titlebar_MouseLeftButtonUp"
              d:DesignHeight="350" d:DesignWidth="400">
     <!--Grid Background="Gray">-->
-    <Border x:Name="border" BorderThickness="4" BorderBrush="LightGreen" 
-            MouseEnter="border_MouseEnter"  MouseLeave="border_MouseLeave" 
-            PreviewMouseLeftButtonDown="border_PreviewMouseLeftButtonDown"
-            PreviewMouseLeftButtonUp="border_PreviewMouseLeftButtonUp"
-            PreviewMouseMove="border_PreviewMouseMove">
         
-        <Grid x:Name="selboxgrid"  Background="DarkGray"
+        <!--<Grid x:Name="selboxgrid"  Background="DarkGray"
               HorizontalAlignment="Stretch"
               VerticalAlignment="Stretch"
               Height="{Binding ActualHeight, ElementName=border}"
               MouseEnter="border_MouseLeave"  
-              MouseLeave="border_MouseEnter">
-              
+              MouseLeave="border_MouseEnter">-->
+    <UserControl.Resources>
+        <Style x:Key="_ListBoxItemStyle1" TargetType="ListBoxItem">
+            <!--<Setter Property="FontSize" Value="16" />-->
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                        <Border x:Name="Bd" SnapsToDevicePixels="true">
+
+                            <ContentPresenter x:Name="Contentpresenter" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                              SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+                            </ContentPresenter>
+
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsSelected" Value="False"/>
+                                    <Condition Property="IsMouseOver" Value="False"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Blue6}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Contentpresenter" Value="{StaticResource White0}"/>
+                                <!--<Setter Property="TextElement.FontSize" TargetName="Contentpresenter" Value="{Binding Fontsize}"/>-->
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsSelected" Value="False"/>
+                                    <Condition Property="IsMouseOver" Value="true"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Red5}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{StaticResource White0}"/>
+                                <!--<Setter Property="TextElement.FontSize" TargetName="Contentpresenter" Value="{Binding Fontsize}"/>-->
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsSelected" Value="true"/>
+                                    <Condition Property="IsMouseOver" Value="false"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Green5}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{StaticResource Black0}"/>
+                                <!--<Setter Property="TextElement.FontSize" TargetName="Contentpresenter" Value="{Binding Fontsize}"/>-->
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsSelected" Value="true"/>
+                                    <Condition Property="IsMouseOver" Value="true"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Orange5}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{StaticResource Red1}"/>
+                                <!--<Setter Property="TextElement.FontSize" TargetName="Contentpresenter" Value="{Binding Fontsize}"/>-->
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                        <!--more ....-->
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </UserControl.Resources>       
+    <Border x:Name="border" BorderThickness="4" BorderBrush="LightGreen" 
+            Background="DarkGray"
+            MouseEnter="border_MouseEnter"  MouseLeave="border_MouseLeave" 
+            MouseLeftButtonDown="border_MouseLeftButtonDown"
+            MouseLeftButtonUp="border_MouseLeftButtonUp"
+            MouseMove="border_MouseMove">
+            <Grid>
             <Grid.RowDefinitions>
                     <RowDefinition Height="25"  />
-                    <RowDefinition Height="*" x:Name="row2"/>
+                    <RowDefinition Height="*" />
                     <RowDefinition Height="45" />
             </Grid.RowDefinitions>
-             <TextBlock x:Name="titlebar" Background="Red"
+                <!--PreviewMouseLeftButtonDown="titlebar_PreviewMouseLeftButtonDown"-->
+                <TextBlock x:Name="titlebar" Background="Red"
                            Foreground="White"
                            FontSize="18"
                            Text="Title bar"
                            TextAlignment="Center"
-                           PreviewMouseLeftButtonDown="titlebar_PreviewMouseLeftButtonDown"
-                           PreviewMouseLeftButtonUp="titlebar_PreviewMouseLeftButtonUp"
+                            MouseLeftButtonDown="titlebar_MouseLeftButtonDown"
+                           MouseLeftButtonUp="titlebar_MouseLeftButtonUp"
                            MouseLeave="titlebar_MouseLeave"
                         MouseEnter="titlebar_MouseEnter"
                            Padding="0 0 0 0"
                            HorizontalAlignment="Stretch"/>
                 <ListBox x:Name="listbox" Margin="10 10 10 10" Grid.Row="1"
-                      MouseEnter="border_MouseLeave"  
+                        ItemContainerStyle="{StaticResource _ListBoxItemStyle1}"
+                        MouseEnter="border_MouseLeave"  
+                         MouseDoubleClick="listbox_MouseDoubleClick"
                         VerticalAlignment="Stretch"
-                    PreviewMouseLeftButtonUp="titlebar_PreviewMouseLeftButtonUp"
+                        MouseLeftButtonUp="titlebar_MouseLeftButtonUp"
 />
-            <WrapPanel Orientation="Horizontal" Grid.Row="2" 
+                <WrapPanel Orientation="Horizontal" Grid.Row="2" 
                        Background="Transparent" 
                        HorizontalAlignment="Right" 
                        VerticalAlignment="Bottom"
@@ -57,6 +121,7 @@
                     <Button  x:Name="cancelBtn" Click="cancelbtn" Content="Cancel" Height="30" Width="120" HorizontalAlignment="Right" Margin="0 0 20 0" Background="Green"/>
                     <Button  x:Name="selectBtn" Click="selectbtn" Content="Select"  Height="30" Width="120" HorizontalAlignment="Right" Margin="0 0 10 0"  Background="Red" Foreground="White"/>
                 </WrapPanel>
-    </Grid>
-    </Border>
+            </Grid>
+        </Border>
+    <!--</Grid>-->
 </UserControl>

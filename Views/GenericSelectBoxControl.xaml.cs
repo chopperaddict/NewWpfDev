@@ -4,8 +4,9 @@ using System . Diagnostics;
 using System . Windows;
 using System . Windows . Controls;
 using System . Windows . Input;
+using System . Windows . Media;
 
-using DocumentFormat . OpenXml . Drawing . Charts;
+using DocumentFormat . OpenXml . Presentation;
 
 using NewWpfDev . UserControls;
 
@@ -17,15 +18,20 @@ namespace NewWpfDev . Views
     public partial class GenericSelectBoxControl : UserControl
     {
         public static event EventHandler<SelectionArgs> ListSelection;
-
-        public static Canvas GcCanvas;
-        public static GenericSelectBoxControl ourlist { get; set; } = null;
+        public static Thickness Ctrstats = new Thickness ( );
+        public static GenericSelectBoxControl GenSelBox { get; set; } = null;
         public static GenericGridControl gridctrl { get; set; } = null;
+        public static Canvas GcCanvas;
+        public FlowDoc fdl { get; set; }
+        public object callerobj { get; set; } = null;
 
         public static bool MouseCaptured = false;
         public static bool ListResizing = false;
-        public double left = 0, top = 0, bottom = 0, height = 0, width = 0;
-
+        public double left { get; set; } = 0;
+        public double bottom { get; set; } = 0;
+        public double height { get; set; } = 0;
+        public double width { get; set; } = 0;
+        public double borderThickness { get; set; } = 0;
         public double CpFirstXPos = 0;
         public double CpFirstYPos = 0;
         public double FdLeft = 0;
@@ -52,7 +58,20 @@ namespace NewWpfDev . Views
         }
         public static readonly DependencyProperty GenCtrlProperty =
             DependencyProperty . Register ( "GenCtrl" , typeof ( GenericGridControl ) , typeof ( GenericSelectBoxControl ) , new PropertyMetadata ( ( GenericGridControl ) null ) );
-
+        public double CtrlTop
+        {
+            get { return ( double ) GetValue ( CtrlTopProperty ); }
+            set { SetValue ( CtrlTopProperty , value ); }
+        }
+        public static readonly DependencyProperty CtrlTopProperty =
+            DependencyProperty . Register ( "CtrlTop" , typeof ( double ) , typeof ( GenericSelectBoxControl ) , new PropertyMetadata ( ( double ) 0 ) );
+        public double CtrlLeft
+        {
+            get { return ( double ) GetValue ( CtrlLeftProperty ); }
+            set { SetValue ( CtrlLeftProperty , value ); }
+        }
+        public static readonly DependencyProperty CtrlLeftProperty =
+            DependencyProperty . Register ( "CtrlLeft" , typeof ( double ) , typeof ( GenericSelectBoxControl ) , new PropertyMetadata ( ( double ) 0 ) );
         #endregion Dependency Properties
 
 
@@ -60,18 +79,24 @@ namespace NewWpfDev . Views
         {
             InitializeComponent ( );
             // this is LBSELECTOR (Name for the entire control)
-            ourlist = this;
-            ( ourlist as FrameworkElement ) . SetValue ( Canvas . LeftProperty , ( double ) 20 );
-            ( ourlist as FrameworkElement ) . SetValue ( Canvas . TopProperty , ( double ) 20 );
-            border . Width = 400;
+            GenSelBox = this;
+            ( GenSelBox as FrameworkElement ) . SetValue ( Canvas . LeftProperty , ( double ) 100 );
+            ( GenSelBox as FrameworkElement ) . SetValue ( Canvas . TopProperty , ( double ) 50 );
+            border . Width = 300;
             border . Height = 400;
-            ourlist . Width = border . Width;
-            ourlist . Height = border . Height;
-            top = left = 20;
-            //Debug . WriteLine ( $"\nINIT left= 50, top=20" );
+            Ctrstats . Top = 50;
+            Ctrstats . Bottom = border . Height;
+            GenSelBox . Width = border . Width;
+            GenSelBox . Height = border . Height;
+            CtrlTop =50;
+            left = 100;
+            //Debug . WriteLine ( $"\nINIT left= 100, top=50" );
             SetValue ( IsVisibleProperty , true );
             this . IsVisibleChanged += GenericSelectBoxControl_IsVisibleChanged;
             Isopen = true;
+ 
+            //callerobj = this.Parent;
+            Mouse . OverrideCursor = Cursors . Arrow;
         }
 
         private void GenericSelectBoxControl_IsVisibleChanged ( object sender , DependencyPropertyChangedEventArgs e )
@@ -79,29 +104,33 @@ namespace NewWpfDev . Views
             // try to center popup when making it visible AGAIN
             if ( this . Visibility == Visibility . Visible )
             {
-                ourlist = sender as GenericSelectBoxControl;
-                if ( ( left == 0 && top == 0 ) || ( ourlist . Height < 350 || ourlist . Width <= 400 ) )
+                GenSelBox = sender as GenericSelectBoxControl;
+                if ( ( left == 0 && CtrlTop ==  0 ) || ( GenSelBox . Height < 350 || GenSelBox . Width <= 400 ) )
                 {
-                    ( ourlist as FrameworkElement ) . SetValue ( Canvas . LeftProperty , ( double ) 20 );
-                    ( ourlist as FrameworkElement ) . SetValue ( Canvas . TopProperty , ( double ) 20 );
-                    border . Width = 400;
+                    ( GenSelBox as FrameworkElement ) . SetValue ( Canvas . LeftProperty , ( double ) 100 );
+                    ( GenSelBox as FrameworkElement ) . SetValue ( Canvas . TopProperty , ( double ) 50 );
+                    border . Width = 300;
                     border . Height = 400;
-                    ourlist . Width = border . Width;
-                    ourlist . Height = border . Height;
-                    top = left = 20;
-                    height = ourlist . Height;
-                    width = ourlist . Width;
+                    Ctrstats . Top = 50;
+                    Ctrstats . Bottom = border . Height;
+                    GenSelBox . Width = border . Width;
+                    GenSelBox . Height = border . Height;
+                    CtrlTop = 50; left = 100;
+                    height = GenSelBox . Height;
+                    width = GenSelBox . Width;
+                    Mouse . OverrideCursor = Cursors . Arrow;
                 }
             }
             else
             {
-                if ( ourlist != null )
+                if ( GenSelBox != null )
                 {
                     double ourheight = this . ActualHeight;
                     double ourwidth = this . ActualWidth;
                     height = ourheight;
                     width = ourwidth;
 
+                    if ( GcCanvas == null ) GcCanvas = DapperGenericsLib . Utils . FindVisualParent<Canvas> ( sender as DependencyObject );
                     double horposition = ( GcCanvas . ActualWidth / 2 ) - ( ourwidth / 2 );
                     double vertposition = ( GcCanvas . ActualHeight / 2 ) - ( ourheight / 2 );
                     if ( horposition < 20 )
@@ -114,26 +143,34 @@ namespace NewWpfDev . Views
                         vertposition = GcCanvas . ActualHeight - ( ourheight );
                     ( border as FrameworkElement ) . SetValue ( Canvas . LeftProperty , ( double ) horposition );
                     ( border as FrameworkElement ) . SetValue ( Canvas . TopProperty , ( double ) vertposition );
-                    top = vertposition;
+                    CtrlTop = vertposition;
+                    Ctrstats . Top = vertposition;
+                    Ctrstats . Bottom = vertposition + border . Height;
                     left = horposition;
+                    Mouse . OverrideCursor = Cursors . Arrow;
                 }
             }
         }
         private void IsLoaded ( object sender , RoutedEventArgs e )
         {
             Isopen = true;
-            ( ourlist as FrameworkElement ) . SetValue ( Canvas . LeftProperty , ( double ) 20 );
-            ( ourlist as FrameworkElement ) . SetValue ( Canvas . TopProperty , ( double ) 20 );
-            border . Width = 400;
+            ( GenSelBox as FrameworkElement ) . SetValue ( Canvas . LeftProperty , ( double ) 100 );
+            ( GenSelBox as FrameworkElement ) . SetValue ( Canvas . TopProperty , ( double ) 50 );
+            border . Width = 300;
             border . Height = 400;
-            ourlist . Width = border . Width;
-            ourlist . Height = border . Height;
+            Ctrstats . Top = 50;
+            Ctrstats . Bottom = border . Height;
+            GenSelBox . Width = border . Width;
+            GenSelBox . Height = border . Height;
             // Get our parent Canvas
             GenCtrl = DapperGenericsLib . Utils . FindVisualParent<GenericGridControl> ( sender as DependencyObject );
-            GcCanvas = this . Parent as Canvas;
-            Debug . WriteLine ( $"\n *** LOADED *** left= 20, top=20" );
+            if(GcCanvas == null) GcCanvas  = DapperGenericsLib . Utils . FindVisualParent<Canvas> ( sender as DependencyObject );
+//            Debug . WriteLine ( $"\n *** LOADED *** left= 100, top=50" );
+            Thickness th = new Thickness ( );
+            th = border . BorderThickness;
+            borderThickness = th . Left;
+            CtrlTop = 50;
             Mouse . OverrideCursor = Cursors . Arrow;
-
         }
         private void cancelbtn ( object sender , RoutedEventArgs e )
         {
@@ -147,69 +184,45 @@ namespace NewWpfDev . Views
         }
         private void selectbtn ( object sender , RoutedEventArgs e )
         {
-            // select fontfamily from listbox and collapse our listbox
-            ListBox lb = sender as ListBox;
-            SelectionArgs args = new SelectionArgs ( );
-            args . selection = listbox . SelectedItem . ToString ( );
-            ListSelection . Invoke ( sender , args );
-            this . Visibility = Visibility . Collapsed;
-            SetValue ( IsVisibleProperty , false );
+            // update with selected fontfamily from listbox and collapse our listbox
+              Canvas canvas = DapperGenericsLib . Utils . FindVisualParent<Canvas> ( this as DependencyObject );
+            FlowDoc fdl = DapperGenericsLib . Utils . FindChild<FlowDoc> ( canvas ,"Flowdoc");
+             // Update font textbox
+                fdl . CurrentFont . Text = listbox . SelectedItem.ToString();
+                fdl . fontFamily = new FontFamily( listbox . SelectedItem . ToString ( ));
+                fdl . UpdateDisplay ( );
+            this . Visibility = Visibility . Collapsed; 
         }
 
         #region Font Listbox  move/sizing OUTER
         #region Font Listbox  (mainarea) move/sizing INNER
 
-        private void titlebar_PreviewMouseLeftButtonDown ( object sender , System . Windows . Input . MouseButtonEventArgs e )
-        {
-            TextBlock Titlebar = e . OriginalSource as TextBlock;
-            if ( Titlebar == null )
-                return;
-            GcCanvas = this . Parent as Canvas;
-            ourlist = GetThisControl ( sender );
-            //we can use this to position the control in the parent canvas
-            ourlist = DapperGenericsLib . Utils . FindVisualParent<GenericSelectBoxControl> ( sender as DependencyObject );
-
-            // getb our enclosing canvas
-            GcCanvas . Height = GenCtrl . ActualHeight;
-            // save left/top  offset of the mouse in Titlebar
-            CpFirstXPos = e . GetPosition ( ( sender as FrameworkElement ) as FrameworkElement ) . X;
-            CpFirstYPos = e . GetPosition ( ( sender as FrameworkElement ) as FrameworkElement ) . Y;
-            // get current posiion (of titlebar really)
-            left = e . GetPosition ( ( GcCanvas as FrameworkElement ) as FrameworkElement ) . X;
-            top = e . GetPosition ( ( GcCanvas as FrameworkElement ) as FrameworkElement ) . Y;
-            bottom = top + border . ActualHeight;
-            counter = 0;
-            MouseCaptured = this . CaptureMouse ( );
-            Debug . WriteLine ( $"Left Button Down top={top}, Height={ourlist . ActualHeight}" );
-            Isopen = true;
-        }
-        private void titlebar_PreviewMouseLeftButtonUp ( object sender , System . Windows . Input . MouseButtonEventArgs e )
-        {
-            if ( MouseCaptured == false )
-            {
-                counter = 0;
-                Mouse . OverrideCursor = Cursors . Arrow;
-                return;
-            }
-            Isopen = false;
-            counter = 0;
-            this . ReleaseMouseCapture ( );
-            MouseCaptured = false;
-            Mouse . OverrideCursor = Cursors . Arrow;
-        }
         private void titlebar_MouseEnter ( object sender , MouseEventArgs e )
         {
             Mouse . OverrideCursor = Cursors . Hand;
         }
-          private void titlebar_MouseLeave ( object sender , MouseEventArgs e )
+        private void titlebar_MouseLeave ( object sender , MouseEventArgs e )
         {
-            this . ReleaseMouseCapture ( );
-            MouseCaptured = false;
             Mouse . OverrideCursor = Cursors . Arrow;
         }
-        private void titlebar_MouseMove( object sender , MouseEventArgs e )
+        private void titlebar_MouseLeftButtonDown ( object sender , System . Windows . Input . MouseButtonEventArgs e )
+        {
+            TextBlock Titlebar = e . OriginalSource as TextBlock;
+            ////if ( Titlebar == null )
+            //Debug . WriteLine ( $"Mousedown top 1 = {CtrlTop}, left= {left}, border Height= {border.ActualHeight}" );
+            MouseCaptured = this . CaptureMouse ( );
+            Isopen = true; 
+            // save left/top  offset of the mouse in Titlebar
+            CpFirstXPos = e . GetPosition ( Titlebar ) . X;
+            CpFirstYPos = e . GetPosition ( Titlebar) . Y;
+            return;
+          }
+  
+        private void titlebar_MouseMove ( object sender , MouseEventArgs e )
         {
             // font family popup mousemove
+            double vertposition = 0;
+            double horposition = 0;
             if ( MouseCaptured == false || Isopen == false ) return;
             if ( e . LeftButton == MouseButtonState . Pressed )
                 Mouse . OverrideCursor = Cursors . SizeAll;
@@ -218,212 +231,250 @@ namespace NewWpfDev . Views
                 Mouse . OverrideCursor = Cursors . Arrow;
                 return;
             }
-            if ( GcCanvas == null )
-                GcCanvas = this . Parent as Canvas;
             double ourheight = this . ActualHeight;
-            double ourwidth = this . ActualWidth;
-            height = ourheight;
-            width = ourwidth;
-            left = e . GetPosition ( ( GcCanvas as FrameworkElement ) . Parent as FrameworkElement ) . X;
-            top = e . GetPosition ( ( GcCanvas as FrameworkElement ) . Parent as FrameworkElement ) . Y;
-            double trueleft = CpFirstXPos;
-            double truetop = CpFirstYPos;
-            Debug . WriteLine ( $"MouseMove top={top}, Height={ourheight}" );
-
-            // dont let it slide out of view
-            double horposition = ( left ) - ( CpFirstXPos );
-            double vertposition = ( top - 5 ) - ( CpFirstYPos );
-
-            if ( horposition < 20 )
-                horposition = 20;
-            if ( horposition + ( ourwidth + 40 ) > GcCanvas . ActualWidth )
-                horposition = GcCanvas . ActualWidth - ( ourwidth + 40 );
+            double ourwidth= this . ActualWidth;
+            if ( border == null ) border = DapperGenericsLib . Utils . FindVisualParent<Border> ( sender as DependencyObject );
+            Canvas canvas = DapperGenericsLib . Utils . FindVisualParent<Canvas> ( border as DependencyObject );
+            GenericGridControl ggrid = DapperGenericsLib . Utils . FindVisualParent<GenericGridControl> ( canvas as DependencyObject );
+            if ( ggrid != null )
+            {
+                ggrid . canvas . Height = ggrid . ActualHeight;
+                ggrid . canvas . Width = ggrid . ActualWidth;
+            }
+            double top = e . GetPosition ( canvas ) . Y - CpFirstYPos;
+            double left = e . GetPosition ( canvas ) . X - CpFirstXPos;
+            Debug . WriteLine ( $"MOVING ENTRY = top= {top}, lleft= {left}" );
+            // All working  correctly
+            vertposition = top;
+            horposition = left;
             if ( vertposition < 5 )
-                vertposition = 5;
-            if ( ( vertposition + ( ourheight ) ) > GcCanvas . ActualHeight )
-                vertposition = GcCanvas . ActualHeight - ( ourheight );
+                vertposition = 0;
+            else if ( ( vertposition + ( ourheight ) ) > canvas . ActualHeight )
+                vertposition = canvas . ActualHeight - ( ourheight );
+            else if (  vertposition < 0 )
+                vertposition = 0;
+            else if ( ( vertposition + ( ourheight ) ) > canvas . ActualHeight )
+                vertposition = canvas . ActualHeight - ( ourheight );
 
-            ( this as FrameworkElement ) . SetValue ( Canvas . LeftProperty , ( double ) horposition );
-            ( this as FrameworkElement ) . SetValue ( Canvas . TopProperty , ( double ) vertposition );
-            top = vertposition;
-            bottom = vertposition + height;
-            //Debug . WriteLine ( $"MOVE EXIT = {left - CpFirstXPos}, YPos= {top - CpFirstYPos}" );
-            counter++;
+            if ( horposition < 10 )
+                horposition = 10;
+            else if ( ( horposition + ( ourwidth ) ) > canvas . ActualWidth- 20 )
+                horposition = canvas . ActualWidth- ( ourwidth +20 );
+            else if ( horposition < 0 )
+                horposition = 0;
+            else if ( ( horposition + ( ourwidth ) ) > canvas . ActualWidth )
+                horposition = canvas . ActualWidth- ( ourwidth);
+
+            ( this as FrameworkElement ) . SetValue ( Canvas . TopProperty , vertposition);
+            ( this as FrameworkElement ) . SetValue ( Canvas . LeftProperty , horposition );
+            Debug . WriteLine ( $"EXITING ENTRY = top= {top}, left = {left}" );
         }
-
-        #endregion Font Listbox  (mainarea) move/sizing INNER
+        private void titlebar_MouseLeftButtonUp ( object sender , System . Windows . Input . MouseButtonEventArgs e )
+        {
+            if ( MouseCaptured == false )
+            {
+                counter = 0;
+                Mouse . OverrideCursor = Cursors . Arrow;
+                return;
+            }
+            Debug . WriteLine ( $"Mouseup top 1 ={CtrlTop}, left={left}, border Height={border . ActualHeight}" );
+             Isopen = false;
+            counter = 0;
+            this . ReleaseMouseCapture ( );
+            MouseCaptured = false;
+            Debug . WriteLine ( $"Mouseup top 2 ={CtrlTop}, left={left}, border Height={border . ActualHeight}" );
+            Mouse . OverrideCursor = Cursors . Arrow;
+         }
+          #endregion Font Listbox  (mainarea) move/sizing INNER
         private void border_MouseEnter ( object sender , MouseEventArgs e )
         {
             Mouse . OverrideCursor = Cursors . SizeAll;
+            //e . Handled = true;
         }
+
         private void border_MouseLeave ( object sender , MouseEventArgs e )
         {
             Mouse . OverrideCursor = Cursors . Arrow;
-        }
+          }
 
         #region Font Listbox  (border) move/sizing INNER
-        private void border_PreviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
+        private void border_MouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
         {
-            Border border = e . OriginalSource as Border;
+            Border border = sender as Border;
             if ( border == null )
-                return;
-
+               return;
             if ( e . LeftButton == MouseButtonState . Pressed )
                 Mouse . OverrideCursor = Cursors . SizeAll;
             else
             {
                 Mouse . OverrideCursor = Cursors . Arrow;
-                return;
+               return;
             }
-            ourlist = DapperGenericsLib . Utils . FindVisualParent<GenericSelectBoxControl> ( sender as DependencyObject );
-            border = e . OriginalSource as Border;
-            //TODO  make  it  border
-            double Left = e . GetPosition ( ourlist ) . X;
-            double Top = e . GetPosition ( ourlist ) . Y;
-            double Height = ourlist . ActualHeight;
-            double Width = ourlist . ActualWidth;
+            Debug . WriteLine ( $"ENTRY L Button down: CtrlTop = {CtrlTop}  Height={height}, borderHeight= {border . ActualHeight}" );
+             Thickness th = new Thickness ( );
+            th = border . BorderThickness;
+            borderThickness = th . Left;
+              //TODO  make  it  border
+            if ( GcCanvas == null ) GcCanvas = DapperGenericsLib . Utils . FindVisualParent<Canvas> ( sender as DependencyObject );
+            double Left = e . GetPosition ( ( GcCanvas as FrameworkElement ) as FrameworkElement ) . X;
+            double Top = e . GetPosition ( ( GcCanvas as FrameworkElement ) as FrameworkElement ) . Y;
+            double Height = GenSelBox . ActualHeight;
+            double Width = GenSelBox . ActualWidth;
 
             // Handle relevant mouse pointers first
-            if ( Left <= 15 && Top <= 15 && ( Top <= 15 )
-                || ( Top <= 15 && Left > Width - 15 )
-                || ( Left >= Width - 15 && Top >= Height - 15 )
-                || ( Left <= 15 && Top >= Height - 15 ) )
+            //if ( ( Left >= left && Left <= left + Width
+            //    && Top >= CtrlTop && Top <= CtrlTop +height ) == false )
+            //{
+            //    // over any corner	    WORKING
+            //    Mouse . OverrideCursor = Cursors . SizeAll;
+            //}
+            //else
             {
-                // over any corner	    WORKING
-                Mouse . OverrideCursor = Cursors . SizeAll;
-            }
-            else
-            {
-                // setup the correct cursor to match size direction we need to perform
-                //borderSelected = 5;      // TOP
-                //borderSelected = 6;       // BOTTOM 
-                //borderSelected = 7;       // LEFT
-                //borderSelected = 8;       // RIGHT
-
-                if ( Left >= border . ActualWidth - 15
-                    && Width >= border . ActualWidth - 15
-                    && Width <= border . ActualWidth )
-                { // over right border
-                    Mouse . OverrideCursor = Cursors . SizeWE;
-                    BorderSelected = 8;
-                }
-                else if ( Left <= 10 && Top >= 11
-                     && Top >= 15
-                     && Top < Height - 15 )
-                {    // Over left border
-                    Mouse . OverrideCursor = Cursors . SizeWE;
-                    BorderSelected = 7;
-                }
-                else if ( Top <= 15
-                    && Left >= 15 )
-                {   // over  top  border
+                 if ( Top >= CtrlTop && Top <= CtrlTop + borderThickness
+                    && Left > left + 10 && Left <= left + border . ActualWidth - 10 )
+                { // over top border
                     Mouse . OverrideCursor = Cursors . SizeNS;
                     BorderSelected = 5;
                 }
-                else if ( Top >= Height - 15 )
-                {   // over bottom border
+                else if ( Top- CpFirstYPos >= CtrlTop + ( height - borderThickness ) && Top - CpFirstYPos <= CtrlTop + height + borderThickness
+                    && Left > left + 10 && Left <= left + border . ActualWidth - 10 )
+                {    // Over botom border
                     Mouse . OverrideCursor = Cursors . SizeNS;
                     BorderSelected = 6;
                 }
+                else if ( Top >= CtrlTop + 10 && Top <= CtrlTop + height
+                    && Left >= left && Left <= left + borderThickness )
+                {   // over  left border
+                    Mouse . OverrideCursor = Cursors . SizeWE;
+                    BorderSelected = 7;
+                }
+                else if ( Top >= CtrlTop + 10 && Top <= CtrlTop + height - 10
+                    && Left >= left && Left <= +left + Width )
+                {   // over right border
+                    Mouse . OverrideCursor = Cursors . SizeWE;
+                    BorderSelected = 8;
+                }
             }
-            //			Debug. WriteLine ( $"In Mousemove, at stage 2" );
-
-            // Now handle resizing the top border
-            if ( this . BorderSelected == 5 && this . BorderSelected != -1 )
-            // && ( FlowdocResizing || this . BorderClicked && IsCornerDragging == false ) )
-            {
-                // Get current sizes and position of GenListbox  window to intilize our calculations
-                if ( FdLeft == 0 )
-                    FdLeft = Canvas . GetLeft ( this );
-                if ( FdTop == 0 )
-                    FdTop = Canvas . GetTop ( this );
-                FdHeight = this . ActualHeight;
-                FdWidth = this . ActualWidth;
-                //Get mouse cursor position
-                Point pt = Mouse . GetPosition ( GcCanvas );
-                double MLeft = pt . X;
-                // Border Top position
-                FdTop = pt . Y;
-                FdBottom = FdTop + FdHeight;
-                double ValidTop = FdBottom - ( 2 );
-            }
-            if ( this . BorderSelected == 1 )
-            {
-                // Top border - WORKING CORRECTLY
-                //Mouse . OverrideCursor = Cursors . SizeNS;
-                //Canvas . SetTop ( this , MTop );
-                //YDiff = MTop - FdTop;
-                //FdTop = MTop;
-
-                //newHeight = FdHeight - YDiff;
-                //if ( newHeight < 200 )
-                //    newHeight = 200;
-                //this . Height = newHeight;
-                //if ( IsCornerDragging == true )
+              {
+                // Now handle resizing the top border
+                //if ( this . BorderSelected == 5 && this . BorderSelected != -1 )
+                //// && ( FlowdocResizing || this . BorderClicked && IsCornerDragging == false ) )
                 //{
-                //    // drag left as well
-                //    XDiff = MLeft - FdLeft;
-                //    newWidth = FdWidth - XDiff;
-                //    if ( newWidth < 350 )
-                //        newWidth = 350;
-                //    this . Width = newWidth;
-                //    Canvas . SetLeft ( this , MLeft );
-                //    FdLeft = MLeft;
+                //    // Get current sizes and position of GenListbox  window to intilize our calculations
+                //    if ( FdLeft == 0 )
+                //        FdLeft = Canvas . GetLeft ( this );
+                //    if ( FdTop == 0 )
+                //        FdTop = Canvas . GetTop ( this );
+                //    FdHeight = this . ActualHeight;
+                //    FdWidth = this . ActualWidth;
+                //    //Get mouse cursor position
+                //    Point pt = Mouse . GetPosition ( GcCanvas );
+                //    double MLeft = pt . X;
+                //    // Border Top position
+                //    FdTop = pt . Y;
+                //    FdBottom = FdTop + FdHeight;
+                //    double ValidTop = FdBottom - ( 2 );
                 //}
-                return;
-            }
-            {
-                //    else if ( Flowdoc . BorderSelected == 2 )
-                //    {     // Bottom border
-                //        Mouse . OverrideCursor = Cursors . SizeNS;
-                //        newHeight = MTop - FdTop;
-                //        Flowdoc . Height = newHeight;
-                //        return;
-                //    }
-                //    else if ( Flowdoc . BorderSelected == 3 )
-                //    {   // Left hand side border  - WORKING CORRECTLY
-                //        Mouse . OverrideCursor = Cursors . SizeWE;
-                //        XDiff = MLeft - FdLeft;
-                //        newWidth = FdWidth - XDiff;
-                //        if ( newWidth < 350 )
-                //            newWidth = 350;
-                //        Flowdoc . Width = newWidth;
-                //        Canvas . SetLeft ( Flowdoc , MLeft );
-                //        FdLeft = MLeft;
-                //        return;
+                //if ( this . BorderSelected == 1 )
+                //{
+                //    // Top border - WORKING CORRECTLY
+                //    //Mouse . OverrideCursor = Cursors . SizeNS;
+                //    //Canvas . SetTop ( this , MTop );
+                //    //YDiff = MTop - FdTop;
+                //    //FdTop = MTop;
+
+                //    //newHeight = FdHeight - YDiff;
+                //    //if ( newHeight < 200 )
+                //    //    newHeight = 200;
+                //    //this . Height = newHeight;
+                //    //if ( IsCornerDragging == true )
+                //    //{
+                //    //    // drag left as well
+                //    //    XDiff = MLeft - FdLeft;
+                //    //    newWidth = FdWidth - XDiff;
+                //    //    if ( newWidth < 350 )
+                //    //        newWidth = 350;
+                //    //    this . Width = newWidth;
+                //    //    Canvas . SetLeft ( this , MLeft );
+                //    //    FdLeft = MLeft;
+                //    //}
+                //    return;
+                //}
+                {
+                    //    else if ( Flowdoc . BorderSelected == 2 )
+                    //    {     // Bottom border
+                    //        Mouse . OverrideCursor = Cursors . SizeNS;
+                    //        newHeight = MTop - FdTop;
+                    //        Flowdoc . Height = newHeight;
+                    //        return;
+                    //    }
+                    //    else if ( Flowdoc . BorderSelected == 3 )
+                    //    {   // Left hand side border  - WORKING CORRECTLY
+                    //        Mouse . OverrideCursor = Cursors . SizeWE;
+                    //        XDiff = MLeft - FdLeft;
+                    //        newWidth = FdWidth - XDiff;
+                    //        if ( newWidth < 350 )
+                    //            newWidth = 350;
+                    //        Flowdoc . Width = newWidth;
+                    //        Canvas . SetLeft ( Flowdoc , MLeft );
+                    //        FdLeft = MLeft;
+                    //        return;
+                }
             }
         }
 
-        private void border_PreviewMouseMove ( object sender , MouseEventArgs e )
+        private void border_MouseMove ( object sender , MouseEventArgs e )
         {
-            // sender = border !!
+            double btop = 0, bheight = 0, bleft = 0, bwidth = 0;
             double diff = 0;
-            // Border ourborder = sender as Border;
-            // Debug . WriteLine ($"{this.BorderSelected}");
-            if ( this . BorderSelected == 5 && this . BorderSelected != -1
-             && e . LeftButton == MouseButtonState . Pressed )
+            Border border = sender as Border;
+            if ( GenSelBox == null )
+                 return;
+             try
             {
-                if ( ourlist == null )
-                    return;
-                //FdTop = top;
+                if ( this . BorderSelected == 5 && this . BorderSelected != -1
+                 && e . LeftButton == MouseButtonState . Pressed )
+                {
+                    //moving TOP border
+                    if ( GcCanvas == null ) GcCanvas = DapperGenericsLib . Utils . FindVisualParent<Canvas> ( sender as DependencyObject );
+                    btop = e . GetPosition ( ( GcCanvas as FrameworkElement ) as FrameworkElement ) . Y;
+                    Debug . WriteLine ( $"ENTRY moving TOP border : CtrlTop = {CtrlTop},  btop = {btop},Height={height}, borderHeight={border . ActualHeight}" );
+                    diff = btop - CtrlTop;
+                    // Get border's top position
+                    if ( diff > 0 )
+                    {
+                         bheight = height - diff;
+                        btop += diff;
+                    }
+                    else
+                    {
+                        bheight = height + diff;
+                        btop -= diff;
+                    }
+                    CtrlTop = btop;
+                    height = bheight;
+                    border . Height = bheight;
+                    Debug . WriteLine ( $"EXIT moving TOP border : CtrlTop =  {CtrlTop},  Height={height}, borderHeight={border.ActualHeight}" );
+ //                   ( this as FrameworkElement ) . SetValue ( Canvas . LeftProperty , ( double ) horposition );
+                    ( border as FrameworkElement ) . SetValue ( Canvas . TopProperty , ( double ) CtrlTop );
+                    //e . Handled = true;
+                }
+            }
+            catch ( Exception ex ) { Debug . WriteLine ($"{ex.Message}"); }
+            {
+                //                bleft = e . GetPosition ( ( GcCanvas as FrameworkElement ) as FrameworkElement ) . X;
+                //               bwidth = width;
+                //               left = bleft;
+                //width = bwidth;
+                //border . Width = bwidth;
 
-                Debug . WriteLine ( $"ENTRY top = {top},  Height={border . Height}" );
-                // Get border's top position
-                double newFdTop = e . GetPosition ( ( GcCanvas as FrameworkElement ) as FrameworkElement ) . Y;
-                // FdTop = new positon
-                if ( newFdTop > top )
-                {
-                    diff = newFdTop - top;    // Positive value, reducing height
-                    border . Height -= diff;
-                    top += diff;
-                }
-                else
-                {
-                    diff = top - newFdTop; //  Negatiive value, increasing height
-                    border . Height += diff;
-                    top -= diff;
-                }
-                Debug . WriteLine ( $"ENTRY Diff = {diff}" );
+
+                //Debug . WriteLine ( $"ENTRY Diff = {diff}" );
+                //border . SetValue ( Canvas . BottomProperty , ( double ) top + border . Height );
+                //border . SetValue ( Canvas . TopProperty , ( double ) top );
+                //var bot = border . GetValue ( Canvas.BottomProperty );
+                //Debug . WriteLine ( $"EXIT Diff = {diff}, CtrlTop= {CtrlTop}, Height={border . Height}" );
+                // ( border as FrameworkElement ) . SetValue ( Canvas . BottomProperty , ( double ) top + border.Height );
                 //Point pt = Mouse . GetPosition ( GcCanvas );
                 //Debug . WriteLine ( $"ENTRY pt X= {pt . X}, pt.Y={pt . Y}" );
                 // if ( FdTop >= pt . Y )
@@ -440,38 +491,39 @@ namespace NewWpfDev . Views
                 //               //double ValidTop = FdBottom - ( 2 );
                 //double ValidBottom = FdBottom + ( 2 );
                 //border = ourborder;
-                ( border as FrameworkElement ) . SetValue ( Canvas . TopProperty , ( double ) top );
-                ( border as FrameworkElement ) . SetValue ( Canvas . BottomProperty , ( double ) top + border . Height );
-                // ( border as FrameworkElement ) . SetValue ( Canvas . BottomProperty , ( double ) top + border.Height );
                 // uppdate global top position
                 //               top = pt . Y;
                 //( this as FrameworkElement ) . SetValue ( Canvas . BottomProperty , ( double )FdBottom  - FdTop );
-                Debug . WriteLine ( $"EXIT Diff = {diff}, top= {top}, Height={border . Height}" );
-
             }
-
         }
 
-        private void border_PreviewMouseLeftButtonUp ( object sender , MouseButtonEventArgs e )
+        private void border_MouseLeftButtonUp ( object sender , MouseButtonEventArgs e )
         {
-            top = ( double ) border . GetValue ( Canvas . TopProperty );
-            left = ( double ) border . GetValue ( Canvas . BottomProperty );
+            if ( GcCanvas == null ) GcCanvas = DapperGenericsLib . Utils . FindVisualParent<Canvas> ( sender as DependencyObject );
+            //top = e . GetPosition ( ( GcCanvas as FrameworkElement ) as FrameworkElement ) . Y;
+            //left = e . GetPosition ( ( GcCanvas as FrameworkElement ) as FrameworkElement ) . X;
+            //height= ( double ) this . GetValue ( Canvas . BottomProperty );
+            //width= ( double ) this . GetValue ( Canvas . RightProperty );
             this . BorderSelected = -1;
             Mouse . OverrideCursor = Cursors . Arrow;
-            Debug . WriteLine ( $"Button up : top= {top}, Height={border . Height}" );
+            Debug . WriteLine ( $"ENTRY L Button up : CtrlTop =  {CtrlTop} Height={height}, borderHeight={border . ActualHeight}" );
         }
         #endregion Font Listbox  (border) move/sizing
 
         #endregion Font Listbox move/sizing OUTER
 
         #region utilities
-        public static GenericSelectBoxControl GetThisControl ( object sender )
-        {
-            TextBlock tb = sender as TextBlock;
-            Grid grid = tb . Parent as Grid;
-            GenericSelectBoxControl ourlist = grid . Parent as GenericSelectBoxControl;
-            return ourlist;
-        }
+
         #endregion utilities
+
+        private void listbox_MouseDoubleClick ( object sender , MouseButtonEventArgs e )
+        {
+            selectbtn ( sender, e);
+        }
+
+        private void listbox_MouseDoubleClick_1 ( object sender , MouseButtonEventArgs e )
+        {
+
+        }
     }
 }

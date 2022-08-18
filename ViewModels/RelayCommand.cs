@@ -20,7 +20,7 @@ namespace NewWpfDev . ViewModels
         public RelayCommand ( Action<object> executeMethod , Func<object , bool> canexecuteMethod )
         {
             _executeMethod = executeMethod;
-            Debug . WriteLine ( $"Calling Command {executeMethod . Method . ToString ( )}" );
+ //           Debug . WriteLine ( $"Calling Command {executeMethod . Method . ToString ( )}" );
             _canexecuteMethod = canexecuteMethod;
         }
 

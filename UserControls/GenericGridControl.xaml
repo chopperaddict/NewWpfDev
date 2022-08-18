@@ -368,6 +368,8 @@
                     Margin="10 0 10 0"
                     DragStarted="Splitter_DragStarted"  
                     DragCompleted="Splitter_DragCompleted"
+                    MouseEnter="Splitter_MouseEnter"
+                    MouseLeave="Splitter_MouseLeave"
                     PreviewMouseLeftButtonDown="Splitter_PreviewMouseLeftButtonDown"
                     PreviewMouseLeftButtonUp="Splitter_PreviewMouseLeftButtonUp"
                     Panel.ZIndex="2"   
@@ -458,10 +460,11 @@
 				Visibility="Collapsed"
 				Width="520" />
 
-            <view1:GenericSelectBoxControl  x:Name="SelectionListbox" 
+            <!--<view1:GenericSelectBoxControl  x:Name="SelectionListbox" 
 				Panel.ZIndex="5"
                 Visibility="Collapsed"
-               Height="350" Width="400"/>
+               Canvas.Top="{Binding CtrlTop}"
+               Height="350" Width="400"/>-->
 
                 <!--Margin="65 35 0 0"-->
         </Canvas>

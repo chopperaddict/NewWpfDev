@@ -227,29 +227,26 @@ namespace NewWpfDev . UserControls
             //Maximize hook  +/- statements - dont forget to remove them (Unsubscribe on closing)
             Flowdoc . ExecuteFlowDocMaxmizeMethod += new EventHandler ( MaximizeFlowDoc );
             FlowDoc . FlowDocClosed += Flowdoc_FlowDocClosed;
-            FlowDoc . ShowGenListBox += FlowDoc_ShowGenListBox;
+            //FlowDoc . ShowGenListBox += FlowDoc_ShowGenListBox;
             GenericSelectBoxControl . ListSelection += GenericSelectBoxControl_ListSelection1;
             //           DapperGenericsLib.Utils . GetFontsList ( );
         }
-
 
         private void GenericSelectBoxControl_ListSelection1 ( object sender , SelectionArgs e )
         {
             //SelectionListbox . listbox . ItemsSource = DapperGenericsLib . Utils . GetFontsList ( );
             FontFamily FontFamily = new FontFamily ( e.selection );
             Flowdoc.fontFamily = FontFamily;
-
         }
-        private void FlowDoc_ShowGenListBox ( object sender , SelectListboxArgs e )
-
-        {
+        //private void FlowDoc_ShowGenListBox ( object sender , SelectListboxArgs e )
+        //{
             // Shows  the populated fonts listbox
-            SelectionListbox . listbox . ItemsSource = DapperGenericsLib . Utils . GetFontsList ( );
-            GenericSelectBoxControl . GcCanvas = e . gcc;
-            SelectionListbox . Visibility = Visibility . Visible;
-            GenericSelectBoxControl . Isopen = false;
-        }
-
+            //SelectionListbox . listbox . ItemsSource = DapperGenericsLib . Utils . GetFontsList ( );
+            //GenericSelectBoxControl . GcCanvas = e . gcc;
+            //SelectionListbox . Visibility = Visibility . Visible;
+            //SelectionListbox . callerobj = e . caller;
+            //GenericSelectBoxControl . Isopen = false;
+        //}
 
         private void Splitter_SizeChanged ( object sender , SizeChangedEventArgs e )
         {
@@ -376,6 +373,13 @@ namespace NewWpfDev . UserControls
                 BankAcHost . GetColumnNames ( table , out retval , "IAN1" );
             return retval;
         }
+        /// <summary>
+        /// Special method that loads GENERIC format data from Sql Table, & Loads it into specified DataGrid
+        /// cleaning away unused columns and even loading the real Column names  for the selected table
+        /// </summary>
+        /// <param name="table">Sql Table name</param>
+        /// <param name="grid">Datagrid to be loaded</param>
+        /// <returns></returns>
         public async Task<bool> LoadGenericTable ( string table , string grid )
         {
             int colcount = 0;
@@ -387,6 +391,8 @@ namespace NewWpfDev . UserControls
             string ConString = "";
             DapperLibSupport . CheckResetDbConnection ( "IAN1" , out ConString );
             string con = DapperLibSupport . GetDictionaryEntry ( DapperGenLib . ConnectionStringsDict , "IAN1" , out string dictvalue );
+
+
             Stopwatch sw = new Stopwatch ( );
             sw . Start ( );
             if ( ActiveGrid == 1 || Gencollection1 . Count == 0 )
@@ -630,7 +636,8 @@ namespace NewWpfDev . UserControls
                 TablesList = DapperLibSupport . GetDataDridRowsAsListOfStrings ( dt );
             }
             return TablesList;
-        }
+
+         }
         private void genkeydown ( object sender , KeyEventArgs e )
         {
             if ( sender . GetType ( ) is PopupListBox )
@@ -2319,6 +2326,17 @@ namespace NewWpfDev . UserControls
 
             //output = output . TrimEnd ( );
             output = output . Substring ( 0 , output . Length - 3 ) + "\nPress Escape to close viewer...";
+        }
+
+        private void Splitter_MouseEnter ( object sender , MouseEventArgs e )
+        {
+            Mouse . OverrideCursor = Cursors . SizeNS;
+        }
+
+        private void Splitter_MouseLeave ( object sender , MouseEventArgs e )
+        {
+            Mouse . OverrideCursor = Cursors . Arrow;
+
         }
         //public MapperConfiguration Getmap ( MapperConfiguration MapperCfg )
         //{

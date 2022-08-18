@@ -659,8 +659,10 @@ namespace NewWpfDev . Views
                     // Intial startup of system
                     if ( GenericGrid . datagrid1 . Items . Count == 0 )
                     {
-                        //GenericGrid . LoadGenericTable ( "BankAccount" , "datagrid1" );
-                        await Task . Run ( ( ) => GenericGrid . LoadGenericTable ( "BankAccount" , "datagrid1" ));
+                        // Testing extension method
+                        Gencollection1 =  Gencollection1 . LoadGenData ( "BANKACCOUNT" , GenericGrid . datagrid1 );
+                        Gencollection2 = Gencollection2 . LoadGenData ( "BANKACCOUNT" , GenericGrid . datagrid2 );
+                        //                        await Task . Run ( ( ) => GenericGrid . LoadGenericTable ( "BankAccount" , "datagrid1" ));
                     }
                 }
                 if ( this . BankContent . Width != 0 && this . BankContent . Height != 0 )

@@ -139,7 +139,7 @@
 
 	</UserControl.Resources>
 
-	<Grid>
+	<Grid x:Name="fdgrid">
 			  <!--MouseMove="FdBorder_MouseMove"-->
 		<Border x:Name="FlowdocBorder"
 			  PreviewMouseLeftButtonDown="FlowdocBorder_PreviewMouseLeftButtonDown"
@@ -160,10 +160,6 @@
 				<Grid x:Name="MainGrid"
 					Background="{Binding backGround}"
                       PreviewKeyDown="flowdoc_PreviewKeyDown">
-
-					<!--<behaviors:Interaction.Behaviors>
-					<behaviors:MouseDragElementBehavior ConstrainToParentBounds="True" />
-				</behaviors:Interaction.Behaviors>-->
 
 					<Grid.RowDefinitions>
 						<RowDefinition Height="30" />
@@ -252,11 +248,6 @@
                              ScrollViewer.VerticalScrollBarVisibility="Visible"
 							Visibility="Hidden"
 							  Width="{Binding Path=ActualWidth, ElementName=flowdoc, Converter={StaticResource resetTextWidth},ConverterParameter=25}"/>
-							 <!--VerticalScrollBarVisibility="Visible"-->
-					<!--PreviewMouseLeftButtonDown="doc_PreviewMouseLeftButtonDown"-->
-					<!--MouseLeftButtonDown="doc_PreviewMouseLeftButtonDown"-->
-
-                                              <!--FontSize="11"-->
 						<!--FontFamily="Arial"-->
 					<FlowDocumentScrollViewer x:Name="fdviewer"
 						ContextMenu="{StaticResource OptionsContextmenu}"
@@ -297,8 +288,16 @@
 						Tag="CloseBtn"
 						Template="{StaticResource GreenRadialButtonTemplate}"
 						Content="Close" />
-	
-				</Grid>
+                    <TextBlock x:Name="CurrentFont"                                
+                               Grid.Row="2" Grid.Column="1" 
+                               HorizontalAlignment="Left"
+                              PreviewMouseLeftButtonDown="listbox_Mouseleftdown"
+                              PreviewMouseRightButtonDown="listbox_Mouseleftdown" 
+                               Width="250" Height="30" Margin="10 0 0 0" 
+                               Padding="10 5 0 0"
+                               Background="Orange" Foreground="Black"
+                               Text="Default Font"/>
+                </Grid>
 			</Border>
 		</Border>
 	</Grid>

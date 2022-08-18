@@ -2961,7 +2961,7 @@ namespace NewWpfDev
                 }   // END WHILE index < max
             }
             int counter = 0;
-            Debug . WriteLine ( $"*****************************************************]" );
+//            Debug . WriteLine ( $"*****************************************************]" );
             foreach ( var item in Styles )
             {
                 if ( item == "Dark Mode" )
@@ -2973,8 +2973,8 @@ namespace NewWpfDev
                 }
                 counter++;
             }
-            Debug . WriteLine ( $"Identified {counter} valid DataGrid styles in {fullvalidpaths . Count} Style source files in {dirs . Length} valid folders" );
-            Debug . WriteLine ( $"*****************************************************]" );
+//            Debug . WriteLine ( $"*****************************************************]" );
+           Debug . WriteLine ( $"Identified {counter} valid DataGrid styles in {fullvalidpaths . Count} Style source files in {dirs . Length} valid folders" );
             return fullvalidstyles;
         }   // METHOD END
 
