@@ -2338,95 +2338,17 @@ namespace NewWpfDev . UserControls
             Mouse . OverrideCursor = Cursors . Arrow;
 
         }
-        //public MapperConfiguration Getmap ( MapperConfiguration MapperCfg )
-        //{
-        //   return  MapperCfg . CreateMap<DapperGenericsLib . GenericClass , DapperGenericsLib . DapperGenericsLib . GenericClass> ( );
-        //}
-        //public static string GetGenericFieldData ( Mapper  gc , int index )
-        //{
-        //    string output = "";
-        //    //var record = gc as DapperGenericsLib . GenericClass;
-        //    //switch ( index )
-        //    //{
-        //    //    case 0:
-        //    //        output += gc . field1 + "\n";
-        //    //        break;
-        //    //    case 1:
-        //    //        output += gc . field2 + "\n";
-        //    //        break;
-        //    //    case 2:
-        //    //        output += gc . field3 + "\n";
-        //    //        break;
-        //    //    case 3:
-        //    //        output += gc . field4 + "\n";
-        //    //        break;
-        //    //    case 4:
-        //    //        output += gc . field5 + "\n";
-        //    //        break;
-        //    //    case 5:
-        //    //        output += gc . field6 + "\n";
-        //    //        break;
-        //    //    case 6:
-        //    //        output += gc . field7 + "\n";
-        //    //        break;
-        //    //    case 7:
-        //    //        output += gc . field8 + "\n";
-        //    //        break;
-        //    //    case 8:
-        //    //        output += gc . field9 + "\n";
-        //    //        break;
-        //    //    case 9:
-        //    //        output += gc . field10 + "\n";
-        //    //        break;
-        //    //    case 10:
-        //    //        output += gc . field11 + "\n";
-        //    //        break;
-        //    //    case 11:
-        //    //        output += gc . field12 + "\n";
-        //    //        break;
-        //    //    case 12:
-        //    //        output += gc . field13 + "\n";
-        //    //        break;
-        //    //    case 13:
-        //    //        output += gc . field14 + "\n";
-        //    //        break;
-        //    //    case 14:
-        //    //        output += gc . field15 + "\n";
-        //    //        break;
-        //    //    case 15:
-        //    //        output += gc . field16 + "\n";
-        //    //        break;
-        //    //    case 16:
-        //    //        output += gc . field17 + "\n";
-        //    //        break;
-        //    //    case 17:
-        //    //        output += gc . field18 + "\n";
-        //    //        break;
-        //    //    case 18:
-        //    //        output += gc . field19 + "\n";
-        //    //        break;
-        //    //    case 19:
-        //    //        output += gc . field20 + "\n";
-        //    //        break;
-        //    //}
-        //    return output;
-        //}
-        //public MapperConfiguration  IntializeMapper(object ggc  )
-        //{
 
-        //    var config = new MapperConfiguration ( cfg =>
-        //    {
-        //         cfg . CreateMap<DapperGenericsLib .  GenericClass , DapperGenericsLib . GenericClass> ( );
-        //     } );
-        //    //var cfg = new MapperConfigurationExpression ( );
-        //    //cfg . AddProfile<AppProfile> ( );
-        //   // Mapper .InitAutoMapper ( config );
-
-        //    //var mapperConfig = new MapperConfiguration ( cfg );
-        //    //IMapper mapper = new Mapper ( mapperConfig );
-        //    ////var config = new MapperConfiguration ( cfg => cfg . CreateMap<typeof(type)>, DapperGenericsLib . GenericClass> ( ) );
-        //    //var mapper = config.CreateMapper ();
-        //    return config;
-        //}
-    }
+        public  Point GetNewCanvasOffset( object sender, Point pt )
+        {
+            pt = Mouse . GetPosition (  canvas );
+            return pt;
+        }
+        public void canvas_MouseMove ( object sender , MouseEventArgs e )
+        {
+            //Debug . WriteLine ("HostCanvas move hit.....");
+            Point pt = new Point( );
+            GetNewCanvasOffset (sender, pt);
+        }
+     }
 }

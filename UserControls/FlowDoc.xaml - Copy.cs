@@ -1,4 +1,7 @@
 ﻿using System;
+using System . Collections;
+//using DocumentFormat . OpenXml . Presentation;
+using System . Collections . Generic;
 using System . ComponentModel;
 using System . Diagnostics;
 using System . Windows;
@@ -6,10 +9,8 @@ using System . Windows . Controls;
 using System . Windows . Documents;
 using System . Windows . Input;
 using System . Windows . Media;
+
 using NewWpfDev . Views;
-//using DocumentFormat . OpenXml . Presentation;
-using System . Collections . Generic;
-using System . Collections;
 
 namespace NewWpfDev . UserControls
 {
@@ -18,7 +19,7 @@ namespace NewWpfDev . UserControls
 
         public static event EventHandler<EventArgs> FlowDocClosed;
         public static event EventHandler<SelectListboxArgs> ShowGenListBox;
-
+        public static string line1text { get; set; }
         public static bool GenlistLoaded = false;
         #region Properties
         private bool mouseCaptured;
@@ -106,7 +107,42 @@ namespace NewWpfDev . UserControls
             doc . FontSize = ( double ) 16;
             Fontsize = doc . FontSize;
         }
-
+        /// <summary>
+        /// Update FontFamily in all paragraphs of both flowdocument types used by this control
+        /// // FlowDocumentScrollViewer=fdviewer, & RichTextBox=doc
+        /// </summary>
+        public void UpdateDisplay ( )
+        {
+            BlockCollection bcoll;
+            this . doc . FontFamily = fontFamily;
+            this . doc . UpdateLayout ( );
+            this . doc . UpdateDefaultStyle ( );
+            this . fdviewer . UpdateDefaultStyle ( );
+            if ( this . doc . Visibility == Visibility . Visible )
+            {
+                this . doc . FontFamily = fontFamily;
+                bcoll = this . doc . Document . Blocks;
+            }
+            else
+            {
+                this . fdviewer . FontFamily = fontFamily;
+                bcoll = this . fdviewer . Document . Blocks;
+            }
+            if ( bcoll . Count >= 1 )
+            {
+                // enumerate through ALL aragraphs updating fontfamily
+                // All works well
+                IEnumerator enumerator = bcoll . GetEnumerator ( );
+                while ( enumerator . MoveNext ( ) )
+                {
+                    var v = enumerator . Current as Paragraph;
+                    v . FontFamily = fontFamily;
+                    bcoll . FirstBlock . FontFamily = fontFamily;
+                    bcoll . FirstBlock . UpdateDefaultStyle ( );
+                }
+            } 
+            this . Refresh ( );
+        }
         private void flowdoc_Loaded ( object sender , RoutedEventArgs e )
         {
             this . DataContext = this;
@@ -293,6 +329,7 @@ namespace NewWpfDev . UserControls
                 para2 . FontSize = 16;
                 if ( fontFamily != null ) para2 . FontFamily = fontFamily;
                 else para2 . FontFamily = new FontFamily ( "Arial" );
+                CurrentFont . Text = para2 . FontFamily . ToString ( );
                 if ( clr4 != "" )
                     para2 . Foreground = FindResource ( clr4 . Trim ( ) ) as SolidColorBrush;
                 else
@@ -309,6 +346,7 @@ namespace NewWpfDev . UserControls
                 Paragraph para1 = new Paragraph ( );
                 if ( fontFamily != null ) para1 . FontFamily = fontFamily;
                 else para1 . FontFamily = new FontFamily ( "Arial" );
+                CurrentFont . Text = para1 . FontFamily . ToString ( );
                 if ( clr1 != "" )
                     para1 . Foreground = FindResource ( clr1 . Trim ( ) ) as SolidColorBrush;
                 else
@@ -316,6 +354,7 @@ namespace NewWpfDev . UserControls
                 para1 . Inlines . Add ( new Run ( line1 ) );
                 //Add paragraph to flowdocument
                 myFlowDocument . Blocks . Add ( para1 );
+                line1text = line1;
             }
             if ( line2 != "" )
             {
@@ -323,6 +362,7 @@ namespace NewWpfDev . UserControls
                 Paragraph para2 = new Paragraph ( );
                 if ( fontFamily != null ) para2 . FontFamily = fontFamily;
                 else para2 . FontFamily = new FontFamily ( "Arial" );
+                CurrentFont . Text = para2 . FontFamily . ToString ( );
                 para2 . FontSize = 14;
                 if ( clr2 != "" )
                     para2 . Foreground = FindResource ( clr2 . Trim ( ) ) as SolidColorBrush;
@@ -338,6 +378,7 @@ namespace NewWpfDev . UserControls
                 Paragraph para3 = new Paragraph ( );
                 if ( fontFamily != null ) para3 . FontFamily = fontFamily;
                 else para3 . FontFamily = new FontFamily ( "Arial" );
+                CurrentFont . Text = para3 . FontFamily . ToString ( );
                 if ( clr3 != "" )
                     para3 . Foreground = FindResource ( clr3 . Trim ( ) ) as SolidColorBrush;
                 else
@@ -361,6 +402,7 @@ namespace NewWpfDev . UserControls
                 para2 . FontSize = 16;
                 if ( fontFamily != null ) para2 . FontFamily = fontFamily;
                 else para2 . FontFamily = new FontFamily ( "Arial" );
+                CurrentFont . Text = para2 . FontFamily . ToString ( );
                 if ( clr4 != "" )
                     para2 . Foreground = FindResource ( clr4 . Trim ( ) ) as SolidColorBrush;
                 else
@@ -379,6 +421,7 @@ namespace NewWpfDev . UserControls
                 para1 . FontSize = this . Fontsize;
                 if ( fontFamily != null ) para1 . FontFamily = fontFamily;
                 else para1 . FontFamily = new FontFamily ( "Arial" );
+                CurrentFont . Text = para1 . FontFamily . ToString ( );
                 if ( clr1 != "" )
                     para1 . Foreground = FindResource ( clr1 . Trim ( ) ) as SolidColorBrush;
                 else
@@ -386,6 +429,7 @@ namespace NewWpfDev . UserControls
                 para1 . Inlines . Add ( new Run ( line1 ) );
                 //Add paragraph to flowdocument
                 myFlowDocument . Blocks . Add ( para1 );
+                line1text = line1;
             }
             if ( line2 != "" )
             {
@@ -393,6 +437,7 @@ namespace NewWpfDev . UserControls
                 Paragraph para2 = new Paragraph ( );
                 if ( fontFamily != null ) para2 . FontFamily = fontFamily;
                 else para2 . FontFamily = new FontFamily ( "Arial" );
+                CurrentFont . Text = para2 . FontFamily . ToString ( );
                 //				para2 . FontSize = 14;
                 para2 . FontSize = this . Fontsize;
                 if ( clr2 != "" )
@@ -409,6 +454,7 @@ namespace NewWpfDev . UserControls
                 Paragraph para3 = new Paragraph ( );
                 if ( fontFamily != null ) para3 . FontFamily = fontFamily;
                 else para3 . FontFamily = new FontFamily ( "Arial" );
+                CurrentFont . Text = para3 . FontFamily . ToString ( );
                 para3 . FontSize = 14;
                 if ( clr3 != "" )
                     para3 . Foreground = FindResource ( clr3 . Trim ( ) ) as SolidColorBrush;
@@ -821,7 +867,6 @@ namespace NewWpfDev . UserControls
         private void FdBorder_MouseLeave ( object sender , MouseEventArgs e )
         {
             Mouse . OverrideCursor = Cursors . Arrow;
-            //MouseCaptured = false;				
         }
 
         private void UseRTB_Click ( object sender , RoutedEventArgs e )
@@ -853,8 +898,12 @@ namespace NewWpfDev . UserControls
             }
             Flags . UseScrollView = UseScrollviewer;
         }
+
+
         /// <summary>
-        /// This now creates a new instance of the GenericSelectionBoxControl and Adds it as a new Child to the host Canvas
+        /// Special method that Adds a new item (my GenericListBoxControl) to this controls parent Canvas
+        /// a Canvas is mandatory  for FlowDoc  to function, so it should be there
+        /// it uses a ZIndex oh 10 to be sure to be ontop f any other controls
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -869,99 +918,30 @@ namespace NewWpfDev . UserControls
             //Create new Control to be added
             GenericSelectBoxControl newselbox = new GenericSelectBoxControl ( );
             // Add GenericListBoxControl to our parent's Canvas (Mandatory for FlowDoc anyway)
-            newselbox . Name = "LbSelector";
-            var kids = canvas . Children;
-            bool exists = false;
+            canvas . Children . Add ( newselbox );
+            newselbox . Visibility = Visibility . Visible;
+            // Load list of Windows Fonts
+            List<string> fonts = DapperGenericsLib . Utils . GetFontsList ( );
+            newselbox . listbox . ItemsSource = fonts;
+            string match = CurrentFont . Text . Trim ( );
             int index = 0;
-            do
+            // Highlight current font in use
+            foreach ( string item in newselbox . listbox . Items )
             {
-                foreach ( var item in kids )
+                if ( item == match )
                 {
-                    string str = item . ToString ( );
-                    if ( str . ToString ( ) . Contains ( "GenericSelectBoxControl" ) )
-                    {
-                        kids . Remove ( ( UIElement ) item );
-                        exists = true;
-                        break;
-                    }
-                    index++;
-                }
-                if ( exists != true )
-                {
-                    exists = false;
+                    newselbox . listbox . SelectedIndex = index;
+                    newselbox . listbox . SelectedItem = item;
+                    Utils . ScrollLBRecordIntoView ( newselbox . listbox , index );
                     break;
                 }
-                else
-                {
-                    exists = false;
-                    break;
-                }
-            } while ( true );
-
-            if ( exists != true )
-            {
-                canvas . Children . Add ( newselbox );
-                newselbox . Visibility = Visibility . Visible;
-                // Load list of Windows Fonts
-                List<string> fonts = DapperGenericsLib . Utils . GetFontsList ( );
-                newselbox . listbox . ItemsSource = fonts;
-                string match = CurrentFont . Text . Trim ( );
-                index = 0;
-                // Highlight current font in use
-                foreach ( string item in newselbox . listbox . Items )
-                {
-                    if ( item == match )
-                    {
-                        newselbox . listbox . SelectedIndex = index;
-                        newselbox . listbox . SelectedItem = item;
-                        Utils . ScrollLBRecordIntoView ( newselbox . listbox , index );
-                        break;
-                    }
-                    index++;
-                }
-            } 
+                index++;
+            }
         }
 
         private void listbox_Mouseleftdown ( object sender , MouseButtonEventArgs e )
         {
-            SelectFont_Click ( sender , null );
-        }
- 
-        /// <summary>
-        /// Update FontFamily in all paragraphs of both flowdocument types used by this control
-        /// // FlowDocumentScrollViewer=fdviewer, & RichTextBox=doc
-        /// </summary>
-        public void UpdateFontDisplay ( )
-        {
-            BlockCollection bcoll;
-            this . doc . FontFamily = fontFamily;
-            this . doc . UpdateLayout ( );
-            this . doc . UpdateDefaultStyle ( );
-            this . fdviewer . UpdateDefaultStyle ( );
-            if ( this . doc . Visibility == Visibility . Visible )
-            {
-                this . doc . FontFamily = fontFamily;
-                bcoll = this . doc . Document . Blocks;
-            }
-            else
-            {
-                this . fdviewer . FontFamily = fontFamily;
-                bcoll = this . fdviewer . Document . Blocks;
-            }
-            if ( bcoll . Count >= 1 )
-            {
-                // enumerate through ALL aragraphs updating fontfamily
-                // All works well
-                IEnumerator enumerator = bcoll . GetEnumerator ( );
-                while ( enumerator . MoveNext ( ) )
-                {
-                    var v = enumerator . Current as Paragraph;
-                    v . FontFamily = fontFamily;
-                    bcoll . FirstBlock . FontFamily = fontFamily;
-                    bcoll . FirstBlock . UpdateDefaultStyle ( );
-                }
-            }
-            this . Refresh ( );
+            SelectFont_Click ( sender , null);
         }
     }
 }

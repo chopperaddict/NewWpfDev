@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              x:Name="LbSelector"
              Panel.ZIndex =" 10"
-             MouseMove="GenLbControl_MouseMove"
+             MouseMove="titlebar_MouseMove"
              MouseLeave="titlebar_MouseLeave"
              PreviewMouseLeftButtonDown="LbSelector_PreviewMouseLeftButtonDown"
              LostFocus="LbSelector_LostFocus"
@@ -15,7 +15,7 @@
              Visibility="{Binding IsVisble}"
             Background="DarkGray"
              PreviewMouseLeftButtonUp="titlebar_MouseLeftButtonUp"
-             d:DesignHeight="400" d:DesignWidth="300">
+             d:DesignHeight="350" d:DesignWidth="400">
     <!--Grid Background="Gray">-->        
   
     <UserControl.Resources>
@@ -86,16 +86,16 @@
             MouseMove="border_MouseMove"
             VerticalAlignment="Stretch"
             HorizontalAlignment="Stretch">
-            <!--PreviewMouseMove="border_PreviewMouseMove"-->
-        <Grid x:Name="innerborder" ForceCursor="false" Cursor="Arrow" MouseEnter="bordergrid_MouseLeave" Height="{Binding ActualHeight, ElementName=border}" >        
+        <Grid x:Name="innerborder" ForceCursor="true" Cursor="Arrow" MouseEnter="border_MouseLeave" Height="{Binding ActualHeight, ElementName=border}" >        
             <Grid.RowDefinitions>
                     <RowDefinition Height="25"  />
                     <RowDefinition Height="*" />
-                    <RowDefinition Height="65" />
+                    <RowDefinition Height="45" />
             </Grid.RowDefinitions>
                 <!--PreviewMouseLeftButtonDown="titlebar_PreviewMouseLeftButtonDown"-->
                 <TextBlock x:Name="titlebar" Background="Red"
                            Grid.Row="0"
+                           ForceCursor="false" Cursor="SizeAll"
                            Foreground="White"
                            FontSize="18"
                            Text="Title bar"
@@ -103,12 +103,10 @@
                             MouseLeftButtonDown="titlebar_MouseLeftButtonDown"
                            MouseLeftButtonUp="titlebar_MouseLeftButtonUp"
                            MouseEnter="titlebar_MouseEnter"
-                           MouseLeave="titlebar_MouseLeave"
-                           MouseMove="titlebar_MouseMove"
                            Padding="0 0 0 0"
                            Visibility="Visible"
                            HorizontalAlignment="Stretch"/>
-                <ListBox x:Name="listbox" Margin="5 5 5 5" Grid.Row="1"
+                <ListBox x:Name="listbox" Margin="10 10 10 10" Grid.Row="1"
                         ItemContainerStyle="{StaticResource _ListBoxItemStyle1}"
                         ForceCursor="false" Cursor="Arrow"
                          MouseEnter="border_MouseLeave"
@@ -125,9 +123,9 @@
                        MouseEnter="MousetoArrow"  
 >
                 <Button  x:Name="cancelBtn" Click="cancelbtn" Content="Cancel" Height="30" Width="120" MouseEnter="MousetoArrow"  
-                            ForceCursor="true" Cursor="Arrow" HorizontalAlignment="Right"  Margin="0 0 20 18" Background="Green"/>
+                            ForceCursor="true" Cursor="Arrow" HorizontalAlignment="Right" Margin="0 0 20 0" Background="Green"/>
                 <Button  x:Name="selectBtn" Click="selectbtn" Content="Select"  Height="30" Width="120" MouseEnter="MousetoArrow"  
-                             ForceCursor="true" Cursor="Arrow" HorizontalAlignment="Right" Margin="0 0 10 18"  Background="Red" Foreground="White"/>
+                             ForceCursor="true" Cursor="Arrow" HorizontalAlignment="Right" Margin="0 0 10 0"  Background="Red" Foreground="White"/>
                 </WrapPanel>
             </Grid>
     </Border>

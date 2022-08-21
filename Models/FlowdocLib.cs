@@ -366,7 +366,7 @@ namespace NewWpfDev. Models
 						Mouse . OverrideCursor = Cursors . SizeWE;
 					else if ( flowdocTop <= 15
 						&& flowdocLeft >= 15 )
-// over  top  border
+                    // over  top  border
 						Mouse . OverrideCursor = Cursors . SizeNS ;
 					else if ( flowdocTop >= flowdocHeight - 15 )
 						// over bottom border

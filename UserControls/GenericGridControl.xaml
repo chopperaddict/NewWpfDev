@@ -5,6 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:models="clr-namespace:NewWpfDev.Models"
              xmlns:conv="clr-namespace:NewWpfDev.Converts"
+             xmlns:local="clr-namespace:NewWpfDev"
              xmlns:user="clr-namespace:NewWpfDev.UserControls"
              xmlns:view="clr-namespace:NewWpfDev.Views"
               xmlns:att="clr-namespace:NewWpfDev.AttachedProperties" 
@@ -432,6 +433,7 @@
 		// Ensure it is set as Visibility="COLLAPSED"
 		// It s recommended to always name if just "canvas" for contiinuty across all controls using Flowdoc-->
 
+        <!--<local:DragCanvas x:Name="canvas" Grid.Row="0"-->
         <Canvas x:Name="canvas" Grid.Row="0"
 				Canvas.Left="0" Canvas.Top="0"
 				HorizontalAlignment="Stretch"
@@ -439,9 +441,10 @@
 				Height="{Binding Path=Height, ElementName=maingrid}"
 				Width="{Binding Path=Width, ElementName=maingrid}"
 				Panel.ZIndex="4"
+                MouseMove="canvas_MouseMove"
                 PreviewKeyDown="Flowdoc_PreviewKeyDown"
 				Background="Transparent"
-                Visibility="Collapsed">
+                Visibility="Visible">
 
             <user:FlowDoc x:Name="Flowdoc"
 				backGround="{StaticResource Gray5}"
@@ -466,7 +469,8 @@
                Canvas.Top="{Binding CtrlTop}"
                Height="350" Width="400"/>-->
 
-                <!--Margin="65 35 0 0"-->
+            <!--Margin="65 35 0 0"-->
         </Canvas>
+        <!--</local:DragCanvas>-->
     </Grid>
 </UserControl>
