@@ -78,8 +78,26 @@
 
     </UserControl.Resources>
     <Grid x:Name="lbgrid">
-    <Border x:Name="border" BorderThickness="9" BorderBrush="LightGreen" 
+        <!--// Try to keep TextBlock OUTSIDE the border-->
+        <TextBlock x:Name="titlebar" Background="Red"
+                Height="30"        
+                Foreground="White"
+                FontSize="18"
+                Text="Title bar"
+                TextAlignment="Center"
+                MouseLeftButtonDown="titlebar_MouseLeftButtonDown"
+                MouseLeftButtonUp="titlebar_MouseLeftButtonUp"
+                MouseEnter="titlebar_MouseEnter"
+                MouseLeave="titlebar_MouseLeave"
+                MouseMove="titlebar_MouseMove"
+                Padding="0 0 0 0"
+                Margin="10 10 10 0"
+                Visibility="Visible"
+                VerticalAlignment="Top"
+                HorizontalAlignment="Stretch"/>
+        <Border x:Name="border" BorderThickness="9" BorderBrush="LightGreen" 
             MouseEnter="border_MouseEnter"  
+            MouseLeave="border_MouseMove"
             ForceCursor="false" 
             MouseLeftButtonDown="border_MouseLeftButtonDown"
             MouseLeftButtonUp="border_MouseLeftButtonUp"
@@ -87,28 +105,17 @@
             VerticalAlignment="Stretch"
             HorizontalAlignment="Stretch">
             <!--PreviewMouseMove="border_PreviewMouseMove"-->
-        <Grid x:Name="innerborder" ForceCursor="false" Cursor="Arrow" MouseEnter="bordergrid_MouseLeave" Height="{Binding ActualHeight, ElementName=border}" >        
-            <Grid.RowDefinitions>
-                    <RowDefinition Height="25"  />
+              <!--Height="{Binding ActualHeight, ElementName=border}" >-->
+            <Grid x:Name="innerborder" ForceCursor="false" Cursor="Arrow" 
+              MouseEnter="bordergrid_MouseLeave"
+                  Margin="1 1 1 1">
+                <Grid.RowDefinitions>
+                    <!--<RowDefinition Height="25"  />-->
                     <RowDefinition Height="*" />
-                    <RowDefinition Height="65" />
+                    <RowDefinition Height="50" />
             </Grid.RowDefinitions>
                 <!--PreviewMouseLeftButtonDown="titlebar_PreviewMouseLeftButtonDown"-->
-                <TextBlock x:Name="titlebar" Background="Red"
-                           Grid.Row="0"
-                           Foreground="White"
-                           FontSize="18"
-                           Text="Title bar"
-                           TextAlignment="Center"
-                            MouseLeftButtonDown="titlebar_MouseLeftButtonDown"
-                           MouseLeftButtonUp="titlebar_MouseLeftButtonUp"
-                           MouseEnter="titlebar_MouseEnter"
-                           MouseLeave="titlebar_MouseLeave"
-                           MouseMove="titlebar_MouseMove"
-                           Padding="0 0 0 0"
-                           Visibility="Visible"
-                           HorizontalAlignment="Stretch"/>
-                <ListBox x:Name="listbox" Margin="5 5 5 5" Grid.Row="1"
+                 <ListBox x:Name="listbox" Margin="5 35 5 0" Grid.Row="0"
                         ItemContainerStyle="{StaticResource _ListBoxItemStyle1}"
                         ForceCursor="false" Cursor="Arrow"
                          MouseEnter="border_MouseLeave"
@@ -116,7 +123,7 @@
                         VerticalAlignment="Stretch"
                         MouseLeftButtonUp="titlebar_MouseLeftButtonUp"
 />
-                <WrapPanel Orientation="Horizontal" Grid.Row="2" 
+                <WrapPanel Orientation="Horizontal" Grid.Row="1" 
                        Background="Transparent" 
                        ForceCursor="false" Cursor="Arrow"
                        HorizontalAlignment="Right" 
@@ -125,9 +132,9 @@
                        MouseEnter="MousetoArrow"  
 >
                 <Button  x:Name="cancelBtn" Click="cancelbtn" Content="Cancel" Height="30" Width="120" MouseEnter="MousetoArrow"  
-                            ForceCursor="true" Cursor="Arrow" HorizontalAlignment="Right"  Margin="0 0 20 18" Background="Green"/>
+                            ForceCursor="true" Cursor="Arrow" HorizontalAlignment="Right"  Margin="0 0 20 0" Background="Green"/>
                 <Button  x:Name="selectBtn" Click="selectbtn" Content="Select"  Height="30" Width="120" MouseEnter="MousetoArrow"  
-                             ForceCursor="true" Cursor="Arrow" HorizontalAlignment="Right" Margin="0 0 10 18"  Background="Red" Foreground="White"/>
+                             ForceCursor="true" Cursor="Arrow" HorizontalAlignment="Right" Margin="0 0 10 0"  Background="Red" Foreground="White"/>
                 </WrapPanel>
             </Grid>
     </Border>

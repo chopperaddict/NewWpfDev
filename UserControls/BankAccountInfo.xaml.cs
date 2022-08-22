@@ -245,15 +245,18 @@ namespace NewWpfDev . UserControls
 
         public async void LoadCustomer ( )
         {
-            Cvm = new ObservableCollection<CustomerViewModel> ( );
+            Cvm = new ObservableCollection<CustomerViewModel> ( );            
             Cvm = SqlSupport . LoadCustomer ( "Select * from Customer order by CustNo, BankNo" , 0 , false );
-            backinggrid . ItemsSource = Cvm;
-            backinggrid . SelectedIndex = 0;
-            backinggrid . SelectedItem = 0;
-            CustomerViewModel cv = new CustomerViewModel ( );
-            cv = backinggrid . SelectedItem as CustomerViewModel;
-            ShowDataRecord ( cv , null );
-            datagrid = backinggrid;
+            Application . Current . Dispatcher . BeginInvoke ( ( ) =>
+            {
+                backinggrid . ItemsSource = Cvm;
+                backinggrid . SelectedIndex = 0;
+                backinggrid . SelectedItem = 0;
+                CustomerViewModel cv = new CustomerViewModel ( );
+                cv = backinggrid . SelectedItem as CustomerViewModel;
+                ShowDataRecord ( cv , null );
+                datagrid = backinggrid;
+            } );
         }
         private void Customergrid_SelectionChanged ( object sender , SelectionChangedEventArgs e )
         {

@@ -1,26 +1,19 @@
 ﻿//using NewWpfDev. Dapper;
-using NewWpfDev . ViewModels;
-
 using System;
 using System . Collections . Generic;
 using System . Collections . ObjectModel;
 using System . Data;
-using System . Linq;
-using System . Text;
-using System . Threading . Tasks;
-using System . Windows . Input;
-using System . Windows;
-using System . Collections . Specialized;
-using NewWpfDev . Views;
 using System . Data . SqlClient;
 using System . Diagnostics;
-using Dapper;
-using System . Collections;
-using System . Linq . Expressions;
-using System . Windows . Documents;
+using System . Linq;
+using System . Windows;
 using System . Windows . Controls;
+
+using Dapper;
+
 using NewWpfDev . Dapper;
 using NewWpfDev . Sql;
+using NewWpfDev . Views;
 
 namespace NewWpfDev . Models
 {
@@ -56,7 +49,7 @@ namespace NewWpfDev . Models
             Flags . CurrentConnectionString = constring;
         }
 
-        public static Dictionary<string , string> GetDbTableColumns ( ref ObservableCollection<ViewModels . GenericClass> Gencollection , ref List<string> list , string dbName , string DbDomain , ref List<int> VarCharLength )
+        public static Dictionary<string , string> GetDbTableColumns ( ref ObservableCollection< GenericClass> Gencollection , ref List<string> list , string dbName , string DbDomain , ref List<int> VarCharLength )
         {
             // Make sure we are accessing the correct Db Domain
             CheckDbDomain ( DbDomain );

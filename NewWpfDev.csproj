@@ -24,6 +24,7 @@
   <ItemGroup>
     <Compile Remove="UserControls\FlowDoc.xaml - Copy.cs" />
     <Compile Remove="ViewModels\DatagridUserControlViewModel.cs" />
+    <Compile Remove="ViewModels\GenericClass.cs" />
     <Compile Remove="Views\GenericSelectBoxControl.xaml - Copy.cs" />
     <Compile Remove="Views\UserCtrlHost.xaml.cs" />
   </ItemGroup>

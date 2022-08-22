@@ -11,7 +11,7 @@
               xmlns:att="clr-namespace:NewWpfDev.AttachedProperties" 
              xmlns:view1="clr-namespace:NewWpfDev.Views"
              mc:Ignorable="d" 
-             Loaded="GenGridControl_Loaded"
+             Loaded="GenGridControl_Loaded"             
              PreviewKeyDown="genkeydown"
              SizeChanged="GenGridControl_SizeChanged"
             x:Name="GenGridControl"
@@ -406,7 +406,7 @@
             <Button x:Name="maskcols" HorizontalAlignment="Left" Height="35" Width="100" Click="Button2_Click"
                     FontWeight="Bold" Padding="40 0 0 0"
                     Style="{StaticResource DarkmodeButton}"
-                    Margin="10 0 5 0" Content="Show Columns"/>
+                    Margin="10 0 5 0" Content="Mask Columns"/>
             <!--<Button HorizontalAlignment="Left" Height="35" Width="80" Click="Button1_Click"
                     FontWeight="Bold" Content="Clear Grid"
                     Style="{StaticResource DarkmodeButton}" Margin="0 0 5 0" />-->

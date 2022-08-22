@@ -87,7 +87,7 @@ namespace NewWpfDev . UserControls {
         #endregion events
         public LvUserControl ( ) {
             InitializeComponent ( );
-            Debug . WriteLine ( $"Listview Control Loading ......" );
+            Debug . WriteLine ( $"LvUserControl Loading ......" );
             ThisWin = this;
             Fontsize = 14;
             listview1 . FontSize = Fontsize;
@@ -111,7 +111,7 @@ namespace NewWpfDev . UserControls {
             TrackselectionChanges = arg;
         }
         private void ReadSerializedObject ( ) {
-            Debug . WriteLine ( "Reading saved file" );
+            //Debug . WriteLine ( "Reading saved file" );
             Stream openFileStream = File . OpenRead ( FileName );
             BinaryFormatter deserializer = new BinaryFormatter ( );
             Tabview . Tabcntrl . dgUserctrl = ( DgUserControl ) deserializer . Deserialize ( openFileStream );
@@ -128,8 +128,8 @@ namespace NewWpfDev . UserControls {
             if ( e . CallerType != "LvUserControl" ) return;
             Application . Current . Dispatcher . Invoke ( async ( ) => {
                 await DispatcherExtns . SwitchToUi ( Application . Current . Dispatcher );
-                Debug . WriteLine ( $"\nInside Dispatcher" );
-                $"Dispatcher on UI thread =  {Application . Current . Dispatcher . CheckAccess ( )}" . CW ( );
+               // Debug . WriteLine ( $"\nInside Dispatcher" );
+                //$"Dispatcher on UI thread =  {Application . Current . Dispatcher . CheckAccess ( )}" . CW ( );
                Bvm = e . DataSource as ObservableCollection<BankAccountViewModel>;
                 //if ( Bvm . Count == 0 ) {
                 //    Thread . Sleep ( 250 );
@@ -144,7 +144,7 @@ namespace NewWpfDev . UserControls {
                 //return;
                 // NB WE MUST reference  the usercontrol listview by using :-
                 // listview1 , not via this.listview1
-                Debug . WriteLine ( $"Listview received {Bvm . Count} records " );
+                //Debug . WriteLine ( $"Listview received {Bvm . Count} records " );
                 listview1 . ItemsSource = null;
                 listview1 . ItemsSource = Bvm;
                 listview1 . SelectedIndex = 0;
@@ -180,7 +180,7 @@ namespace NewWpfDev . UserControls {
                     listview1 . Height = Tabview . Tabcntrl . lvUserctrl . Height = Convert . ToDouble ( converter . Convert ( tabControl?.ActualHeight , typeof ( double ) , 40 , CultureInfo . CurrentCulture ) );
                     listview1 . Width = Tabview . Tabcntrl . lvUserctrl . Width = Convert . ToDouble ( converter . Convert ( tabControl?.ActualWidth , typeof ( double ) , 10 , CultureInfo . CurrentCulture ) );
                 }
-                Debug . WriteLine ( $"Exited Dispatcher\n" );
+                //Debug . WriteLine ( $"Exited Dispatcher\n" );
                 Utils . ScrollLVRecordIntoView ( listview1 , 0 );
                 listview1 . Refresh ( );
                 DbCountArgs args = new DbCountArgs ( );
@@ -189,7 +189,7 @@ namespace NewWpfDev . UserControls {
                 TabWinViewModel . TriggerBankDbCount ( this , args );
                 TabWinViewModel . TriggerDbType ( CurrentType );
             } );
-            Debug . WriteLine ( $"Exited Dispatcher\n" );
+            //Debug . WriteLine ( $"Exited Dispatcher\n" );
         }
         private void EventControl_CustDataLoaded ( object sender , LoadedEventArgs e ) {
             //            if ( listview1 . Items . Count > 0 && CurrentType != "CUSTOMER" ) return;
@@ -197,7 +197,7 @@ namespace NewWpfDev . UserControls {
 
             Application . Current . Dispatcher . Invoke ( async ( ) => {
                 await DispatcherExtns . SwitchToUi ( Application . Current . Dispatcher );
-                Debug . WriteLine ( $"\nInside Dispatcher" );
+                //Debug . WriteLine ( $"\nInside Dispatcher" );
                 $"Dispatcher on UI thread =  {Application . Current . Dispatcher . CheckAccess ( )}" . CW ( );
                 Cvm = e . DataSource as ObservableCollection<CustomerViewModel>;
                 this . listview1 . ItemsSource = Cvm;
@@ -233,7 +233,7 @@ namespace NewWpfDev . UserControls {
                 TabWinViewModel . TriggerBankDbCount ( this , args );
                 TabWinViewModel . TriggerDbType ( CurrentType );
             } );
-            Debug . WriteLine ( $"Exited Dispatcher\n" );
+            //Debug . WriteLine ( $"Exited Dispatcher\n" );
         }
 
         private void EventControl_GenericDataLoaded ( object sender , LoadedEventArgs e ) {
@@ -331,6 +331,7 @@ namespace NewWpfDev . UserControls {
             string ResultString = "";
             this . Dispatcher . Invoke ( ( ) => {
                 string SqlCommand = tablename != null ? $"Select * from {tablename}" : "Select * from Invoice";
+                SqlCommand = $"SpLoadTableAsGeneric {tablename}";
                 Tabview . Tabcntrl . ActiveControlType = Tabview . Tabcntrl . lvUserctrl;
                 //Setup Templates list  as we are changing Db type
                 Tabview . Tabcntrl . DtTemplates . TemplateNameLv = tablename . ToUpper ( );
@@ -376,11 +377,11 @@ namespace NewWpfDev . UserControls {
                 // Allows Callee to update interface
                 Application . Current . Dispatcher . Invoke ( async ( ) => {
                     await DispatcherExtns . SwitchToUi ( Application . Current . Dispatcher );
-                    Debug . WriteLine ( $"\nInside lvUserctrl Dispatcher" );
+//                    Debug . WriteLine ( $"\nInside lvUserctrl Dispatcher" );
                     $"Dispatcher on UI thread =  {Application . Current . Dispatcher . CheckAccess ( )}" . CW ( );
                     await Task . Run ( async ( ) => UserControlDataAccess . GetBankObsCollection ( true , "LvUserControl" ) );
                 } );
-                Debug . WriteLine ( $"Exited lvUserctrl Dispatcher" );
+   //             Debug . WriteLine ( $"Exited lvUserctrl Dispatcher" );
 
 
                 //Application . Current . Dispatcher . Invoke ( async ( ) =>

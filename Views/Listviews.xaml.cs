@@ -23,15 +23,17 @@ namespace NewWpfDev . Views
 {
     public partial class Listviews : Window, INotifyPropertyChanged
     {
+        public static event EventHandler<ListboxHostArgs> SetListboxHost;
+
         #region OnPropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;
 
-        protected void OnPropertyChanged (string PropertyName)
+        protected void OnPropertyChanged ( string PropertyName )
         {
             if ( this . PropertyChanged != null )
             {
-                var e = new PropertyChangedEventArgs(PropertyName);
-                this . PropertyChanged(this , e);
+                var e = new PropertyChangedEventArgs ( PropertyName );
+                this . PropertyChanged ( this , e );
             }
         }
         /// <summary>
@@ -73,29 +75,29 @@ namespace NewWpfDev . Views
         // Set  up our data collections
 
         // Individual records
-        public BankAccountViewModel bvm = new BankAccountViewModel();
-        public CustomerViewModel cvm = new CustomerViewModel();
-        public DetailsViewModel dvm = new DetailsViewModel();
-        public GenericClass gvm = new GenericClass();
+        public BankAccountViewModel bvm = new BankAccountViewModel ( );
+        public CustomerViewModel cvm = new CustomerViewModel ( );
+        public DetailsViewModel dvm = new DetailsViewModel ( );
+        public GenericClass gvm = new GenericClass ( );
 
         // Collections
-        public ObservableCollection<BankAccountViewModel> bankaccts = new ObservableCollection<BankAccountViewModel>();
-        public ObservableCollection<CustomerViewModel> custaccts = new ObservableCollection<CustomerViewModel>();
-        public ObservableCollection<DetailsViewModel> detaccts = new ObservableCollection<DetailsViewModel>();
-        public ObservableCollection<GenericClass> genaccts = new ObservableCollection<GenericClass>();
+        public ObservableCollection<BankAccountViewModel> bankaccts = new ObservableCollection<BankAccountViewModel> ( );
+        public ObservableCollection<CustomerViewModel> custaccts = new ObservableCollection<CustomerViewModel> ( );
+        public ObservableCollection<DetailsViewModel> detaccts = new ObservableCollection<DetailsViewModel> ( );
+        public ObservableCollection<GenericClass> genaccts = new ObservableCollection<GenericClass> ( );
 
         // Northwind Records / collections
-        public nwcustomer nwc = new nwcustomer();
-        public NwOrderCollection nwo = new NwOrderCollection();
-        public ObservableCollection<nwcustomer> nwcustomeraccts = new ObservableCollection<nwcustomer>();
-        public ObservableCollection<nworder> nworderaccts = new ObservableCollection<nworder>();
+        public nwcustomer nwc = new nwcustomer ( );
+        public NwOrderCollection nwo = new NwOrderCollection ( );
+        public ObservableCollection<nwcustomer> nwcustomeraccts = new ObservableCollection<nwcustomer> ( );
+        public ObservableCollection<nworder> nworderaccts = new ObservableCollection<nworder> ( );
 
         // Pubs
-        public PubAuthors pubAuthor = new PubAuthors();
-        static public ObservableCollection<PubAuthors> pubauthors = new ObservableCollection<PubAuthors>();
+        public PubAuthors pubAuthor = new PubAuthors ( );
+        static public ObservableCollection<PubAuthors> pubauthors = new ObservableCollection<PubAuthors> ( );
 
         // supporting sources
-        public List<string> TablesList = new List<string>();
+        public List<string> TablesList = new List<string> ( );
 
         private string SqlSpCommand
         {
@@ -112,8 +114,8 @@ namespace NewWpfDev . Views
         string CurrentDataTable = "";
 
         public static string CurrentSqlConnection = "BankSysConnectionString";
-        public static Dictionary<string , string> DefaultSqlCommands = new Dictionary<string , string>();
-        public FlowdocLib fdl = new FlowdocLib();
+        public static Dictionary<string , string> DefaultSqlCommands = new Dictionary<string , string> ( );
+        public FlowdocLib fdl = new FlowdocLib ( );
         #endregion  Public variables
 
         #region private variables
@@ -124,7 +126,7 @@ namespace NewWpfDev . Views
         // Flowdoc flags
         private bool UseFlowdoc = false;
 #pragma warning disable CS0414 // The field 'Listviews.UseFlowdocBeep' is assigned but its value is never used
- //       private bool UseFlowdocBeep = false;
+        //       private bool UseFlowdocBeep = false;
 #pragma warning restore CS0414 // The field 'Listviews.UseFlowdocBeep' is assigned but its value is never used
         private bool UseScrollViewer = false;
         private bool TvMouseCaptured = false;
@@ -135,15 +137,15 @@ namespace NewWpfDev . Views
         //private  double flowdocTop=0;
         //private  double flowdocLeft=0;
 #pragma warning disable CS0414 // The field 'Listviews.XLeft' is assigned but its value is never used
- //       private double XLeft = 0;
+        //       private double XLeft = 0;
 #pragma warning restore CS0414 // The field 'Listviews.XLeft' is assigned but its value is never used
 #pragma warning disable CS0414 // The field 'Listviews.YTop' is assigned but its value is never used
-//       private double YTop = 0;
-      private bool Startup = false;
+        //       private double YTop = 0;
+        private bool Startup = false;
         private bool LoadAll = true;
         private bool Usetimer = true;
         private bool ComboSelectionActive = false;
-        private static Stopwatch timer = new Stopwatch();
+        private static Stopwatch timer = new Stopwatch ( );
         //public Colorpicker ColorPickerObject = new Colorpicker ( );
 
         //Colorpicker ColorpickerObject = new Colorpicker ( );
@@ -182,7 +184,7 @@ namespace NewWpfDev . Views
             }
             set
             {
-                dbCountlb = value; OnPropertyChanged("DbCountlb");
+                dbCountlb = value; OnPropertyChanged ( "DbCountlb" );
             } //Debug. WriteLine ( $"DbCountlb set to {value}" ); }
         }
         private int dbCountlv;
@@ -194,7 +196,7 @@ namespace NewWpfDev . Views
             }
             set
             {
-                dbCountlv = value; OnPropertyChanged("DbCountlv");
+                dbCountlv = value; OnPropertyChanged ( "DbCountlv" );
             } //Debug. WriteLine ( $"DbCountlv set to {value}" ); }
         }
 
@@ -231,8 +233,8 @@ namespace NewWpfDev . Views
         #endregion Full Properties
 
         //Data  for font size/rowheight
-        private List<int> fontsizes = new List<int>();
-        private List<int> rowsizes = new List<int>();
+        private List<int> fontsizes = new List<int> ( );
+        private List<int> rowsizes = new List<int> ( );
         private Style BtnStyle
         {
             get; set;
@@ -243,15 +245,15 @@ namespace NewWpfDev . Views
             get; set;
         }
         #region Treeview declarations
-        public ObservableCollection<Database> DatabasesCollection = new ObservableCollection<Database>();
-        public ObservableCollection<SqlTable> TablesCollection = new ObservableCollection<SqlTable>();
-        public ObservableCollection<SqlProcedures> ProcsCollection = new ObservableCollection<SqlProcedures>();
+        public ObservableCollection<Database> DatabasesCollection = new ObservableCollection<Database> ( );
+        public ObservableCollection<SqlTable> TablesCollection = new ObservableCollection<SqlTable> ( );
+        public ObservableCollection<SqlProcedures> ProcsCollection = new ObservableCollection<SqlProcedures> ( );
         #endregion Treeview declarations
 
         #region Startup / close
-        public Listviews ()
+        public Listviews ( )
         {
-            InitializeComponent();
+            InitializeComponent ( );
             this . DataContext = this;
             Startup = true;
             UseFlowdoc = false;
@@ -263,91 +265,99 @@ namespace NewWpfDev . Views
             SqlCommand = DefaultSqlCommand;
             canvas . Visibility = Visibility . Visible;
             TreeviewBorder . Visibility = Visibility . Hidden;
-            IsExpanded . SetIsExpand(this , false);
+            IsExpanded . SetIsExpand ( this , false );
 
             // Handle the magnify sytem to handle global flag
-            Flags . UseMagnify = ( bool )Properties . Settings . Default [ "UseMagnify" ];
+            Flags . UseMagnify = ( bool ) Properties . Settings . Default [ "UseMagnify" ];
             if ( Flags . UseMagnify == false )
             {
-                dGrid . Style = ( Style )FindResource("DatagridMagnifyAnimation0");
-                listBox . Style = ( Style )FindResource("ListBoxMagnifyAnimation0");
-                listView . Style = ( Style )FindResource("ListViewMagnifyAnimation0");
-                DataTemplatesLb . Style = ( Style )FindResource("ComboBoxMagnifyAnimation0");
-                DataTemplatesLv . Style = ( Style )FindResource("ComboBoxMagnifyAnimation0");
-                DbMain . Style = ( Style )FindResource("ComboBoxMagnifyAnimation0");
-                dbNameLv . Style = ( Style )FindResource("ComboBoxMagnifyAnimation0");
-                fontSize . Style = ( Style )FindResource("ComboBoxMagnifyAnimation0");
-                rowheight . Style = ( Style )FindResource("ComboBoxMagnifyAnimation0");
+                dGrid . Style = ( Style ) FindResource ( "DatagridMagnifyAnimation0" );
+                listBox . Style = ( Style ) FindResource ( "ListBoxMagnifyAnimation0" );
+                listView . Style = ( Style ) FindResource ( "ListViewMagnifyAnimation0" );
+                DataTemplatesLb . Style = ( Style ) FindResource ( "ComboBoxMagnifyAnimation0" );
+                DataTemplatesLv . Style = ( Style ) FindResource ( "ComboBoxMagnifyAnimation0" );
+                DbMain . Style = ( Style ) FindResource ( "ComboBoxMagnifyAnimation0" );
+                dbNameLv . Style = ( Style ) FindResource ( "ComboBoxMagnifyAnimation0" );
+                fontSize . Style = ( Style ) FindResource ( "ComboBoxMagnifyAnimation0" );
+                rowheight . Style = ( Style ) FindResource ( "ComboBoxMagnifyAnimation0" );
                 Magnifyrate . Text = "0";
             }
             else
             {
-                dGrid . Style = ( Style )FindResource("DatagridMagnifyAnimation4");
-                listBox . Style = ( Style )FindResource("ListBoxMagnifyAnimation4");
-                listView . Style = ( Style )FindResource("ListViewMagnifyAnimation4");
-                DataTemplatesLb . Style = ( Style )FindResource("ComboBoxMagnifyAnimation4");
-                DataTemplatesLv . Style = ( Style )FindResource("ComboBoxMagnifyAnimation4");
-                DbMain . Style = ( Style )FindResource("ComboBoxMagnifyAnimation4");
-                dbNameLv . Style = ( Style )FindResource("ComboBoxMagnifyAnimation4");
-                fontSize . Style = ( Style )FindResource("ComboBoxMagnifyAnimation4");
-                rowheight . Style = ( Style )FindResource("ComboBoxMagnifyAnimation4");
+                dGrid . Style = ( Style ) FindResource ( "DatagridMagnifyAnimation4" );
+                listBox . Style = ( Style ) FindResource ( "ListBoxMagnifyAnimation4" );
+                listView . Style = ( Style ) FindResource ( "ListViewMagnifyAnimation4" );
+                DataTemplatesLb . Style = ( Style ) FindResource ( "ComboBoxMagnifyAnimation4" );
+                DataTemplatesLv . Style = ( Style ) FindResource ( "ComboBoxMagnifyAnimation4" );
+                DbMain . Style = ( Style ) FindResource ( "ComboBoxMagnifyAnimation4" );
+                dbNameLv . Style = ( Style ) FindResource ( "ComboBoxMagnifyAnimation4" );
+                fontSize . Style = ( Style ) FindResource ( "ComboBoxMagnifyAnimation4" );
+                rowheight . Style = ( Style ) FindResource ( "ComboBoxMagnifyAnimation4" );
                 Magnifyrate . Text = "+4";
             }
             Flags . UseScrollView = false;
+            if ( Listviews . SetListboxHost != null )
+            {
+                ListboxHostArgs args = new ListboxHostArgs ( );
+                args . HostControl = this;
+                args . HostName = "ListViewWindow";
+                args . HostType = "Listviews";
+                Listviews . SetListboxHost . Invoke ( this , args );
+            }
         }
 
-        private void Rectangle_Loaded (object sender , RoutedEventArgs e)
+        private void Rectangle_Loaded ( object sender , RoutedEventArgs e )
         {
             //Makes a rectangle height increase/decrease on startup over 0.5 seconds
-            Storyboard MyStoryboard = new Storyboard();
-            DoubleAnimation myDoubleAnimation = new DoubleAnimation();
+            Storyboard MyStoryboard = new Storyboard ( );
+            DoubleAnimation myDoubleAnimation = new DoubleAnimation ( );
             myDoubleAnimation . From = 35.0;
             myDoubleAnimation . To = 45.0;
-            myDoubleAnimation . Duration = new Duration(TimeSpan . FromSeconds(0.5));
+            myDoubleAnimation . Duration = new Duration ( TimeSpan . FromSeconds ( 0.5 ) );
             myDoubleAnimation . AutoReverse = true;
-            Storyboard . SetTargetProperty(myDoubleAnimation , new PropertyPath(Image . HeightProperty));
+            Storyboard . SetTargetProperty ( myDoubleAnimation , new PropertyPath ( Image . HeightProperty ) );
             myDoubleAnimation . RepeatBehavior = RepeatBehavior . Forever;
-            MyStoryboard . Children . Add(myDoubleAnimation);
+            MyStoryboard . Children . Add ( myDoubleAnimation );
 
-            DoubleAnimation myDoubleAnimation2 = new DoubleAnimation();
+            DoubleAnimation myDoubleAnimation2 = new DoubleAnimation ( );
             myDoubleAnimation2 . From = 35.0;
             myDoubleAnimation2 . To = 45.0;
-            myDoubleAnimation2 . Duration = new Duration(TimeSpan . FromSeconds(0.5));
+            myDoubleAnimation2 . Duration = new Duration ( TimeSpan . FromSeconds ( 0.5 ) );
             myDoubleAnimation2 . AutoReverse = true;
-            Storyboard . SetTargetProperty(myDoubleAnimation2 , new PropertyPath(Image . WidthProperty));
+            Storyboard . SetTargetProperty ( myDoubleAnimation2 , new PropertyPath ( Image . WidthProperty ) );
             myDoubleAnimation2 . RepeatBehavior = RepeatBehavior . Forever;
-            MyStoryboard . Children . Add(myDoubleAnimation2);
+            MyStoryboard . Children . Add ( myDoubleAnimation2 );
 
             //			Storyboard . SetTargetName ( myDoubleAnimation , "MyRectangle");
-            MyStoryboard . Begin(magnifyimage);
+            MyStoryboard . Begin ( magnifyimage );
         }
 
         //*************************************************************//
         // Initial startup - load Db = Ian1 / Table = Bankaccount 
         //*************************************************************//
-        private void ListViewWindow_Loaded (object sender , RoutedEventArgs e)
+        private void ListViewWindow_Loaded ( object sender , RoutedEventArgs e )
         {
             this . DataContext = this;
             // Initialize all connection strings  in Flags
-            Utils . LoadConnectionStrings();
+            Utils . LoadConnectionStrings ( );
 
             // Get list of Dbs (just 3 right now)
-            LoadAllDbNames();
+            LoadAllDbNames ( );
 
             // Initialize all default Sql command strings
-            LoadDefaultSqlCommands();
-            DefaultSqlCommand = GetDefaultSqlCommand("BANKACCOUNT");
+            LoadDefaultSqlCommands ( );
+            DefaultSqlCommand = GetDefaultSqlCommand ( "BANKACCOUNT" );
             if ( DefaultSqlCommand == "" )
             {
-                Debug. WriteLine("Unable to load default Select string for BANKACOUNT Db ");
-                WpfLib1 . Utils . DoErrorBeep(250 , 50 , 1);
+                Debug . WriteLine ( "Unable to load default Select string for BANKACOUNT Db " );
+                WpfLib1 . Utils . DoErrorBeep ( 250 , 50 , 1 );
             }
             else
                 SqlCommand = DefaultSqlCommand;
-            if ( Utils . CheckResetDbConnection("IAN1" , out string constr) == false )
+            if ( Utils . CheckResetDbConnection ( "IAN1" , out string constr ) == false )
             {
-                Debug. WriteLine("Unable to load connection string for BANKACOUNT Db from System Properties");
-                WpfLib1 . Utils . DoErrorBeep(250 , 50 , 1);
+                Debug . WriteLine ( "Unable to load connection string for BANKACOUNT Db from System Properties" );
+                WpfLib1 . Utils . DoErrorBeep ( 250 , 50 , 1 );
             }
             //Default to Bankaccount as we are strting up
             CurrentDbName = "IAN1";
@@ -356,36 +366,36 @@ namespace NewWpfDev . Views
             // Now open Ian1, load data and display in both viewers
             // 1st = connect to IAN1.MDF
             // this also loads list of tables in Ian1/mdf
-            OpenIan1Db();
+            OpenIan1Db ( );
             // used to access Dictionary of DataTemplates  - load into both Combos and selects 1st entry
 
             // now load list of tables in IAN1 Db
-            LoadDbTables("IAN1");
-            SelectCurrentDbInCombo("BANKACCOUNT" , "");
+            LoadDbTables ( "IAN1" );
+            SelectCurrentDbInCombo ( "BANKACCOUNT" , "" );
 
             // Load Bankaccount into both viewers
             CurrentTableName = "BANKACCOUNT";
-            LoadData_Ian1("");
+            LoadData_Ian1 ( "" );
             // Set selection of datatemplate to 1st one (selection  used in load method)
-            CurrentDataTable = DataTemplatesLv . Items [ 0 ] . ToString();
+            CurrentDataTable = DataTemplatesLv . Items [ 0 ] . ToString ( );
 
             // Hook into our Flowdoc so we can resize it in  the canvas !!!
             // Flowdoc has an Event declared (ExecuteFlowDocReSizeMethod ) that we are  hooking into
-            Flowdoc . ExecuteFlowDocMaxmizeMethod += new EventHandler(MaximizeFlowDoc);
+            Flowdoc . ExecuteFlowDocMaxmizeMethod += new EventHandler ( MaximizeFlowDoc );
             Flowdoc . ExecuteFlowDocBorderMethod += FlowDoc_ExecuteFlowDocBorderMethod;
             //            Colorpicker . ExecuteSaveToClipboardMethod += Colorpicker_ExecuteSaveToClipboardMethod;
 
             // LOAD BOTH VIEWERS (NO PARAMETER)
-            LoadGrid_IAN1();
+            LoadGrid_IAN1 ( );
             Startup = false;
             if ( UseFlowdoc )
-                ShowInfo(Flowdoc , canvas , header: "Load completed successfully" , clr4: "Red5" ,
+                ShowInfo ( Flowdoc , canvas , header: "Load completed successfully" , clr4: "Red5" ,
                 line1: $"Request made was completed succesfully!" , clr1: "Red3" ,
                 line2: $"" ,
-                line3: $"{SqlCommand . ToUpper()}" , clr3: "Blue4"
+                line3: $"{SqlCommand . ToUpper ( )}" , clr3: "Blue4"
                 );
-            LoadFontsizes();
-            LoadRowsizes();
+            LoadFontsizes ( );
+            LoadRowsizes ( );
             //PickColors . Fontsize = 12;
             Fontsize = 12;
             ItemBackground = Brushes . LightBlue;
@@ -399,132 +409,132 @@ namespace NewWpfDev . Views
             MouseoverSelectedForeground = Brushes . White;
         }
 
-        private void ListViewWindow_PreviewKeyDown (object sender , KeyEventArgs e)
+        private void ListViewWindow_PreviewKeyDown ( object sender , KeyEventArgs e )
         {
             if ( e . Key == Key . F8 )
-                Debugger . Break();
-            ReleaseMouseCapture();
+                Debugger . Break ( );
+            ReleaseMouseCapture ( );
             //			Debug. WriteLine ( "Mouse released 1" );
             TvMouseCaptured = false;
         }
-        private void LoadRowsizes ()
+        private void LoadRowsizes ( )
         {
-            rowsizes . Add(10);
-            rowsizes . Add(12);
-            rowsizes . Add(14);
-            rowsizes . Add(15);
-            rowsizes . Add(16);
-            rowsizes . Add(17);
-            rowsizes . Add(18);
-            rowsizes . Add(20);
-            rowsizes . Add(22);
-            rowsizes . Add(24);
-            rowsizes . Add(26);
-            rowsizes . Add(28);
-            rowsizes . Add(30);
-            rowsizes . Add(34);
-            rowsizes . Add(36);
-            rowsizes . Add(38);
-            rowsizes . Add(40);
-            rowsizes . Add(45);
+            rowsizes . Add ( 10 );
+            rowsizes . Add ( 12 );
+            rowsizes . Add ( 14 );
+            rowsizes . Add ( 15 );
+            rowsizes . Add ( 16 );
+            rowsizes . Add ( 17 );
+            rowsizes . Add ( 18 );
+            rowsizes . Add ( 20 );
+            rowsizes . Add ( 22 );
+            rowsizes . Add ( 24 );
+            rowsizes . Add ( 26 );
+            rowsizes . Add ( 28 );
+            rowsizes . Add ( 30 );
+            rowsizes . Add ( 34 );
+            rowsizes . Add ( 36 );
+            rowsizes . Add ( 38 );
+            rowsizes . Add ( 40 );
+            rowsizes . Add ( 45 );
             rowheight . ItemsSource = rowsizes;
         }
-        private void LoadFontsizes ()
+        private void LoadFontsizes ( )
         {
-            fontsizes . Add(11);
-            fontsizes . Add(12);
-            fontsizes . Add(13);
-            fontsizes . Add(14);
-            fontsizes . Add(15);
-            fontsizes . Add(16);
-            fontsizes . Add(17);
-            fontsizes . Add(18);
-            fontsizes . Add(19);
-            fontsizes . Add(20);
+            fontsizes . Add ( 11 );
+            fontsizes . Add ( 12 );
+            fontsizes . Add ( 13 );
+            fontsizes . Add ( 14 );
+            fontsizes . Add ( 15 );
+            fontsizes . Add ( 16 );
+            fontsizes . Add ( 17 );
+            fontsizes . Add ( 18 );
+            fontsizes . Add ( 19 );
+            fontsizes . Add ( 20 );
             fontSize . ItemsSource = fontsizes;
         }
-        private void Close_Btn (object sender , RoutedEventArgs e)
+        private void Close_Btn ( object sender , RoutedEventArgs e )
         {
-            this . Close();
+            this . Close ( );
         }
 
-        private void App_Close (object sender , RoutedEventArgs e)
+        private void App_Close ( object sender , RoutedEventArgs e )
         {
-            this . Close();
-            Application . Current . Shutdown();
+            this . Close ( );
+            Application . Current . Shutdown ( );
         }
         #endregion Startup / close
 
         #region Load data for the 3 different Db's
-        private void LoadData_Ian1 (string viewertype)
+        private void LoadData_Ian1 ( string viewertype )
         {
             if ( Usetimer )
-                timer . Start();
+                timer . Start ( );
             if ( CurrentTableName == "BANKACCOUNT" )
             {
                 //// Looad available DataTemplates into combo(s) ??
-                LoadDataTemplates_Ian1("BANKACCOUNT" , viewertype);
-                bankaccts = new ObservableCollection<BankAccountViewModel>();
-                SqlCommand = GetDefaultSqlCommand(CurrentTableName);
+                LoadDataTemplates_Ian1 ( "BANKACCOUNT" , viewertype );
+                bankaccts = new ObservableCollection<BankAccountViewModel> ( );
+                SqlCommand = GetDefaultSqlCommand ( CurrentTableName );
                 // need to do this cos the SQL command is changed to load the tables list....
                 if ( Startup )
                     SqlCommand = DefaultSqlCommand;
-                bankaccts = SqlSupport . LoadBank(SqlCommand , 0 , true);
+                bankaccts = SqlSupport . LoadBank ( SqlCommand , 0 , true );
             }
             else if ( CurrentTableName == "CUSTOMER" )
             {
-                LoadDataTemplates_Ian1("CUSTOMER" , viewertype);
-                custaccts = new ObservableCollection<CustomerViewModel>();
-                SqlCommand = GetDefaultSqlCommand(CurrentTableName);
+                LoadDataTemplates_Ian1 ( "CUSTOMER" , viewertype );
+                custaccts = new ObservableCollection<CustomerViewModel> ( );
+                SqlCommand = GetDefaultSqlCommand ( CurrentTableName );
                 // need to do this cos the SQL command is changed to load the tables list....
                 if ( Startup )
                     SqlCommand = DefaultSqlCommand;
-                custaccts = SqlSupport . LoadCustomer(SqlCommand , 0 , true);
+                custaccts = SqlSupport . LoadCustomer ( SqlCommand , 0 , true );
             }
             else if ( CurrentTableName == "SECACCOUNTS" )
             {
-                LoadDataTemplates_Ian1("SECACCOUNTS" , viewertype);
-                detaccts = new ObservableCollection<DetailsViewModel>();
-                SqlCommand = GetDefaultSqlCommand(CurrentTableName);
+                LoadDataTemplates_Ian1 ( "SECACCOUNTS" , viewertype );
+                detaccts = new ObservableCollection<DetailsViewModel> ( );
+                SqlCommand = GetDefaultSqlCommand ( CurrentTableName );
                 // need to do this cos the SQL command is changed to load the tables list....
                 if ( Startup )
                     SqlCommand = DefaultSqlCommand;
-                detaccts = SqlSupport . LoadDetails(SqlCommand , 0 , true);
+                detaccts = SqlSupport . LoadDetails ( SqlCommand , 0 , true );
             }
             else
             {
                 string tablename = "";
-                LoadDataTemplates_Ian1("GENERIC" , viewertype);
-                genaccts = new ObservableCollection<GenericClass>();
+                LoadDataTemplates_Ian1 ( "GENERIC" , viewertype );
+                genaccts = new ObservableCollection<GenericClass> ( );
                 // need to do this cos the SQL command is changed to load the tables list....
                 if ( viewertype == "VIEW" )
-                    tablename = dbNameLv . SelectedItem . ToString();
+                    tablename = dbNameLv . SelectedItem . ToString ( );
                 else
-                    tablename = dbNameLb . SelectedItem . ToString();
+                    tablename = dbNameLb . SelectedItem . ToString ( );
                 SqlCommand = $"Select *from {tablename}";
-                SqlCommand = GetDefaultSqlCommand(CurrentTableName);
+                SqlCommand = GetDefaultSqlCommand ( CurrentTableName );
                 if ( SqlCommand == "" )
                     SqlCommand = $"Select * from {tablename}";
                 // need to do this cos the SQL command is changed to load the tables list....
                 if ( Startup )
                     SqlCommand = DefaultSqlCommand;
                 string ResultString = "";
-                genaccts = SqlSupport . LoadGeneric(SqlCommand , out ResultString , 0 , true);
+                genaccts = SqlSupport . LoadGeneric ( SqlCommand , out ResultString , 0 , true );
                 if ( genaccts . Count > 0 )
                 {
                     if ( UseFlowdoc )
-                        ShowInfo(Flowdoc , canvas , line1: $"The requested table [{CurrentTableName}] was loaded successfully, and {genaccts . Count} records were returned,\nThe data is shown in  the viewer below" , clr1: "Black0" ,
+                        ShowInfo ( Flowdoc , canvas , line1: $"The requested table [{CurrentTableName}] was loaded successfully, and {genaccts . Count} records were returned,\nThe data is shown in  the viewer below" , clr1: "Black0" ,
                         line2: $"The command line used was" , clr2: "Red2" ,
-                        line3: $"{SqlCommand . ToUpper()}" , clr3: "Blue4" ,
-                        header: "Generic style data table" , clr4: "Red5");
+                        line3: $"{SqlCommand . ToUpper ( )}" , clr3: "Blue4" ,
+                        header: "Generic style data table" , clr4: "Red5" );
                 }
                 else
                 {
                     if ( UseFlowdoc )
-                        ShowInfo(Flowdoc , canvas , line1: $"The requested table [{CurrentTableName}] was loaded successfully, but ZERO records were returned,\nThe Table is  " , clr1: "Black0" ,
+                        ShowInfo ( Flowdoc , canvas , line1: $"The requested table [{CurrentTableName}] was loaded successfully, but ZERO records were returned,\nThe Table is  " , clr1: "Black0" ,
                         line2: $"The command line used was" , clr2: "Red2" ,
-                        line3: $"{SqlCommand . ToUpper()}" , clr3: "Blue4" ,
-                        header: "Generic style data table" , clr4: "Red5");
+                        line3: $"{SqlCommand . ToUpper ( )}" , clr3: "Blue4" ,
+                        header: "Generic style data table" , clr4: "Red5" );
 
 
                 }
@@ -542,16 +552,16 @@ namespace NewWpfDev . Views
                 //}
             }
         }
-        public void LoadData_NorthWind (string viewertype)
+        public void LoadData_NorthWind ( string viewertype )
         {
             if ( Usetimer )
-                timer . Start();
+                timer . Start ( );
             if ( CurrentTableName == "CUSTOMERS" )
             {
 
-                LoadDataTemplates_NorthWind("CUSTOMERS" , viewertype);
-                nwcustomeraccts = new ObservableCollection<nwcustomer>();
-                nwcustomeraccts = nwc . GetNwCustomers();
+                LoadDataTemplates_NorthWind ( "CUSTOMERS" , viewertype );
+                nwcustomeraccts = new ObservableCollection<nwcustomer> ( );
+                nwcustomeraccts = nwc . GetNwCustomers ( );
                 // need to do this cos the SQL command is changed to load the tables list....
                 if ( Startup )
                     SqlCommand = DefaultSqlCommand;
@@ -559,9 +569,9 @@ namespace NewWpfDev . Views
             else if ( CurrentTableName == "ORDERS" )
             {
 
-                LoadDataTemplates_NorthWind("ORDERS" , viewertype);
-                nworderaccts = new ObservableCollection<nworder>();
-                nworderaccts = nwo . LoadOrders();
+                LoadDataTemplates_NorthWind ( "ORDERS" , viewertype );
+                nworderaccts = new ObservableCollection<nworder> ( );
+                nworderaccts = nwo . LoadOrders ( );
                 // need to do this cos the SQL command is changed to load the tables list....
                 if ( Startup )
                     SqlCommand = DefaultSqlCommand;
@@ -569,49 +579,49 @@ namespace NewWpfDev . Views
             else
             {
                 string tablename = "";
-                LoadDataTemplates_Ian1("GENERIC" , viewertype);
-                genaccts = new ObservableCollection<GenericClass>();
+                LoadDataTemplates_Ian1 ( "GENERIC" , viewertype );
+                genaccts = new ObservableCollection<GenericClass> ( );
                 // need to do this cos the SQL command is changed to load the tables list....
                 if ( viewertype == "VIEW" )
-                    tablename = dbNameLv . SelectedItem . ToString();
+                    tablename = dbNameLv . SelectedItem . ToString ( );
                 else
-                    tablename = dbNameLb . SelectedItem . ToString();
-                SqlCommand = GetDefaultSqlCommand(CurrentTableName);
+                    tablename = dbNameLb . SelectedItem . ToString ( );
+                SqlCommand = GetDefaultSqlCommand ( CurrentTableName );
                 if ( SqlCommand == "" )
                     SqlCommand = $"Select * from {tablename}";
                 // need to do this cos the SQL command is changed to load the tables list....
                 if ( Startup )
                     SqlCommand = DefaultSqlCommand;
                 string ResultString = "";
-                genaccts = SqlSupport . LoadGeneric(SqlCommand , out ResultString , 0 , true);
+                genaccts = SqlSupport . LoadGeneric ( SqlCommand , out ResultString , 0 , true );
                 if ( genaccts . Count > 0 )
                 {
                     if ( UseFlowdoc )
-                        ShowInfo(Flowdoc , canvas , line1: $"The requested table [{CurrentTableName}] was loaded successfully, and {genaccts . Count} records were returned,\nThe data is shown in  the viewer below" , clr1: "Black0" ,
+                        ShowInfo ( Flowdoc , canvas , line1: $"The requested table [{CurrentTableName}] was loaded successfully, and {genaccts . Count} records were returned,\nThe data is shown in  the viewer below" , clr1: "Black0" ,
                         line2: $"The command line used was" , clr2: "Red2" ,
-                        line3: $"{SqlCommand . ToUpper()}" , clr3: "Blue4" ,
-                        header: "Generic style data table" , clr4: "Red5");
+                        line3: $"{SqlCommand . ToUpper ( )}" , clr3: "Blue4" ,
+                        header: "Generic style data table" , clr4: "Red5" );
                 }
                 else
                 {
                     if ( UseFlowdoc )
-                        ShowInfo(Flowdoc , canvas , line1: $"The requested table [{CurrentTableName}] was loaded successfully, but ZERO records were returned,\nThe Table is  " , clr1: "Black0" ,
+                        ShowInfo ( Flowdoc , canvas , line1: $"The requested table [{CurrentTableName}] was loaded successfully, but ZERO records were returned,\nThe Table is  " , clr1: "Black0" ,
                         line2: $"The command line used was" , clr2: "Red2" ,
-                        line3: $"{SqlCommand . ToUpper()}" , clr3: "Blue4" ,
-                        header: "Generic style data table" , clr4: "Red5");
+                        line3: $"{SqlCommand . ToUpper ( )}" , clr3: "Blue4" ,
+                        header: "Generic style data table" , clr4: "Red5" );
                 }
             }
         }
-        public void LoadData_Publishers (string viewertype , out ObservableCollection<GenericClass> generics)
+        public void LoadData_Publishers ( string viewertype , out ObservableCollection<GenericClass> generics )
         {
             generics = null;
             //ObservableCollection<GenericClass> generics = new ObservableCollection<GenericClass>();
             if ( Usetimer )
-                timer . Start();
+                timer . Start ( );
             if ( CurrentTableName == "AUTHORS" )
             {
-                LoadDataTemplates_PubAuthors("AUTHORS" , viewertype);
-                pubauthors = new ObservableCollection<PubAuthors>();
+                LoadDataTemplates_PubAuthors ( "AUTHORS" , viewertype );
+                pubauthors = new ObservableCollection<PubAuthors> ( );
                 // need to do this cos the SQL command is changed to load the tables list....
                 if ( Startup )
                     SqlCommand = DefaultSqlCommand;
@@ -620,8 +630,8 @@ namespace NewWpfDev . Views
             else if ( CurrentTableName == "ORDERS" )
             {
 
-                LoadDataTemplates_NorthWind("ORDERS" , viewertype);
-                nworderaccts = new ObservableCollection<nworder>();
+                LoadDataTemplates_NorthWind ( "ORDERS" , viewertype );
+                nworderaccts = new ObservableCollection<nworder> ( );
                 // need to do this cos the SQL command is changed to load the tables list....
                 if ( Startup )
                     SqlCommand = DefaultSqlCommand;
@@ -630,37 +640,37 @@ namespace NewWpfDev . Views
             else
             {
                 string tablename = "";
-                LoadDataTemplates_Ian1("GENERIC" , viewertype);
-                genaccts = new ObservableCollection<GenericClass>();
+                LoadDataTemplates_Ian1 ( "GENERIC" , viewertype );
+                genaccts = new ObservableCollection<GenericClass> ( );
                 // need to do this cos the SQL command is changed to load the tables list....
                 if ( viewertype == "VIEW" )
-                    tablename = dbNameLv . SelectedItem . ToString();
+                    tablename = dbNameLv . SelectedItem . ToString ( );
                 else
-                    tablename = dbNameLb . SelectedItem . ToString();
+                    tablename = dbNameLb . SelectedItem . ToString ( );
                 SqlCommand = $"Select *from {tablename}";
-                SqlCommand = GetDefaultSqlCommand(CurrentTableName);
+                SqlCommand = GetDefaultSqlCommand ( CurrentTableName );
                 if ( SqlCommand == "" )
                     SqlCommand = $"Select * from {tablename}";
                 // need to do this cos the SQL command is changed to load the tables list....
                 if ( Startup )
                     SqlCommand = DefaultSqlCommand;
                 string ResultString = "";
-                genaccts = SqlSupport . LoadGeneric(SqlCommand , out ResultString , 0 , true);
+                genaccts = SqlSupport . LoadGeneric ( SqlCommand , out ResultString , 0 , true );
                 if ( genaccts . Count > 0 )
                 {
                     if ( UseFlowdoc )
-                        ShowInfo(Flowdoc , canvas , line1: $"The requested table [{CurrentTableName}] was loaded successfully, and {genaccts . Count} records were returned,\nThe data is shown in  the viewer below" , clr1: "Black0" ,
+                        ShowInfo ( Flowdoc , canvas , line1: $"The requested table [{CurrentTableName}] was loaded successfully, and {genaccts . Count} records were returned,\nThe data is shown in  the viewer below" , clr1: "Black0" ,
                         line2: $"The command line used was" , clr2: "Red2" ,
-                        line3: $"{SqlCommand . ToUpper()}" , clr3: "Blue4" ,
-                        header: "Generic style data table" , clr4: "Red5");
+                        line3: $"{SqlCommand . ToUpper ( )}" , clr3: "Blue4" ,
+                        header: "Generic style data table" , clr4: "Red5" );
                 }
                 else
                 {
                     if ( UseFlowdoc )
-                        ShowInfo(Flowdoc , canvas , line1: $"The requested table [{CurrentTableName}] was loaded successfully, but ZERO records were returned,\nThe Table is  " , clr1: "Black0" ,
+                        ShowInfo ( Flowdoc , canvas , line1: $"The requested table [{CurrentTableName}] was loaded successfully, but ZERO records were returned,\nThe Table is  " , clr1: "Black0" ,
                         line2: $"The command line used was" , clr2: "Red2" ,
-                        line3: $"{SqlCommand . ToUpper()}" , clr3: "Blue4" ,
-                        header: "Generic style data table" , clr4: "Red5");
+                        line3: $"{SqlCommand . ToUpper ( )}" , clr3: "Blue4" ,
+                        header: "Generic style data table" , clr4: "Red5" );
                 }
                 generics = genaccts;
             }
@@ -670,10 +680,10 @@ namespace NewWpfDev . Views
 
         // Just Assign data to grids to display it
         #region Load Viewer for the 3 different Db's
-        private void LoadGrid_IAN1 (string type = "")
+        private void LoadGrid_IAN1 ( string type = "" )
         {
             // Load whatever data we have received into DataGrid
-            if ( CurrentTableName . ToUpper() == "BANKACCOUNT" )
+            if ( CurrentTableName . ToUpper ( ) == "BANKACCOUNT" )
             {
                 if ( bankaccts == null )
                     return;
@@ -682,16 +692,16 @@ namespace NewWpfDev . Views
                     listView . ItemsSource = bankaccts;
                     dGrid . ItemsSource = bankaccts;
                     dGrid . SelectedItem = dGrid . SelectedIndex = 0;
-                    HandleCaption("VIEW" , bankaccts . Count);
-                    listView . Focus();
+                    HandleCaption ( "VIEW" , bankaccts . Count );
+                    listView . Focus ( );
                 }
                 else if ( type == "BOX" )
                 {
                     listBox . ItemsSource = bankaccts;
                     dGrid . ItemsSource = bankaccts;
                     dGrid . SelectedItem = dGrid . SelectedIndex = 0;
-                    HandleCaption("BOX" , bankaccts . Count);
-                    listBox . Focus();
+                    HandleCaption ( "BOX" , bankaccts . Count );
+                    listBox . Focus ( );
                 }
                 else
                 {
@@ -699,17 +709,17 @@ namespace NewWpfDev . Views
                     listBox . ItemsSource = bankaccts;
                     dGrid . ItemsSource = bankaccts;
                     dGrid . SelectedItem = dGrid . SelectedIndex = 0;
-                    HandleCaption("" , bankaccts . Count);
-                    listBox . Focus();
-                    listView . Focus();
+                    HandleCaption ( "" , bankaccts . Count );
+                    listBox . Focus ( );
+                    listView . Focus ( );
                 }
                 if ( UseFlowdoc )
-                    ShowInfo(Flowdoc , canvas , line1: $"The requested table [{CurrentTableName}] was loaded successfully, and the {DbCountlb} records returned are displayed in the table below" , clr1: "Black0" ,
+                    ShowInfo ( Flowdoc , canvas , line1: $"The requested table [{CurrentTableName}] was loaded successfully, and the {DbCountlb} records returned are displayed in the table below" , clr1: "Black0" ,
                     line2: $"The command line used was" , clr2: "Red2" ,
-                    line3: $"{SqlCommand . ToUpper()}" , clr3: "Blue4" ,
-                    header: "Bank Accounts data table" , clr4: "Red5");
+                    line3: $"{SqlCommand . ToUpper ( )}" , clr3: "Blue4" ,
+                    header: "Bank Accounts data table" , clr4: "Red5" );
             }
-            else if ( CurrentTableName . ToUpper() == "CUSTOMER" )
+            else if ( CurrentTableName . ToUpper ( ) == "CUSTOMER" )
             {
                 if ( custaccts == null )
                     return;
@@ -718,16 +728,16 @@ namespace NewWpfDev . Views
                     listView . ItemsSource = custaccts;
                     dGrid . ItemsSource = custaccts;
                     dGrid . SelectedItem = dGrid . SelectedIndex = 0;
-                    HandleCaption("VIEW" , custaccts . Count);
+                    HandleCaption ( "VIEW" , custaccts . Count );
                     listView . SelectedIndex = 0;
-                    listView . Focus();
+                    listView . Focus ( );
                 }
                 else if ( type == "BOX" )
                 {
                     listBox . ItemsSource = custaccts;
                     dGrid . ItemsSource = custaccts;
                     dGrid . SelectedItem = dGrid . SelectedIndex = 0;
-                    HandleCaption("BOX" , custaccts . Count);
+                    HandleCaption ( "BOX" , custaccts . Count );
                     listBox . SelectedIndex = 0;
                 }
                 else
@@ -736,14 +746,14 @@ namespace NewWpfDev . Views
                     listBox . ItemsSource = custaccts;
                     dGrid . ItemsSource = custaccts;
                     dGrid . SelectedItem = dGrid . SelectedIndex = 0;
-                    HandleCaption("" , custaccts . Count);
+                    HandleCaption ( "" , custaccts . Count );
                     listBox . SelectedIndex = 0;
                     listView . SelectedIndex = 0;
                 }
                 listBox . SelectedIndex = 0;
-                listBox . Focus();
+                listBox . Focus ( );
             }
-            else if ( CurrentTableName . ToUpper() == "SECACCOUNTS" )
+            else if ( CurrentTableName . ToUpper ( ) == "SECACCOUNTS" )
             {
                 if ( detaccts == null )
                     return;
@@ -752,14 +762,14 @@ namespace NewWpfDev . Views
                     listView . ItemsSource = detaccts;
                     dGrid . ItemsSource = detaccts;
                     dGrid . SelectedItem = dGrid . SelectedIndex = 0;
-                    HandleCaption("VIEW" , detaccts . Count);
+                    HandleCaption ( "VIEW" , detaccts . Count );
                 }
                 else if ( type == "BOX" )
                 {
                     listBox . ItemsSource = detaccts;
                     dGrid . ItemsSource = detaccts;
                     dGrid . SelectedItem = dGrid . SelectedIndex = 0;
-                    HandleCaption("BOX" , detaccts . Count);
+                    HandleCaption ( "BOX" , detaccts . Count );
                     listBox . SelectedIndex = 0;
                 }
                 else
@@ -768,17 +778,17 @@ namespace NewWpfDev . Views
                     listBox . ItemsSource = detaccts;
                     dGrid . ItemsSource = detaccts;
                     dGrid . SelectedItem = dGrid . SelectedIndex = 0;
-                    HandleCaption("" , detaccts . Count);
+                    HandleCaption ( "" , detaccts . Count );
                     listBox . SelectedIndex = 0;
                     listView . SelectedIndex = 0;
-                    listView . Focus();
+                    listView . Focus ( );
                 }
                 if ( UseFlowdoc )
-                    ShowInfo(Flowdoc , canvas , line1: $"The requested table [{CurrentTableName}] was loaded successfully, and the {DbCountlb} records returned are displayed in the table below" , clr1: "Black0" ,
+                    ShowInfo ( Flowdoc , canvas , line1: $"The requested table [{CurrentTableName}] was loaded successfully, and the {DbCountlb} records returned are displayed in the table below" , clr1: "Black0" ,
                     line2: $"The command line used was" , clr2: "Red2" ,
-                    line3: $"{SqlCommand . ToUpper()}" , clr3: "Blue4" ,
-                    header: "Secondary Accounts data table");
-                listBox . Focus();
+                    line3: $"{SqlCommand . ToUpper ( )}" , clr3: "Blue4" ,
+                    header: "Secondary Accounts data table" );
+                listBox . Focus ( );
             }
             else
             {
@@ -788,43 +798,43 @@ namespace NewWpfDev . Views
                     if ( type == "VIEW" )
                     {
                         listView . ItemsSource = genaccts;
-                        SqlServerCommands . LoadActiveRowsOnlyInGrid(dGrid , genaccts , SqlServerCommands . GetGenericColumnCount(genaccts));
+                        SqlServerCommands . LoadActiveRowsOnlyInGrid ( dGrid , genaccts , SqlServerCommands . GetGenericColumnCount ( genaccts ) );
                         if ( Flags . ReplaceFldNames )
                         {
-                            GenericDbUtilities . ReplaceDataGridFldNames(CurrentTableName , ref dGrid);
+                            GenericDbUtilities . ReplaceDataGridFldNames ( CurrentTableName , ref dGrid );
                         }
                         dGrid . SelectedItem = dGrid . SelectedIndex = 0;
-                        HandleCaption("VIEW" , genaccts . Count);
+                        HandleCaption ( "VIEW" , genaccts . Count );
                         listView . SelectedIndex = 0;
                     }
                     else if ( type == "BOX" )
                     {
                         listBox . ItemsSource = genaccts;
-                        SqlServerCommands . LoadActiveRowsOnlyInGrid(dGrid , genaccts , SqlServerCommands . GetGenericColumnCount(genaccts));
+                        SqlServerCommands . LoadActiveRowsOnlyInGrid ( dGrid , genaccts , SqlServerCommands . GetGenericColumnCount ( genaccts ) );
                         if ( Flags . ReplaceFldNames )
                         {
-                            GenericDbUtilities . ReplaceDataGridFldNames(CurrentTableName , ref dGrid);
+                            GenericDbUtilities . ReplaceDataGridFldNames ( CurrentTableName , ref dGrid );
                         }
                         dGrid . SelectedItem = dGrid . SelectedIndex = 0;
-                        HandleCaption("BOX" , genaccts . Count);
+                        HandleCaption ( "BOX" , genaccts . Count );
                         listBox . SelectedIndex = 0;
-                        listBox . Focus();
+                        listBox . Focus ( );
                     }
                     else
                     {
                         listView . ItemsSource = genaccts;
                         listBox . ItemsSource = genaccts;
-                        SqlServerCommands . LoadActiveRowsOnlyInGrid(dGrid , genaccts , SqlServerCommands . GetGenericColumnCount(genaccts));
+                        SqlServerCommands . LoadActiveRowsOnlyInGrid ( dGrid , genaccts , SqlServerCommands . GetGenericColumnCount ( genaccts ) );
                         if ( Flags . ReplaceFldNames )
                         {
-                            GenericDbUtilities . ReplaceDataGridFldNames(CurrentTableName , ref dGrid);
+                            GenericDbUtilities . ReplaceDataGridFldNames ( CurrentTableName , ref dGrid );
                         }
                         dGrid . SelectedItem = dGrid . SelectedIndex = 0;
-                        HandleCaption("" , genaccts . Count);
+                        HandleCaption ( "" , genaccts . Count );
                         listBox . SelectedIndex = 0;
                         listView . SelectedIndex = 0;
                     }
-                    listBox . Refresh();
+                    listBox . Refresh ( );
                     return;
                 }
                 else
@@ -833,52 +843,52 @@ namespace NewWpfDev . Views
                     if ( type == "VIEW" )
                     {
                         listView . ItemsSource = genaccts;
-                        SqlServerCommands . LoadActiveRowsOnlyInGrid(dGrid , genaccts , SqlServerCommands . GetGenericColumnCount(genaccts));
+                        SqlServerCommands . LoadActiveRowsOnlyInGrid ( dGrid , genaccts , SqlServerCommands . GetGenericColumnCount ( genaccts ) );
                         if ( Flags . ReplaceFldNames )
                         {
-                            GenericDbUtilities . ReplaceDataGridFldNames(CurrentTableName , ref dGrid);
+                            GenericDbUtilities . ReplaceDataGridFldNames ( CurrentTableName , ref dGrid );
                         }
                         dGrid . SelectedItem = dGrid . SelectedIndex = 0;
-                        HandleCaption("VIEW" , genaccts . Count);
+                        HandleCaption ( "VIEW" , genaccts . Count );
                     }
                     else if ( type == "BOX" )
                     {
                         listBox . ItemsSource = genaccts;
-                        SqlServerCommands . LoadActiveRowsOnlyInGrid(dGrid , genaccts , SqlServerCommands . GetGenericColumnCount(genaccts));
+                        SqlServerCommands . LoadActiveRowsOnlyInGrid ( dGrid , genaccts , SqlServerCommands . GetGenericColumnCount ( genaccts ) );
                         if ( Flags . ReplaceFldNames )
                         {
-                            GenericDbUtilities . ReplaceDataGridFldNames(CurrentTableName , ref dGrid);
+                            GenericDbUtilities . ReplaceDataGridFldNames ( CurrentTableName , ref dGrid );
                         }
                         dGrid . SelectedItem = dGrid . SelectedIndex = 0;
-                        HandleCaption("BOX" , genaccts . Count);
+                        HandleCaption ( "BOX" , genaccts . Count );
                     }
                     else
                     {
                         //Generic table type
                         listView . ItemsSource = genaccts;
                         listBox . ItemsSource = genaccts;
-                        SqlServerCommands . LoadActiveRowsOnlyInGrid(dGrid , genaccts , SqlServerCommands . GetGenericColumnCount(genaccts));
+                        SqlServerCommands . LoadActiveRowsOnlyInGrid ( dGrid , genaccts , SqlServerCommands . GetGenericColumnCount ( genaccts ) );
                         if ( Flags . ReplaceFldNames )
                         {
-                            GenericDbUtilities . ReplaceDataGridFldNames(CurrentTableName , ref dGrid);
+                            GenericDbUtilities . ReplaceDataGridFldNames ( CurrentTableName , ref dGrid );
                         }
                         dGrid . SelectedItem = dGrid . SelectedIndex = 0;
-                        HandleCaption("" , genaccts . Count);
+                        HandleCaption ( "" , genaccts . Count );
                     }
                     if ( UseFlowdoc )
-                        fdl . ShowInfo(Flowdoc , canvas , header: "Unrecognised table accessed successfully" , clr4: "Red5" ,
+                        fdl . ShowInfo ( Flowdoc , canvas , header: "Unrecognised table accessed successfully" , clr4: "Red5" ,
                         line1: $"Request made was completed succesfully!" , clr1: "Red3" ,
                         line2: $"the table [{CurrentTableName}] that was queried returned a record count of {genaccts . Count}.\nThe structure of this data is not recognised, so a generic structure has been used..." ,
-                        line3: $"{SqlCommand . ToUpper()}" , clr3: "Blue4"
+                        line3: $"{SqlCommand . ToUpper ( )}" , clr3: "Blue4"
                         );
                 }
             }
-            ShowLoadtime();
+            ShowLoadtime ( );
         }
-        private void LoadGrid_NORTHWIND (string type = "")
+        private void LoadGrid_NORTHWIND ( string type = "" )
         {
             // Load whatever data we have received into DataGrid
-            if ( CurrentTableName . ToUpper() == "CUSTOMERS" )
+            if ( CurrentTableName . ToUpper ( ) == "CUSTOMERS" )
             {
                 if ( nwcustomeraccts == null )
                     return;
@@ -889,7 +899,7 @@ namespace NewWpfDev . Views
                         return;
                     dGrid . ItemsSource = nwcustomeraccts;
                     dGrid . SelectedItem = dGrid . SelectedIndex = 0;
-                    HandleCaption("VIEW" , nwcustomeraccts . Count);
+                    HandleCaption ( "VIEW" , nwcustomeraccts . Count );
                     listView . SelectedIndex = 0;
                 }
                 else if ( type == "BOX" )
@@ -899,7 +909,7 @@ namespace NewWpfDev . Views
                         return;
                     dGrid . ItemsSource = nwcustomeraccts;
                     dGrid . SelectedItem = dGrid . SelectedIndex = 0;
-                    HandleCaption("BOX" , nwcustomeraccts . Count);
+                    HandleCaption ( "BOX" , nwcustomeraccts . Count );
                     listBox . SelectedIndex = 0;
                 }
                 else
@@ -910,17 +920,17 @@ namespace NewWpfDev . Views
                     listBox . ItemsSource = nwcustomeraccts;
                     dGrid . ItemsSource = nwcustomeraccts;
                     dGrid . SelectedItem = dGrid . SelectedIndex = 0;
-                    HandleCaption("" , nwcustomeraccts . Count);
+                    HandleCaption ( "" , nwcustomeraccts . Count );
                     listBox . SelectedIndex = 0;
                     listView . SelectedIndex = 0;
                 }
                 if ( UseFlowdoc )
-                    ShowInfo(Flowdoc , canvas , line1: $"The requested table [{CurrentTableName}] was loaded successfully, and the {nwcustomeraccts . Count} records returned are displayed in the table below" , clr1: "Black0" ,
+                    ShowInfo ( Flowdoc , canvas , line1: $"The requested table [{CurrentTableName}] was loaded successfully, and the {nwcustomeraccts . Count} records returned are displayed in the table below" , clr1: "Black0" ,
                     line2: $"The command line used was" , clr2: "Red2" ,
-                    line3: $"{SqlCommand . ToUpper()}" , clr3: "Blue4" ,
-                    header: "Bank Accounts data table" , clr4: "Red5");
+                    line3: $"{SqlCommand . ToUpper ( )}" , clr3: "Blue4" ,
+                    header: "Bank Accounts data table" , clr4: "Red5" );
             }
-            else if ( CurrentTableName . ToUpper() == "ORDERS" )
+            else if ( CurrentTableName . ToUpper ( ) == "ORDERS" )
             {
                 if ( nworderaccts == null )
                     return;
@@ -931,7 +941,7 @@ namespace NewWpfDev . Views
                         return;
                     dGrid . ItemsSource = nworderaccts;
                     dGrid . SelectedItem = dGrid . SelectedIndex = 0;
-                    HandleCaption("VIEW" , nworderaccts . Count);
+                    HandleCaption ( "VIEW" , nworderaccts . Count );
                     listView . SelectedIndex = 0;
                 }
                 else if ( type == "BOX" )
@@ -941,7 +951,7 @@ namespace NewWpfDev . Views
                         return;
                     dGrid . ItemsSource = nworderaccts;
                     dGrid . SelectedItem = dGrid . SelectedIndex = 0;
-                    HandleCaption("BOX" , nworderaccts . Count);
+                    HandleCaption ( "BOX" , nworderaccts . Count );
                     listBox . SelectedIndex = 0;
                 }
                 else
@@ -952,12 +962,12 @@ namespace NewWpfDev . Views
                     listBox . ItemsSource = nworderaccts;
                     dGrid . ItemsSource = nworderaccts;
                     dGrid . SelectedItem = dGrid . SelectedIndex = 0;
-                    HandleCaption("" , nworderaccts . Count);
+                    HandleCaption ( "" , nworderaccts . Count );
                     listBox . SelectedIndex = 0;
                     listView . SelectedIndex = 0;
                 }
                 listBox . SelectedIndex = 0;
-                listBox . Focus();
+                listBox . Focus ( );
             }
             else
             {
@@ -966,42 +976,42 @@ namespace NewWpfDev . Views
                     if ( type == "VIEW" )
                     {
                         listView . ItemsSource = genaccts;
-                        SqlServerCommands . LoadActiveRowsOnlyInGrid(dGrid , genaccts , SqlServerCommands . GetGenericColumnCount(genaccts));
+                        SqlServerCommands . LoadActiveRowsOnlyInGrid ( dGrid , genaccts , SqlServerCommands . GetGenericColumnCount ( genaccts ) );
                         if ( Flags . ReplaceFldNames )
                         {
-                            GenericDbUtilities . ReplaceDataGridFldNames(CurrentTableName , ref dGrid);
+                            GenericDbUtilities . ReplaceDataGridFldNames ( CurrentTableName , ref dGrid );
                         }
                         dGrid . SelectedItem = dGrid . SelectedIndex = 0;
-                        HandleCaption("VIEW" , genaccts . Count);
+                        HandleCaption ( "VIEW" , genaccts . Count );
                         listView . SelectedIndex = 0;
                     }
                     else if ( type == "BOX" )
                     {
                         listBox . ItemsSource = genaccts;
-                        SqlServerCommands . LoadActiveRowsOnlyInGrid(dGrid , genaccts , SqlServerCommands . GetGenericColumnCount(genaccts));
+                        SqlServerCommands . LoadActiveRowsOnlyInGrid ( dGrid , genaccts , SqlServerCommands . GetGenericColumnCount ( genaccts ) );
                         if ( Flags . ReplaceFldNames )
                         {
-                            GenericDbUtilities . ReplaceDataGridFldNames(CurrentTableName , ref dGrid);
+                            GenericDbUtilities . ReplaceDataGridFldNames ( CurrentTableName , ref dGrid );
                         }
                         dGrid . SelectedItem = dGrid . SelectedIndex = 0;
-                        HandleCaption("BOX" , genaccts . Count);
+                        HandleCaption ( "BOX" , genaccts . Count );
                         listBox . SelectedIndex = 0;
                     }
                     else
                     {
                         listView . ItemsSource = genaccts;
                         listBox . ItemsSource = genaccts;
-                        SqlServerCommands . LoadActiveRowsOnlyInGrid(dGrid , genaccts , SqlServerCommands . GetGenericColumnCount(genaccts));
+                        SqlServerCommands . LoadActiveRowsOnlyInGrid ( dGrid , genaccts , SqlServerCommands . GetGenericColumnCount ( genaccts ) );
                         if ( Flags . ReplaceFldNames )
                         {
-                            GenericDbUtilities . ReplaceDataGridFldNames(CurrentTableName , ref dGrid);
+                            GenericDbUtilities . ReplaceDataGridFldNames ( CurrentTableName , ref dGrid );
                         }
                         dGrid . SelectedItem = dGrid . SelectedIndex = 0;
-                        HandleCaption("" , genaccts . Count);
+                        HandleCaption ( "" , genaccts . Count );
                         listBox . SelectedIndex = 0;
                         listView . SelectedIndex = 0;
                     }
-                    listBox . Refresh();
+                    listBox . Refresh ( );
                     return;
                 }
                 else
@@ -1012,17 +1022,17 @@ namespace NewWpfDev . Views
                         // //visible in the grid so do NOT repopulate the grid after making this call
                         //SqlSupport . LoadActiveRowsOnlyInLView ( listView , genaccts , DapperSupport . GetGenericColumnCount ( genaccts ) );
                         listView . ItemsSource = genaccts;
-                        SqlServerCommands . LoadActiveRowsOnlyInGrid(dGrid , genaccts , SqlServerCommands . GetGenericColumnCount(genaccts));
+                        SqlServerCommands . LoadActiveRowsOnlyInGrid ( dGrid , genaccts , SqlServerCommands . GetGenericColumnCount ( genaccts ) );
                         if ( Flags . ReplaceFldNames )
                         {
-                            GenericDbUtilities . ReplaceDataGridFldNames(CurrentTableName , ref dGrid);
+                            GenericDbUtilities . ReplaceDataGridFldNames ( CurrentTableName , ref dGrid );
                         }
                         dGrid . SelectedItem = dGrid . SelectedIndex = 0;
                         if ( genaccts . Count == 0 )
                             return;
                         listView . SelectedIndex = 0;
-                        listView . Focus();
-                        HandleCaption("VIEW" , genaccts . Count);
+                        listView . Focus ( );
+                        HandleCaption ( "VIEW" , genaccts . Count );
                         listView . SelectedIndex = 0;
                     }
                     else if ( type == "BOX" )
@@ -1034,14 +1044,14 @@ namespace NewWpfDev . Views
 
                         // Caution : This loads the data into the Datarid with only the selected rows
                         // //visible in the grid so do NOT repopulate the grid after making this call
-                        SqlServerCommands . LoadActiveRowsOnlyInGrid(dGrid , genaccts , SqlServerCommands . GetGenericColumnCount(genaccts));
+                        SqlServerCommands . LoadActiveRowsOnlyInGrid ( dGrid , genaccts , SqlServerCommands . GetGenericColumnCount ( genaccts ) );
                         if ( Flags . ReplaceFldNames )
                         {
-                            GenericDbUtilities . ReplaceDataGridFldNames(CurrentTableName , ref dGrid);
+                            GenericDbUtilities . ReplaceDataGridFldNames ( CurrentTableName , ref dGrid );
                         }
                         dGrid . SelectedItem = dGrid . SelectedIndex = 0;
                         listBox . SelectedIndex = 0;
-                        HandleCaption("BOX" , genaccts . Count);
+                        HandleCaption ( "BOX" , genaccts . Count );
                     }
                     else
                     {
@@ -1050,31 +1060,31 @@ namespace NewWpfDev . Views
                         if ( genaccts . Count == 0 )
                             return;
                         listBox . ItemsSource = genaccts;
-                        SqlServerCommands . LoadActiveRowsOnlyInGrid(dGrid , genaccts , SqlServerCommands . GetGenericColumnCount(genaccts));
+                        SqlServerCommands . LoadActiveRowsOnlyInGrid ( dGrid , genaccts , SqlServerCommands . GetGenericColumnCount ( genaccts ) );
                         if ( Flags . ReplaceFldNames )
                         {
-                            GenericDbUtilities . ReplaceDataGridFldNames(CurrentTableName , ref dGrid);
+                            GenericDbUtilities . ReplaceDataGridFldNames ( CurrentTableName , ref dGrid );
                         }
                         dGrid . SelectedItem = dGrid . SelectedIndex = 0;
                         listView . SelectedIndex = 0;
-                        HandleCaption("" , genaccts . Count);
+                        HandleCaption ( "" , genaccts . Count );
                         listBox . SelectedIndex = 0;
                     }
                 }
                 if ( UseFlowdoc )
-                    ShowInfo(Flowdoc , canvas , header: "Unrecognised table accessed successfully" , clr4: "Red5" ,
+                    ShowInfo ( Flowdoc , canvas , header: "Unrecognised table accessed successfully" , clr4: "Red5" ,
                         line1: $"Request made was completed succesfully!" , clr1: "Red3" ,
                         line2: $"the table [{CurrentTableName}] that was queried returned a record count of {genaccts . Count}.\nThe structure of this data is not recognised, so a generic structure has been used..." ,
-                        line3: $"{SqlCommand . ToUpper()}" , clr3: "Blue4"
+                        line3: $"{SqlCommand . ToUpper ( )}" , clr3: "Blue4"
                         );
 
-                ShowLoadtime();
+                ShowLoadtime ( );
             }
         }
-        private void LoadGrid_PUBS (string type = "")
+        private void LoadGrid_PUBS ( string type = "" )
         {
             // Load whatever data we have received into DataGrid
-            if ( CurrentTableName . ToUpper() == "AUTHORS" )
+            if ( CurrentTableName . ToUpper ( ) == "AUTHORS" )
             {
                 if ( pubauthors == null )
                     return;
@@ -1085,7 +1095,7 @@ namespace NewWpfDev . Views
                         return;
                     dGrid . ItemsSource = pubauthors;
                     dGrid . SelectedItem = dGrid . SelectedIndex = 0;
-                    HandleCaption("VIEW" , pubauthors . Count);
+                    HandleCaption ( "VIEW" , pubauthors . Count );
                     FrameworkElement elemnt = listView as FrameworkElement;
                 }
                 else if ( type == "BOX" )
@@ -1095,7 +1105,7 @@ namespace NewWpfDev . Views
                         return;
                     dGrid . ItemsSource = pubauthors;
                     dGrid . SelectedItem = dGrid . SelectedIndex = 0;
-                    HandleCaption("BOX" , pubauthors . Count);
+                    HandleCaption ( "BOX" , pubauthors . Count );
                     listBox . SelectedIndex = 0;
                 }
                 else
@@ -1106,17 +1116,17 @@ namespace NewWpfDev . Views
                     listBox . ItemsSource = pubauthors;
                     dGrid . ItemsSource = pubauthors;
                     dGrid . SelectedItem = dGrid . SelectedIndex = 0;
-                    HandleCaption("" , pubauthors . Count);
+                    HandleCaption ( "" , pubauthors . Count );
                     listBox . SelectedIndex = 0;
                     listView . SelectedIndex = 0;
                 }
                 if ( UseFlowdoc )
-                    ShowInfo(Flowdoc , canvas , line1: $"The requested table [{CurrentTableName}] was loaded successfully, and the {pubauthors . Count} records returned are displayed in the table below" , clr1: "Black0" ,
+                    ShowInfo ( Flowdoc , canvas , line1: $"The requested table [{CurrentTableName}] was loaded successfully, and the {pubauthors . Count} records returned are displayed in the table below" , clr1: "Black0" ,
                     line2: $"The command line used was" , clr2: "Red2" ,
-                    line3: $"{SqlCommand . ToUpper()}" , clr3: "Blue4" ,
-                    header: "Bank Accounts data table" , clr4: "Red5");
+                    line3: $"{SqlCommand . ToUpper ( )}" , clr3: "Blue4" ,
+                    header: "Bank Accounts data table" , clr4: "Red5" );
             }
-            else if ( CurrentTableName . ToUpper() == "ORDERS" )
+            else if ( CurrentTableName . ToUpper ( ) == "ORDERS" )
             {
                 if ( nworderaccts == null )
                     return;
@@ -1125,7 +1135,7 @@ namespace NewWpfDev . Views
                     listView . ItemsSource = pubauthors;
                     if ( pubauthors . Count == 0 )
                         return;
-                    HandleCaption("VIEW" , pubauthors . Count);
+                    HandleCaption ( "VIEW" , pubauthors . Count );
                     listView . SelectedIndex = 0;
                 }
                 else if ( type == "BOX" )
@@ -1136,7 +1146,7 @@ namespace NewWpfDev . Views
                     dGrid . ItemsSource = pubauthors;
                     dGrid . SelectedItem = dGrid . SelectedIndex = 0;
                     FrameworkElement elemnt = listBox as FrameworkElement;
-                    HandleCaption("BOX" , pubauthors . Count);
+                    HandleCaption ( "BOX" , pubauthors . Count );
                     listBox . SelectedIndex = 0;
                 }
                 else
@@ -1147,12 +1157,12 @@ namespace NewWpfDev . Views
                     listBox . ItemsSource = pubauthors;
                     dGrid . ItemsSource = pubauthors;
                     dGrid . SelectedItem = dGrid . SelectedIndex = 0;
-                    HandleCaption("" , pubauthors . Count);
+                    HandleCaption ( "" , pubauthors . Count );
                     listBox . SelectedIndex = 0;
                     listView . SelectedIndex = 0;
                 }
                 listBox . SelectedIndex = 0;
-                listBox . Focus();
+                listBox . Focus ( );
             }
             else
             {
@@ -1163,13 +1173,13 @@ namespace NewWpfDev . Views
                         listView . ItemsSource = genaccts;
                         if ( genaccts . Count == 0 )
                             return;
-                        SqlServerCommands . LoadActiveRowsOnlyInGrid(dGrid , genaccts , SqlServerCommands . GetGenericColumnCount(genaccts));
+                        SqlServerCommands . LoadActiveRowsOnlyInGrid ( dGrid , genaccts , SqlServerCommands . GetGenericColumnCount ( genaccts ) );
                         if ( Flags . ReplaceFldNames )
                         {
-                            GenericDbUtilities . ReplaceDataGridFldNames(CurrentTableName , ref dGrid);
+                            GenericDbUtilities . ReplaceDataGridFldNames ( CurrentTableName , ref dGrid );
                         }
                         dGrid . SelectedItem = dGrid . SelectedIndex = 0;
-                        HandleCaption("VIEW" , genaccts . Count);
+                        HandleCaption ( "VIEW" , genaccts . Count );
                         listView . SelectedIndex = 0;
                     }
                     else if ( type == "BOX" )
@@ -1177,13 +1187,13 @@ namespace NewWpfDev . Views
                         listBox . ItemsSource = genaccts;
                         if ( genaccts . Count == 0 )
                             return;
-                        SqlServerCommands . LoadActiveRowsOnlyInGrid(dGrid , genaccts , SqlServerCommands . GetGenericColumnCount(genaccts));
+                        SqlServerCommands . LoadActiveRowsOnlyInGrid ( dGrid , genaccts , SqlServerCommands . GetGenericColumnCount ( genaccts ) );
                         if ( Flags . ReplaceFldNames )
                         {
-                            GenericDbUtilities . ReplaceDataGridFldNames(CurrentTableName , ref dGrid);
+                            GenericDbUtilities . ReplaceDataGridFldNames ( CurrentTableName , ref dGrid );
                         }
                         dGrid . SelectedItem = dGrid . SelectedIndex = 0;
-                        HandleCaption("BOX" , genaccts . Count);
+                        HandleCaption ( "BOX" , genaccts . Count );
                         listBox . SelectedIndex = 0;
                     }
                     else
@@ -1196,14 +1206,14 @@ namespace NewWpfDev . Views
                             listView . ItemsSource = genaccts;
                             if ( genaccts . Count == 0 )
                                 return;
-                            SqlServerCommands . LoadActiveRowsOnlyInGrid(dGrid , genaccts , SqlServerCommands . GetGenericColumnCount(genaccts));
+                            SqlServerCommands . LoadActiveRowsOnlyInGrid ( dGrid , genaccts , SqlServerCommands . GetGenericColumnCount ( genaccts ) );
                             if ( Flags . ReplaceFldNames )
                             {
-                                GenericDbUtilities . ReplaceDataGridFldNames(CurrentTableName , ref dGrid);
+                                GenericDbUtilities . ReplaceDataGridFldNames ( CurrentTableName , ref dGrid );
                             }
                             dGrid . SelectedItem = dGrid . SelectedIndex = 0;
                             listView . SelectedIndex = 0;
-                            HandleCaption("" , genaccts . Count);
+                            HandleCaption ( "" , genaccts . Count );
                         }
                         else if ( type == "BOX" )
                         {
@@ -1212,14 +1222,14 @@ namespace NewWpfDev . Views
                             listBox . ItemsSource = genaccts;
                             if ( genaccts . Count == 0 )
                                 return;
-                            SqlServerCommands . LoadActiveRowsOnlyInGrid(dGrid , genaccts , SqlServerCommands . GetGenericColumnCount(genaccts));
+                            SqlServerCommands . LoadActiveRowsOnlyInGrid ( dGrid , genaccts , SqlServerCommands . GetGenericColumnCount ( genaccts ) );
                             if ( Flags . ReplaceFldNames )
                             {
-                                GenericDbUtilities . ReplaceDataGridFldNames(CurrentTableName , ref dGrid);
+                                GenericDbUtilities . ReplaceDataGridFldNames ( CurrentTableName , ref dGrid );
                             }
                             dGrid . SelectedItem = dGrid . SelectedIndex = 0;
                             listBox . SelectedIndex = 0;
-                            HandleCaption("BOX" , genaccts . Count);
+                            HandleCaption ( "BOX" , genaccts . Count );
                         }
                         else
                         {
@@ -1228,24 +1238,24 @@ namespace NewWpfDev . Views
                             if ( genaccts . Count == 0 )
                                 return;
                             listBox . ItemsSource = genaccts;
-                            SqlServerCommands . LoadActiveRowsOnlyInGrid(dGrid , genaccts , SqlServerCommands . GetGenericColumnCount(genaccts));
+                            SqlServerCommands . LoadActiveRowsOnlyInGrid ( dGrid , genaccts , SqlServerCommands . GetGenericColumnCount ( genaccts ) );
                             if ( Flags . ReplaceFldNames )
                             {
-                                GenericDbUtilities . ReplaceDataGridFldNames(CurrentTableName , ref dGrid);
+                                GenericDbUtilities . ReplaceDataGridFldNames ( CurrentTableName , ref dGrid );
                             }
                             dGrid . SelectedItem = dGrid . SelectedIndex = 0;
                             listView . SelectedIndex = 0;
-                            HandleCaption("" , genaccts . Count);
+                            HandleCaption ( "" , genaccts . Count );
                             listBox . SelectedIndex = 0;
                         }
                         if ( UseFlowdoc )
-                            ShowInfo(Flowdoc , canvas , header: "Unrecognised table accessed successfully" , clr4: "Red5" ,
+                            ShowInfo ( Flowdoc , canvas , header: "Unrecognised table accessed successfully" , clr4: "Red5" ,
                             line1: $"Request made was completed succesfully!" , clr1: "Red3" ,
                             line2: $"the table [{CurrentTableName}] that was queried returned a record count of {genaccts . Count}.\nThe structure of this data is not recognised, so a generic structure has been used..." ,
-                            line3: $"{SqlCommand . ToUpper()}" , clr3: "Blue4"
+                            line3: $"{SqlCommand . ToUpper ( )}" , clr3: "Blue4"
                             );
                     }
-                    ShowLoadtime();
+                    ShowLoadtime ( );
                 }
                 else
                 {
@@ -1254,10 +1264,10 @@ namespace NewWpfDev . Views
                     if ( type == "VIEW" )
                     {
                         listView . ItemsSource = genaccts;
-                        SqlServerCommands . LoadActiveRowsOnlyInGrid(dGrid , genaccts , SqlServerCommands . GetGenericColumnCount(genaccts));
+                        SqlServerCommands . LoadActiveRowsOnlyInGrid ( dGrid , genaccts , SqlServerCommands . GetGenericColumnCount ( genaccts ) );
                         if ( Flags . ReplaceFldNames )
                         {
-                            GenericDbUtilities . ReplaceDataGridFldNames(CurrentTableName , ref dGrid);
+                            GenericDbUtilities . ReplaceDataGridFldNames ( CurrentTableName , ref dGrid );
                         }
                         dGrid . SelectedItem = dGrid . SelectedIndex = 0;
                         lvHeader . Text = $"List View Display :  No records returned...";
@@ -1265,10 +1275,10 @@ namespace NewWpfDev . Views
                     else if ( type == "BOX" )
                     {
                         listBox . ItemsSource = genaccts;
-                        SqlServerCommands . LoadActiveRowsOnlyInGrid(dGrid , genaccts , SqlServerCommands . GetGenericColumnCount(genaccts));
+                        SqlServerCommands . LoadActiveRowsOnlyInGrid ( dGrid , genaccts , SqlServerCommands . GetGenericColumnCount ( genaccts ) );
                         if ( Flags . ReplaceFldNames )
                         {
-                            GenericDbUtilities . ReplaceDataGridFldNames(CurrentTableName , ref dGrid);
+                            GenericDbUtilities . ReplaceDataGridFldNames ( CurrentTableName , ref dGrid );
                         }
                         dGrid . SelectedItem = dGrid . SelectedIndex = 0;
                         lbHeader . Text = $"List Box Display :  No records returned...";
@@ -1278,10 +1288,10 @@ namespace NewWpfDev . Views
                     {
                         listView . ItemsSource = genaccts;
                         listBox . ItemsSource = genaccts;
-                        SqlServerCommands . LoadActiveRowsOnlyInGrid(dGrid , genaccts , SqlServerCommands . GetGenericColumnCount(genaccts));
+                        SqlServerCommands . LoadActiveRowsOnlyInGrid ( dGrid , genaccts , SqlServerCommands . GetGenericColumnCount ( genaccts ) );
                         if ( Flags . ReplaceFldNames )
                         {
-                            GenericDbUtilities . ReplaceDataGridFldNames(CurrentTableName , ref dGrid);
+                            GenericDbUtilities . ReplaceDataGridFldNames ( CurrentTableName , ref dGrid );
                         }
                         dGrid . SelectedItem = dGrid . SelectedIndex = 0;
                         lvHeader . Text = $"List View Display :  No records returned...";
@@ -1295,30 +1305,30 @@ namespace NewWpfDev . Views
         #endregion Load Viewer for the 3 different Db's
 
         // Load list of databases in MSSQL
-        private void LoadAllDbNames ()
+        private void LoadAllDbNames ( )
         {
             int bankindex = 0, count = 0;
-            List<string> list = new List<string>();
+            List<string> list = new List<string> ( );
             SqlCommand = "spGetAllDatabaseNames";
-            Datagrids . CallStoredProcedure(list , SqlCommand);
+            Datagrids . CallStoredProcedure ( list , SqlCommand );
             //This call returns us a DataTable
-            DataTable dt = DataLoadControl . GetDataTable(SqlCommand);
+            DataTable dt = DataLoadControl . GetDataTable ( SqlCommand );
             // This how to access  Row data from  a grid the easiest way.... parsed into a List <xxxxx>
-            list = WpfLib1 . Utils . GetDataDridRowsAsListOfStrings(dt);
+            list = WpfLib1 . Utils . GetDataDridRowsAsListOfStrings ( dt );
             foreach ( string row in list )
             {
-                string entry = row . ToUpper();
+                string entry = row . ToUpper ( );
                 // ONLY ALLOW THE TRHEE MAIN dB'S WE ARE LIKELY TO USE.
-                if ( entry . Contains("IAN") || entry . Contains("NORTHWIND") || entry . Contains("PUBS") )
+                if ( entry . Contains ( "IAN" ) || entry . Contains ( "NORTHWIND" ) || entry . Contains ( "PUBS" ) )
                 {
-                    DbMain . Items . Add(row);
-                    if ( row . ToUpper() . Contains("IAN1") )
+                    DbMain . Items . Add ( row );
+                    if ( row . ToUpper ( ) . Contains ( "IAN1" ) )
                         bankindex = count;
                     count++;
                 }
             }
             // how to Sort Combo/Listbox contents
-            DbMain . Items . SortDescriptions . Add(new SortDescription("" , ListSortDirection . Ascending));
+            DbMain . Items . SortDescriptions . Add ( new SortDescription ( "" , ListSortDirection . Ascending ) );
             Startup = true;
             DbMain . SelectedIndex = bankindex;
             Startup = false;
@@ -1329,25 +1339,25 @@ namespace NewWpfDev . Views
         }
 
         //Reload  contents of table names on right click
-        private void dbName_PreviewMouseRightButtonUp (object sender , MouseButtonEventArgs e)
+        private void dbName_PreviewMouseRightButtonUp ( object sender , MouseButtonEventArgs e )
         {
-            if ( LoadDbTables(DbMain . SelectedItem . ToString()) == true )
+            if ( LoadDbTables ( DbMain . SelectedItem . ToString ( ) ) == true )
             {
                 if ( UseFlowdoc )
-                    ShowInfo(Flowdoc , canvas , header: "List of Tables in current Db reloaded successfully" , clr4: "Red5" ,
+                    ShowInfo ( Flowdoc , canvas , header: "List of Tables in current Db reloaded successfully" , clr4: "Red5" ,
                     line1: $"Request made was completed succesfully!" , clr1: "Red3"
                     );
             }
             else
             {
                 if ( UseFlowdoc )
-                    ShowInfo(Flowdoc , canvas , header: "List of Tables in current Db could not be reloaded" , clr4: "Red5" ,
+                    ShowInfo ( Flowdoc , canvas , header: "List of Tables in current Db could not be reloaded" , clr4: "Red5" ,
                     line1: $"Request failed...!" , clr1: "Red3"
                     );
             }
         }
 
-        private void ResetViewers (string type)
+        private void ResetViewers ( string type )
         {
             // clear data collections
             if ( CurrentTableName == "BANKACCOUNT" )
@@ -1359,54 +1369,54 @@ namespace NewWpfDev . Views
             else if ( CurrentTableName == "GENERICTABLE" )
                 genaccts = null;
         }
-        private string GetCurrentDatabase ()
+        private string GetCurrentDatabase ( )
         {
             string result = "";
-            result = DbMain . SelectedItem . ToString();
-            return result . ToUpper();
+            result = DbMain . SelectedItem . ToString ( );
+            return result . ToUpper ( );
         }
 
         #region Load data templates
-        private void LoadDataTemplates_Ian1 (string type , string viewertype)
+        private void LoadDataTemplates_Ian1 ( string type , string viewertype )
         {
             if ( viewertype == "VIEW" )
             {
-                DataTemplatesLv . Items . Clear();
+                DataTemplatesLv . Items . Clear ( );
             }
             else if ( viewertype == "BOX" )
             {
-                DataTemplatesLb . Items . Clear();
+                DataTemplatesLb . Items . Clear ( );
             }
             else
             {
-                DataTemplatesLv . Items . Clear();
-                DataTemplatesLb . Items . Clear();
+                DataTemplatesLv . Items . Clear ( );
+                DataTemplatesLb . Items . Clear ( );
             }
 
             if ( type == "BANKACCOUNT" )
             {
                 if ( viewertype == "VIEW" )
                 {
-                    DataTemplatesLv . Items . Add("BankDataTemplate1");
-                    DataTemplatesLv . Items . Add("BankDataTemplate2");
+                    DataTemplatesLv . Items . Add ( "BankDataTemplate1" );
+                    DataTemplatesLv . Items . Add ( "BankDataTemplate2" );
                     DataTemplatesLv . SelectedIndex = 0;
                     DataTemplatesLv . SelectedItem = 0;
                 }
                 else if ( viewertype == "BOX" )
                 {
-                    DataTemplatesLb . Items . Add("BankDataTemplate1");
-                    DataTemplatesLb . Items . Add("BankDataTemplate2");
+                    DataTemplatesLb . Items . Add ( "BankDataTemplate1" );
+                    DataTemplatesLb . Items . Add ( "BankDataTemplate2" );
                     DataTemplatesLb . SelectedIndex = 0;
                     DataTemplatesLb . SelectedItem = 0;
                 }
                 else
                 {
-                    DataTemplatesLv . Items . Add("BankDataTemplate1");
-                    DataTemplatesLv . Items . Add("BankDataTemplate2");
+                    DataTemplatesLv . Items . Add ( "BankDataTemplate1" );
+                    DataTemplatesLv . Items . Add ( "BankDataTemplate2" );
                     DataTemplatesLv . SelectedIndex = 0;
                     DataTemplatesLv . SelectedItem = 0;
-                    DataTemplatesLb . Items . Add("BankDataTemplate1");
-                    DataTemplatesLb . Items . Add("BankDataTemplate2");
+                    DataTemplatesLb . Items . Add ( "BankDataTemplate1" );
+                    DataTemplatesLb . Items . Add ( "BankDataTemplate2" );
                     DataTemplatesLb . SelectedIndex = 0;
                     DataTemplatesLb . SelectedItem = 0;
                 }
@@ -1416,38 +1426,38 @@ namespace NewWpfDev . Views
             {
                 if ( viewertype == "VIEW" )
                 {
-                    DataTemplatesLv . Items . Add("CustomersDbTemplate1");
-                    DataTemplatesLv . Items . Add("CustomersDbTemplate2");
+                    DataTemplatesLv . Items . Add ( "CustomersDbTemplate1" );
+                    DataTemplatesLv . Items . Add ( "CustomersDbTemplate2" );
                     DataTemplatesLv . SelectedIndex = 0;
                     DataTemplatesLv . SelectedItem = 0;
                 }
                 else if ( viewertype == "BOX" )
                 {
-                    DataTemplatesLb . Items . Add("CustomersDbTemplate1");
-                    DataTemplatesLb . Items . Add("CustomersDbTemplate2");
+                    DataTemplatesLb . Items . Add ( "CustomersDbTemplate1" );
+                    DataTemplatesLb . Items . Add ( "CustomersDbTemplate2" );
                     DataTemplatesLb . SelectedIndex = 0;
                     DataTemplatesLb . SelectedItem = 0;
                 }
                 else
                 {
-                    DataTemplatesLv . Items . Add("CustomersDbTemplate1");
-                    DataTemplatesLv . Items . Add("CustomersDbTemplate2");
+                    DataTemplatesLv . Items . Add ( "CustomersDbTemplate1" );
+                    DataTemplatesLv . Items . Add ( "CustomersDbTemplate2" );
                     DataTemplatesLv . SelectedIndex = 0;
                     DataTemplatesLv . SelectedItem = 0;
-                    DataTemplatesLb . Items . Add("CustomersDbTemplate1");
-                    DataTemplatesLb . Items . Add("CustomersDbTemplate2");
+                    DataTemplatesLb . Items . Add ( "CustomersDbTemplate1" );
+                    DataTemplatesLb . Items . Add ( "CustomersDbTemplate2" );
                     DataTemplatesLb . SelectedIndex = 0;
                     DataTemplatesLb . SelectedItem = 0;
                 }
             }
             else if ( type == "SECACCOUNTS" )
             {
-                DataTemplatesLv . Items . Add("DetailsDataTemplate1");
-                DataTemplatesLv . Items . Add("DetailsDataTemplate2");
+                DataTemplatesLv . Items . Add ( "DetailsDataTemplate1" );
+                DataTemplatesLv . Items . Add ( "DetailsDataTemplate2" );
                 DataTemplatesLv . SelectedIndex = 0;
                 DataTemplatesLv . SelectedItem = 0;
-                DataTemplatesLb . Items . Add("DetailsDataTemplate1");
-                DataTemplatesLb . Items . Add("DetailsDataTemplate2");
+                DataTemplatesLb . Items . Add ( "DetailsDataTemplate1" );
+                DataTemplatesLb . Items . Add ( "DetailsDataTemplate2" );
                 DataTemplatesLb . SelectedIndex = 0;
                 DataTemplatesLb . SelectedItem = 0;
             }
@@ -1455,104 +1465,104 @@ namespace NewWpfDev . Views
             {
                 if ( viewertype == "VIEW" )
                 {
-                    DataTemplatesLv . Items . Add("GenDataTemplate1");
-                    DataTemplatesLv . Items . Add("GenDataTemplate2");
+                    DataTemplatesLv . Items . Add ( "GenDataTemplate1" );
+                    DataTemplatesLv . Items . Add ( "GenDataTemplate2" );
                     DataTemplatesLv . SelectedIndex = 0;
                     DataTemplatesLv . SelectedItem = 0;
                 }
                 else if ( viewertype == "BOX" )
                 {
-                    DataTemplatesLb . Items . Add("GenDataTemplate1");
-                    DataTemplatesLb . Items . Add("GenDataTemplate2");
+                    DataTemplatesLb . Items . Add ( "GenDataTemplate1" );
+                    DataTemplatesLb . Items . Add ( "GenDataTemplate2" );
                     DataTemplatesLb . SelectedIndex = 0;
                     DataTemplatesLb . SelectedItem = 0;
                 }
                 else
                 {
-                    DataTemplatesLv . Items . Add("GenDataTemplate1");
-                    DataTemplatesLv . Items . Add("GenDataTemplate2");
+                    DataTemplatesLv . Items . Add ( "GenDataTemplate1" );
+                    DataTemplatesLv . Items . Add ( "GenDataTemplate2" );
                     DataTemplatesLv . SelectedIndex = 0;
                     DataTemplatesLv . SelectedItem = 0;
-                    DataTemplatesLb . Items . Add("GenDataTemplate1");
-                    DataTemplatesLb . Items . Add("GenDataTemplate2");
+                    DataTemplatesLb . Items . Add ( "GenDataTemplate1" );
+                    DataTemplatesLb . Items . Add ( "GenDataTemplate2" );
                     DataTemplatesLb . SelectedIndex = 0;
                     DataTemplatesLb . SelectedItem = 0;
                 }
             }
         }
-        private void LoadDataTemplates_NorthWind (string type , string viewertype)
+        private void LoadDataTemplates_NorthWind ( string type , string viewertype )
         {
             if ( viewertype == "VIEW" )
             {
-                DataTemplatesLv . Items . Clear();
+                DataTemplatesLv . Items . Clear ( );
             }
             else if ( viewertype == "BOX" )
             {
-                DataTemplatesLb . Items . Clear();
+                DataTemplatesLb . Items . Clear ( );
             }
             else
             {
-                DataTemplatesLv . Items . Clear();
-                DataTemplatesLb . Items . Clear();
+                DataTemplatesLv . Items . Clear ( );
+                DataTemplatesLb . Items . Clear ( );
             }
             if ( type == "CUSTOMERS" )
             {
                 if ( viewertype == "VIEW" )
                 {
-                    DataTemplatesLv . Items . Add("NwCustomersDataTemplate1");
-                    DataTemplatesLv . Items . Add("NwCustomersDataTemplate3");
-                    DataTemplatesLv . Items . Add("NwCustomersDataTemplate5");
-                    DataTemplatesLv . Items . Add("NwCustomersLVDataTemplate5");
+                    DataTemplatesLv . Items . Add ( "NwCustomersDataTemplate1" );
+                    DataTemplatesLv . Items . Add ( "NwCustomersDataTemplate3" );
+                    DataTemplatesLv . Items . Add ( "NwCustomersDataTemplate5" );
+                    DataTemplatesLv . Items . Add ( "NwCustomersLVDataTemplate5" );
                 }
                 else if ( viewertype == "BOX" )
                 {
-                    DataTemplatesLv . Items . Add("NwCustomersDataTemplate1");
-                    DataTemplatesLv . Items . Add("NwCustomersDataTemplate3");
-                    DataTemplatesLv . Items . Add("NwCustomersDataTemplate5");
-                    DataTemplatesLv . Items . Add("NwCustomersLVDataTemplate5");
+                    DataTemplatesLv . Items . Add ( "NwCustomersDataTemplate1" );
+                    DataTemplatesLv . Items . Add ( "NwCustomersDataTemplate3" );
+                    DataTemplatesLv . Items . Add ( "NwCustomersDataTemplate5" );
+                    DataTemplatesLv . Items . Add ( "NwCustomersLVDataTemplate5" );
                 }
                 else
                 {
-                    DataTemplatesLv . Items . Add("NwCustomersDataTemplate1");
-                    DataTemplatesLv . Items . Add("NwCustomersDataTemplate3");
-                    DataTemplatesLv . Items . Add("NwCustomersDataTemplate5");
-                    DataTemplatesLv . Items . Add("NwCustomersLVDataTemplate5");
-                    DataTemplatesLb . Items . Add("NwCustomersDataTemplate1");
-                    DataTemplatesLb . Items . Add("NwCustomersDataTemplate3");
-                    DataTemplatesLb . Items . Add("NwCustomersDataTemplate5");
-                    DataTemplatesLb . Items . Add("NwCustomersLVDataTemplate5");
+                    DataTemplatesLv . Items . Add ( "NwCustomersDataTemplate1" );
+                    DataTemplatesLv . Items . Add ( "NwCustomersDataTemplate3" );
+                    DataTemplatesLv . Items . Add ( "NwCustomersDataTemplate5" );
+                    DataTemplatesLv . Items . Add ( "NwCustomersLVDataTemplate5" );
+                    DataTemplatesLb . Items . Add ( "NwCustomersDataTemplate1" );
+                    DataTemplatesLb . Items . Add ( "NwCustomersDataTemplate3" );
+                    DataTemplatesLb . Items . Add ( "NwCustomersDataTemplate5" );
+                    DataTemplatesLb . Items . Add ( "NwCustomersLVDataTemplate5" );
                 }
             }
             else if ( type == "ORDERS" )
             {
                 if ( viewertype == "VIEW" )
                 {
-                    DataTemplatesLv . Items . Add("NwordersComplexTemplate1");
-                    DataTemplatesLv . Items . Add("NwordersDataTemplate1");
-                    DataTemplatesLv . Items . Add("NwordersDataTemplate2");
-                    DataTemplatesLv . Items . Add("NwordersDataTemplate4");
-                    DataTemplatesLv . Items . Add("NwOrdersDataGridTemplate1");
+                    DataTemplatesLv . Items . Add ( "NwordersComplexTemplate1" );
+                    DataTemplatesLv . Items . Add ( "NwordersDataTemplate1" );
+                    DataTemplatesLv . Items . Add ( "NwordersDataTemplate2" );
+                    DataTemplatesLv . Items . Add ( "NwordersDataTemplate4" );
+                    DataTemplatesLv . Items . Add ( "NwOrdersDataGridTemplate1" );
                 }
                 else if ( viewertype == "BOX" )
                 {
-                    DataTemplatesLb . Items . Add("NwordersComplexTemplate1");
-                    DataTemplatesLb . Items . Add("NwordersDataTemplate1");
-                    DataTemplatesLb . Items . Add("NwordersDataTemplate2");
-                    DataTemplatesLb . Items . Add("NwordersDataTemplate4");
-                    DataTemplatesLb . Items . Add("NwOrdersDataGridTemplate1");
+                    DataTemplatesLb . Items . Add ( "NwordersComplexTemplate1" );
+                    DataTemplatesLb . Items . Add ( "NwordersDataTemplate1" );
+                    DataTemplatesLb . Items . Add ( "NwordersDataTemplate2" );
+                    DataTemplatesLb . Items . Add ( "NwordersDataTemplate4" );
+                    DataTemplatesLb . Items . Add ( "NwOrdersDataGridTemplate1" );
                 }
                 else
                 {
-                    DataTemplatesLv . Items . Add("NwordersComplexTemplate1");
-                    DataTemplatesLv . Items . Add("NwordersDataTemplate1");
-                    DataTemplatesLv . Items . Add("NwordersDataTemplate2");
-                    DataTemplatesLv . Items . Add("NwordersDataTemplate4");
-                    DataTemplatesLv . Items . Add("NwOrdersDataGridTemplate1");
-                    DataTemplatesLb . Items . Add("NwordersComplexTemplate1");
-                    DataTemplatesLb . Items . Add("NwordersDataTemplate1");
-                    DataTemplatesLb . Items . Add("NwordersDataTemplate2");
-                    DataTemplatesLb . Items . Add("NwordersDataTemplate4");
-                    DataTemplatesLb . Items . Add("NwOrdersDataGridTemplate1");
+                    DataTemplatesLv . Items . Add ( "NwordersComplexTemplate1" );
+                    DataTemplatesLv . Items . Add ( "NwordersDataTemplate1" );
+                    DataTemplatesLv . Items . Add ( "NwordersDataTemplate2" );
+                    DataTemplatesLv . Items . Add ( "NwordersDataTemplate4" );
+                    DataTemplatesLv . Items . Add ( "NwOrdersDataGridTemplate1" );
+                    DataTemplatesLb . Items . Add ( "NwordersComplexTemplate1" );
+                    DataTemplatesLb . Items . Add ( "NwordersDataTemplate1" );
+                    DataTemplatesLb . Items . Add ( "NwordersDataTemplate2" );
+                    DataTemplatesLb . Items . Add ( "NwordersDataTemplate4" );
+                    DataTemplatesLb . Items . Add ( "NwOrdersDataGridTemplate1" );
                 }
             }
             else
@@ -1560,20 +1570,20 @@ namespace NewWpfDev . Views
                 //Generic   type
                 if ( viewertype == "VIEW" )
                 {
-                    DataTemplatesLv . Items . Add("GenDataTemplate1");
-                    DataTemplatesLv . Items . Add("GenDataTemplate2");
+                    DataTemplatesLv . Items . Add ( "GenDataTemplate1" );
+                    DataTemplatesLv . Items . Add ( "GenDataTemplate2" );
                 }
                 else if ( viewertype == "BOX" )
                 {
-                    DataTemplatesLb . Items . Add("GenDataTemplate1");
-                    DataTemplatesLb . Items . Add("GenDataTemplate2");
+                    DataTemplatesLb . Items . Add ( "GenDataTemplate1" );
+                    DataTemplatesLb . Items . Add ( "GenDataTemplate2" );
                 }
                 else
                 {
-                    DataTemplatesLv . Items . Add("GenDataTemplate1");
-                    DataTemplatesLv . Items . Add("GenDataTemplate2");
-                    DataTemplatesLb . Items . Add("GenDataTemplate1");
-                    DataTemplatesLb . Items . Add("GenDataTemplate2");
+                    DataTemplatesLv . Items . Add ( "GenDataTemplate1" );
+                    DataTemplatesLv . Items . Add ( "GenDataTemplate2" );
+                    DataTemplatesLb . Items . Add ( "GenDataTemplate1" );
+                    DataTemplatesLb . Items . Add ( "GenDataTemplate2" );
                 }
             }
             if ( viewertype == "VIEW" )
@@ -1594,39 +1604,39 @@ namespace NewWpfDev . Views
                 DataTemplatesLb . SelectedItem = 0;
             }
         }
-        private void LoadDataTemplates_PubAuthors (string type , string viewertype)
+        private void LoadDataTemplates_PubAuthors ( string type , string viewertype )
         {
             if ( viewertype == "VIEW" )
             {
-                DataTemplatesLv . Items . Clear();
+                DataTemplatesLv . Items . Clear ( );
             }
             else if ( viewertype == "BOX" )
             {
-                DataTemplatesLb . Items . Clear();
+                DataTemplatesLb . Items . Clear ( );
             }
             else
             {
-                DataTemplatesLv . Items . Clear();
-                DataTemplatesLb . Items . Clear();
+                DataTemplatesLv . Items . Clear ( );
+                DataTemplatesLb . Items . Clear ( );
             }
             if ( type == "AUTHORS" )
             {
                 if ( viewertype == "VIEW" )
                 {
-                    DataTemplatesLv . Items . Add("PubsAuthorTemplate1");
-                    DataTemplatesLv . Items . Add("PubsAuthorTemplate2");
+                    DataTemplatesLv . Items . Add ( "PubsAuthorTemplate1" );
+                    DataTemplatesLv . Items . Add ( "PubsAuthorTemplate2" );
                 }
                 else if ( viewertype == "BOX" )
                 {
-                    DataTemplatesLb . Items . Add("PubsAuthorTemplate1");
-                    DataTemplatesLb . Items . Add("PubsAuthorTemplate2");
+                    DataTemplatesLb . Items . Add ( "PubsAuthorTemplate1" );
+                    DataTemplatesLb . Items . Add ( "PubsAuthorTemplate2" );
                 }
                 else
                 {
-                    DataTemplatesLv . Items . Add("PubsAuthorTemplate1");
-                    DataTemplatesLv . Items . Add("PubsAuthorTemplate2");
-                    DataTemplatesLb . Items . Add("PubsAuthorTemplate1");
-                    DataTemplatesLb . Items . Add("PubsAuthorTemplate2");
+                    DataTemplatesLv . Items . Add ( "PubsAuthorTemplate1" );
+                    DataTemplatesLv . Items . Add ( "PubsAuthorTemplate2" );
+                    DataTemplatesLb . Items . Add ( "PubsAuthorTemplate1" );
+                    DataTemplatesLb . Items . Add ( "PubsAuthorTemplate2" );
                 }
             }
             else
@@ -1634,20 +1644,20 @@ namespace NewWpfDev . Views
                 //Generic   type
                 if ( viewertype == "VIEW" )
                 {
-                    DataTemplatesLv . Items . Add("GenDataTemplate1");
-                    DataTemplatesLv . Items . Add("GenDataTemplate2");
+                    DataTemplatesLv . Items . Add ( "GenDataTemplate1" );
+                    DataTemplatesLv . Items . Add ( "GenDataTemplate2" );
                 }
                 else if ( viewertype == "BOX" )
                 {
-                    DataTemplatesLb . Items . Add("GenDataTemplate1");
-                    DataTemplatesLb . Items . Add("GenDataTemplate2");
+                    DataTemplatesLb . Items . Add ( "GenDataTemplate1" );
+                    DataTemplatesLb . Items . Add ( "GenDataTemplate2" );
                 }
                 else
                 {
-                    DataTemplatesLv . Items . Add("GenDataTemplate1");
-                    DataTemplatesLv . Items . Add("GenDataTemplate2");
-                    DataTemplatesLb . Items . Add("GenDataTemplate1");
-                    DataTemplatesLb . Items . Add("GenDataTemplate2");
+                    DataTemplatesLv . Items . Add ( "GenDataTemplate1" );
+                    DataTemplatesLv . Items . Add ( "GenDataTemplate2" );
+                    DataTemplatesLb . Items . Add ( "GenDataTemplate1" );
+                    DataTemplatesLb . Items . Add ( "GenDataTemplate2" );
                 }
             }
             if ( viewertype == "VIEW" )
@@ -1671,27 +1681,27 @@ namespace NewWpfDev . Views
         #endregion Load data templates
 
         #region ALL Combo box handlers
-        private void LVDataTemplate_SelectionChanged (object sender , SelectionChangedEventArgs e)
+        private void LVDataTemplate_SelectionChanged ( object sender , SelectionChangedEventArgs e )
         {
             if ( DataTemplatesLv . Items . Count == 0 )
                 return;
-            string selection = DataTemplatesLv . SelectedItem . ToString();
+            string selection = DataTemplatesLv . SelectedItem . ToString ( );
             FrameworkElement elemnt = listView as FrameworkElement;
-            listView . ItemTemplate = elemnt . FindResource(selection) as DataTemplate;
-            listView . Refresh();
+            listView . ItemTemplate = elemnt . FindResource ( selection ) as DataTemplate;
+            listView . Refresh ( );
         }
-        private void LBDataTemplate_SelectionChanged (object sender , SelectionChangedEventArgs e)
+        private void LBDataTemplate_SelectionChanged ( object sender , SelectionChangedEventArgs e )
         {
             if ( DataTemplatesLb . Items . Count == 0 )
                 return;
             ComboBox cb = sender as ComboBox;
-            string selection = cb . SelectedItem . ToString();
+            string selection = cb . SelectedItem . ToString ( );
             FrameworkElement elemnt = listBox as FrameworkElement;
-            listBox . ItemTemplate = elemnt . FindResource(selection) as DataTemplate;
-            listBox . Refresh();
+            listBox . ItemTemplate = elemnt . FindResource ( selection ) as DataTemplate;
+            listBox . Refresh ( );
         }
 
-        private void fontsize_SelectionChanged (object sender , SelectionChangedEventArgs e)
+        private void fontsize_SelectionChanged ( object sender , SelectionChangedEventArgs e )
         {
             // Font size changing
             ComboBox cb = sender as ComboBox;
@@ -1699,36 +1709,36 @@ namespace NewWpfDev . Views
             if ( cb . SelectedItem == null )
                 cb . SelectedIndex = 0;
             double fontsze = 0;
-            fontsze = Convert . ToDouble(cb . SelectedItem);
+            fontsze = Convert . ToDouble ( cb . SelectedItem );
             double newitemheightrequired = 0;
             double currentItemHeight = 0;
             newitemheightrequired = Fontsize + 6;
-            currentItemHeight = Convert . ToDouble(GetValue(ItemsHeightProperty));
-            SetValue(FontsizeProperty , fontsze);
+            currentItemHeight = Convert . ToDouble ( GetValue ( ItemsHeightProperty ) );
+            SetValue ( FontsizeProperty , fontsze );
             dGrid . FontSize = fontsze;
         }
-        private void rowheight_SelectionChanged (object sender , SelectionChangedEventArgs e)
+        private void rowheight_SelectionChanged ( object sender , SelectionChangedEventArgs e )
         {
             // Row Height changing
             ComboBox cb = sender as ComboBox;
             if ( cb . SelectedItem == null )
                 cb . SelectedIndex = 0;
             double rwheight = 0;
-            rwheight = Convert . ToDouble(cb . SelectedItem);
+            rwheight = Convert . ToDouble ( cb . SelectedItem );
             ItemsHeight = rwheight;
-            SetValue(ItemsHeightProperty , rwheight);
+            SetValue ( ItemsHeightProperty , rwheight );
             dGrid . RowHeight = rwheight;
         }
 
-        private void SelectCurrentDbInCombo (string dbname , string viewertype)
+        private void SelectCurrentDbInCombo ( string dbname , string viewertype )
         {
-            ComboBoxItem cbi = new ComboBoxItem();
+            ComboBoxItem cbi = new ComboBoxItem ( );
             string entry = "";
             int indx = 0;
             for ( int x = 0 ; x < dbNameLv . Items . Count ; x++ )
             {
-                entry = dbNameLv . Items [ x ] . ToString();
-                if ( entry . ToUpper() == dbname )
+                entry = dbNameLv . Items [ x ] . ToString ( );
+                if ( entry . ToUpper ( ) == dbname )
                     break;
                 indx++;
             }
@@ -1745,7 +1755,7 @@ namespace NewWpfDev . Views
 
             ComboSelectionActive = false;
         }
-        private void dbNameLb_SelectionChanged (object sender , SelectionChangedEventArgs e)
+        private void dbNameLb_SelectionChanged ( object sender , SelectionChangedEventArgs e )
         {
 #pragma warning disable CS0219 // The variable 'ResultString' is assigned but its value is never used
             string ResultString = "";
@@ -1754,11 +1764,11 @@ namespace NewWpfDev . Views
                 return;
             if ( ComboSelectionActive || dbNameLb . Items . Count == 0 )
                 return;
-            string tablename = dbNameLb . SelectedItem . ToString();
+            string tablename = dbNameLb . SelectedItem . ToString ( );
             SqlCommand = $"Select *from {tablename}";
-            CurrentTableName = tablename . ToUpper();
+            CurrentTableName = tablename . ToUpper ( );
         }
-        private void dbNameLv_SelectionChanged (object sender , SelectionChangedEventArgs e)
+        private void dbNameLv_SelectionChanged ( object sender , SelectionChangedEventArgs e )
         {
 #pragma warning disable CS0219 // The variable 'ResultString' is assigned but its value is never used
             string ResultString = "";
@@ -1767,42 +1777,42 @@ namespace NewWpfDev . Views
                 return;
             if ( ComboSelectionActive || dbNameLv . Items . Count == 0 )
                 return;
-            string tablename = dbNameLv . SelectedItem . ToString();
+            string tablename = dbNameLv . SelectedItem . ToString ( );
             SqlCommand = $"Select *from {tablename}";
-            CurrentTableName = tablename . ToUpper();
+            CurrentTableName = tablename . ToUpper ( );
         }
 
         #endregion ALL Combo box handlers
 
         #region NorthWind	 UNUSED customer load
         //NorthWind methods    - UNUSED
-        private ObservableCollection<nwcustomer> LoadNwCustomers (string type)
+        private ObservableCollection<nwcustomer> LoadNwCustomers ( string type )
         {
             if ( Startup )
                 return null;
             // Set correct connection string
-            if ( Utils . CheckResetDbConnection("NORTHWIND" , out string constr) == false )
+            if ( Utils . CheckResetDbConnection ( "NORTHWIND" , out string constr ) == false )
             {
-                Debug. WriteLine("Failed to set connection string for NorthWind Db");
+                Debug . WriteLine ( "Failed to set connection string for NorthWind Db" );
                 return null;
             }
             {
-                OpenNorthWindDb();
-                nwcustomeraccts = nwc . GetNwCustomers();
+                OpenNorthWindDb ( );
+                nwcustomeraccts = nwc . GetNwCustomers ( );
                 listView . ItemsSource = nwcustomeraccts;
                 dGrid . ItemsSource = nwcustomeraccts;
                 FrameworkElement elemnt = listView as FrameworkElement;
-                listView . ItemTemplate = elemnt . FindResource("NwCustomersDataTemplate1") as DataTemplate;
+                listView . ItemTemplate = elemnt . FindResource ( "NwCustomersDataTemplate1" ) as DataTemplate;
                 dGrid . SelectedItem = dGrid . SelectedIndex = 0;
-                lvHeader . Text = $"List View Display : {dbNameLv?.SelectedItem?.ToString() . ToUpper()}";
+                lvHeader . Text = $"List View Display : {dbNameLv?.SelectedItem?.ToString ( ) . ToUpper ( )}";
                 listView . SelectedIndex = 0;
-                listView . Focus();
-                listBox . ItemTemplate = elemnt . FindResource("NwCustomersDataTemplate1") as DataTemplate;
+                listView . Focus ( );
+                listBox . ItemTemplate = elemnt . FindResource ( "NwCustomersDataTemplate1" ) as DataTemplate;
                 listBox . ItemsSource = nwcustomeraccts;
-                lbHeader . Text = $"List Box Display : {dbNameLb?.SelectedItem?.ToString() . ToUpper()}";
-                dGridHeader . Text = $"DataGrid Display : {dbNameLb?.SelectedItem?.ToString() . ToUpper()} Records = {nwcustomeraccts . Count}";
+                lbHeader . Text = $"List Box Display : {dbNameLb?.SelectedItem?.ToString ( ) . ToUpper ( )}";
+                dGridHeader . Text = $"DataGrid Display : {dbNameLb?.SelectedItem?.ToString ( ) . ToUpper ( )} Records = {nwcustomeraccts . Count}";
                 listBox . SelectedIndex = 0;
-                listBox . Focus();
+                listBox . Focus ( );
                 DbCountlb = nwcustomeraccts . Count;
                 DbCountlv = nwcustomeraccts . Count;
                 return nwcustomeraccts;
@@ -1811,84 +1821,84 @@ namespace NewWpfDev . Views
         #endregion NorthWind
 
         #region Make main Db Connectiions
-        private bool OpenIan1Db ()
+        private bool OpenIan1Db ( )
         {
             //Set Sql Connection string up first
-            if ( Utils . CheckResetDbConnection("IAN1" , out string constr) == false )
+            if ( Utils . CheckResetDbConnection ( "IAN1" , out string constr ) == false )
             {
-                Debug. WriteLine("Failed to set connection string for Ian1 Db");
+                Debug . WriteLine ( "Failed to set connection string for Ian1 Db" );
                 return false;
             }
             // Open the Ian1 Db first off
             SqlCommand = "spOpenDb_Ian1";
-            if ( SqlSupport . Executestoredproc(SqlCommand , Flags . CurrentConnectionString) == false )
+            if ( SqlSupport . Executestoredproc ( SqlCommand , Flags . CurrentConnectionString ) == false )
             {
-                Debug. WriteLine($"Stored procedure {SqlCommand} Failed to open IAN1.MDF");
-                WpfLib1 . Utils . DoErrorBeep(250 , 75 , 1);
+                Debug . WriteLine ( $"Stored procedure {SqlCommand} Failed to open IAN1.MDF" );
+                WpfLib1 . Utils . DoErrorBeep ( 250 , 75 , 1 );
                 SqlCommand = DefaultSqlCommand;
                 return false;
             }
             SqlCommand = DefaultSqlCommand;
             return true;
         }
-        private void OpenNorthWindDb ()
+        private void OpenNorthWindDb ( )
         {
             //Set Sql Connectoin string up first
-            if ( Utils . CheckResetDbConnection("NORTHWIND" , out string constr) == false )
+            if ( Utils . CheckResetDbConnection ( "NORTHWIND" , out string constr ) == false )
             {
-                Debug. WriteLine("Failed to set connection string for NorthWind Db");
+                Debug . WriteLine ( "Failed to set connection string for NorthWind Db" );
                 return;
             }
             // Open the NorthWind Db first off
             SqlCommand = "spOpenDb_NorthWind";
-            SqlSupport . Executestoredproc(SqlCommand , Flags . CurrentConnectionString);
+            SqlSupport . Executestoredproc ( SqlCommand , Flags . CurrentConnectionString );
             // now load list of tabels in Northwind Db into dbMain Combo
-            LoadDbTables("NORTHWIND");
+            LoadDbTables ( "NORTHWIND" );
             SqlCommand = DefaultSqlCommand;
         }
-        private void OpenPublishers ()
+        private void OpenPublishers ( )
         {
             //Set Sql Connectoin string up first
-            if ( Utils . CheckResetDbConnection("PUBS" , out string constr) == false )
+            if ( Utils . CheckResetDbConnection ( "PUBS" , out string constr ) == false )
             {
-                Debug. WriteLine("Failed to set connection string for Adventure WorksDb");
+                Debug . WriteLine ( "Failed to set connection string for Adventure WorksDb" );
                 return;
             }
             // Open the Adventureworks Db first off
             SqlCommand = "spOpenDb_Publishers";
-            SqlSupport . Executestoredproc(SqlCommand , Flags . CurrentConnectionString);
+            SqlSupport . Executestoredproc ( SqlCommand , Flags . CurrentConnectionString );
             // now load list of tabels in Northwind Db
-            LoadDbTables("PUBS");
+            LoadDbTables ( "PUBS" );
             SqlCommand = "Select * fom Authors order by au_fname";
         }
         #endregion Make main Db Connectiions
 
         #region  Load Current Db's Tables lists
         //Get list of all Tables in our Db (Ian1.MDF)
-        public void LoadTablesList_Ian1 ()
+        public void LoadTablesList_Ian1 ( )
         {
             int bankindex = 0, count = 0;
-            List<string> list = new List<string>();
-            dbNameLv . Items . Clear();
-            dbNameLb . Items . Clear();
+            List<string> list = new List<string> ( );
+            dbNameLv . Items . Clear ( );
+            dbNameLb . Items . Clear ( );
             SqlCommand = "spGetTablesList";
-            Datagrids . CallStoredProcedure(list , SqlCommand);
+            Datagrids . CallStoredProcedure ( list , SqlCommand );
             //This call returns us a DataTable
-            DataTable dt = DataLoadControl . GetDataTable(SqlCommand);
+            DataTable dt = DataLoadControl . GetDataTable ( SqlCommand );
             // This how to access  Row data from  a grid the easiest way.... parsed into a List <xxxxx>
-            list = WpfLib1 . Utils . GetDataDridRowsAsListOfStrings(dt);
+            list = WpfLib1 . Utils . GetDataDridRowsAsListOfStrings ( dt );
             foreach ( string row in list )
             {
-                dbNameLb . Items . Add(row);
-                dbNameLv . Items . Add(row);
-                if ( row . ToUpper() == "BANKACCOUNT" )
+                dbNameLb . Items . Add ( row );
+                dbNameLv . Items . Add ( row );
+                if ( row . ToUpper ( ) == "BANKACCOUNT" )
                     bankindex = count;
                 count++;
             }
             // how to Sort Combo/Listbox contents
-            dbNameLb . Items . SortDescriptions . Add(new SortDescription("" , ListSortDirection . Ascending));
+            dbNameLb . Items . SortDescriptions . Add ( new SortDescription ( "" , ListSortDirection . Ascending ) );
             dbNameLb . SelectedIndex = bankindex;
-            dbNameLv . Items . SortDescriptions . Add(new SortDescription("" , ListSortDirection . Ascending));
+            dbNameLv . Items . SortDescriptions . Add ( new SortDescription ( "" , ListSortDirection . Ascending ) );
             dbNameLv . SelectedIndex = bankindex;
             SqlCommand = DefaultSqlCommand;
         }
@@ -1897,35 +1907,35 @@ namespace NewWpfDev . Views
         #region Load List of Tables in current Db
 
         //Get list of all Tables in currently selected Db 
-        public bool LoadDbTables (string DbName)
+        public bool LoadDbTables ( string DbName )
         {
             int listindex = 0, count = 0;
-            List<string> list = new List<string>();
-            DbName = DbName . ToUpper();
-            if ( Utils . CheckResetDbConnection(DbName , out string constr) == false )
+            List<string> list = new List<string> ( );
+            DbName = DbName . ToUpper ( );
+            if ( Utils . CheckResetDbConnection ( DbName , out string constr ) == false )
             {
-                Debug. WriteLine($"Failed to set connection string for {DbName} Db");
+                Debug . WriteLine ( $"Failed to set connection string for {DbName} Db" );
                 return false;
             }
             // All Db's have their own version of this SP.....
             SqlCommand = "spGetTablesList";
 
-            Datagrids . CallStoredProcedure(list , SqlCommand);
+            Datagrids . CallStoredProcedure ( list , SqlCommand );
             //This call returns us a DataTable
-            DataTable dt = DataLoadControl . GetDataTable(SqlCommand);
+            DataTable dt = DataLoadControl . GetDataTable ( SqlCommand );
             // This how to access Row data from  a grid the easiest way.... parsed into a List <xxxxx>
             if ( dt != null )
             {
-                dbNameLb . Items . Clear();
-                dbNameLv . Items . Clear();
-                list = WpfLib1 . Utils . GetDataDridRowsAsListOfStrings(dt);
+                dbNameLb . Items . Clear ( );
+                dbNameLv . Items . Clear ( );
+                list = WpfLib1 . Utils . GetDataDridRowsAsListOfStrings ( dt );
                 if ( DbName == "NORTHWIND" )
                 {
                     foreach ( string row in list )
                     {
-                        dbNameLb . Items . Add(row);
-                        dbNameLv . Items . Add(row);
-                        if ( row . ToUpper() == CurrentTableName )
+                        dbNameLb . Items . Add ( row );
+                        dbNameLv . Items . Add ( row );
+                        if ( row . ToUpper ( ) == CurrentTableName )
                             listindex = count;
                         count++;
                     }
@@ -1934,9 +1944,9 @@ namespace NewWpfDev . Views
                 {
                     foreach ( string row in list )
                     {
-                        dbNameLb . Items . Add(row);
-                        dbNameLv . Items . Add(row);
-                        if ( row . ToUpper() == CurrentTableName )
+                        dbNameLb . Items . Add ( row );
+                        dbNameLv . Items . Add ( row );
+                        if ( row . ToUpper ( ) == CurrentTableName )
                             listindex = count;
                         count++;
                     }
@@ -1945,9 +1955,9 @@ namespace NewWpfDev . Views
                 {
                     foreach ( string row in list )
                     {
-                        dbNameLb . Items . Add(row);
-                        dbNameLv . Items . Add(row);
-                        if ( row . ToUpper() == CurrentTableName )
+                        dbNameLb . Items . Add ( row );
+                        dbNameLv . Items . Add ( row );
+                        if ( row . ToUpper ( ) == CurrentTableName )
                             listindex = count;
                         count++;
                     }
@@ -1977,8 +1987,8 @@ namespace NewWpfDev . Views
             }
             else
             {
-                MessageBox . Show($"SQL comand {SqlCommand} Failed...");
-                WpfLib1 . Utils . DoErrorBeep(125 , 55 , 1);
+                MessageBox . Show ( $"SQL comand {SqlCommand} Failed..." );
+                WpfLib1 . Utils . DoErrorBeep ( 125 , 55 , 1 );
                 return false;
             }
 #pragma warning disable CS0162 // Unreachable code detected
@@ -1990,9 +2000,9 @@ namespace NewWpfDev . Views
         #endregion Load List of Tables in current Db
 
         #region FlowDoc support
-        private void ShowInfo (FlowDoc Flowdoc , Canvas canvas , string line1 = "" , string clr1 = "" , string line2 = "" , string clr2 = "" , string line3 = "" , string clr3 = "" , string header = "" , string clr4 = "" , bool beep = false)
+        private void ShowInfo ( FlowDoc Flowdoc , Canvas canvas , string line1 = "" , string clr1 = "" , string line2 = "" , string clr2 = "" , string line3 = "" , string clr3 = "" , string header = "" , string clr4 = "" , bool beep = false )
         {
-            Flowdoc . ShowInfo(Flowdoc , canvas , line1 , clr1 , line2 , clr2 , line3 , clr3 , header , clr4 , beep);
+            Flowdoc . ShowInfo ( Flowdoc , canvas , line1 , clr1 , line2 , clr2 , line3 , clr3 , header , clr4 , beep );
             //if ( UseFlowdoc == false )
             //	return;
             //if ( UseFlowdocBeep == false )
@@ -2035,29 +2045,29 @@ namespace NewWpfDev . Views
         {
             get
             {
-                return ( double )GetValue(FontsizeProperty);
+                return ( double ) GetValue ( FontsizeProperty );
             }
             set
             {
-                SetValue(FontsizeProperty , value);
+                SetValue ( FontsizeProperty , value );
             }
         }
         public static readonly DependencyProperty FontsizeProperty =
-            DependencyProperty . Register("Fontsize" , typeof(double) , typeof(Listviews) , new PropertyMetadata(( double )12));
+            DependencyProperty . Register ( "Fontsize" , typeof ( double ) , typeof ( Listviews ) , new PropertyMetadata ( ( double ) 12 ) );
 
         public double ItemsHeight
         {
             get
             {
-                return ( double )GetValue(ItemsHeightProperty);
+                return ( double ) GetValue ( ItemsHeightProperty );
             }
             set
             {
-                SetValue(ItemsHeightProperty , value);
+                SetValue ( ItemsHeightProperty , value );
             }
         }
         public static readonly DependencyProperty ItemsHeightProperty =
-            DependencyProperty . Register("ItemsHeight" , typeof(double) , typeof(Listviews) , new PropertyMetadata(( double )20));
+            DependencyProperty . Register ( "ItemsHeight" , typeof ( double ) , typeof ( Listviews ) , new PropertyMetadata ( ( double ) 20 ) );
 
         #endregion  Dependency properties
 
@@ -2065,15 +2075,15 @@ namespace NewWpfDev . Views
         #endregion FlowDoc support
 
         #region  initialize data
-        public void LoadDefaultSqlCommands ()
+        public void LoadDefaultSqlCommands ( )
         {
             if ( DefaultSqlCommands . Count > 0 )
                 return;
-            DefaultSqlCommands . Add("BANKACCOUNT" , "Select * from BankAccount");
-            DefaultSqlCommands . Add("CUSTOMER" , "Select * from Customer");
-            DefaultSqlCommands . Add("SECACCOUNTS" , "Select * from secAccounts");
-            DefaultSqlCommands . Add("NORTHWIND" , "Select * from Customers");
-            DefaultSqlCommands . Add("AUTHORS" , "Select * from Authors");
+            DefaultSqlCommands . Add ( "BANKACCOUNT" , "Select * from BankAccount" );
+            DefaultSqlCommands . Add ( "CUSTOMER" , "Select * from Customer" );
+            DefaultSqlCommands . Add ( "SECACCOUNTS" , "Select * from secAccounts" );
+            DefaultSqlCommands . Add ( "NORTHWIND" , "Select * from Customers" );
+            DefaultSqlCommands . Add ( "AUTHORS" , "Select * from Authors" );
             //DefaultSqlCommands . Add ( "AW.SALES.CREDITCARD" , "Select * from Sales.CreditCard" );
             //DefaultSqlCommands . Add ( "AW.SALES.SALESPERSON" , "Select * from Sales.Salesperson" );
             //DefaultSqlCommands . Add ( "AW.SALES.SALESTERRITORY" , "Select * from Sales.SalesTerritory" );
@@ -2084,14 +2094,14 @@ namespace NewWpfDev . Views
         #endregion  initialize data
 
         #region utility  support methods
-        private void ShowLoadtime ()
+        private void ShowLoadtime ( )
         {
             if ( Usetimer )
             {
-                timer . Stop();
+                timer . Stop ( );
                 if ( timer . ElapsedMilliseconds != 0 )
-                    LoadTime . Text = timer . ElapsedMilliseconds . ToString() + " m/secs";
-                timer . Reset();
+                    LoadTime . Text = timer . ElapsedMilliseconds . ToString ( ) + " m/secs";
+                timer . Reset ( );
             }
         }
         #endregion utility  support methods
@@ -2104,7 +2114,7 @@ namespace NewWpfDev . Views
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void dbMain_SelectionChanged (object sender , SelectionChangedEventArgs e)
+        private void dbMain_SelectionChanged ( object sender , SelectionChangedEventArgs e )
         {
             if ( Startup )
                 return;
@@ -2113,121 +2123,121 @@ namespace NewWpfDev . Views
             // clear down viewers 1st
             listView . ItemsSource = null;
             listBox . ItemsSource = null;
-            listView . Refresh();
-            listBox . Refresh();
+            listView . Refresh ( );
+            listBox . Refresh ( );
             ComboBox cb = sender as ComboBox;
-            string selection = cb . SelectedItem . ToString();
-            if ( selection . ToUpper() == "IAN1" )
+            string selection = cb . SelectedItem . ToString ( );
+            if ( selection . ToUpper ( ) == "IAN1" )
             {
                 // initial access of this Db, so load BankAccount table
-                if ( Utils . CheckResetDbConnection("IAN1" , out string constr) == false )
+                if ( Utils . CheckResetDbConnection ( "IAN1" , out string constr ) == false )
                 {
-                    Debug. WriteLine("Failed to set connection string for IAN1 Db");
+                    Debug . WriteLine ( "Failed to set connection string for IAN1 Db" );
                     return;
                 }
                 // used to access Dictionary of DataTemplates
-                OpenIan1Db();
+                OpenIan1Db ( );
                 CurrentDbName = "IAN1";
-                LoadDbTables(CurrentDbName);
+                LoadDbTables ( CurrentDbName );
                 CurrentTableName = "BANKACCOUNT";
-                SelectCurrentDbInCombo("BANKACCOUNT" , "");
-                LoadDataTemplates_Ian1(CurrentTableName , "VIEW");
+                SelectCurrentDbInCombo ( "BANKACCOUNT" , "" );
+                LoadDataTemplates_Ian1 ( CurrentTableName , "VIEW" );
                 DefaultSqlCommand = "Select * from Bankaccount";
                 SqlCommand = DefaultSqlCommand;
-                CurrentDataTable = DataTemplatesLv . Items [ 0 ] . ToString();
+                CurrentDataTable = DataTemplatesLv . Items [ 0 ] . ToString ( );
 
                 //Now setup the UI as needed
                 listView . ItemsSource = null;
                 // Load  the data from the Table via SQL
-                LoadData_Ian1("VIEW");
+                LoadData_Ian1 ( "VIEW" );
 
                 FrameworkElement elemnt = listView as FrameworkElement;
-                listView . ItemTemplate = elemnt . FindResource(CurrentDataTable) as DataTemplate;
+                listView . ItemTemplate = elemnt . FindResource ( CurrentDataTable ) as DataTemplate;
                 listView . ItemsSource = bankaccts;
                 dGrid . ItemsSource = bankaccts;
                 dGrid . SelectedItem = dGrid . SelectedIndex = 0;
-                lvHeader . Text = $"List View Display : {DbMain . SelectedItem . ToString()} : {dbNameLv?.SelectedItem?.ToString() . ToUpper()}";
+                lvHeader . Text = $"List View Display : {DbMain . SelectedItem . ToString ( )} : {dbNameLv?.SelectedItem?.ToString ( ) . ToUpper ( )}";
                 listView . SelectedIndex = 0;
-                listView . Focus();
-                listBox . ItemTemplate = elemnt . FindResource(CurrentDataTable) as DataTemplate;
+                listView . Focus ( );
+                listBox . ItemTemplate = elemnt . FindResource ( CurrentDataTable ) as DataTemplate;
                 listBox . ItemsSource = bankaccts;
-                lbHeader . Text = $"List Box Display : {DbMain . SelectedItem . ToString()} : {dbNameLb?.SelectedItem?.ToString() . ToUpper()}";
-                dGridHeader . Text = $"DataGrid Display : {DbMain . SelectedItem . ToString()} : {dbNameLb?.SelectedItem?.ToString() . ToUpper()} Records = {bankaccts . Count}";
+                lbHeader . Text = $"List Box Display : {DbMain . SelectedItem . ToString ( )} : {dbNameLb?.SelectedItem?.ToString ( ) . ToUpper ( )}";
+                dGridHeader . Text = $"DataGrid Display : {DbMain . SelectedItem . ToString ( )} : {dbNameLb?.SelectedItem?.ToString ( ) . ToUpper ( )} Records = {bankaccts . Count}";
                 listBox . SelectedIndex = 0;
                 DbCountlb = bankaccts . Count;
                 DbCountlv = bankaccts . Count;
             }
-            else if ( selection . ToUpper() == "NORTHWIND" )
+            else if ( selection . ToUpper ( ) == "NORTHWIND" )
             {
                 // Just open the New DB
-                if ( Utils . CheckResetDbConnection("NORTHWIND" , out string constr) == false )
+                if ( Utils . CheckResetDbConnection ( "NORTHWIND" , out string constr ) == false )
                 {
-                    Debug. WriteLine("Failed to set connection string for NorthWind Db");
+                    Debug . WriteLine ( "Failed to set connection string for NorthWind Db" );
                     return;
                 }
-                OpenNorthWindDb();
+                OpenNorthWindDb ( );
                 CurrentDbName = "NORTHWIND";
                 CurrentTableName = "CUSTOMERS";
-                LoadDbTables(CurrentDbName);
+                LoadDbTables ( CurrentDbName );
 
-                LoadDataTemplates_NorthWind(CurrentTableName , "");
-                SelectCurrentDbInCombo(CurrentTableName , "");
+                LoadDataTemplates_NorthWind ( CurrentTableName , "" );
+                SelectCurrentDbInCombo ( CurrentTableName , "" );
                 DefaultSqlCommand = "Select * from Customers";
                 SqlCommand = DefaultSqlCommand;
                 listView . ItemsSource = null;
                 // Load  the data from the Table via SQL
-                nwcustomeraccts = nwc . GetNwCustomers();
+                nwcustomeraccts = nwc . GetNwCustomers ( );
 
                 //Now setup the UI as needed
                 FrameworkElement elemnt = listView as FrameworkElement;
-                listView . ItemTemplate = elemnt . FindResource("NwCustomersDataTemplate1") as DataTemplate;
+                listView . ItemTemplate = elemnt . FindResource ( "NwCustomersDataTemplate1" ) as DataTemplate;
                 listView . ItemsSource = nwcustomeraccts;
                 dGrid . ItemsSource = nwcustomeraccts;
                 dGrid . SelectedItem = dGrid . SelectedIndex = 0;
-                lvHeader . Text = $"List View Display : {DbMain . SelectedItem . ToString()} : {dbNameLv?.SelectedItem?.ToString() . ToUpper()}";
+                lvHeader . Text = $"List View Display : {DbMain . SelectedItem . ToString ( )} : {dbNameLv?.SelectedItem?.ToString ( ) . ToUpper ( )}";
                 listView . SelectedIndex = 0;
-                listView . Focus();
-                listBox . ItemTemplate = elemnt . FindResource("NwCustomersDataTemplate1") as DataTemplate;
+                listView . Focus ( );
+                listBox . ItemTemplate = elemnt . FindResource ( "NwCustomersDataTemplate1" ) as DataTemplate;
                 listBox . ItemsSource = nwcustomeraccts;
-                lbHeader . Text = $"List Box Display : {DbMain . SelectedItem . ToString()} : {dbNameLb?.SelectedItem?.ToString() . ToUpper()}";
-                dGridHeader . Text = $"DataGrid Display : {DbMain . SelectedItem . ToString()} : {dbNameLb?.SelectedItem?.ToString() . ToUpper()} Records = {nwcustomeraccts . Count}";
+                lbHeader . Text = $"List Box Display : {DbMain . SelectedItem . ToString ( )} : {dbNameLb?.SelectedItem?.ToString ( ) . ToUpper ( )}";
+                dGridHeader . Text = $"DataGrid Display : {DbMain . SelectedItem . ToString ( )} : {dbNameLb?.SelectedItem?.ToString ( ) . ToUpper ( )} Records = {nwcustomeraccts . Count}";
                 listBox . SelectedIndex = 0;
-                listBox . Focus();
+                listBox . Focus ( );
                 DbCountlb = nwcustomeraccts . Count;
                 DbCountlv = nwcustomeraccts . Count;
             }
-            else if ( selection . ToUpper() == "PUBS" )
+            else if ( selection . ToUpper ( ) == "PUBS" )
             {
                 listView . ItemsSource = null;
-                OpenPublishers();
+                OpenPublishers ( );
                 CurrentDbName = "PUBS";
                 CurrentTableName = "AUTHORS";
 
-                LoadDataTemplates_PubAuthors(CurrentTableName , "");
+                LoadDataTemplates_PubAuthors ( CurrentTableName , "" );
 
-                SelectCurrentDbInCombo(CurrentTableName , "");
+                SelectCurrentDbInCombo ( CurrentTableName , "" );
                 DefaultSqlCommand = "Select * from Authors ";
                 SqlCommand = DefaultSqlCommand;
                 listView . ItemsSource = null;
                 // Load  the data from the Table via SQL
-                pubauthors = PubAuthors . LoadPubAuthors(pubauthors , false);
+                pubauthors = PubAuthors . LoadPubAuthors ( pubauthors , false );
 
                 //Now setup the UI as needed
                 FrameworkElement elemnt = listView as FrameworkElement;
-                listView . ItemTemplate = elemnt . FindResource("PubsAuthorTemplate1") as DataTemplate;
+                listView . ItemTemplate = elemnt . FindResource ( "PubsAuthorTemplate1" ) as DataTemplate;
                 listView . ItemsSource = pubauthors;
                 dGrid . ItemsSource = pubauthors;
                 dGrid . SelectedItem = dGrid . SelectedIndex = 0;
 
-                lvHeader . Text = $"List View Display : {DbMain . SelectedItem . ToString()} : {dbNameLv?.SelectedItem?.ToString() . ToUpper()}";
+                lvHeader . Text = $"List View Display : {DbMain . SelectedItem . ToString ( )} : {dbNameLv?.SelectedItem?.ToString ( ) . ToUpper ( )}";
                 listView . SelectedIndex = 0;
-                listView . Focus();
-                listBox . ItemTemplate = elemnt . FindResource("PubsAuthorTemplate1") as DataTemplate;
+                listView . Focus ( );
+                listBox . ItemTemplate = elemnt . FindResource ( "PubsAuthorTemplate1" ) as DataTemplate;
                 listBox . ItemsSource = pubauthors;
-                lbHeader . Text = $"List Box Display : {DbMain . SelectedItem . ToString()} : {dbNameLb?.SelectedItem?.ToString() . ToUpper()}";
-                dGridHeader . Text = $"DataGrid Display : {DbMain . SelectedItem . ToString()} : {dbNameLb?.SelectedItem?.ToString() . ToUpper()} Records = {pubauthors . Count}";
+                lbHeader . Text = $"List Box Display : {DbMain . SelectedItem . ToString ( )} : {dbNameLb?.SelectedItem?.ToString ( ) . ToUpper ( )}";
+                dGridHeader . Text = $"DataGrid Display : {DbMain . SelectedItem . ToString ( )} : {dbNameLb?.SelectedItem?.ToString ( ) . ToUpper ( )} Records = {pubauthors . Count}";
                 listBox . SelectedIndex = 0;
-                listBox . Focus();
+                listBox . Focus ( );
                 DbCountlb = pubauthors . Count;
                 DbCountlv = pubauthors . Count;
             }
@@ -2236,56 +2246,56 @@ namespace NewWpfDev . Views
         #endregion Databse switching
 
         #region  Reload Data viewers
-        private void ReloadListview (object sender , RoutedEventArgs e)
+        private void ReloadListview ( object sender , RoutedEventArgs e )
         {
-            ResetViewers("VIEW");
+            ResetViewers ( "VIEW" );
             listView . ItemsSource = null;
             DbCountlv = 0;
-            listView . Refresh();
+            listView . Refresh ( );
             // Set flag  to ignore limits check
             LoadAll = true;
-            string currdb = GetCurrentDatabase();
-            CurrentTableName = dbNameLv . SelectedItem . ToString() . ToUpper();
+            string currdb = GetCurrentDatabase ( );
+            CurrentTableName = dbNameLv . SelectedItem . ToString ( ) . ToUpper ( );
             // This resets the current database connection - should be used anywhere that We switch between databases in Sql Server
-            if ( Utils . CheckResetDbConnection(DbMain . SelectedItem . ToString() , out string constring) == false )
+            if ( Utils . CheckResetDbConnection ( DbMain . SelectedItem . ToString ( ) , out string constring ) == false )
             {
-                Debug. WriteLine($"Failed to set connection string for {CurrentTableName . ToUpper()} Db");
+                Debug . WriteLine ( $"Failed to set connection string for {CurrentTableName . ToUpper ( )} Db" );
                 return;
             }
             if ( currdb == "IAN1" )
             {
-                LoadData_Ian1("VIEW");
-                LoadGrid_IAN1("VIEW");
+                LoadData_Ian1 ( "VIEW" );
+                LoadGrid_IAN1 ( "VIEW" );
             }
             else if ( currdb == "NORTHWIND" )
             {
-                LoadData_NorthWind("VIEW");
-                LoadGrid_NORTHWIND("VIEW");
+                LoadData_NorthWind ( "VIEW" );
+                LoadGrid_NORTHWIND ( "VIEW" );
             }
             else if ( currdb == "PUBS" )
             {
                 genaccts = null;
-                LoadData_Publishers("VIEW" , out genaccts);
+                LoadData_Publishers ( "VIEW" , out genaccts );
                 if ( genaccts != null )
                 {
                     listView . ItemsSource = genaccts;
-                    SqlServerCommands . LoadActiveRowsOnlyInGrid(dGrid , genaccts , SqlServerCommands . GetGenericColumnCount(genaccts));
+                    SqlServerCommands . LoadActiveRowsOnlyInGrid ( dGrid , genaccts , SqlServerCommands . GetGenericColumnCount ( genaccts ) );
                     if ( Flags . ReplaceFldNames )
                     {
-                        GenericDbUtilities . ReplaceDataGridFldNames(CurrentTableName , ref dGrid);
+                        GenericDbUtilities . ReplaceDataGridFldNames ( CurrentTableName , ref dGrid );
                     }
                     dGrid . SelectedItem = dGrid . SelectedIndex = 0;
                     DbCountlv = genaccts . Count;
                 }
                 else
                 {
-                    pubauthors = PubAuthors . LoadPubAuthors(pubauthors , false);
+                    pubauthors = PubAuthors . LoadPubAuthors ( pubauthors , false );
                     listView . ItemsSource = pubauthors;
                     dGrid . ItemsSource = pubauthors;
                     dGrid . SelectedItem = dGrid . SelectedIndex = 0;
                     DbCountlv = pubauthors . Count;
                 }
-                LoadGrid_PUBS("VIEW");
+                LoadGrid_PUBS ( "VIEW" );
             }
             listView . SelectedIndex = 0;
             listView . SelectedItem = 0;
@@ -2293,68 +2303,68 @@ namespace NewWpfDev . Views
             LoadAll = false;
         }
 
-        private void ReloadListbox (object sender , RoutedEventArgs e)
+        private void ReloadListbox ( object sender , RoutedEventArgs e )
         {
-            ResetViewers("BOX");
+            ResetViewers ( "BOX" );
             listBox . ItemsSource = null;
-            listBox . Refresh();
+            listBox . Refresh ( );
             DbCountlb = 0;
             // Set flag  to ignore limits check
             LoadAll = true;
-            string currdb = GetCurrentDatabase();
-            CurrentTableName = dbNameLb . SelectedItem . ToString() . ToUpper();
-            if ( Utils . CheckResetDbConnection(DbMain . SelectedItem . ToString() , out string constr) == false )
+            string currdb = GetCurrentDatabase ( );
+            CurrentTableName = dbNameLb . SelectedItem . ToString ( ) . ToUpper ( );
+            if ( Utils . CheckResetDbConnection ( DbMain . SelectedItem . ToString ( ) , out string constr ) == false )
             {
-                Debug. WriteLine($"Failed to set connection string for {CurrentTableName . ToUpper()} Db");
+                Debug . WriteLine ( $"Failed to set connection string for {CurrentTableName . ToUpper ( )} Db" );
                 return;
             }
 
             if ( currdb == "IAN1" )
             {
-                LoadData_Ian1("BOX");
-                LoadGrid_IAN1("BOX");
+                LoadData_Ian1 ( "BOX" );
+                LoadGrid_IAN1 ( "BOX" );
             }
             else if ( currdb == "NORTHWIND" )
             {
-                LoadData_NorthWind("BOX");
-                LoadGrid_NORTHWIND("BOX");
+                LoadData_NorthWind ( "BOX" );
+                LoadGrid_NORTHWIND ( "BOX" );
             }
             else if ( currdb == "PUBS" )
             {
                 genaccts = null;
-                LoadData_Publishers("BOX" , out genaccts);
+                LoadData_Publishers ( "BOX" , out genaccts );
                 if ( genaccts != null )
                 {
                     listBox . ItemsSource = genaccts;
-                    SqlServerCommands . LoadActiveRowsOnlyInGrid(dGrid , genaccts , SqlServerCommands . GetGenericColumnCount(genaccts));
+                    SqlServerCommands . LoadActiveRowsOnlyInGrid ( dGrid , genaccts , SqlServerCommands . GetGenericColumnCount ( genaccts ) );
                     if ( Flags . ReplaceFldNames )
                     {
-                        GenericDbUtilities . ReplaceDataGridFldNames(CurrentTableName , ref dGrid);
+                        GenericDbUtilities . ReplaceDataGridFldNames ( CurrentTableName , ref dGrid );
                     }
                     dGrid . SelectedItem = dGrid . SelectedIndex = 0;
                     DbCountlb = genaccts . Count;
                 }
                 else
                 {
-                    pubauthors = PubAuthors . LoadPubAuthors(pubauthors , false);
+                    pubauthors = PubAuthors . LoadPubAuthors ( pubauthors , false );
                     listBox . ItemsSource = pubauthors;
                     dGrid . ItemsSource = pubauthors;
                     dGrid . SelectedItem = dGrid . SelectedIndex = 0;
                     DbCountlb = pubauthors . Count;
                 }
-                LoadGrid_PUBS("BOX");
+                LoadGrid_PUBS ( "BOX" );
             }
             listBox . SelectedIndex = 0;
             listBox . SelectedItem = 0;
             LoadAll = false;
         }
         #endregion  Reload Data viewers
-        private string GetDefaultSqlCommand (string CurrentType)
+        private string GetDefaultSqlCommand ( string CurrentType )
         {
             string result = "";
             foreach ( KeyValuePair<string , string> pair in DefaultSqlCommands )
             {
-                if ( pair . Key == CurrentType . ToUpper() )
+                if ( pair . Key == CurrentType . ToUpper ( ) )
                 {
                     result = pair . Value;
                     SqlCommand = result;
@@ -2365,32 +2375,32 @@ namespace NewWpfDev . Views
         }
 
         #region Checkboxes
-        private void ShowInfo_Click (object sender , RoutedEventArgs e)
+        private void ShowInfo_Click ( object sender , RoutedEventArgs e )
         {
             UseFlowdoc = !UseFlowdoc;
         }
 
-        private void scrollview_Click (object sender , RoutedEventArgs e)
+        private void scrollview_Click ( object sender , RoutedEventArgs e )
         {
             UseScrollViewer = !UseScrollViewer;
             Flags . UseScrollView = UseScrollViewer;
         }
         #endregion Checkboxes
 
-        private void ViewTableColumnsLb (object sender , RoutedEventArgs e)
+        private void ViewTableColumnsLb ( object sender , RoutedEventArgs e )
         {
             bool flowdocswitch = false;
 #pragma warning disable CS0219 // The variable 'count' is assigned but its value is never used
             int count = 0;
 #pragma warning restore CS0219 // The variable 'count' is assigned but its value is never used
-            List<string> list = new List<string>();
-            List<string> fldnameslist = new List<string>();
+            List<string> list = new List<string> ( );
+            List<string> fldnameslist = new List<string> ( );
             string output = "";
-            SqlCommand = $"spGetTableColumnWithSize {dbNameLb . SelectedItem . ToString()}";
+            SqlCommand = $"spGetTableColumnWithSize {dbNameLb . SelectedItem . ToString ( )}";
             //SqlCommand = SqlCommand = $"spGetTableColumns";
-            fldnameslist = Datagrids . CallStoredProcedureWithSizes(list , SqlCommand);
+            fldnameslist = Datagrids . CallStoredProcedureWithSizes ( list , SqlCommand );
 
-            output = WpfLib1 . Utils . ParseTableColumnData(fldnameslist);
+            output = WpfLib1 . Utils . ParseTableColumnData ( fldnameslist );
 
             // Fiddle  to allow Flowdoc  to show Field info even though Flowdoc use is disabled
             if ( UseFlowdoc == false )
@@ -2400,10 +2410,10 @@ namespace NewWpfDev . Views
             }
             //Debug. WriteLine ( $"loaded {count} records for table columns" );
             if ( UseFlowdoc )
-                ShowInfo(Flowdoc , canvas , header: "Table Columns informaton accessed successfully" , clr4: "Red5" ,
+                ShowInfo ( Flowdoc , canvas , header: "Table Columns informaton accessed successfully" , clr4: "Red5" ,
                 line1: $"Request made was completed succesfully!" , clr1: "Red3" ,
-                line2: $"the structure of the table [{dbNameLb . SelectedItem . ToString()}] is listed below : \n{output}" ,
-                line3: $"Results created by Stored Procedure : \n({SqlCommand . ToUpper()})" , clr3: "Blue4"
+                line2: $"the structure of the table [{dbNameLb . SelectedItem . ToString ( )}] is listed below : \n{output}" ,
+                line3: $"Results created by Stored Procedure : \n({SqlCommand . ToUpper ( )})" , clr3: "Blue4"
                 );
             if ( flowdocswitch == true )
             {
@@ -2411,20 +2421,20 @@ namespace NewWpfDev . Views
                 UseFlowdoc = false;
             }
         }
-        private void ViewTableColumnsLv (object sender , RoutedEventArgs e)
+        private void ViewTableColumnsLv ( object sender , RoutedEventArgs e )
         {
             bool flowdocswitch = false;
 #pragma warning disable CS0219 // The variable 'count' is assigned but its value is never used
             int count = 0;
 #pragma warning restore CS0219 // The variable 'count' is assigned but its value is never used
-            List<string> list = new List<string>();
+            List<string> list = new List<string> ( );
             string output = "";
-            SqlCommand = $"spGetTableColumnWithSize {dbNameLv . SelectedItem . ToString()}";
-            list = Datagrids . CallStoredProcedureWithSizes(list , SqlCommand);
-            output = WpfLib1 . Utils . ParseTableColumnData(list);
+            SqlCommand = $"spGetTableColumnWithSize {dbNameLv . SelectedItem . ToString ( )}";
+            list = Datagrids . CallStoredProcedureWithSizes ( list , SqlCommand );
+            output = WpfLib1 . Utils . ParseTableColumnData ( list );
 
             //This call returns us a DataTable
-            DataTable dt = DataLoadControl . GetDataTable(SqlCommand);
+            DataTable dt = DataLoadControl . GetDataTable ( SqlCommand );
             // Fiddle  to allow Flowdoc  to show Field info even though Flowdoc use is disabled
             if ( UseFlowdoc == false )
             {
@@ -2432,10 +2442,10 @@ namespace NewWpfDev . Views
                 UseFlowdoc = true;
             }
             if ( UseFlowdoc )
-                ShowInfo(Flowdoc , canvas , header: "Table Columns informaton accessed successfully" , clr4: "Red5" ,
+                ShowInfo ( Flowdoc , canvas , header: "Table Columns informaton accessed successfully" , clr4: "Red5" ,
                 line1: $"Request made was completed succesfully!" , clr1: "Red3" ,
-                line2: $"the structure of the table [{dbNameLv . SelectedItem . ToString()}] is listed below : \n{output}" ,
-                line3: $"Results created by Stored Procedure : \n({SqlCommand . ToUpper()})" , clr3: "Blue4"
+                line2: $"the structure of the table [{dbNameLv . SelectedItem . ToString ( )}] is listed below : \n{output}" ,
+                line3: $"Results created by Stored Procedure : \n({SqlCommand . ToUpper ( )})" , clr3: "Blue4"
                 );
             if ( flowdocswitch == true )
             {
@@ -2445,42 +2455,42 @@ namespace NewWpfDev . Views
         }
 
         // display relevant info when a different table is selected
-        private void HandleCaption (string viewertype , int reccount)
+        private void HandleCaption ( string viewertype , int reccount )
         {
             FrameworkElement elemnt;
             if ( viewertype == "VIEW" )
             {
                 elemnt = listView as FrameworkElement;
-                listView . ItemTemplate = elemnt . FindResource(DataTemplatesLv . SelectedItem) as DataTemplate;
-                lvHeader . Text = $"List View Display : {DbMain . SelectedItem . ToString()} : {dbNameLv?.SelectedItem?.ToString() . ToUpper()}";
-                dGridHeader . Text = $"DataGrid Display : {DbMain . SelectedItem . ToString()} : {dbNameLv?.SelectedItem?.ToString() . ToUpper()} Records = {reccount}";
+                listView . ItemTemplate = elemnt . FindResource ( DataTemplatesLv . SelectedItem ) as DataTemplate;
+                lvHeader . Text = $"List View Display : {DbMain . SelectedItem . ToString ( )} : {dbNameLv?.SelectedItem?.ToString ( ) . ToUpper ( )}";
+                dGridHeader . Text = $"DataGrid Display : {DbMain . SelectedItem . ToString ( )} : {dbNameLv?.SelectedItem?.ToString ( ) . ToUpper ( )} Records = {reccount}";
                 DbCountlv = reccount;
             }
             else if ( viewertype == "BOX" )
             {
                 elemnt = listBox as FrameworkElement;
-                listBox . ItemTemplate = elemnt . FindResource(DataTemplatesLb?.SelectedItem) as DataTemplate;
-                lbHeader . Text = $"List Box Display : {DbMain . SelectedItem . ToString()} : {dbNameLb?.SelectedItem?.ToString() . ToUpper()}";
-                dGridHeader . Text = $"DataGrid Display : {DbMain . SelectedItem . ToString()} : {dbNameLb?.SelectedItem?.ToString() . ToUpper()} Records = {reccount}";
+                listBox . ItemTemplate = elemnt . FindResource ( DataTemplatesLb?.SelectedItem ) as DataTemplate;
+                lbHeader . Text = $"List Box Display : {DbMain . SelectedItem . ToString ( )} : {dbNameLb?.SelectedItem?.ToString ( ) . ToUpper ( )}";
+                dGridHeader . Text = $"DataGrid Display : {DbMain . SelectedItem . ToString ( )} : {dbNameLb?.SelectedItem?.ToString ( ) . ToUpper ( )} Records = {reccount}";
                 DbCountlb = reccount;
             }
             else
             {
                 elemnt = listView as FrameworkElement;
-                listView . ItemTemplate = elemnt . FindResource(DataTemplatesLv?.SelectedItem) as DataTemplate;
-                lvHeader . Text = $"List View Display : {DbMain . SelectedItem . ToString()} : {dbNameLv?.SelectedItem?.ToString() . ToUpper()}";
-                dGridHeader . Text = $"DataGrid Display : {DbMain . SelectedItem . ToString()} : {dbNameLv?.SelectedItem?.ToString() . ToUpper()} Records = {reccount}";
+                listView . ItemTemplate = elemnt . FindResource ( DataTemplatesLv?.SelectedItem ) as DataTemplate;
+                lvHeader . Text = $"List View Display : {DbMain . SelectedItem . ToString ( )} : {dbNameLv?.SelectedItem?.ToString ( ) . ToUpper ( )}";
+                dGridHeader . Text = $"DataGrid Display : {DbMain . SelectedItem . ToString ( )} : {dbNameLv?.SelectedItem?.ToString ( ) . ToUpper ( )} Records = {reccount}";
                 DbCountlv = reccount;
                 elemnt = listBox as FrameworkElement;
-                listBox . ItemTemplate = elemnt . FindResource(DataTemplatesLb?.SelectedItem) as DataTemplate;
-                lbHeader . Text = $"List Box Display : {DbMain . SelectedItem . ToString()} : {dbNameLb?.SelectedItem?.ToString() . ToUpper()}";
-                dGridHeader . Text = $"DataGrid Display : {DbMain . SelectedItem . ToString()} : {dbNameLb?.SelectedItem?.ToString() . ToUpper()} Records = {reccount}";
+                listBox . ItemTemplate = elemnt . FindResource ( DataTemplatesLb?.SelectedItem ) as DataTemplate;
+                lbHeader . Text = $"List Box Display : {DbMain . SelectedItem . ToString ( )} : {dbNameLb?.SelectedItem?.ToString ( ) . ToUpper ( )}";
+                dGridHeader . Text = $"DataGrid Display : {DbMain . SelectedItem . ToString ( )} : {dbNameLb?.SelectedItem?.ToString ( ) . ToUpper ( )} Records = {reccount}";
                 DbCountlb = reccount;
             }
         }
 
 
-        private void Park_Click (object sender , RoutedEventArgs e)
+        private void Park_Click ( object sender , RoutedEventArgs e )
         {
             Flags . PinToBorder = !Flags . PinToBorder;
         }
@@ -2493,11 +2503,11 @@ namespace NewWpfDev . Views
         #endregion Event handler from ColorPicker button - save to clipboard
 
         #region Move ColorPicker
-        private void PickColors_MouseLeftButtonUp (object sender , MouseButtonEventArgs e)
+        private void PickColors_MouseLeftButtonUp ( object sender , MouseButtonEventArgs e )
         {
             //ColorpickerObject = null;
         }
-        private void PickColors_PreviewMouseLeftButtonDown (object sender , MouseButtonEventArgs e)
+        private void PickColors_PreviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
         {
             //In this event, we get current mouse position on the control to use it in the MouseMove event.
             //if ( PickColors . RedSlider . IsMouseOver == true
@@ -2516,7 +2526,7 @@ namespace NewWpfDev . Views
             //double FirstArrowYPos = e . GetPosition ( ( sender as Control ) . Parent as Control ) . Y - CpFirstYPos;
             ////ColorpickerObject = sender as Colorpicker;
         }
-        private void PickColors_MouseMove (object sender , MouseEventArgs e)
+        private void PickColors_MouseMove ( object sender , MouseEventArgs e )
         {
             //// ColorpickerObject is an object pointer to the ColorPicker object so this only
             //// works if the mouse pointer is over the ColorPcker
@@ -2536,48 +2546,29 @@ namespace NewWpfDev . Views
             // }
         }
         #endregion Move ColorPicker
-        private void ListViewWindow_Closed (object sender , EventArgs e)
+        private void ListViewWindow_Closed ( object sender , EventArgs e )
         {
             //Colorpicker . ExecuteSaveToClipboardMethod -= Colorpicker_ExecuteSaveToClipboardMethod;
-            Flowdoc . ExecuteFlowDocMaxmizeMethod -= new EventHandler(MaximizeFlowDoc);
+            Flowdoc . ExecuteFlowDocMaxmizeMethod -= new EventHandler ( MaximizeFlowDoc );
             //			Flowdoc . ExecuteFlowDocResizeMethod -= Flowdoc_ExecuteFlowDocResizeMethod;
             Flowdoc . ExecuteFlowDocBorderMethod -= FlowDoc_ExecuteFlowDocBorderMethod;
+            MainWindow.RemoveGenericlistboxcontrol (canvas );
         }
-
-        //private void LoadColorpicker ( object sender , RoutedEventArgs e )
-        //{
-        //    if ( PickColors . Visibility == Visibility . Visible )
-        //    {
-
-        //        PickColors . Visibility = Visibility . Hidden;
-        //        PickColors . RedSlider . Focus ( );
-        //    }
-        //    else
-        //    {
-        //        PickColors . Visibility = Visibility . Visible;
-        //        PickColors . RedSlider . Value = PickColors . RedSlider . Value - 1;
-        //        PickColors . RedSlider . Value = PickColors . RedSlider . Value + 1;
-        //        //				PickColors . Output . Fill = PickColors . RGBValueString . ToSolidBrush ( );
-        //        PickColors . Output . Refresh ( );
-        //        PickColors . Focus ( );
-        //    }
-        //}
-
-        private void LoadTreeData ()
+         private void LoadTreeData ( )
         {
             //SqlDatabases sqldb = new SqlDatabases();
-            DatabasesCollection . Clear();
+            DatabasesCollection . Clear ( );
             DbTablesTree . ItemsSource = null;
             DbProcsTree . ItemsSource = null;
-            DbTablesTree . Items . Clear();
-            DbProcsTree . Items . Clear();
+            DbTablesTree . Items . Clear ( );
+            DbProcsTree . Items . Clear ( );
             SqlCommand = "spGetAllDatabaseNames";
-            List<string> dblist = new List<string>();
-            Datagrids . CallStoredProcedure(dblist , SqlCommand);
+            List<string> dblist = new List<string> ( );
+            Datagrids . CallStoredProcedure ( dblist , SqlCommand );
             //This call returns us a DataTable
-            DataTable dt = DataLoadControl . GetDataTable(SqlCommand);
+            DataTable dt = DataLoadControl . GetDataTable ( SqlCommand );
             // This how to access  Row data from  a grid the easiest way.... parsed into a List <xxxxx>
-            dblist = WpfLib1 . Utils . GetDataDridRowsAsListOfStrings(dt);
+            dblist = WpfLib1 . Utils . GetDataDridRowsAsListOfStrings ( dt );
 
             var collection = DatabasesCollection;
 
@@ -2585,53 +2576,53 @@ namespace NewWpfDev . Views
             {
                 //List<SqlTable> sqltable = new List<SqlTable>();
                 // Now Handle list of tablenames
-                if ( Utils . CheckResetDbConnection(row , out string constr) == false )
+                if ( Utils . CheckResetDbConnection ( row , out string constr ) == false )
                 {
-                    Debug. WriteLine($"Failed to set connection string for {row . ToUpper()} Db");
+                    Debug . WriteLine ( $"Failed to set connection string for {row . ToUpper ( )} Db" );
                     continue;
                 }
                 // All Db's have their own version of this SP.....
                 SqlCommand = "spGetTablesList";
 
-                List<string> tableslist = new List<string>();
-                Datagrids . CallStoredProcedure(tableslist , SqlCommand);
+                List<string> tableslist = new List<string> ( );
+                Datagrids . CallStoredProcedure ( tableslist , SqlCommand );
                 //This call returns us a DataTable
-                dt = DataLoadControl . GetDataTable(SqlCommand);
+                dt = DataLoadControl . GetDataTable ( SqlCommand );
 
-                Database db = new Database();
+                Database db = new Database ( );
                 // This how to access Row data from  a grid the easiest way.... parsed into a List <xxxxx>
                 if ( dt != null )
                 {
-                    db . Tables = new List<SqlTable>();
-                    tableslist = WpfLib1 . Utils . GetDataDridRowsAsListOfStrings(dt);
+                    db . Tables = new List<SqlTable> ( );
+                    tableslist = WpfLib1 . Utils . GetDataDridRowsAsListOfStrings ( dt );
                     foreach ( string item in tableslist )
                     {
-                        SqlTable sqlt = new SqlTable(item);
+                        SqlTable sqlt = new SqlTable ( item );
                         sqlt . Tablename = item;
-                        db . Tables . Add(sqlt);
+                        db . Tables . Add ( sqlt );
                         db . Databasename = row;
                     }
-                    DatabasesCollection . Add(db);
+                    DatabasesCollection . Add ( db );
                 }
 
                 // All Db's have their own version of this SP.....
                 SqlCommand = "spGetStoredProcs";
 
-                List<string> procslist = new List<string>();
-                Datagrids . CallStoredProcedure(procslist , SqlCommand);
+                List<string> procslist = new List<string> ( );
+                Datagrids . CallStoredProcedure ( procslist , SqlCommand );
                 //This call returns us a DataTable
-                dt = DataLoadControl . GetDataTable(SqlCommand);
+                dt = DataLoadControl . GetDataTable ( SqlCommand );
                 // This how to access Row data from  a grid the easiest way.... parsed into a List <xxxxx>
                 if ( dt != null )
                 {
                     //Database db = new Database();
-                    db . Procedures = new List<SqlProcedures>();
-                    procslist = WpfLib1 . Utils . GetDataDridRowsAsListOfStrings(dt);
+                    db . Procedures = new List<SqlProcedures> ( );
+                    procslist = WpfLib1 . Utils . GetDataDridRowsAsListOfStrings ( dt );
                     foreach ( string item in procslist )
                     {
-                        SqlProcedures sqlprocs = new SqlProcedures(item);
+                        SqlProcedures sqlprocs = new SqlProcedures ( item );
                         sqlprocs . Procname = item;
-                        db . Procedures . Add(sqlprocs);
+                        db . Procedures . Add ( sqlprocs );
                     }
                     // Duplicates all entries !!!
                     //DatabasesCollection . Add ( db );
@@ -2650,16 +2641,16 @@ namespace NewWpfDev . Views
         {
             get
             {
-                return ( Brush )GetValue(ItemBackgroundProperty);
+                return ( Brush ) GetValue ( ItemBackgroundProperty );
             }
             set
             {
-                SetValue(ItemBackgroundProperty , value);
+                SetValue ( ItemBackgroundProperty , value );
             }
         }
 
         public static readonly DependencyProperty ItemBackgroundProperty =
-                DependencyProperty . Register("ItemBackground" , typeof(Brush) , typeof(Listviews) , new PropertyMetadata(Brushes . LightBlue));
+                DependencyProperty . Register ( "ItemBackground" , typeof ( Brush ) , typeof ( Listviews ) , new PropertyMetadata ( Brushes . LightBlue ) );
         #endregion ItemBackground
 
         #region ItemForeground
@@ -2667,16 +2658,16 @@ namespace NewWpfDev . Views
         {
             get
             {
-                return ( Brush )GetValue(ItemForegroundProperty);
+                return ( Brush ) GetValue ( ItemForegroundProperty );
             }
             set
             {
-                SetValue(ItemForegroundProperty , value);
+                SetValue ( ItemForegroundProperty , value );
             }
         }
 
         public static readonly DependencyProperty ItemForegroundProperty =
-                DependencyProperty . Register("ItemForeground" , typeof(Brush) , typeof(Listviews) , new PropertyMetadata(Brushes . Black));
+                DependencyProperty . Register ( "ItemForeground" , typeof ( Brush ) , typeof ( Listviews ) , new PropertyMetadata ( Brushes . Black ) );
         #endregion ItemForeground
 
         #region SelectedBackground
@@ -2684,15 +2675,15 @@ namespace NewWpfDev . Views
         {
             get
             {
-                return ( Brush )GetValue(SelectedBackgroundProperty);
+                return ( Brush ) GetValue ( SelectedBackgroundProperty );
             }
             set
             {
-                SetValue(SelectedBackgroundProperty , value);
+                SetValue ( SelectedBackgroundProperty , value );
             }
         }
         public static readonly DependencyProperty SelectedBackgroundProperty =
-                DependencyProperty . Register("SelectedBackground" , typeof(Brush) , typeof(Listviews) , new PropertyMetadata(Brushes . Red));
+                DependencyProperty . Register ( "SelectedBackground" , typeof ( Brush ) , typeof ( Listviews ) , new PropertyMetadata ( Brushes . Red ) );
         #endregion SelectedBackground
 
         #region SelectedForeground
@@ -2700,15 +2691,15 @@ namespace NewWpfDev . Views
         {
             get
             {
-                return ( Brush )GetValue(SelectedForegroundProperty);
+                return ( Brush ) GetValue ( SelectedForegroundProperty );
             }
             set
             {
-                SetValue(SelectedForegroundProperty , value);
+                SetValue ( SelectedForegroundProperty , value );
             }
         }
         public static readonly DependencyProperty SelectedForegroundProperty =
-            DependencyProperty . Register("SelectedForeground" , typeof(Brush) , typeof(Listviews) , new PropertyMetadata(Brushes . White));
+            DependencyProperty . Register ( "SelectedForeground" , typeof ( Brush ) , typeof ( Listviews ) , new PropertyMetadata ( Brushes . White ) );
         #endregion SelectedForeground
 
         #region MouseoverBackground
@@ -2716,15 +2707,15 @@ namespace NewWpfDev . Views
         {
             get
             {
-                return ( Brush )GetValue(MouseoverBackgroundProperty);
+                return ( Brush ) GetValue ( MouseoverBackgroundProperty );
             }
             set
             {
-                SetValue(MouseoverBackgroundProperty , value);
+                SetValue ( MouseoverBackgroundProperty , value );
             }
         }
         public static readonly DependencyProperty MouseoverBackgroundProperty =
-                DependencyProperty . Register("MouseoverBackground" , typeof(Brush) , typeof(Listviews) , new PropertyMetadata(Brushes . Blue));
+                DependencyProperty . Register ( "MouseoverBackground" , typeof ( Brush ) , typeof ( Listviews ) , new PropertyMetadata ( Brushes . Blue ) );
         #endregion MouseoverBackground
 
         #region MouseoverForeground
@@ -2732,15 +2723,15 @@ namespace NewWpfDev . Views
         {
             get
             {
-                return ( Brush )GetValue(MouseoverForegroundProperty);
+                return ( Brush ) GetValue ( MouseoverForegroundProperty );
             }
             set
             {
-                SetValue(MouseoverForegroundProperty , value);
+                SetValue ( MouseoverForegroundProperty , value );
             }
         }
         public static readonly DependencyProperty MouseoverForegroundProperty =
-                DependencyProperty . Register("MouseoverForeground" , typeof(Brush) , typeof(Listviews) , new PropertyMetadata(Brushes . White));
+                DependencyProperty . Register ( "MouseoverForeground" , typeof ( Brush ) , typeof ( Listviews ) , new PropertyMetadata ( Brushes . White ) );
         #endregion MouseoverForeground
 
         #region MouseoverSelectedBackground
@@ -2748,15 +2739,15 @@ namespace NewWpfDev . Views
         {
             get
             {
-                return ( Brush )GetValue(MouseoverSelectedBackgroundProperty);
+                return ( Brush ) GetValue ( MouseoverSelectedBackgroundProperty );
             }
             set
             {
-                SetValue(MouseoverSelectedBackgroundProperty , value);
+                SetValue ( MouseoverSelectedBackgroundProperty , value );
             }
         }
         public static readonly DependencyProperty MouseoverSelectedBackgroundProperty =
-                DependencyProperty . Register("MouseoverSelectedBackground" , typeof(Brush) , typeof(Listviews) , new PropertyMetadata(Brushes . Black));
+                DependencyProperty . Register ( "MouseoverSelectedBackground" , typeof ( Brush ) , typeof ( Listviews ) , new PropertyMetadata ( Brushes . Black ) );
         #endregion MouseoverSelectedBackground
 
         #region MouseoverSelectedForeground
@@ -2764,37 +2755,37 @@ namespace NewWpfDev . Views
         {
             get
             {
-                return ( Brush )GetValue(MouseoverSelectedForegroundProperty);
+                return ( Brush ) GetValue ( MouseoverSelectedForegroundProperty );
             }
             set
             {
-                SetValue(MouseoverSelectedForegroundProperty , value);
+                SetValue ( MouseoverSelectedForegroundProperty , value );
             }
         }
         public static readonly DependencyProperty MouseoverSelectedForegroundProperty =
-                DependencyProperty . Register("MouseoverSelectedForeground" , typeof(Brush) , typeof(Listviews) , new PropertyMetadata(Brushes . White));
+                DependencyProperty . Register ( "MouseoverSelectedForeground" , typeof ( Brush ) , typeof ( Listviews ) , new PropertyMetadata ( Brushes . White ) );
 
         #endregion MouseoverSelectedForeground
 
-        public static bool GetIsNodeExpanded (DependencyObject obj)
+        public static bool GetIsNodeExpanded ( DependencyObject obj )
         {
-            return ( bool )obj . GetValue(IsNodeExpandedProperty);
+            return ( bool ) obj . GetValue ( IsNodeExpandedProperty );
         }
-        public static void SetIsNodeExpanded (DependencyObject obj , bool value)
+        public static void SetIsNodeExpanded ( DependencyObject obj , bool value )
         {
-            obj . SetValue(IsNodeExpandedProperty , value);
+            obj . SetValue ( IsNodeExpandedProperty , value );
         }
         public static readonly DependencyProperty IsNodeExpandedProperty =
-            DependencyProperty . RegisterAttached("IsNodeExpanded" , typeof(bool) , typeof(Listviews) , new PropertyMetadata(false));
+            DependencyProperty . RegisterAttached ( "IsNodeExpanded" , typeof ( bool ) , typeof ( Listviews ) , new PropertyMetadata ( false ) );
 
         #endregion  Dependency properties for listbox
 
-        private void DbMain_PreviewMouseRightButtonUp (object sender , MouseButtonEventArgs e)
+        private void DbMain_PreviewMouseRightButtonUp ( object sender , MouseButtonEventArgs e )
         {
 
         }
 
-        private void TextBlock_PreviewMouseRightButtonUp (object sender , MouseButtonEventArgs e)
+        private void TextBlock_PreviewMouseRightButtonUp ( object sender , MouseButtonEventArgs e )
         {
             // right click for S.P script
             TextBlock tb = sender as TextBlock;
@@ -2812,38 +2803,38 @@ namespace NewWpfDev . Views
             }
         }
 
-        private void DbProcsTree_PreviewMouseRightButtonUp (object sender , MouseButtonEventArgs e)
+        private void DbProcsTree_PreviewMouseRightButtonUp ( object sender , MouseButtonEventArgs e )
         {
             // process right click to show the  full script in a FlowDoc viewer 
             if ( SqlSpCommand != "" && SqlSpCommand != null )
             {
-                DataTable dt = new DataTable();
+                DataTable dt = new DataTable ( );
                 string [ ] args = { "" , "" , "" , "" };
 #pragma warning disable CS0219 // The variable 'err' is assigned but its value is never used
                 string err = "", errormsg = "";
 #pragma warning restore CS0219 // The variable 'err' is assigned but its value is never used
-                List<string> list = new List<string>();
-                ObservableCollection<GenericClass> Generics = new ObservableCollection<GenericClass>();
+                List<string> list = new List<string> ( );
+                ObservableCollection<GenericClass> Generics = new ObservableCollection<GenericClass> ( );
                 foreach ( var item in DatabasesCollection )
                 {
                     CurrentSPDb = item . Databasename;
-                    if ( Utils . CheckResetDbConnection(CurrentSPDb , out string constring) == false )
+                    if ( Utils . CheckResetDbConnection ( CurrentSPDb , out string constring ) == false )
                         return;
 
-                    List<string> procslist = new List<string>();
-                    ObservableCollection<BankAccountViewModel> bvmparam = new ObservableCollection<BankAccountViewModel>();
-                    List<string> genericlist = new List<string>();
+                    List<string> procslist = new List<string> ( );
+                    ObservableCollection<BankAccountViewModel> bvmparam = new ObservableCollection<BankAccountViewModel> ( );
+                    List<string> genericlist = new List<string> ( );
 #pragma warning disable CS0168 // The variable 'ex' is declared but never used
                     try
                     {
-                        DapperSupport . CreateGenericCollection(
+                        DapperSupport . CreateGenericCollection (
                             ref Generics ,
                             "spGetSpecificSchema  " ,
                             SqlSpCommand ,
                             "" ,
                             "" ,
                             ref genericlist ,
-                            ref errormsg);
+                            ref errormsg );
                         if ( Generics . Count > 0 )
                         {
                             break;
@@ -2858,7 +2849,7 @@ namespace NewWpfDev . Views
                 if ( Generics . Count == 0 )
                 {
                     if ( errormsg != "" )
-                        MessageBox . Show($"No Argument information is available. \nError message = [{errormsg}]" , $"[{SqlSpCommand}] SP Script Information" , MessageBoxButton . OK , MessageBoxImage . Warning);
+                        MessageBox . Show ( $"No Argument information is available. \nError message = [{errormsg}]" , $"[{SqlSpCommand}] SP Script Information" , MessageBoxButton . OK , MessageBoxImage . Warning );
                     return;
                 }
                 string output = "NB: You can select a different S.P & right click it WITHOUT closing this viewer window...\nThe new Script will replace the current contents of the viewer\n\n";
@@ -2877,16 +2868,16 @@ namespace NewWpfDev . Views
                 }
                 if ( output != "" && UseFlowdoc )
                 {
-                    string fdinput = $"Procedure Name : {SqlSpCommand . ToUpper()}\n\n";
+                    string fdinput = $"Procedure Name : {SqlSpCommand . ToUpper ( )}\n\n";
                     fdinput += output;
                     fdinput += $"\n\nPress ESCAPE to close this window...\n";
-                    ShowInfo(Flowdoc , canvas , line1: fdinput , clr1: "Black0" , line2: "" , clr2: "Black0" , line3: "" , clr3: "Black0" , header: "" , clr4: "Black0");
+                    ShowInfo ( Flowdoc , canvas , line1: fdinput , clr1: "Black0" , line2: "" , clr2: "Black0" , line3: "" , clr3: "Black0" , header: "" , clr4: "Black0" );
                 }
                 else
                 {
                     Mouse . OverrideCursor = Cursors . Arrow;
                     if ( UseFlowdoc )
-                        ShowInfo(Flowdoc , canvas , line1: $"Procedure [{SqlSpCommand . ToUpper()}] \ndoes not Support / Require any arguments" , clr1: "Black0" , line2: "" , clr2: "Black0" , line3: "" , clr3: "Black0" , header: "" , clr4: "Black0");
+                        ShowInfo ( Flowdoc , canvas , line1: $"Procedure [{SqlSpCommand . ToUpper ( )}] \ndoes not Support / Require any arguments" , clr1: "Black0" , line2: "" , clr2: "Black0" , line3: "" , clr3: "Black0" , header: "" , clr4: "Black0" );
                 }
                 if ( resetUse )
                     UseFlowdoc = false;
@@ -2894,7 +2885,7 @@ namespace NewWpfDev . Views
             }
         }
 
-        private void DbProcsTree_SelectedItemChanged (object sender , RoutedPropertyChangedEventArgs<object> e)
+        private void DbProcsTree_SelectedItemChanged ( object sender , RoutedPropertyChangedEventArgs<object> e )
         {
             if ( e . NewValue == null )
                 return;
@@ -2920,7 +2911,7 @@ namespace NewWpfDev . Views
                     //{
                     //	Debug. WriteLine ( item . ToString ( ) );
                     //}
-                    var treeItems = WpfLib1 . Utils . FindVisualParent<TextBlock>(this);
+                    var treeItems = WpfLib1 . Utils . FindVisualParent<TextBlock> ( this );
                     //treeItems . ForEach ( I => i . IsExpanded = false );
                 }
             }
@@ -2934,13 +2925,13 @@ namespace NewWpfDev . Views
 
         #region Table/SP Tree Handlers
 
-        private void DbProcsTree_Expanded (object sender , RoutedEventArgs e)
+        private void DbProcsTree_Expanded ( object sender , RoutedEventArgs e )
         {
 #pragma warning disable CS0219 // The variable 'x' is assigned but its value is never used
             int x = 0;
 #pragma warning restore CS0219 // The variable 'x' is assigned but its value is never used
         }
-        private void LoadTreeView (object sender , RoutedEventArgs e)
+        private void LoadTreeView ( object sender , RoutedEventArgs e )
         {
             // Load Db Tables Tree viewer
             if ( TreeviewBorder . Visibility == Visibility . Visible )
@@ -2948,7 +2939,7 @@ namespace NewWpfDev . Views
                 TreeviewBorder . Visibility = Visibility . Hidden;
                 if ( DbProcsTree . Visibility == Visibility . Visible )
                 {
-                    LoadTreeData();
+                    LoadTreeData ( );
                     SpLabel . Visibility = Visibility . Hidden;
                     DbProcsTree . Visibility = Visibility . Hidden;
                     SpWrappanel . Visibility = Visibility . Hidden;
@@ -2960,7 +2951,7 @@ namespace NewWpfDev . Views
             }
             else
             {
-                LoadTreeData();
+                LoadTreeData ( );
                 SpLabel . Visibility = Visibility . Hidden;
                 DbProcsTree . Visibility = Visibility . Hidden;
                 SpWrappanel . Visibility = Visibility . Hidden;
@@ -2970,7 +2961,7 @@ namespace NewWpfDev . Views
                 TreeviewBorder . Visibility = Visibility . Visible;
             }
         }
-        private void LoadSpView (object sender , RoutedEventArgs e)
+        private void LoadSpView ( object sender , RoutedEventArgs e )
         {
             // Load Stored procedures Tree viewer
 
@@ -2979,7 +2970,7 @@ namespace NewWpfDev . Views
                 TreeviewBorder . Visibility = Visibility . Hidden;
                 if ( DbTablesTree . Visibility == Visibility . Visible )
                 {
-                    LoadTreeData();
+                    LoadTreeData ( );
                     SpLabel . Visibility = Visibility . Visible;
                     DbProcsTree . Visibility = Visibility . Visible;
                     SpWrappanel . Visibility = Visibility . Visible;
@@ -2991,7 +2982,7 @@ namespace NewWpfDev . Views
             }
             else
             {
-                LoadTreeData();
+                LoadTreeData ( );
                 SpLabel . Visibility = Visibility . Visible;
                 DbProcsTree . Visibility = Visibility . Visible;
                 SpWrappanel . Visibility = Visibility . Visible;
@@ -3002,41 +2993,41 @@ namespace NewWpfDev . Views
             }
         }
 
-        private void Image_PreviewMouseLeftButtonDown (object sender , MouseButtonEventArgs e)
+        private void Image_PreviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
         {
             TreeviewBorder . Visibility = Visibility . Hidden;
         }
 
-        private void DbProcsTree_Expanded_1 (object sender , RoutedEventArgs e)
+        private void DbProcsTree_Expanded_1 ( object sender , RoutedEventArgs e )
         {
 
         }
 
-        private void DbProcsTree_Collapsed (object sender , RoutedEventArgs e)
+        private void DbProcsTree_Collapsed ( object sender , RoutedEventArgs e )
         {
 #pragma warning disable CS0219 // The variable 'x' is assigned but its value is never used
             int x = 0;
 #pragma warning restore CS0219 // The variable 'x' is assigned but its value is never used
         }
 
-        private void TablesLabel_PreviewMouseRightButtonUp (object sender , MouseButtonEventArgs e)
+        private void TablesLabel_PreviewMouseRightButtonUp ( object sender , MouseButtonEventArgs e )
         {
             bool flowdocswitch = false;
             int count = 0;
-            List<string> list = new List<string>();
+            List<string> list = new List<string> ( );
             string output = "";
 
             foreach ( var item in DatabasesCollection )
             {
                 CurrentSPDb = item . Databasename;
-                if ( Utils . CheckResetDbConnection(CurrentSPDb , out string constring) == false )
+                if ( Utils . CheckResetDbConnection ( CurrentSPDb , out string constring ) == false )
                     return;
                 SqlCommand = $"spGetTableColumns {SqlSpCommand}";
-                Datagrids . CallStoredProcedure(list , SqlCommand);
+                Datagrids . CallStoredProcedure ( list , SqlCommand );
                 //This call returns us a DataTable
-                DataTable dt = DataLoadControl . GetDataTable(SqlCommand);
+                DataTable dt = DataLoadControl . GetDataTable ( SqlCommand );
                 // This how to access  Row data from  a grid the easiest way.... parsed into a List <xxxxx>
-                list = WpfLib1 . Utils . GetTableColumnsList(dt);
+                list = WpfLib1 . Utils . GetTableColumnsList ( dt );
                 if ( dt . Rows . Count > 0 )
                     break;
             }
@@ -3044,7 +3035,7 @@ namespace NewWpfDev . Views
             {
                 foreach ( string row in list )
                 {
-                    string entry = row . ToUpper();
+                    string entry = row . ToUpper ( );
                     output += row + "\n";
                     count++;
                 }
@@ -3054,12 +3045,12 @@ namespace NewWpfDev . Views
                     flowdocswitch = true;
                     UseFlowdoc = true;
                 }
-                Debug. WriteLine($"loaded {count} records for table columns");
+                Debug . WriteLine ( $"loaded {count} records for table columns" );
                 if ( UseFlowdoc )
-                    ShowInfo(Flowdoc , canvas , header: "Table Columns informaton accessed successfully" , clr4: "Red5" ,
+                    ShowInfo ( Flowdoc , canvas , header: "Table Columns informaton accessed successfully" , clr4: "Red5" ,
                     line1: $"Request made was completed succesfully!" , clr1: "Red3" ,
                     line2: $"the structure of the table [{SqlSpCommand}] is listed below : \n{output}" ,
-                    line3: $"Results created by Stored Procedure : \n({SqlCommand . ToUpper()})" , clr3: "Blue4"
+                    line3: $"Results created by Stored Procedure : \n({SqlCommand . ToUpper ( )})" , clr3: "Blue4"
                     );
                 if ( flowdocswitch == true )
                 {
@@ -3070,16 +3061,16 @@ namespace NewWpfDev . Views
             else
             {
                 if ( UseFlowdoc )
-                    ShowInfo(Flowdoc , canvas , header: "Table Columns informaton accessed successfully" , clr4: "Red5" ,
+                    ShowInfo ( Flowdoc , canvas , header: "Table Columns informaton accessed successfully" , clr4: "Red5" ,
                     line1: $"The request was made succesfully, but no Table Fields were returned..." , clr1: "Red3" ,
                     line2: $"The table queried was [{SqlSpCommand}]" ,
-                    line3: $"Results created by Stored Procedure : \n({SqlCommand . ToUpper()})" , clr3: "Blue4"
+                    line3: $"Results created by Stored Procedure : \n({SqlCommand . ToUpper ( )})" , clr3: "Blue4"
                     );
             }
         }
         #endregion Table/SP Tree Handlers
 
-        private void DbTablesTree_SelectedItemChanged (object sender , RoutedPropertyChangedEventArgs<object> e)
+        private void DbTablesTree_SelectedItemChanged ( object sender , RoutedPropertyChangedEventArgs<object> e )
         {
             if ( e . NewValue == null )
                 return;
@@ -3092,7 +3083,7 @@ namespace NewWpfDev . Views
                 var tvi = e . NewValue as SqlTable;
                 SqlSpCommand = tvi . Tablename;
                 // Now get  nmme  of the Db we are in 
-                var parentitem = WpfLib1 . Utils . FindVisualParent<TextBlock>(sender as UIElement);
+                var parentitem = WpfLib1 . Utils . FindVisualParent<TextBlock> ( sender as UIElement );
                 var items = DbProcsTree . Items;
                 if ( items . CurrentItem != null )
                 {
@@ -3106,7 +3097,7 @@ namespace NewWpfDev . Views
                     //{
                     //	Debug. WriteLine ( item . ToString ( ) );
                     //}
-                    var treeItems = WpfLib1 . Utils . FindVisualParent<TextBlock>(this);
+                    var treeItems = WpfLib1 . Utils . FindVisualParent<TextBlock> ( this );
                     //treeItems . ForEach ( I => i . IsExpanded = false );
                 }
             }
@@ -3129,7 +3120,7 @@ namespace NewWpfDev . Views
 
         //}
 
-        private void TreeviewBorder_PreviewMouseLeftButtonDown (object sender , MouseButtonEventArgs e)
+        private void TreeviewBorder_PreviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
         {
             /// treeviewer item selected with mouse
             if ( e . LeftButton == MouseButtonState . Pressed )
@@ -3137,119 +3128,119 @@ namespace NewWpfDev . Views
                 Label tv = sender as Label;
                 if ( tv == null )
                 {
-                    ReleaseMouseCapture();
+                    ReleaseMouseCapture ( );
                     return;
                 }
-                TvFirstXPos = e . GetPosition(tv) . X;
-                TvFirstYPos = e . GetPosition(tv) . Y;
+                TvFirstXPos = e . GetPosition ( tv ) . X;
+                TvFirstYPos = e . GetPosition ( tv ) . Y;
                 TvMouseCaptured = true;
             }
             else
             {
-                ReleaseMouseCapture();
+                ReleaseMouseCapture ( );
                 TvMouseCaptured = false;
             }
         }
 
         #region Treeview  handlers
-        private void TreeviewBorder_PreviewMouseLeftButtonUp (object sender , MouseButtonEventArgs e)
+        private void TreeviewBorder_PreviewMouseLeftButtonUp ( object sender , MouseButtonEventArgs e )
         {
             /// stop treeviewer Move 
-            ReleaseMouseCapture();
+            ReleaseMouseCapture ( );
             //Debug. WriteLine ( "Mouse released 4" );
             TvMouseCaptured = false;
         }
-        private void TreeviewBorder_MouseMove (object sender , MouseEventArgs e)
+        private void TreeviewBorder_MouseMove ( object sender , MouseEventArgs e )
         {
             if ( TvMouseCaptured )
             {
                 //Label  tv = sender  as Label ;
                 //if ( tv == null )
                 //	return;
-                double left = e . GetPosition(( TreeviewBorder as FrameworkElement ) . Parent as FrameworkElement) . X - TvFirstXPos;
-                double top = e . GetPosition(( TreeviewBorder as FrameworkElement ) . Parent as FrameworkElement) . Y - TvFirstYPos;
+                double left = e . GetPosition ( ( TreeviewBorder as FrameworkElement ) . Parent as FrameworkElement ) . X - TvFirstXPos;
+                double top = e . GetPosition ( ( TreeviewBorder as FrameworkElement ) . Parent as FrameworkElement ) . Y - TvFirstYPos;
                 double trueleft = left - CpFirstXPos;
                 double truetop = left - CpFirstYPos;
                 if ( left >= 0 ) // && left <= canvas.ActualWidth - Flowdoc.ActualWidth)
-                    ( TreeviewBorder as FrameworkElement ) . SetValue(Canvas . LeftProperty , left);
+                    ( TreeviewBorder as FrameworkElement ) . SetValue ( Canvas . LeftProperty , left );
                 if ( top >= 0 ) //&& top <= canvas . ActualHeight- Flowdoc. ActualHeight)
-                    ( TreeviewBorder as FrameworkElement ) . SetValue(Canvas . TopProperty , top);
-                ReleaseMouseCapture();
+                    ( TreeviewBorder as FrameworkElement ) . SetValue ( Canvas . TopProperty , top );
+                ReleaseMouseCapture ( );
             }
             else
-                ReleaseMouseCapture();
+                ReleaseMouseCapture ( );
         }
-        private void TreeviewBorder_LostFocus (object sender , RoutedEventArgs e)
+        private void TreeviewBorder_LostFocus ( object sender , RoutedEventArgs e )
         {
-            ReleaseMouseCapture();
+            ReleaseMouseCapture ( );
             //Debug. WriteLine ( "Mouse released 5" );
             TvMouseCaptured = false;
         }
-        private void TextBlock_PreviewMouseLeftButtonUp (object sender , MouseButtonEventArgs e)
+        private void TextBlock_PreviewMouseLeftButtonUp ( object sender , MouseButtonEventArgs e )
         {
         }
-        private void SpTreeviewBorder_PreviewMouseLeftButtonUp (object sender , MouseButtonEventArgs e)
+        private void SpTreeviewBorder_PreviewMouseLeftButtonUp ( object sender , MouseButtonEventArgs e )
         {
         }
-        private void SpTreeviewBorder_PreviewMouseLeftButtonDown (object sender , MouseButtonEventArgs e)
+        private void SpTreeviewBorder_PreviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
         {
         }
-        private void SpImage_PreviewMouseLeftButtonDown (object sender , MouseButtonEventArgs e)
+        private void SpImage_PreviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
         {
         }
-        private void SpTextBlock_PreviewMouseRightButtonUp (object sender , MouseButtonEventArgs e)
+        private void SpTextBlock_PreviewMouseRightButtonUp ( object sender , MouseButtonEventArgs e )
         {
         }
-        private void SpTreeviewBorder_LostFocus (object sender , RoutedEventArgs e)
+        private void SpTreeviewBorder_LostFocus ( object sender , RoutedEventArgs e )
         {
         }
-        private void SpTreeviewBorder_MouseMove (object sender , MouseEventArgs e)
+        private void SpTreeviewBorder_MouseMove ( object sender , MouseEventArgs e )
         {
         }
         #endregion Treeview  handlers
 
         #region Flowdoc support via library
-        private void MaximizeFlowDoc (object sender , EventArgs e)
+        private void MaximizeFlowDoc ( object sender , EventArgs e )
         {
             // Clever "Hook" method that Allows the flowdoc to be resized to fill window
             // or return to its original size and position courtesy of the Event declard in FlowDoc
-            fdl . MaximizeFlowDoc(Flowdoc , canvas , e);
+            fdl . MaximizeFlowDoc ( Flowdoc , canvas , e );
         }
-        private void Flowdoc_MouseLeftButtonUp (object sender , MouseButtonEventArgs e)
+        private void Flowdoc_MouseLeftButtonUp ( object sender , MouseButtonEventArgs e )
         {
             // Window wide  !!
             // Called  when a Flowdoc MOVE has ended
-            MovingObject = fdl . Flowdoc_MouseLeftButtonUp(sender , Flowdoc , MovingObject , e);
-            ReleaseMouseCapture();
+            MovingObject = fdl . Flowdoc_MouseLeftButtonUp ( sender , Flowdoc , MovingObject , e );
+            ReleaseMouseCapture ( );
         }
-        private void Flowdoc_PreviewMouseLeftButtonDown (object sender , MouseButtonEventArgs e)
+        private void Flowdoc_PreviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
         {
             //In this event, we get current mouse position on the control to use it in the MouseMove event.
-            MovingObject = fdl . Flowdoc_PreviewMouseLeftButtonDown(sender , Flowdoc , e);
+            MovingObject = fdl . Flowdoc_PreviewMouseLeftButtonDown ( sender , Flowdoc , e );
         }
-        private void Flowdoc_MouseMove (object sender , MouseEventArgs e)
+        private void Flowdoc_MouseMove ( object sender , MouseEventArgs e )
         {
             // We are Resizing the Flowdoc using the mouse on the border  (Border.Name=FdBorder)
-            fdl . Flowdoc_MouseMove(Flowdoc , canvas , MovingObject , e);
+            fdl . Flowdoc_MouseMove ( Flowdoc , canvas , MovingObject , e );
         }
         // Shortened version proxy call		
-        private void Flowdoc_LostFocus (object sender , RoutedEventArgs e)
+        private void Flowdoc_LostFocus ( object sender , RoutedEventArgs e )
         {
             Flowdoc . BorderClicked = false;
         }
-        public void FlowDoc_ExecuteFlowDocBorderMethod (object sender , EventArgs e)
+        public void FlowDoc_ExecuteFlowDocBorderMethod ( object sender , EventArgs e )
         {
             // EVENTHANDLER to Handle resizing
-            Point pt = Mouse . GetPosition(canvas);
+            Point pt = Mouse . GetPosition ( canvas );
             double dLeft = pt . X;
             double dTop = pt . Y;
         }
-        public void fdmsg (string line1 , string line2 = "" , string line3 = "")
+        public void fdmsg ( string line1 , string line2 = "" , string line3 = "" )
         {
             //We have to pass the Flowdoc.Name, and Canvas.Name as well as up   to 3 strings of message
             //  you can  just provie one if required
             // eg fdmsg("message text");
-            fdl . FdMsg(Flowdoc , canvas , line1 , line2 , line3);
+            fdl . FdMsg ( Flowdoc , canvas , line1 , line2 , line3 );
         }
         #endregion Flowdoc support via library
 
@@ -3258,87 +3249,87 @@ namespace NewWpfDev . Views
         //	Storyboard s = ( Storyboard ) FindResource ( "ButtonExpand" );
         //	s . Begin ( ViewColumnsLb );
         //}
-        public static bool GetCanExpand (DependencyObject obj)
+        public static bool GetCanExpand ( DependencyObject obj )
         {
-            return ( bool )obj . GetValue(CanExpandProperty);
+            return ( bool ) obj . GetValue ( CanExpandProperty );
         }
 
-        public static void SetCanExpand (DependencyObject obj , bool value)
+        public static void SetCanExpand ( DependencyObject obj , bool value )
         {
-            obj . SetValue(CanExpandProperty , value);
+            obj . SetValue ( CanExpandProperty , value );
         }
 
         // Using a DependencyProperty as the backing store for CanExpand.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty CanExpandProperty =
-            DependencyProperty . RegisterAttached("CanExpand" , typeof(bool) , typeof(Listviews) , new PropertyMetadata(false));
+            DependencyProperty . RegisterAttached ( "CanExpand" , typeof ( bool ) , typeof ( Listviews ) , new PropertyMetadata ( false ) );
 
-        private void ControlTemplateFindElement (object sender , RoutedEventArgs e)
+        private void ControlTemplateFindElement ( object sender , RoutedEventArgs e )
         {
             // Finding the Border  that is generated by the ControlTemplate of the (Default : UnNamed) Button Style 
-            var gridInTemplate = ( Grid )clrviewer . Template . FindName("grid" , clrviewer);
+            var gridInTemplate = ( Grid ) clrviewer . Template . FindName ( "grid" , clrviewer );
 
             // Do something to the ControlTemplate-generated grid
-            MessageBox . Show("The actual width of the grid in the ControlTemplate: "
-                            + gridInTemplate . GetValue(ActualWidthProperty));
+            MessageBox . Show ( "The actual width of the grid in the ControlTemplate: "
+                            + gridInTemplate . GetValue ( ActualWidthProperty ) );
         }
-        private void DataTemplateFindElement (object sender , RoutedEventArgs e)
+        private void DataTemplateFindElement ( object sender , RoutedEventArgs e )
         {
             // Getting the currently selected ListBoxItem
             // Note that the ListBox must have
             // IsSynchronizedWithCurrentItem set to True for this to work
             var myListBoxItem =
-            ( ListBoxItem )( listBox . ItemContainerGenerator . ContainerFromItem(listBox . Items . CurrentItem) );
+            ( ListBoxItem ) ( listBox . ItemContainerGenerator . ContainerFromItem ( listBox . Items . CurrentItem ) );
 
             // Getting the ContentPresenter of myListBoxItem- WORKS!
-            var myContentPresenter = FindVisualChild<ContentPresenter>(myListBoxItem);
+            var myContentPresenter = FindVisualChild<ContentPresenter> ( myListBoxItem );
 
             // Finding textBlock from the DataTemplate that is set on that ContentPresenter- WORKS!
             var myDataTemplate = myContentPresenter . ContentTemplate;
             //- returns NULL
-            var myTextBlock = ( TextBlock )myDataTemplate . FindName("textBlock" , myContentPresenter);
+            var myTextBlock = ( TextBlock ) myDataTemplate . FindName ( "textBlock" , myContentPresenter );
 
 
             // Do something with the DataTemplate-generated Border control - WORKS!
-            var myBorder = FindVisualChild<Border>(listBox);
-            MessageBox . Show("The width of the Border of the  item: "
-                            + myBorder . ActualWidth);
+            var myBorder = FindVisualChild<Border> ( listBox );
+            MessageBox . Show ( "The width of the Border of the  item: "
+                            + myBorder . ActualWidth );
         }
-        private TChildItem FindVisualChild<TChildItem> (DependencyObject obj)
+        private TChildItem FindVisualChild<TChildItem> ( DependencyObject obj )
               where TChildItem : DependencyObject
         {
-            for ( var i = 0 ; i < VisualTreeHelper . GetChildrenCount(obj) ; i++ )
+            for ( var i = 0 ; i < VisualTreeHelper . GetChildrenCount ( obj ) ; i++ )
             {
-                var child = VisualTreeHelper . GetChild(obj , i);
+                var child = VisualTreeHelper . GetChild ( obj , i );
                 if ( child is TChildItem )
-                    return ( TChildItem )child;
-                var childOfChild = FindVisualChild<TChildItem>(child);
+                    return ( TChildItem ) child;
+                var childOfChild = FindVisualChild<TChildItem> ( child );
                 if ( childOfChild != null )
                     return childOfChild;
             }
             return null;
         }
 
-        private void magnifyimage_PreviewMouseLeftButtonDown (object sender , MouseButtonEventArgs e)
+        private void magnifyimage_PreviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
         {
             // Rotates DataGrid row magnification down from 4 > 1 and then straight back < to 4 again
-            WpfLib1 . Utils . SwitchMagnifyStyle( dGrid , ref Magnifyrate);
-            WpfLib1 . Utils . SwitchMagnifyStyle(listBox , ref Magnifyrate , false);
-            WpfLib1 . Utils . SwitchMagnifyStyle(listView , ref Magnifyrate , false);
-            WpfLib1 . Utils . SwitchMagnifyStyle(DataTemplatesLb , ref Magnifyrate , false);
-            WpfLib1 . Utils . SwitchMagnifyStyle(DataTemplatesLv , ref Magnifyrate , false);
-            WpfLib1 . Utils . SwitchMagnifyStyle(DbMain , ref Magnifyrate , false);
-            WpfLib1 . Utils . SwitchMagnifyStyle(dbNameLv , ref Magnifyrate , false);
-            WpfLib1 . Utils . SwitchMagnifyStyle(fontSize , ref Magnifyrate , false);
-            WpfLib1 . Utils . SwitchMagnifyStyle(rowheight , ref Magnifyrate , false);
-            dGrid . UpdateLayout();
-            listBox . UpdateLayout();
-            listView . UpdateLayout();
-            DataTemplatesLb . UpdateLayout();
-            DataTemplatesLv . UpdateLayout();
-            DbMain . UpdateLayout();
-            dbNameLv . UpdateLayout();
-            fontSize . UpdateLayout();
-            rowheight . UpdateLayout();
+            WpfLib1 . Utils . SwitchMagnifyStyle ( dGrid , ref Magnifyrate );
+            WpfLib1 . Utils . SwitchMagnifyStyle ( listBox , ref Magnifyrate , false );
+            WpfLib1 . Utils . SwitchMagnifyStyle ( listView , ref Magnifyrate , false );
+            WpfLib1 . Utils . SwitchMagnifyStyle ( DataTemplatesLb , ref Magnifyrate , false );
+            WpfLib1 . Utils . SwitchMagnifyStyle ( DataTemplatesLv , ref Magnifyrate , false );
+            WpfLib1 . Utils . SwitchMagnifyStyle ( DbMain , ref Magnifyrate , false );
+            WpfLib1 . Utils . SwitchMagnifyStyle ( dbNameLv , ref Magnifyrate , false );
+            WpfLib1 . Utils . SwitchMagnifyStyle ( fontSize , ref Magnifyrate , false );
+            WpfLib1 . Utils . SwitchMagnifyStyle ( rowheight , ref Magnifyrate , false );
+            dGrid . UpdateLayout ( );
+            listBox . UpdateLayout ( );
+            listView . UpdateLayout ( );
+            DataTemplatesLb . UpdateLayout ( );
+            DataTemplatesLv . UpdateLayout ( );
+            DbMain . UpdateLayout ( );
+            dbNameLv . UpdateLayout ( );
+            fontSize . UpdateLayout ( );
+            rowheight . UpdateLayout ( );
 
 
         }

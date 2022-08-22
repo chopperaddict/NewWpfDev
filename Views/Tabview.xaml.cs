@@ -390,7 +390,7 @@ namespace NewWpfDev . Views {
                     Tabview . Tabcntrl . CurrentTypeDg = "CUSTOMER";
                     Tabview . Tabcntrl . DbNameIndexDg = DbnamesCb . SelectedIndex;
                     Tabview . Tabcntrl . DbNameDg = DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( );
-                    await Task . Run ( async ( ) => await Tabview . Tabcntrl . dgUserctrl . LoadCustomer ( ) );
+                    Tabview . Tabcntrl . dgUserctrl . LoadCustomer ( );
 
                     //await Application . Current . Dispatcher . Invoke ( async ( ) => {
                     //    await Task . Run ( ( ) => Tabview . Tabcntrl . dgUserctrl . LoadCustomer ( ) );
@@ -401,7 +401,8 @@ namespace NewWpfDev . Views {
                     Tabview . Tabcntrl . CurrentTypeLb = "CUSTOMER";
                     Tabview . Tabcntrl . DbNameIndexLb = DbnamesCb . SelectedIndex;
                     Tabview . Tabcntrl . DbNameLb = Tabview . Tabcntrl . tabView . DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( );
-                    await Task . Run ( async ( ) => await Tabview . Tabcntrl . lbUserctrl . LoadCustomer ( ) );
+                    Tabview . Tabcntrl . lbUserctrl . LoadCustomer ( ) ;
+//                    await Task . Run ( async ( ) => await Tabview . Tabcntrl . lbUserctrl . LoadCustomer ( ) );
                     //await Application . Current . Dispatcher . Invoke ( async ( ) => {
                     //    await Task . Run ( ( ) => Tabview . Tabcntrl . lbUserctrl . LoadCustomer ( ) );
                     //} );
@@ -418,7 +419,9 @@ namespace NewWpfDev . Views {
                 }
                 Tabview . SetDbType ( "CUSTOMER" );
             }
-            else {
+            else
+            {
+                // use GenericClass
                 if ( Tabview . Tabcntrl . ActiveControlType . GetType ( ) == typeof ( DgUserControl ) ) {
                     // a GENERIC table  has been selected in Datagrid
                     Tabview . Tabcntrl . CurrentTypeDg = "GEN";
@@ -448,6 +451,7 @@ namespace NewWpfDev . Views {
                     Tabview . Tabcntrl . DbNameIndexLv = DbnamesCb . SelectedIndex;
                     Tabview . Tabcntrl . DtTemplates . TemplateNameLv = DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( );
                     Tabview . Tabcntrl . DbNameLv = Tabview . Tabcntrl . tabView . DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( );
+                    // load sql data using spLoadTagbleAsGeneric Stored procedure (command created in method itself)
                     int count = Tabview . Tabcntrl . lvUserctrl . LoadGeneric ( e . AddedItems [ 0 ] . ToString ( ) );
                     if ( count == 0 ) {
                         Debug . WriteLine ( $"No records returned for {DbnamesCb . SelectedItem . ToString ( ) . ToUpper ( )}\nso BankAccount will be (re)loaded  by default" );
@@ -1209,8 +1213,11 @@ namespace NewWpfDev . Views {
                 Tabview . Tabcntrl . DtTemplates . TemplateIndexDg = cb . SelectedIndex;
                 DataTemplate dtemp = new DataTemplate ( );
                 dtemp . Seal ( );
+                string dtemplate = TemplatesCb . SelectedItem . ToString ( );
                 FrameworkElement elemnt = Tabview . Tabcntrl . dgUserctrl . grid1 as FrameworkElement;
-                dtemp = elemnt . FindResource ( e . AddedItems [ 0 ] . ToString ( ) ) as DataTemplate;
+                var el =  elemnt . FindResource ( dtemplate ) as DataTemplate;
+                 if(el != null)
+                    dtemp = elemnt . FindResource ( dtemplate ) as DataTemplate;
                 Tabview . Tabcntrl . dgUserctrl . grid1 . ItemTemplate = dtemp;
                 Tabview . Tabcntrl . dgUserctrl . grid1 . UpdateLayout ( );
             }

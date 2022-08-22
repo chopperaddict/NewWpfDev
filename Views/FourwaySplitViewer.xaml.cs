@@ -25,6 +25,9 @@ using Microsoft . Xaml . Behaviors . Core;
 
 namespace NewWpfDev . Views {
     public partial class FourwaySplitViewer : Window {
+
+        public static event EventHandler<ListboxHostArgs> SetListboxHost;
+
         #region  Public variables
         // Set  up our data collections
 
@@ -293,7 +296,24 @@ namespace NewWpfDev . Views {
             Datagrids_SizeChanged ( sender , null );
             ShowdragText = "Drag Down here to ";
             ShowText = "Show more records";
+            //GenericSelectBoxControl . ListSelection += GenericSelectBoxControl_ListSelection1;
+            if ( FourwaySplitViewer. SetListboxHost != null )
+            {
+                ListboxHostArgs args = new ListboxHostArgs ( );
+                args . HostControl = this;
+                args . HostName = "ListViewWindow";
+                args . HostType = "splttest";
+                FourwaySplitViewer . SetListboxHost . Invoke ( this , args );
+            }
+
         }
+
+        private void GenericSelectBoxControl_ListSelection1 ( object sender , SelectionArgs e )
+        {
+            FontFamily FontFamily = new FontFamily ( e . selection );
+            Flowdoc . fontFamily = FontFamily;
+        }
+
         private void Datagrids_SizeChanged ( object sender , SizeChangedEventArgs e ) {
             //Info . Width = Col2 . ActualWidth + Col3 . ActualWidth;
             canvas . Width = this . Width;
@@ -308,6 +328,7 @@ namespace NewWpfDev . Views {
             EventControl . DetDataLoaded -= EventControl_DetDataLoaded;
             EventControl . GenDataLoaded -= EventControl_GenDataLoaded;
             Flowdoc . ExecuteFlowDocMaxmizeMethod -= new EventHandler ( MaximizeFlowDoc );
+            MainWindow . RemoveGenericlistboxcontrol ( canvas );
         }
         private void App_Close ( object sender , RoutedEventArgs e ) {
             this . Close ( );
@@ -671,7 +692,7 @@ namespace NewWpfDev . Views {
                 MessageBox . Show ( $"ERROR in PROCESSSQLCOMMAND(): Failed to load datatable\n{ex . Message}" );
             }
             finally {
-                Debug . WriteLine ( $" SQL data loaded from SQLCommand [{SqlCommand . ToUpper ( )}]" );
+                $" SQL data loaded from SQLCommand [{SqlCommand . ToUpper ( )}]" .cwinfo ( );
                 con . Close ( );
             }
             return dt;

@@ -237,6 +237,7 @@ namespace NewWpfDev. Views
 
         private void Window_Closing ( object sender , CancelEventArgs e )
         {
+            MainWindow . RemoveGenericlistboxcontrol ( canvas );
             EventControl . BankDataLoaded -= EventControl_BankDataLoaded;
             EventControl . CustDataLoaded -= EventControl_CustDataLoaded;
             EventControl . DetDataLoaded -= EventControl_DetDataLoaded;
@@ -247,6 +248,7 @@ namespace NewWpfDev. Views
             Flowdoc . ExecuteFlowDocMaxmizeMethod -= new EventHandler ( MaximizeFlowDoc );
             Flowdoc . ExecuteFlowDocBorderMethod -= lv . FlowDoc_ExecuteFlowDocBorderMethod;
         }
+
         private void App_Close ( object sender , RoutedEventArgs e )
         {
             this . Close ( );

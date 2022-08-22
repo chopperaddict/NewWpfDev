@@ -52,6 +52,8 @@ namespace NewWpfDev . UserControls
         public ExtendSplitter splithandler { set; get; }
         #endregion Testing
 
+        public static event EventHandler<ListboxHostArgs> SetListboxHost;
+
         // Flowdoc file wide variables
         // Pointer to the special library FlowdocLib.cs 
         FlowdocLib fdl = new FlowdocLib ( );
@@ -60,6 +62,10 @@ namespace NewWpfDev . UserControls
         private bool UseFlowdoc = true;
         public static object MovingObject { get; set; }
 
+        public UIElement UcHostElement;
+        public Control UcHostControl;
+        public string UcHostName;
+        public string UcHostType;
         //public static MapperConfiguration MapperCfg;
 
         //#region Event Handling
@@ -227,26 +233,24 @@ namespace NewWpfDev . UserControls
             //Maximize hook  +/- statements - dont forget to remove them (Unsubscribe on closing)
             Flowdoc . ExecuteFlowDocMaxmizeMethod += new EventHandler ( MaximizeFlowDoc );
             FlowDoc . FlowDocClosed += Flowdoc_FlowDocClosed;
-            //FlowDoc . ShowGenListBox += FlowDoc_ShowGenListBox;
-            GenericSelectBoxControl . ListSelection += GenericSelectBoxControl_ListSelection1;
-            //           DapperGenericsLib.Utils . GetFontsList ( );
+//            GenericSelectBoxControl . ListSelection += GenericSelectBoxControl_ListSelection1;
+
+            if ( GenericGridControl . SetListboxHost != null )
+            {
+                ListboxHostArgs args = new ListboxHostArgs ( );
+                args . HostControl = this;
+                args . HostName = "GenGridControl";
+                args . HostType = "GenericGridControl";
+                GenericGridControl . SetListboxHost . Invoke ( this , args );
+            }
         }
 
-        private void GenericSelectBoxControl_ListSelection1 ( object sender , SelectionArgs e )
-        {
-            //SelectionListbox . listbox . ItemsSource = DapperGenericsLib . Utils . GetFontsList ( );
-            FontFamily FontFamily = new FontFamily ( e.selection );
-            Flowdoc.fontFamily = FontFamily;
-        }
-        //private void FlowDoc_ShowGenListBox ( object sender , SelectListboxArgs e )
-        //{
-            // Shows  the populated fonts listbox
-            //SelectionListbox . listbox . ItemsSource = DapperGenericsLib . Utils . GetFontsList ( );
-            //GenericSelectBoxControl . GcCanvas = e . gcc;
-            //SelectionListbox . Visibility = Visibility . Visible;
-            //SelectionListbox . callerobj = e . caller;
-            //GenericSelectBoxControl . Isopen = false;
-        //}
+    //private void GenericSelectBoxControl_ListSelection1 ( object sender , SelectionArgs e )
+    //    {
+    //        //SelectionListbox . listbox . ItemsSource = DapperGenericsLib . Utils . GetFontsList ( );
+    //        FontFamily FontFamily = new FontFamily ( e . selection );
+    //        Flowdoc . fontFamily = FontFamily;
+    //    }
 
         private void Splitter_SizeChanged ( object sender , SizeChangedEventArgs e )
         {
@@ -391,18 +395,15 @@ namespace NewWpfDev . UserControls
             string ConString = "";
             DapperLibSupport . CheckResetDbConnection ( "IAN1" , out ConString );
             string con = DapperLibSupport . GetDictionaryEntry ( DapperGenLib . ConnectionStringsDict , "IAN1" , out string dictvalue );
-
-
             Stopwatch sw = new Stopwatch ( );
             sw . Start ( );
             if ( ActiveGrid == 1 || Gencollection1 . Count == 0 )
             {
                 List<Dictionary<string , string>> ColumntypesList = new List<Dictionary<string , string>> ( );
                 ActiveGrid = 1;
-                // perform ALL items as part of the astync  task
+                // perform ALL items as part of the async  task
                 await Task . Run ( ( ) =>
                 {
-                    // Task 1
                     DapperGenLib . LoadTableGeneric ( $"Select * from {table}" , ref Gencollection1 );
                     if ( Gencollection1 == null )
                     {
@@ -433,7 +434,7 @@ namespace NewWpfDev . UserControls
                                 ColumntypesList = DapperLibSupport . ReplaceDataGridFldNames ( table , ref datagrid1 , ref dglayoutlist1 , colcount );
                             Debug . WriteLine ( $"LOADGENERICTABLE : {Listcollection1 . Count} records in [{table}] Loaded to datagrid1 in Task " );
                             CurrentTable1 = table;
-                            GenericTitle1 . Text = Title1 = $"Table = {CurrentTable1 . ToUpper ( )}";
+                            GenericTitle1 . Text = Title1 = $"{CurrentTable1 . ToUpper ( )}";
                             datagrid1 . Focus ( );
                             SelectCorrectTable ( CurrentTable1 . ToUpper ( ) );
 
@@ -444,7 +445,7 @@ namespace NewWpfDev . UserControls
                                 DapperLibSupport . ReplaceDataGridFldNames ( table , ref datagrid2 , ref dglayoutlist2 , colcount );
                             Debug . WriteLine ( $"LOADGENERICTABLE : {Listcollection2 . Count} records in [{table}] Loaded to datagrid2 in Task " );
                             CurrentTable2 = table;
-                            GenericTitle2 . Text = Title2 = $"Table = {CurrentTable2 . ToUpper ( )}";
+                            GenericTitle2 . Text = Title2 = $"{CurrentTable2 . ToUpper ( )}";
                             datagrid2 . Focus ( );
                             SelectCorrectTable ( CurrentTable2 . ToUpper ( ) );
                         } );
@@ -495,7 +496,7 @@ namespace NewWpfDev . UserControls
                                 return false;
                             }
                             Debug . WriteLine ( $"Total Task took {sw . ElapsedMilliseconds} msecs" );
-                            GenericTitle2 . Text = Title2 = $"Table = {CurrentTable2 . ToUpper ( )}";
+                            GenericTitle2 . Text = Title2 = $"{CurrentTable2 . ToUpper ( )}";
                             datagrid2 . Focus ( );
                             SelectCorrectTable ( CurrentTable2 . ToUpper ( ) );
                             sw . Stop ( );
@@ -637,7 +638,7 @@ namespace NewWpfDev . UserControls
             }
             return TablesList;
 
-         }
+        }
         private void genkeydown ( object sender , KeyEventArgs e )
         {
             if ( sender . GetType ( ) is PopupListBox )
@@ -704,14 +705,14 @@ namespace NewWpfDev . UserControls
                 ShowColumnNames = false;
                 DataGrid tmpgrid = new DataGrid ( );
                 tmpgrid = datagrid1;
-                if ( Title1 != null )
+                if ( GenericTitle1 != null )
                 {
                     colcount = DapperLibSupport . GetGenericColumnCount ( Gencollection1 );
                     DapperLibSupport . ReplaceDataGridFldNames ( CurrentTable1 , ref tmpgrid , ref dglayoutlist1 , colcount );
                     datagrid1 . UpdateLayout ( );
                 }
                 tmpgrid = datagrid2;
-                if ( Title2 != null )
+                if ( GenericTitle2 != null )
                 {
                     colcount = DapperLibSupport . GetGenericColumnCount ( Gencollection2 );
                     DapperLibSupport . ReplaceDataGridFldNames ( CurrentTable2 , ref tmpgrid , ref dglayoutlist2 , colcount );
@@ -2141,6 +2142,11 @@ namespace NewWpfDev . UserControls
                             {
                                 if ( item != "" )
                                     output += $"{item}\n";
+                                else
+                                {
+                                    if ( output . Substring ( 0 , output . Length - 3 ) == ",,," )
+                                        output += $"\n";
+                                }
                                 break;
                             }
                         //----------------------------------------//
@@ -2161,7 +2167,7 @@ namespace NewWpfDev . UserControls
                 {
                     string fdinput = $"Procedure Name : {spName . ToUpper ( )}\n\n";
                     fdinput += output;
-                    fdinput += $"\n\nPress ESCAPE to close this window...\n";
+                    fdinput += $"\nPress ESCAPE to close this window...\n";
                     //                    FlowDoc fdl = new FlowDoc ();
 
                     fdl . ShowInfo ( Flowdoc , canvas , line1: fdinput , clr1: "Black0" , line2: "" , clr2: "Black0" , line3: "" , clr3: "Black0" , header: "" , clr4: "Black0" );
@@ -2339,16 +2345,16 @@ namespace NewWpfDev . UserControls
 
         }
 
-        public  Point GetNewCanvasOffset( object sender, Point pt )
+        public Point GetNewCanvasOffset ( object sender , Point pt )
         {
-            pt = Mouse . GetPosition (  canvas );
+            pt = Mouse . GetPosition ( canvas );
             return pt;
         }
         public void canvas_MouseMove ( object sender , MouseEventArgs e )
         {
             //Debug . WriteLine ("HostCanvas move hit.....");
-            Point pt = new Point( );
-            GetNewCanvasOffset (sender, pt);
+            Point pt = new Point ( );
+            GetNewCanvasOffset ( sender , pt );
         }
-     }
+    }
 }

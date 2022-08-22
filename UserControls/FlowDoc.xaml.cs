@@ -15,7 +15,7 @@ namespace NewWpfDev . UserControls
 {
     public partial class FlowDoc : INotifyPropertyChanged
     {
-
+        public Control HostControl = new Control ( );
         public static event EventHandler<EventArgs> FlowDocClosed;
         public static event EventHandler<SelectListboxArgs> ShowGenListBox;
 
@@ -100,11 +100,13 @@ namespace NewWpfDev . UserControls
 
         // Implement INameScope similar to this:
 
-        public FlowDoc ( )
+        public FlowDoc ()
         {
             InitializeComponent ( );
             doc . FontSize = ( double ) 16;
             Fontsize = doc . FontSize;
+//            if ( host != null )
+   //             HostControl = host;
         }
 
         private void flowdoc_Loaded ( object sender , RoutedEventArgs e )
@@ -861,15 +863,14 @@ namespace NewWpfDev . UserControls
         private void SelectFont_Click ( object sender , RoutedEventArgs e )
         {
             Canvas canvas = DapperGenericsLib . Utils . FindVisualParent<Canvas> ( flowdoc as DependencyObject );
+           // FlowDoc element = DapperGenericsLib . Utils . FindVisualParent<FlowDoc> ( flowdoc as DependencyObject );
+
             if ( canvas == null )
             {
                 MessageBox . Show ( "Unable to find a parent Canvas control that is required for FlowDoc to work correctly..." , "Invalid Environment" );
                 return;
             }
-            //Create new Control to be added
-            GenericSelectBoxControl newselbox = new GenericSelectBoxControl ( );
             // Add GenericListBoxControl to our parent's Canvas (Mandatory for FlowDoc anyway)
-            newselbox . Name = "LbSelector";
             var kids = canvas . Children;
             bool exists = false;
             int index = 0;
@@ -900,6 +901,10 @@ namespace NewWpfDev . UserControls
 
             if ( exists != true )
             {
+                //Create new Control to be added
+                GenericSelectBoxControl newselbox = MainWindow.glb;
+                newselbox . Name = "LbSelector";
+                newselbox . SetHost ( this );
                 canvas . Children . Add ( newselbox );
                 newselbox . Visibility = Visibility . Visible;
                 // Load list of Windows Fonts
@@ -919,14 +924,15 @@ namespace NewWpfDev . UserControls
                     }
                     index++;
                 }
-            } 
+            }
+            this . Focus ( );
         }
 
         private void listbox_Mouseleftdown ( object sender , MouseButtonEventArgs e )
         {
             SelectFont_Click ( sender , null );
         }
- 
+
         /// <summary>
         /// Update FontFamily in all paragraphs of both flowdocument types used by this control
         /// // FlowDocumentScrollViewer=fdviewer, & RichTextBox=doc
@@ -962,6 +968,7 @@ namespace NewWpfDev . UserControls
                 }
             }
             this . Refresh ( );
+            this . Focus ( );
         }
     }
 }

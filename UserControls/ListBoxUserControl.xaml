@@ -167,9 +167,9 @@
 				    IsSynchronizedWithCurrentItem="True"
                     ScrollViewer.HorizontalScrollBarVisibility="Auto"
 					Margin="0 0 0 0">
-				<ListBox.DataContext>
-					<viewmodels:GenericClass/>
-				</ListBox.DataContext>
+				<!--<ListBox.DataContext>
+					<GenericClass/>
+				</ListBox.DataContext>-->
 			</ListBox>
 
 		</Grid>

@@ -1,25 +1,17 @@
-﻿ using NewWpfDev. Dapper;
-using NewWpfDev. SQL;
-using NewWpfDev. Views;
-
-using System;
-using System . Collections . Generic;
+﻿using System;
 using System . Collections . ObjectModel;
 using System . Data;
 using System . Data . SqlClient;
 using System . Diagnostics;
-using System . Linq;
-using System . Security . AccessControl;
-using System . Text;
-using System . Threading . Tasks;
 using System . Windows;
-using System . Windows . Threading;
 
-using static NewWpfDev. MainWindow;
+using NewWpfDev . Dapper;
+using NewWpfDev . SQL;
+using NewWpfDev . Views;
 
-namespace NewWpfDev. ViewModels
+namespace NewWpfDev . ViewModels
 {
-	public class DataLoadControl
+    public class DataLoadControl
 	{
 		ObservableCollection<BankAccountViewModel> bankcollection ;
 		ObservableCollection<CustomerViewModel> custcollection ;

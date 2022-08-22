@@ -4,6 +4,7 @@ using System . Collections . Generic;
 using System . Collections . ObjectModel;
 using System . ComponentModel;
 using System . Diagnostics;
+using System . DirectoryServices . ActiveDirectory;
 using System . Runtime . InteropServices;
 using System . Threading . Tasks;
 using System . Windows;
@@ -72,10 +73,10 @@ namespace NewWpfDev . Views
         //public static ObservableCollection<GenericClass> Gencllection2;
         public static ObservableCollection<DapperGenericsLib . GenericClass> Gencollection1 = new ObservableCollection<DapperGenericsLib . GenericClass> ( );
         public static ObservableCollection<DapperGenericsLib . GenericClass> Gencollection2 = new ObservableCollection<DapperGenericsLib . GenericClass> ( );
-        public static ObservableCollection<ViewModels . GenericClass> vmGencollection1 = new ObservableCollection<ViewModels . GenericClass> ( );
-        public static ObservableCollection<ViewModels . GenericClass> vmGencollection2 = new ObservableCollection<ViewModels . GenericClass> ( );
+        public static ObservableCollection<GenericClass> vmGencollection1 = new ObservableCollection<GenericClass> ( );
+        public static ObservableCollection<GenericClass> vmGencollection2 = new ObservableCollection<GenericClass> ( );
         public static ObservableCollection<DapperGenericsLib . GenericClass> LibGencollection = new ObservableCollection<DapperGenericsLib . GenericClass> ( );
-        public static ObservableCollection<ViewModels . GenericClass> GenClass = new ObservableCollection<ViewModels . GenericClass> ( );
+        public static ObservableCollection<GenericClass> GenClass = new ObservableCollection<GenericClass> ( );
         //public static GenericClass GenClass = new GenericClass ( );
         public List<string> TablesList = new List<string> ( );
         public string SelectedTable { get; set; }
@@ -264,12 +265,13 @@ namespace NewWpfDev . Views
                                 else
                                     GenericGrid . SetDefColumnHeaderText ( GenericGrid . datagrid1 , false );
                                 // Setup new label and default table name
-                                GenericGrid . GenericTitle1 . Text = $"Table = {tablename . ToUpper ( )}";
+                                GenericGrid . GenericTitle1 . Text = $"{tablename . ToUpper ( )}";
                                 GenericGridControl . CurrentTable1 = tablename;
                                 GenericGridControl . Title1 = tablename;
                                 Debug . WriteLine ( $"[{tablename}] Data  for datagrid1 Loaded in Task and Datagrid fully updated" );
                                 GenericGrid . datagrid1 . SelectedIndex = 0;
                                 GenericGrid . datagrid1 . Refresh ( );
+                                GenericGridControl . SelectCorrectTable ( tablename );
                             } );
                         } );
                     }
@@ -297,12 +299,13 @@ namespace NewWpfDev . Views
                                 else
                                     GenericGrid . SetDefColumnHeaderText ( GenericGrid . datagrid2 , false );
                                 // Setup new label and default table name
-                                GenericGrid . GenericTitle2 . Text = $"Table = {tablename . ToUpper ( )}";
+                                GenericGrid . GenericTitle2 . Text = $"{tablename . ToUpper ( )}";
                                 GenericGridControl . CurrentTable2 = tablename;
                                 GenericGridControl . Title2 = tablename;
                                 Debug . WriteLine ( $"[{tablename}] Data  for datagrid1 Loaded in Task and Datagrid fully updated" );
                                 GenericGrid . datagrid1 . SelectedIndex = 0;
                                 GenericGrid . datagrid1 . Refresh ( );
+                                GenericGridControl . SelectCorrectTable ( tablename );
                             } );
                         } );
                     }
@@ -321,7 +324,7 @@ namespace NewWpfDev . Views
             //GenericGrid . StylesList . Refresh ( );
 
         }
-        public static ViewModels . GenericClass ConvertLibToGeneric ( ViewModels . GenericClass gcc , DapperGenericsLib . GenericClass DapperGen )
+        public static GenericClass ConvertLibToGeneric ( GenericClass gcc , DapperGenericsLib . GenericClass DapperGen )
         {
             gcc . field1 = DapperGen . field1;
             gcc . field2 = DapperGen . field2;
@@ -406,7 +409,7 @@ namespace NewWpfDev . Views
             int indx = 0;
             List<string> list = new List<string> ( );
             // local Collection only
-            ObservableCollection<GenericClass> GenericClass = new ObservableCollection<GenericClass> ( );
+            ObservableCollection<DapperGenericsLib.GenericClass> GenericClass = new ObservableCollection<DapperGenericsLib . GenericClass> ( );
             Dictionary<string , string> dict = new Dictionary<string , string> ( );
             List<Dictionary<string , string>> ColumntypesList = new List<Dictionary<string , string>> ( );
             // This returns a Dictionary<sting,string> PLUS a collection  and a List<string> passed by ref....
@@ -435,7 +438,7 @@ namespace NewWpfDev . Views
             BankAccountGrid . SetHost ( this );
             BlankScreenUC . SetHost ( this );
             BankAcctGrid . IsHost ( true );
-            BankAcDetails . LoadCustomer ( );
+            Task . Run ( ( ) => BankAcDetails . LoadCustomer ( ) );
             // SetActivePanel ( "GENERICGRID" );
             CurrentPanel = "GENERICGRID";
         }
@@ -652,25 +655,48 @@ namespace NewWpfDev . Views
                 // Set dapperlib scope flag to convert datetime to date string only for displqay usage inj datagrids etc.
                 DapperGenLib . ConvertDateTimeToNvarchar = true;
 
-                GenericGrid . UpdateLayout ( );
-                GenericGridControl . Host = this;
-                if ( IsStartup )
-                {
-                    // Intial startup of system
-                    if ( GenericGrid . datagrid1 . Items . Count == 0 )
-                    {
-                        // Testing extension method
-                        Gencollection1 =  Gencollection1 . LoadGenData ( "BANKACCOUNT" , GenericGrid . datagrid1 );
-                        Gencollection2 = Gencollection2 . LoadGenData ( "BANKACCOUNT" , GenericGrid . datagrid2 );
-                        //                        await Task . Run ( ( ) => GenericGrid . LoadGenericTable ( "BankAccount" , "datagrid1" ));
-                    }
-                }
                 if ( this . BankContent . Width != 0 && this . BankContent . Height != 0 )
                 {
                     GenericGrid . datagrid1 . Width = BankContent . Width - 20;
                     GenericGrid . datagrid1 . Height = BankContent . Height - 90;
                     GenericGrid . datagrid2 . Width = BankContent . Width - 20;
                     GenericGrid . datagrid2 . Height = BankContent . Height - 90;
+                }
+                GenericGrid . UpdateLayout ( );
+                GenericGridControl . Host = this;
+                if ( IsStartup )
+                {
+                    bool useExtensions = false;
+                    // Intial startup of system
+                    if ( GenericGrid . datagrid1 . Items . Count == 0 )
+                    {
+                        Dictionary<string , string> dict = new Dictionary<string , string> ( );
+                        List<Dictionary<string , string>> ColumntypesList = new List<Dictionary<string , string>> ( );
+                        List<string> list = new List<string> ( );
+                        DataGrid [ ] grids = new DataGrid [ 4 ];
+                        if ( useExtensions == false )
+                        {
+                            // load more than 1 grid from same data <= 4, +  get the obs.collection used back as well;
+                            grids [ 0 ] = GenericGrid . datagrid1;
+                            grids [ 1 ] = GenericGrid . datagrid2;
+                            // let it get on with loading data and populatin grids while we carry on loading the window
+                            Task . Run ( ( ) => DataLoad . LoadGenericTable ( "BankAccount" ,
+                                grids ,
+                                Gencollection1 ,
+                                GenericGrid . GenericTitle1 ,
+                                GenericGrid . GenericTitle2 ) );
+                        }
+                        else
+                        {
+                            // Gencollection2 = Gencollection2 . LoadGenData ( "BANKACCOUNT" , GenericGrid . datagrid2 );
+                            //DapperGenLib . LoadTableGeneric ( $"Select * from BANKACCOUNT" , ref Gencollection1 );
+                            //Gencollection1 = Gencollection1 . LoadGenData ( "BANKACCOUNT" , GenericGrid . datagrid1 );
+                            // Testing extension method
+                            // using my Data Extensions library class in DataExtensions.cs
+                            dict = GetColumnNames ( "BankAccount" , out int count , "IAN1" );
+                        }
+                        //                        await Task . Run ( ( ) => GenericGrid . LoadGenericTable ( "BankAccount" , "datagrid1" ));
+                    }
                 }
                 //GenericGrid . Refresh ( );
                 //this . BankContent . Refresh ( );
@@ -680,6 +706,7 @@ namespace NewWpfDev . Views
                 combo . IsEnabled = true;
                 combo . Opacity = 1.0;
                 GenericGrid . Height += 1;
+                GenericGridControl . SelectCorrectTable ( "BANKACCOUNT" );
 
                 GenericGrid . UpdateLayout ( );
                 //GenericGrid . Refresh ( );
@@ -857,6 +884,7 @@ namespace NewWpfDev . Views
             GenericGrid . datagrid2 . Items . Clear ( );
             BankAcctGrid = null;
             BlankScreen = null;
+            MainWindow . RemoveGenericlistboxcontrol ( GenericGrid.canvas );
             GenericGrid = null;
             comboPlus = null;
             Gencollection1 = null;

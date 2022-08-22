@@ -22,6 +22,9 @@ namespace NewWpfDev. Views
 {
     public partial class TreeViews : Window, INotifyPropertyChanged
     {
+
+        public static event EventHandler<ListboxHostArgs> SetListboxHost;
+
         #region ALL Declarations
 
         #region OnPropertyChanged
@@ -503,6 +506,15 @@ namespace NewWpfDev. Views
             //            OpenContextMenu ( TVContextMenu as FrameworkElement );
             CreateContextMenu ( );
             LoadMenu ( );
+            if ( TreeViews . SetListboxHost != null )
+            {
+                ListboxHostArgs args = new ListboxHostArgs ( );
+                args . HostControl = this;
+                args . HostName = "TREEViews";
+                args . HostType = "TreeViews";
+                TreeViews . SetListboxHost . Invoke ( this , args );
+            }
+
             //fdl . ShowInfo ( Flowdoc, canvas, "This Version is here to demonstrate the use of a Templated style that handles all coloring", "Black0", "Information Idiot !!", "Red5");
         }
 
@@ -563,6 +575,7 @@ namespace NewWpfDev. Views
             Flowdoc . ExecuteFlowDocMaxmizeMethod -= new EventHandler ( MaximizeFlowDoc );
             Flowdoc . HandleKeyEvents -= new KeyEventHandler ( Flowdoc_HandleKeyEvents );
             SaveSettings ( );
+            MainWindow . RemoveGenericlistboxcontrol ( canvas );
         }
         private void ReadSettings ( )
         {

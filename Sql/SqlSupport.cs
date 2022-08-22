@@ -39,14 +39,30 @@ namespace NewWpfDev . SQL
 			ObservableCollection<DetailsViewModel> dvm = LoadDetailsCollection ( dt , Notify);
 			return dvm;
 		}
-		public static ObservableCollection<GenericClass> LoadGeneric ( string Sqlcommand , out string ResultString , int max = 0 , bool Notify = false , bool isMultiMode = false )
+		/// <summary>
+        /// loads table data by using an S.P
+        /// </summary>
+        /// <param name="Sqlcommand"></param>
+        /// <param name="ResultString"></param>
+        /// <param name="max"></param>
+        /// <param name="Notify"></param>
+        /// <param name="isMultiMode"></param>
+        /// <returns></returns>
+        public static ObservableCollection<GenericClass> LoadGeneric ( string Sqlcommand , out string ResultString , int max = 0 , bool Notify = false , bool isMultiMode = false )
 		{
+            string argument = "";
 			ObservableCollection<GenericClass> generics = new ObservableCollection<GenericClass>();
+            if(Sqlcommand.Contains(" "))
+            {
+                string [ ] args = Sqlcommand . Split ( " " );
+                argument = args [ 1 ];
+                Sqlcommand = args [ 0 ] . Trim ( );
+            }
 			ExecuteStoredProcedure ( Sqlcommand ,
 			generics ,
 			out ResultString ,
 			"" ,
-			"" ,
+			argument ,
 			null ,
 			false );
             //No data available ...
@@ -853,7 +869,8 @@ namespace NewWpfDev . SQL
 			{
 				Arguments = "";
 			}
-			{
+		
+            {
 				}
 			try
 			{

@@ -27,8 +27,8 @@ namespace NewWpfDev . Models {
         }
         #endregion NotifyPropertyChanged
 
-        public static ObservableCollection<ViewModels . GenericClass> Gencollection1 { get; set; } = new ObservableCollection<ViewModels.GenericClass> ( );
-        public static ObservableCollection<ViewModels . GenericClass> Gencollection2 { get; set; } = new ObservableCollection<ViewModels . GenericClass> ( );
+        public static ObservableCollection<GenericClass> Gencollection1 { get; set; } = new ObservableCollection<GenericClass> ( );
+        public static ObservableCollection<GenericClass> Gencollection2 { get; set; } = new ObservableCollection<GenericClass> ( );
 
         public static BankAcHost BankHost { get; set; }
         public static GenericGridControl GenericGridHost { get; set; }

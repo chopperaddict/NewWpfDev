@@ -1,34 +1,25 @@
-﻿using NewWpfDev . Dapper;
+﻿using System;
+using System . Collections . Generic;
+using System . Collections . ObjectModel;
+using System . ComponentModel;
+using System . Windows;
+using System . Windows . Controls;
+using System . Windows . Input;
+
+using NewWpfDev . Dapper;
 using NewWpfDev . Models;
 using NewWpfDev . Sql;
 using NewWpfDev . UserControls;
 using NewWpfDev . Views;
 
-using System;
-using System . Collections . Generic;
-using System . Collections . ObjectModel;
-using System . ComponentModel;
-using System . Data . SqlClient;
-using System . Diagnostics;
-using System . Linq;
-using System . Security . Policy;
-using System . Text;
-using System . Threading . Tasks;
-using System . Windows;
-using System . Windows . Controls;
-using System . Windows . Data;
-using System . Windows . Input;
-using System . Windows . Markup;
-using System . Xml . Linq;
-
 namespace NewWpfDev . ViewModels
 {
-	/// <summary>
-	/// VIEWMODEL for MvvmDataGrid.
-	///  Also sends lower level requests to MvvmGridView for data access etc
-	///   This only handles ICommands and Binding variables for the View itself
-	/// </summary>
-	public class MvvmViewModel
+    /// <summary>
+    /// VIEWMODEL for MvvmDataGrid.
+    ///  Also sends lower level requests to MvvmGridView for data access etc
+    ///   This only handles ICommands and Binding variables for the View itself
+    /// </summary>
+    public class MvvmViewModel
 	{
 		#region NotifyPropertyChanged
 		public event PropertyChangedEventHandler PropertyChanged;

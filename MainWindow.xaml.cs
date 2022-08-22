@@ -1,7 +1,11 @@
-﻿using NewWpfDev. ViewModels;
+﻿
+
+using NewWpfDev . UserControls;
+using NewWpfDev. ViewModels;
 using NewWpfDev. Views;
 
 using NewWpfDev . Views;
+using NewWpfDev. Views;
 
 using System;
 using System . Collections . Generic;
@@ -19,6 +23,8 @@ using System . Windows . Media;
 using System . Windows . Media . Imaging;
 using System . Windows . Navigation;
 using System . Windows . Shapes;
+
+using Canvas = System . Windows . Controls . Canvas;
 
 namespace NewWpfDev
 {
@@ -168,11 +174,11 @@ namespace NewWpfDev
 		static public bool ShowButtonHit;
 		static public Thickness BorderSizeNormal;                    // Normal display shadow
 		static public Thickness BorderSizeDefault;            // Mouse over / (current Default) display
-	}
-	#endregion My MessageBox arguments
+     }
+    #endregion My MessageBox arguments
 
-	#region  Cookies handling
-	public struct defvars
+    #region  Cookies handling
+    public struct defvars
 	{
 		public static Uri  cookierootname=new Uri(@"C:\Cookie");
 		public static String CookieDictionarypath=@"J:\users\ianch\documents\CookieDictionary.ser";
@@ -190,6 +196,7 @@ namespace NewWpfDev
 	//	public static ExplorerClass Explorer = new ExplorerClass();
 	//	public static DirectoryInfo DirInfo = new DirectoryInfo(@"C:\\");
 	//}
+
 	#region My GridColors arguments
 	public struct GridControl
 	{
@@ -232,6 +239,7 @@ namespace NewWpfDev
         public static BankAccountViewModel bvm = null;
         public static CustomerViewModel cvm = null;
         public static DetailsViewModel dvm = null;
+        public static GenericSelectBoxControl glb = new GenericSelectBoxControl ( );
 
         #region Dynamic variables
 
@@ -270,8 +278,49 @@ namespace NewWpfDev
                 Properties . Settings . Default . Save ( );
                 WpfLib1 . Utils . SaveProperty ( "AppRootPath" , startpath );
             }
+            /*This is a bit complex, but ....
+             * Currently, Listviews and GenericGridControl support my ListSelectBoxControl , a popup listbox
+             * that allows users to choose fonts (in this case) for FlowDoc.
+             * To allow this to be used in different Host controls we need to create an instance of the Control
+             * here, and then simply add it to the relevant Canvas that   has to be used for FLowdoc usage.
+             * Each subsequnet FlowDoc Host has to trigger an event in the Selectbox to set it up correctly to
+             * allow it handle resizing and other commands
+             * */
+            Listviews . SetListboxHost += glb.Listbox_SetListboxHost;
+            GenericGridControl . SetListboxHost += glb. Listbox_SetListboxHost;
+
             //Button16_Click ( null, null );
             //Mouse . SetCursor ( Cursors . Arrow );
+        }
+        public static  void RemoveGenericlistboxcontrol (Canvas canvas )
+        {
+            var kids = canvas . Children;
+            bool exists = false;
+            int index = 0;
+            do
+            {
+                foreach ( var item in kids )
+                {
+                    string str = item . ToString ( );
+                    if ( str . ToString ( ) . Contains ( "GenericSelectBoxControl" ) )
+                    {
+                        kids . Remove ( ( UIElement ) item );
+                        exists = true;
+                        break;
+                    }
+                    index++;
+                }
+                if ( exists != true )
+                {
+                    exists = false;
+                    break;
+                }
+                else
+                {
+                    exists = false;
+                    break;
+                }
+            } while ( true );
         }
 
 

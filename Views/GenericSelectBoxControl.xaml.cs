@@ -5,7 +5,6 @@ using System . Windows . Controls;
 using System . Windows . Input;
 using System . Windows . Media;
 
-
 using NewWpfDev . UserControls;
 
 using Canvas = System . Windows . Controls . Canvas;
@@ -20,6 +19,7 @@ namespace NewWpfDev . Views
         #region Properties
 
         public static event EventHandler<SelectionArgs> ListSelection;
+
         public static Thickness Ctrlstats = new Thickness ( );
         //public static GenericSelectBoxControl GenSelectBox { get; set; } = null;
         public static GenericGridControl gridctrl { get; set; } = null;
@@ -46,6 +46,10 @@ namespace NewWpfDev . Views
         public double FdWidth { get; set; } = 0;
         public int BorderSelected { get; set; } = 0;
         public static bool Isopen { get; set; } = false;
+        public UIElement UcHostElement;
+        public Control UcHostControl;
+        public string UcHostName;
+        public string UcHostType;
         int counter { get; set; } = 0;
 
         #endregion Properties
@@ -79,9 +83,22 @@ namespace NewWpfDev . Views
             gsb . SetValue ( IsVisibleProperty , true );
             Isopen = true;
             this . Focus ( );
+            // Configure ALL subscriiptions to our popup Event
+            Listviews . SetListboxHost += Listbox_SetListboxHost;
+            GenericGridControl . SetListboxHost += Listbox_SetListboxHost;
+            FourwaySplitViewer . SetListboxHost += Listbox_SetListboxHost;
         }
 
+        public void Listbox_SetListboxHost ( object sender , ListboxHostArgs e )
+        {
+            UcHostElement = e . HostUIElement;
+            UcHostControl = e . HostControl;
+            UcHostName = e . HostName;
+            UcHostType= e . HostType;
+        }
 
+        public void SetHost ( FlowDoc host){
+        }
         private void GenericSelectBoxControl_IsVisibleChanged ( object sender , DependencyPropertyChangedEventArgs e )
         {
             return;
@@ -183,7 +200,7 @@ namespace NewWpfDev . Views
             // Update font textbox
             fdl . CurrentFont . Text = listbox . SelectedItem . ToString ( );
             fdl . fontFamily = new FontFamily ( listbox . SelectedItem . ToString ( ) );
-            fdl . UpdateFontDisplay( );
+            fdl . UpdateFontDisplay ( );
             this . Visibility = Visibility . Collapsed;
         }
 
@@ -199,6 +216,8 @@ namespace NewWpfDev . Views
                 Mouse . OverrideCursor = titlebar . Cursor;
             }
             IsMouseIconNotArrow = true;
+            this . BorderSelected = 0;
+
         }
         private void titlebar_MouseLeave ( object sender , MouseEventArgs e )
         {
@@ -208,6 +227,7 @@ namespace NewWpfDev . Views
                 titlebar . Cursor = Cursors . Arrow;
                 Mouse . OverrideCursor = titlebar . Cursor;
             }
+            this . BorderSelected = 0;
         }
         private void titlebar_MouseLeftButtonDown ( object sender , System . Windows . Input . MouseButtonEventArgs e )
         {
@@ -290,7 +310,11 @@ namespace NewWpfDev . Views
 
         private void titlebar_MouseLeftButtonUp ( object sender , System . Windows . Input . MouseButtonEventArgs e )
         {
-            //Mouse . OverrideCursor = Cursors . Arrow;
+            if ( Mouse . SetCursor ( Cursors . Arrow ) )
+            {
+                titlebar . Cursor = Cursors . Arrow;
+                Mouse . OverrideCursor = titlebar . Cursor;
+            }
             // Working 19/8/22
             ListMoving = false;
             if ( MouseCaptured == false && ListMoving == false && ListResizing == false )
@@ -323,12 +347,12 @@ namespace NewWpfDev . Views
             Canvas canvas = DapperGenericsLib . Utils . FindVisualParent<Canvas> ( sender as DependencyObject );
             Thickness th = new Thickness ( );
             th = border . BorderThickness;
-            double borderwidth = th . Bottom + th . Top;
+            double borderwidth = th . Top;
             double xoffset = e . GetPosition ( canvas ) . X;
             double yoffset = e . GetPosition ( canvas ) . Y;
             this . BorderSelected = 0;
             //Check Horizontal position, we onlly accpet if we are >= 15 pixels in from left and <= 5 pixels in from right
-            if ( xoffset >= BorderMLeft + 55 && xoffset <= xoffset + ( border . ActualWidth - 55 ) )
+            if ( xoffset >= BorderMLeft + 15 && xoffset <= BorderMLeft + ( border . ActualWidth - 15 ) )
             {   // working 19/8/22
                 //   check for Top Horizontal border 1st
                 //Check Vertical position
@@ -337,7 +361,7 @@ namespace NewWpfDev . Views
                 else if ( yoffset >= BorderMTop + ( border . ActualHeight - borderwidth ) && yoffset <= ( BorderMTop + BorderMTop + border . ActualHeight ) )
                     this . BorderSelected = 6;  //Bottom horizontal border
 
-                Debug . WriteLine ( $"selection is {this . BorderSelected}" );
+                //              Debug . WriteLine ( $"selection is {this . BorderSelected}" );
                 if ( this . BorderSelected == 5 || this . BorderSelected == 6 )
                 {
                     if ( Mouse . SetCursor ( Cursors . SizeNS ) )
@@ -345,16 +369,16 @@ namespace NewWpfDev . Views
                         border . Cursor = Cursors . SizeNS;
                         Mouse . OverrideCursor = border . Cursor;
                     }
-                    this . Focus ( );
+                    //this . Focus ( );
                     return;
                 }
             }
-            // Finished testing for the horizontal borders, so Check vertical borders posiion next
-            if ( yoffset >= CtrlTop + ( 15 ) && CtrlTop <= CtrlTop + ( border . ActualHeight - 15 ) )
+            // Finished testing for the horizontal borders, so Check vertical borders position next
+            if ( yoffset >= BorderMTop + ( 10 ) && yoffset <= BorderMTop + ( border . ActualHeight - 10 ) )
             {
                 if ( xoffset >= BorderMLeft && xoffset <= BorderMLeft + borderwidth )
                     this . BorderSelected = 7; // LEFT
-                else if ( xoffset >= BorderMLeft + border . ActualWidth && xoffset <= BorderMLeft + border . ActualWidth + borderwidth )
+                else if ( xoffset > BorderMLeft + BorderMWidth - borderwidth && xoffset <= BorderMLeft + BorderMWidth )
                     this . BorderSelected = 8; // RIGHT
                 Debug . WriteLine ( $"selection is {this . BorderSelected}" );
                 if ( this . BorderSelected == 7 || this . BorderSelected == 8 )
@@ -368,25 +392,30 @@ namespace NewWpfDev . Views
                     return;
                 }
             }
-            if ( IsMouseIconNotArrow == false && Mouse . SetCursor ( Cursors . Arrow ) )
-            {
-                border . Cursor = Cursors . Arrow;
-                Mouse . OverrideCursor = border . Cursor;
-            }
+            //if ( IsMouseIconNotArrow == false && Mouse . SetCursor ( Cursors . Arrow ) )
+            //{
+            //    border . Cursor = Cursors . Arrow;
+            //    Mouse . OverrideCursor = border . Cursor;
+            //}
             //            Debug . WriteLine ( $"Border MouseEnter top = {top}. left = {left}" );
         }
         private void border_MouseLeave ( object sender , MouseEventArgs e )
         {
             //            if ( IsMouseIconNotArrow == false )
-            Mouse . OverrideCursor = null;
+            if ( Mouse . SetCursor ( Cursors . Arrow ) )
+            {
+                border . Cursor = Cursors . Arrow;
+                Mouse . OverrideCursor = border . Cursor;
+            }
+            MouseCaptured = false;
+            ListResizing = false;
+            this . BorderSelected = 0;
             //            else IsMouseIconNotArrow = false;
 
             if ( e . LeftButton != MouseButtonState . Pressed && ListResizing == false )
             {
-                this . ReleaseMouseCapture ( );
-                MouseCaptured = false;
-                ListResizing = false;
-                //               Debug . WriteLine ( $"Border MouseLeave top = {top}. left = {left}" );
+                if ( this . IsMouseCaptured == true )
+                    this . ReleaseMouseCapture ( );
             }
         }
 
@@ -401,16 +430,6 @@ namespace NewWpfDev . Views
                 Debug . WriteLine ( $"{bdr?.Name . ToString ( )}" );
             }
             Canvas canvas = DapperGenericsLib . Utils . FindVisualParent<Canvas> ( sender as DependencyObject );
-            // This is the mouse postion inside the Canvas - no relationship to what object we are in (LbSelector in fact)
-            Debug . WriteLine ( $"Mouse position = {e . GetPosition ( canvas ) . Y . ToString ( )}" );
-            // Debug . WriteLine ( $"Type = {v . ToString ( )}, name={v . Name . ToString ( )}" );
-            //if ( original . GetType ( ) . Equals ( typeof ( Border ) ) && v . Name . ToString ( ) == "Border" )
-            //   bdr = Utils . FindChild<Border> ( LbSelector, "border" );
-            //    try {
-            //        newborder = ( GenericSelectBoxControl ) original;
-            //    }
-            //    catch (Exception ex) { }
-
         }
 
         private void border_MouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
@@ -457,19 +476,19 @@ namespace NewWpfDev . Views
                     return;
                 }
                 else if ( Top - CpFirstYPos >= BorderMTop + ( borderheight - borderThickness ) && Top - CpFirstYPos <= BorderMTop + borderheight + borderThickness
-                    && Left > left + 10 && Left <= left + border . ActualWidth - 10 )
+                    && Left > BorderMLeft + 10 && Left <= BorderMLeft + border . ActualWidth - 10 )
                 {    // Over bottom border
                     this . BorderSelected = 6;
                     return;
                 }
-                else if ( Top >= BorderMTop + 10 && Top <= BorderMTop + borderheight
-                    && Left >= left && Left <= left + borderThickness )
+                else if ( Top >= BorderMTop + 15 && Top <= BorderMTop + BorderMHeight + borderThickness
+                    && Left >= BorderMLeft && Left <= BorderMLeft + borderThickness )
                 {   // over  left border
                     this . BorderSelected = 7;
                     return;
                 }
-                else if ( Top >= BorderMTop + 10 && Top <= BorderMTop + borderheight - 10
-                    && Left >= left && Left <= +left + Width )
+                else if ( Top >= BorderMTop + 15 && Top <= BorderMTop + BorderMHeight + borderThickness
+                    && Left >= BorderMLeft + ( BorderMWidth - borderThickness ) && Left <= BorderMLeft + BorderMWidth )
                 {   // over right border
                     this . BorderSelected = 8;
                     return;
@@ -489,22 +508,22 @@ namespace NewWpfDev . Views
         }
         private void border_MouseMove ( object sender , MouseEventArgs e )
         {
-            //  WORKING 21/8/22
-            double btop = 0, bheight = 0, bbottom = 0;
+            //  FINALLY ALL WORKING 21/8/22
             double diff = 0;
             Canvas canvas = null;
             // Get entire listbox control
             GenericSelectBoxControl lbSelector = DapperGenericsLib . Utils . FindVisualParent<GenericSelectBoxControl> ( sender as DependencyObject );
-            GenericGridControl GenGrid = DapperGenericsLib . Utils . FindVisualParent<GenericGridControl> ( sender as DependencyObject );
-            // Get host canvas
             canvas = DapperGenericsLib . Utils . FindVisualParent<Canvas> ( sender as DependencyObject );
-            canvas . Height = GenGrid . ActualHeight;
+            //GenericGridControl GenGrid = DapperGenericsLib . Utils . FindVisualParent<GenericGridControl> ( sender as DependencyObject );
+            // Get host canvas
+            //var Host = DapperGenericsLib . Utils . FindVisualParent<Control> ( UcHostWindow as DependencyObject );
+            if( UcHostControl != null)
+                canvas . Height = (double) UcHostControl . GetValue ( HeightProperty );
+            if ( UcHostControl == null ) return;
             if ( this . IsFocused == false )
                 this . Focus ( );
             try
             {   // WORKING 21/8/22
-                Debug . WriteLine ( $"{e . GetPosition ( canvas ) . Y}" );
-
                 if ( this . BorderSelected == 5 && e . LeftButton == MouseButtonState . Pressed )
                 {
                     // Get new Top/ left  position, e refers  to border, not this !
@@ -562,7 +581,7 @@ namespace NewWpfDev . Views
                         if ( this . IsFocused == false )
                             this . Focus ( );
                         Debug . WriteLine ( $"(2) Cursor has moved DOWN" );
-                        diff = ( borderMBottom  - BorderMBottom );  // top going up  + diff
+                        diff = ( borderMBottom - BorderMBottom );  // top going up  + diff
                         lbSelector . Height += diff;
                         border . Height += diff;
                         //CtrlBottom = BorderMBottom;
@@ -570,7 +589,7 @@ namespace NewWpfDev . Views
                     else if ( BorderMBottom > borderMBottom )
                     {   // bottom going up +diff Height decreasing
                         Debug . WriteLine ( $"(2) Cursor has moved UP" );
-                        diff = BorderMBottom  - borderMBottom;
+                        diff = BorderMBottom - borderMBottom;
                         if ( BorderMHeight - diff > 250 )
                         {
                             lbSelector . Height -= diff;
@@ -581,18 +600,10 @@ namespace NewWpfDev . Views
                         return;
 
                     Canvas . SetTop ( lbSelector , BorderMTop );
-                    bbottom = BorderMBottom;// + lbSelector . ActualHeight;
-
                     Debug . WriteLine ( $"(3) diff = {diff}" );
-                    //var vv =(double) lbSelector . GetValue ( CtrlTopProperty);
-                    //CtrlTop = vv;
                     Canvas . SetBottom ( lbSelector , BorderMTop + lbSelector . Height );
-                    //BorderSizingBottom = bbottom;
-                    //Debug . WriteLine ( $"< --  MTop = {CtrlTop}, Height = {lbSelector . ActualHeight}" );
                     if ( MouseCaptured == true || ListResizing == true )
-                    {
-                        // set our controlling DP's
-                        //BorderMTop = CtrlTop;
+                    {   // set our controlling DP's
                         BorderMHeight = lbSelector . Height;
                         BorderMBottom = BorderMTop + lbSelector . Height;
                     }
@@ -600,10 +611,96 @@ namespace NewWpfDev . Views
                     this . Focus ( );
                     return;
                 }
+                else if ( this . BorderSelected == 7 && e . LeftButton == MouseButtonState . Pressed )
+                {
+                    // LEFT  border moving
+                    double borderLeft = e . GetPosition ( canvas ) . X;
+                    PointHitTestResult ptresult = new PointHitTestResult ( lbSelector , Mouse . GetPosition ( canvas ) );
+                    borderLeft = ptresult . PointHit . X;
+                    if ( borderLeft > BorderMLeft )
+                    {   // left going right -diff - Width decreasing
+                        if ( this . IsFocused == false )
+                            this . Focus ( );
+                        Debug . WriteLine ( $"(2) Cursor has moved LEFT" );
+                        diff = ( borderLeft - BorderMLeft );  // left going right  - Width decreasing 
+                        if ( border . Width - diff > 300 )
+                        {
+                            lbSelector . Width -= diff;
+                            border . Width -= diff;
+                            BorderMLeft = borderLeft;
+                        }
+                    }
+                    else if ( BorderMLeft > borderLeft )
+                    {   // // left going left -diff - Width increasing
+                        Debug . WriteLine ( $"(2) Cursor has moved RIGHT" );
+                        diff = BorderMLeft - borderLeft;
+                        if ( borderLeft > 0 )
+                        {
+                            BorderMLeft = borderLeft;
+                            lbSelector . Width += diff;
+                            border . Width += diff;
+                        }
+                    }
+                    if ( diff == 0 )
+                        return;
+
+                    Canvas . SetLeft ( lbSelector , BorderMLeft );
+
+                    Debug . WriteLine ( $"(3) diff = {diff}" );
+                    Canvas . SetRight ( lbSelector , BorderMLeft + lbSelector . Width );
+                    BorderMWidth = lbSelector . Width;
+                    Debug . WriteLine ( $"(4) -- > BorderMLeft = {BorderMLeft} :  BorderMWidth : {BorderMWidth}" );
+                    this . Focus ( );
+                    return;
+                }
+                else if ( this . BorderSelected == 8 && e . LeftButton == MouseButtonState . Pressed )
+                {
+                    // RIGHT  border moving
+                    Thickness th = border . BorderThickness;
+                    double borderwidth = th . Right;
+                    double borderRight = e . GetPosition ( canvas ) . X;
+                    PointHitTestResult ptresult = new PointHitTestResult ( lbSelector , Mouse . GetPosition ( canvas ) );
+                    borderRight = ptresult . PointHit . X;
+                    double rightborderleft = BorderMLeft + ( BorderMWidth - borderwidth );
+                    double rightborderright = BorderMLeft + BorderMWidth;
+                    if ( borderRight >= rightborderleft && borderRight <= rightborderright )
+                        return; /// only in the border itself, so abort as we do not know which way to move
+                    if ( borderRight > rightborderright )
+                    {   // right going right -diff - Width increasing
+                        if ( this . IsFocused == false )
+                            this . Focus ( );
+                        Debug . WriteLine ( $"(2) Cursor has moved LEFT" );
+                        diff = ( borderRight - ( BorderMLeft + BorderMWidth ) );  // top going up  + diff
+                        lbSelector . Width += diff;
+                        border . Width += diff;
+                        BorderMWidth += diff;
+                    }
+                    else if ( borderRight < rightborderleft )
+                    {   // // right going left -diff - Width decreasing
+                        Debug . WriteLine ( $"(2) Cursor has moved RIGHT" );
+                        diff = ( BorderMLeft + BorderMWidth ) - borderRight;
+                        if ( borderRight > BorderMLeft + 300 )
+                        {   //BorderMLeft = borderRight;
+                            lbSelector . Width -= diff;
+                            border . Width -= diff;
+                            BorderMWidth -= diff;
+                        }
+                    }
+                    if ( diff == 0 )
+                        return;
+
+                    Canvas . SetLeft ( lbSelector , BorderMLeft );
+
+                    Debug . WriteLine ( $"(3) diff = {diff}" );
+                    Canvas . SetRight ( lbSelector , borderRight );
+                    BorderMWidth = lbSelector . Width;
+                    Debug . WriteLine ( $"(4) -- > BorderMLeft = {BorderMLeft} :  BorderMWidth : {BorderMWidth}" );
+                    this . Focus ( );
+                    return;
+                }
             }
             catch ( Exception ex ) { Debug . WriteLine ( $"{ex . Message}" ); }
             {
-
             }
         }
 
@@ -642,8 +739,12 @@ namespace NewWpfDev . Views
 
         private void MousetoArrow ( object sender , MouseEventArgs e )
         {
-            if ( Mouse . SetCursor ( Cursors . Arrow ) == false )
-                Debug . WriteLine ( $"Cursor to arrow failed !!!!!!!!!!!!!!!" );
+            Control elm = sender as Control;
+            if ( Mouse . SetCursor ( Cursors . Arrow ) )
+            {
+                this . Cursor = Cursors . Arrow;
+                Mouse . OverrideCursor = this . Cursor;
+            }
         }
 
         private void LbSelector_LostFocus ( object sender , RoutedEventArgs e )
@@ -759,4 +860,11 @@ namespace NewWpfDev . Views
             ListMoving = false;
         }
     }
+}
+public class ListboxHostArgs  : EventArgs
+{
+    public UIElement HostUIElement;
+    public Control HostControl;
+    public string HostName;
+    public string HostType;
 }

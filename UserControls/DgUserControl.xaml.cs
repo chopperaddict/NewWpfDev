@@ -13,9 +13,6 @@ using System . Windows . Data;
 using System . Windows . Input;
 using System . Windows . Media;
 using System . Xml . Serialization;
-
-using DocumentFormat . OpenXml . Drawing;
-
 using Newtonsoft . Json;
 using Newtonsoft . Json . Linq;
 
@@ -227,7 +224,8 @@ namespace NewWpfDev . UserControls {
         public async Task<bool> LoadGeneric ( string tablename ) {
             string ResultString = "";
             this . Dispatcher . Invoke ( ( ) => {
-                string SqlCommand = tablename != null ? $"Select * from {tablename}" : "Select * from Invoice";
+                //string SqlCommand = tablename != null ? $"Select * from {tablename}" : "Select * from Invoice";
+                string SqlCommand = $"spLoadTableAsGeneric {tablename}";
                 Tabview . Tabcntrl . ActiveControlType = Tabview . Tabcntrl . dgUserctrl;
                 //Setup Templates list  as we are changing Db type
                 Tabview . Tabcntrl . DtTemplates . TemplateNameDg = tablename . ToUpper ( );
@@ -251,12 +249,12 @@ namespace NewWpfDev . UserControls {
                 Tabview . Tabcntrl . DtTemplates . TemplateNameDg = tablename . ToUpper ( );
                 Tabview . Tabcntrl . twVModel . CheckActiveTemplate ( Tabview . Tabcntrl . dgUserctrl );
                 FrameworkElement elemnt = Tabview . Tabcntrl . dgUserctrl . grid1 as FrameworkElement;
-                DataTemplate dtemp = new DataTemplate ( );
                 DbCountArgs args = new DbCountArgs ( );
                 args . Dbcount = Gvm?.Count ?? -1;
                 args . sender = "dgUserctrl";
                 TabWinViewModel . TriggerBankDbCount ( this , args );
 
+                DataTemplate dtemp = new DataTemplate ( );
                 // Lock template  - cannot be changed
                 dtemp . Seal ( );
                 dtemp = elemnt . FindResource ( Tabview . Tabcntrl . DtTemplates . TemplatesCombo . SelectedItem . ToString ( ) ) as DataTemplate;

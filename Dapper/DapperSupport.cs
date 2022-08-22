@@ -286,7 +286,12 @@ namespace NewWpfDev. Dapper
 											//	Create a dictionary for each row of data then add it to a GenericClass row then add row to Generics Db
 											List< int> VarcharList = new List<int>();
 											gc = ParseDapperRow ( item , dict , out colcount , ref VarcharList );
-											dictcount = 1;
+                                            if ( gc == null )
+                                            {
+                                                IsSuccess = false;
+                                                break;
+                                            }
+                                            dictcount = 1;
 											fldcount = dict . Count;
 											if ( fldcount == 0 )
 											{
@@ -4526,13 +4531,14 @@ namespace NewWpfDev. Dapper
                     }
                     else
                     {
-                        dict . Add ( item . Key , item . Value != null ? item . Value : 0 );
+                        string key = item . Key . ToString ( );
+                        dict . Add ( key , item . Value != null ?(object) item . Value : (object)0 );
                         if ( colcount == 0 )
-                            GenRow . field1 = item . Value;
+                            GenRow . field1 = item . Value.ToString();
                         else if ( colcount == 1 )
-                            GenRow . field2 = item . Value;
+                            GenRow . field2 = item . Value . ToString ( );
                         else if ( colcount == 2 )
-                            GenRow . field3 =( item . Value != null ? item . Value : 0).ToString();
+                            GenRow . field3 =( item . Value != null ? item . Value . ToString ( ) : "0");
                     }
                     //	no size info avaialble here !
                     colcount++;
