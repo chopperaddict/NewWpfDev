@@ -18,9 +18,10 @@ using NewWpfDev . Models;
 using NewWpfDev . UserControls;
 using NewWpfDev . ViewModels;
 
+// This is used as a subset of the standard GenericClass specified in NewWpfDev
+// Because this uses the DapperGenericsLib library
 using GenericClass = DapperGenericsLib . GenericClass;
 
-//using ServiceStack;
 
 namespace NewWpfDev . Views
 {
@@ -679,7 +680,7 @@ namespace NewWpfDev . Views
                             // load more than 1 grid from same data <= 4, +  get the obs.collection used back as well;
                             grids [ 0 ] = GenericGrid . datagrid1;
                             grids [ 1 ] = GenericGrid . datagrid2;
-                            // let it get on with loading data and populatin grids while we carry on loading the window
+                            // let it get on with loading data and populating grids while we carry on loading the window
                             Task . Run ( ( ) => DataLoad . LoadGenericTable ( "BankAccount" ,
                                 grids ,
                                 Gencollection1 ,

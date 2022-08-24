@@ -81,6 +81,7 @@ namespace NewWpfDev
                         {
                             dgc . Header = "";
                             dgc . Header = list [ index++ ];
+                            item . Header = dgc . Header;
                             if ( index >= dict . Count )
                                 break;
                         }
@@ -91,7 +92,7 @@ namespace NewWpfDev
                 Grid . UpdateLayout ( );
             }
             "EXITING : " . cwinfo ( );
-            return ColumntypesList;
+            return ColumnTypesList;
         }
 
         //Extension Method

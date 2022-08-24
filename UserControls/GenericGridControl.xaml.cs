@@ -233,7 +233,7 @@ namespace NewWpfDev . UserControls
             //Maximize hook  +/- statements - dont forget to remove them (Unsubscribe on closing)
             Flowdoc . ExecuteFlowDocMaxmizeMethod += new EventHandler ( MaximizeFlowDoc );
             FlowDoc . FlowDocClosed += Flowdoc_FlowDocClosed;
-//            GenericSelectBoxControl . ListSelection += GenericSelectBoxControl_ListSelection1;
+            //            GenericSelectBoxControl . ListSelection += GenericSelectBoxControl_ListSelection1;
 
             if ( GenericGridControl . SetListboxHost != null )
             {
@@ -245,12 +245,12 @@ namespace NewWpfDev . UserControls
             }
         }
 
-    //private void GenericSelectBoxControl_ListSelection1 ( object sender , SelectionArgs e )
-    //    {
-    //        //SelectionListbox . listbox . ItemsSource = DapperGenericsLib . Utils . GetFontsList ( );
-    //        FontFamily FontFamily = new FontFamily ( e . selection );
-    //        Flowdoc . fontFamily = FontFamily;
-    //    }
+        //private void GenericSelectBoxControl_ListSelection1 ( object sender , SelectionArgs e )
+        //    {
+        //        //SelectionListbox . listbox . ItemsSource = DapperGenericsLib . Utils . GetFontsList ( );
+        //        FontFamily FontFamily = new FontFamily ( e . selection );
+        //        Flowdoc . fontFamily = FontFamily;
+        //    }
 
         private void Splitter_SizeChanged ( object sender , SizeChangedEventArgs e )
         {
@@ -2051,6 +2051,130 @@ namespace NewWpfDev . UserControls
                  ref errormsg );
                 dt = ProcessSqlCommand ( "spGetTableColumnWithSize  " + spName );
                 if ( dt . Rows . Count == 0 )
+                    columncount = 0;
+                foreach ( var item in dt . Rows )
+                {
+                    DapperGenericsLib . GenericClass gc = new DapperGenericsLib . GenericClass ( );
+                    string store = "";
+                    DataRow dr = item as DataRow;
+                    columncount = dr . ItemArray . Count ( );
+                    if ( columncount == 0 )
+                        columncount = 1;
+                    // we only need max cols - 1 here !!!
+                    for ( int x = 0 ; x < columncount ; x++ )
+                        store += dr . ItemArray [ x ] . ToString ( ) + ",";
+                    output += store;
+                }
+                if ( showfull == false )
+                {
+                    // we now have the result, so lets process them
+                    // data is fieldname, sql-datatype, size (where appropriate)
+                    string buffer = output;
+                    string [ ] lines = buffer . Split ( ',' );
+                    output = "";
+                    int counter = 0;
+                    string type = "";
+                    string tmp = "";
+                    foreach ( var item in lines )
+                    {
+                        switch ( counter )
+                        {
+                            //----------------------------------------//
+                            case 0:     //field name
+                                output += $"{item},";
+                                break;
+                            //----------------------------------------//
+                            case 1: //field type
+                                output += $"{item},";
+                                type = item;
+                                break;
+                            //----------------------------------------//
+                            case 2: // size (1)
+                                if ( type == "int" || type == "decimal" )
+                                    break;
+                                else
+                                    output += $"{item},";
+                                break;
+                            //----------------------------------------//
+                            case 3: // Size 2 (Decimal root)
+                                if ( type == "int" )
+                                {
+                                    output += $"{item},";
+                                    break;
+                                }
+                                else if ( type == "nvarchar" )
+                                {
+                                    output += $"{item},\n";
+                                    break;
+                                }
+                                else if ( type == "decimal" )
+                                {
+                                    output += $"{item},";
+                                    break;
+                                }
+                                else
+                                {
+                                    if ( type != "int" && type != "nvarchar" && type != "decimal" )
+                                        output += $"{item},";
+                                    else
+                                        output += $",";
+                                    break;
+                                }
+                            //----------------------------------------//
+                            case 4: // Size 3 (decimal Radix)
+                                if ( type == "int" )
+                                {
+                                    output += $"0,\n";
+                                    break;
+                                }
+                                else
+                                {
+                                    if ( item != "" )
+                                        output += $"{item}\n";
+                                    else
+                                    {
+                                        if ( output . Substring ( 0 , output . Length - 3 ) == ",,," )
+                                            output += $"\n";
+                                    }
+                                    break;
+                                }
+                            //----------------------------------------//
+                            default:
+                                counter = 0;
+                                break;
+                        }
+                        if ( counter < 4 )
+                            counter++;
+                        else
+                            counter = 0;
+                    }
+                    output = output . Substring ( 0 , output . Length - 1 );
+                    // we now have a list of the Args for the selected SP in output
+                    // Show it in a TextBox if it takes 1 or more args
+                    // format is ("fielddname, fieldtype, size1, size2\n,")
+                    if ( output != "" )
+                    {
+                        string fdinput = $"Procedure Name : {spName . ToUpper ( )}\n\n";
+                        fdinput += output;
+                        fdinput += $"\nPress ESCAPE to close this window...\n";
+                        //                    FlowDoc fdl = new FlowDoc ();
+
+                        fdl . ShowInfo ( Flowdoc , canvas , line1: fdinput , clr1: "Black0" , line2: "" , clr2: "Black0" , line3: "" , clr3: "Black0" , header: "" , clr4: "Black0" );
+                        canvas . Visibility = Visibility . Visible;
+                        Flowdoc . Visibility = Visibility . Visible;
+                        //GridData_Display . Visibility = Visibility . Visible;
+                        //SetViewButtons ( 2 , ( GridData_Display . Visibility == Visibility . Visible ? true : false ) , ( DisplayGrid . Visibility == Visibility . Visible ? true : false ) );
+                        //GridData_Display . Focus ( );
+                    }
+                    else
+                    {
+                        Mouse . OverrideCursor = Cursors . Arrow;
+                        //Utils . Mbox ( this , string1: $"Procedure [{Storedprocs . SelectedItem . ToString ( ) . ToUpper ( )}] \ndoes not Support / Require any arguments" , string2: "" , caption: "" , iconstring: "\\icons\\Information.png" , Btn1: MB . OK , Btn2: MB . NNULL , defButton: MB . OK );
+                        //               fdl . ShowInfo ( Flowdoc , canvas , line1: $"Procedure [{Storedprocs . SelectedItem . ToString ( ) . ToUpper ( )}] \ndoes not Support / Require any arguments" , clr1: "Black0" , line2: "" , clr2: "Black0" , line3: "" , clr3: "Black0" , header: "" , clr4: "Black0" );
+                    }
+                }
+                //       ShowLoadtime ( );
+                return output;
                 {
                     if ( errormsg == "" )
                         MessageBox . Show ( $"No Argument information is available" , $"[{spName}] SP Script Information" , MessageBoxButton . OK , MessageBoxImage . Warning );
@@ -2062,130 +2186,6 @@ namespace NewWpfDev . UserControls
                 MessageBox . Show ( $"SQL ERROR 1125 - {ex . Message}" );
                 return "";
             }
-            columncount = 0;
-            foreach ( var item in dt . Rows )
-            {
-                DapperGenericsLib . GenericClass gc = new DapperGenericsLib . GenericClass ( );
-                string store = "";
-                DataRow dr = item as DataRow;
-                columncount = dr . ItemArray . Count ( );
-                if ( columncount == 0 )
-                    columncount = 1;
-                // we only need max cols - 1 here !!!
-                for ( int x = 0 ; x < columncount ; x++ )
-                    store += dr . ItemArray [ x ] . ToString ( ) + ",";
-                output += store;
-            }
-            if ( showfull == false )
-            {
-                // we now have the result, so lets process them
-                // data is fieldname, sql-datatype, size (where appropriate)
-                string buffer = output;
-                string [ ] lines = buffer . Split ( ',' );
-                output = "";
-                int counter = 0;
-                string type = "";
-                string tmp = "";
-                foreach ( var item in lines )
-                {
-                    switch ( counter )
-                    {
-                        //----------------------------------------//
-                        case 0:     //field name
-                            output += $"{item},";
-                            break;
-                        //----------------------------------------//
-                        case 1: //field type
-                            output += $"{item},";
-                            type = item;
-                            break;
-                        //----------------------------------------//
-                        case 2: // size (1)
-                            if ( type == "int" || type == "decimal" )
-                                break;
-                            else
-                                output += $"{item},";
-                            break;
-                        //----------------------------------------//
-                        case 3: // Size 2 (Decimal root)
-                            if ( type == "int" )
-                            {
-                                output += $"{item},";
-                                break;
-                            }
-                            else if ( type == "nvarchar" )
-                            {
-                                output += $"{item},\n";
-                                break;
-                            }
-                            else if ( type == "decimal" )
-                            {
-                                output += $"{item},";
-                                break;
-                            }
-                            else
-                            {
-                                if ( type != "int" && type != "nvarchar" && type != "decimal" )
-                                    output += $"{item},";
-                                else
-                                    output += $",";
-                                break;
-                            }
-                        //----------------------------------------//
-                        case 4: // Size 3 (decimal Radix)
-                            if ( type == "int" )
-                            {
-                                output += $"0,\n";
-                                break;
-                            }
-                            else
-                            {
-                                if ( item != "" )
-                                    output += $"{item}\n";
-                                else
-                                {
-                                    if ( output . Substring ( 0 , output . Length - 3 ) == ",,," )
-                                        output += $"\n";
-                                }
-                                break;
-                            }
-                        //----------------------------------------//
-                        default:
-                            counter = 0;
-                            break;
-                    }
-                    if ( counter < 4 )
-                        counter++;
-                    else
-                        counter = 0;
-                }
-                output = output . Substring ( 0 , output . Length - 1 );
-                // we now have a list of the Args for the selected SP in output
-                // Show it in a TextBox if it takes 1 or more args
-                // format is ("fielddname, fieldtype, size1, size2\n,")
-                if ( output != "" )
-                {
-                    string fdinput = $"Procedure Name : {spName . ToUpper ( )}\n\n";
-                    fdinput += output;
-                    fdinput += $"\nPress ESCAPE to close this window...\n";
-                    //                    FlowDoc fdl = new FlowDoc ();
-
-                    fdl . ShowInfo ( Flowdoc , canvas , line1: fdinput , clr1: "Black0" , line2: "" , clr2: "Black0" , line3: "" , clr3: "Black0" , header: "" , clr4: "Black0" );
-                    canvas . Visibility = Visibility . Visible;
-                    Flowdoc . Visibility = Visibility . Visible;
-                    //GridData_Display . Visibility = Visibility . Visible;
-                    //SetViewButtons ( 2 , ( GridData_Display . Visibility == Visibility . Visible ? true : false ) , ( DisplayGrid . Visibility == Visibility . Visible ? true : false ) );
-                    //GridData_Display . Focus ( );
-                }
-                else
-                {
-                    Mouse . OverrideCursor = Cursors . Arrow;
-                    //Utils . Mbox ( this , string1: $"Procedure [{Storedprocs . SelectedItem . ToString ( ) . ToUpper ( )}] \ndoes not Support / Require any arguments" , string2: "" , caption: "" , iconstring: "\\icons\\Information.png" , Btn1: MB . OK , Btn2: MB . NNULL , defButton: MB . OK );
-                    //               fdl . ShowInfo ( Flowdoc , canvas , line1: $"Procedure [{Storedprocs . SelectedItem . ToString ( ) . ToUpper ( )}] \ndoes not Support / Require any arguments" , clr1: "Black0" , line2: "" , clr2: "Black0" , line3: "" , clr3: "Black0" , header: "" , clr4: "Black0" );
-                }
-            }
-            //       ShowLoadtime ( );
-            return output;
         }
         public static DataTable ProcessSqlCommand ( string SqlCommand )
         {

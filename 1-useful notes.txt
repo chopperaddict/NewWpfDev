@@ -920,7 +920,7 @@ NB See DataErrorWindow for a different Method
 				Background="Transparent"
 MUST BE -		Visibility="Collapsed">
 
-	    		<user:FlowDoc x:Name="Flowdoc"
+MUST BE - <user:FlowDoc x:Name="Flowdoc"
 				backGround="{StaticResource Gray5}"
 				borderColor="{StaticResource Orange1}"
 				Canvas.Left="45"
@@ -931,7 +931,7 @@ MUST BE -		Visibility="Collapsed">
 				MouseMove="Flowdoc_MouseMove"
 				LostFocus="Flowdoc_LostFocus"
 				Opacity="1"
-				Panel.ZIndex="4"
+ADJUST TO SUIT -	Panel.ZIndex="4"
 				PreviewMouseLeftButtonDown="LvFlowdoc_PreviewMouseLeftButtonDown"
 MUST BE -				Visibility="Collapsed"
 				Width="520" />

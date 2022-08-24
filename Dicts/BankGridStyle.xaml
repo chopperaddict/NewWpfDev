@@ -1062,7 +1062,6 @@
 							<Setter Property="TextElement.Foreground" Value="{Binding (views:ListboxColorCtrlAP.SelectionForeground), RelativeSource={RelativeSource AncestorType={x:Type DataGridRow}}}"/>
 							<Setter Property="TextElement.FontWeight" Value="{Binding Path=(views:ListboxColorCtrlAP.FontWeightSelected), RelativeSource={RelativeSource AncestorType={x:Type DataGridRow}}}"/>
 							<Setter Property="TextElement.FontSize" Value="{Binding Path=(views:ListboxColorCtrlAP.FontSize), RelativeSource={RelativeSource AncestorType={x:Type DataGridRow}}}"/>
-
 						</MultiTrigger>
 
 						<!--IS Selected, Mouse OVER-->

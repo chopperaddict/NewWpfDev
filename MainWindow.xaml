@@ -33,7 +33,7 @@
         <Button x:Name="button4" Content="Dummy" HorizontalAlignment="Left" Margin="380,26,0,0" 
 			  VerticalAlignment="Top" Height="40" Width="100"  Click="Button4_Click" 
 			Foreground="{StaticResource White0}" Template="{StaticResource GradientButtonTemplateBlue}"/>
-        <Button x:Name="button5" Content="Dummy" HorizontalAlignment="Left" Margin="497,136,0,0" 
+        <Button x:Name="button5" Content="Generic Datagrid" HorizontalAlignment="Left" Margin="497,136,0,0" 
 			  VerticalAlignment="Top" Height="40" Width="102"   Click="Button5_Cick"
 			Foreground="{StaticResource White0}" Template="{StaticResource GradientButtonTemplateBlue}" />
         <Button x:Name="button6" Content="Mullti Objects" HorizontalAlignment="Left" Margin="18,81,0,0" 

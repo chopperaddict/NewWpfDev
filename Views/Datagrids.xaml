@@ -376,7 +376,7 @@
 			HorizontalAlignment="Left"
 			HorizontalContentAlignment="Left"
 			Style="{StaticResource ComboBoxMagnifyAnimation4}"
-                   MouseRightButtonUp="Storedprocs_MouseRightButtonUp"
+			MouseRightButtonUp="Storedprocs_MouseRightButtonUp"
 			Padding="5 3 0 0"
 			TabIndex="5"
 			ToolTip="Right Click to Execute the currently selected Stored Procedure...."

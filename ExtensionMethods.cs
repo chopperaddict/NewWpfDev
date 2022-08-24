@@ -9,6 +9,7 @@ using NewWpfDev . ViewModels;
 using System . Windows . Media;
 using System . Diagnostics;
 using System . Runtime . CompilerServices;
+using System . Windows . Controls;
 
 namespace NewWpfDev
 {
@@ -93,6 +94,17 @@ namespace NewWpfDev
             }
             catch ( Exception ex ) { Debug . WriteLine ( $"REFRESH FAILEd !!  {ex . Message}" ); }
         }
+
+        public static void RefreshGrid ( this Control uiElement )
+        {
+            try
+            {
+                uiElement . Dispatcher . Invoke ( DispatcherPriority . Render , EmptyDelegate );
+            }
+            catch ( Exception ex ) { Debug . WriteLine ( $"REFRESH FAILEd !!  {ex . Message}" ); }
+        }
+
+
         public static Brush ToSolidColorBrush ( this string HexColorString )
         {
             if ( HexColorString . Length != 9 )

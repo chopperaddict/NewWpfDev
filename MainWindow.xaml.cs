@@ -24,6 +24,8 @@ using System . Windows . Media . Imaging;
 using System . Windows . Navigation;
 using System . Windows . Shapes;
 
+using Views;
+
 using Canvas = System . Windows . Controls . Canvas;
 
 namespace NewWpfDev
@@ -510,7 +512,8 @@ namespace NewWpfDev
 
         private void Button5_Cick ( object sender , RoutedEventArgs e )
         {
-
+           Genericgrid grid = new Genericgrid ( );
+            grid . Show ( );
         }
     }
 }

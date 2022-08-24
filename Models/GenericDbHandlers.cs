@@ -284,6 +284,7 @@ namespace NewWpfDev . Models
                     {
                         dgc . Header = "";
                         dgc . Header = list [ index++ ];
+                        item . Header = dgc . Header;
                         if ( index >= dict . Count )
                         {
                            break;
