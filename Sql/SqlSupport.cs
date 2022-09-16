@@ -801,7 +801,8 @@ namespace NewWpfDev . SQL
 						{
 							// Perform the sql command requested
 							//							var parameters = "";
-							gresult = sqlCon . Execute ( @SqlCommand , parameters , commandType: CommandType . StoredProcedure , transaction: tran );// as IEnumerable<GenericClass>;
+							gresult = sqlCon . Execute ( @SqlCommand , parameters , commandType:
+                                 CommandType . StoredProcedure , transaction: tran );// as IEnumerable<GenericClass>;
 																											 //var result  = sqlCon . Query( SqlCommand ,
 																											 //  args,null,false, null,
 																											 //   CommandType.StoredProcedure).ToList();

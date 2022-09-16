@@ -6,23 +6,21 @@ using System . ComponentModel;
 using System . Data;
 using System . Data . SqlClient;
 using System . Diagnostics;
-using System . DirectoryServices . ActiveDirectory;
 using System . Linq;
+using System . Threading . Tasks;
 using System . Windows;
 using System . Windows . Controls;
 using System . Windows . Input;
-using System . Windows . Threading;
+using System . Windows . Media;
 
 using Dapper;
 
 using DapperGenericsLib;
 
-using Microsoft . VisualBasic;
 
 using NewWpfDev;
 using NewWpfDev . Models;
 using NewWpfDev . UserControls;
-using NewWpfDev . ViewModels;
 
 using GenericClass = NewWpfDev . GenericClass;
 
@@ -32,7 +30,6 @@ namespace UserControls
     /// Interaction logic for DatagridControl.xaml
     ///     /// Supports Toggling Grid Column headers between Generic "field1..2..3.." and the True Field names 
     /// recovered from Sql Server using a Stored Procedure "spGetTableColumnWithSize"
-
     /// </summary>
     public partial class DatagridControl : UserControl
     {
@@ -49,31 +46,66 @@ namespace UserControls
         }
 
         #endregion OnPropertyChanged
+
+        #region Declarations
         public List<DataGridLayout> dglayoutlist = new List<DataGridLayout> ( );
         public DataGrid Dgrid;
+        public static Window ParentWin { get; set; }
         public FlowdocLib fdl = new FlowdocLib ( );
+        public static string CurrentTable { get; set; }
+        public static Control ParentCtrl { get; set; }
+
+        //Flowdoc declarations
         private double XLeft = 0;
         private double YTop = 0;
         private bool UseFlowdoc = true;
         public static object MovingObject { get; set; }
-        public static bool ConvertDateTimeToNvarchar { get; set; } = false;
 
-        // collection identical to dglayoutlist
+        public static bool ConvertDateTimeToNvarchar { get; set; } = false;
+        public static string DbConnectionString = "Data Source=DINO-PC;Initial Catalog=\"IAN1\";Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+
+        // collection identical to ObservableCollection<GenericClass>
+        //        public ObsCollections collection = new ObsCollections ();
         public static ObservableCollection<GenericClass> TableColumnsCollection { get; set; }
         public static ObservableCollection<GenericClass> GridData { get; set; }
+        #endregion
+
         public DatagridControl ( )
         {
             InitializeComponent ( );
             Dgrid = datagridControl;
             GridData = new ObservableCollection<GenericClass> ( );
+            //           GridData = collection;
             Dgrid . UpdateLayout ( );
             Flowdoc . ExecuteFlowDocMaxmizeMethod += new EventHandler ( MaximizeFlowDoc );
             FlowDoc . FlowDocClosed += Flowdoc_FlowDocClosed;
         }
-
+        public static void SetParent ( Control parent )
+        {
+            ParentCtrl = parent;
+            Type type = parent . GetType ( );
+            if ( type == typeof ( Window ) )
+                ParentWin = parent as Window;
+        }
         #region Dependency Properties
         /**************************************************************************************************************/
-        public  ObservableCollection<GenericClass> Data
+        public Brush AlternateBackground
+        {
+            get { return ( Brush ) GetValue ( AlternateBackgroundProperty ); }
+            set { SetValue ( AlternateBackgroundProperty , value ); }
+        }
+        public static readonly DependencyProperty AlternateBackgroundProperty =
+            DependencyProperty . Register ( "AlternateBackground" , typeof ( Brush ) , typeof ( DatagridControl ) , new PropertyMetadata ( Brushes . Yellow ) );
+        /**************************************************************************************************************/
+        public Style Cellstyle
+        {
+            get { return ( Style ) GetValue ( CellstyleProperty ); }
+            set { SetValue ( CellstyleProperty , value ); }
+        }
+        public static readonly DependencyProperty CellstyleProperty =
+            DependencyProperty . Register ( "Cellstyle" , typeof ( Style ) , typeof ( DatagridControl ) , new PropertyMetadata ( default ) );
+        /**************************************************************************************************************/
+        public ObservableCollection<GenericClass> Data
         {
             get { return ( ObservableCollection<GenericClass> ) GetValue ( DataProperty ); }
             set { SetValue ( DataProperty , value ); }
@@ -118,14 +150,19 @@ namespace UserControls
         /**************************************************************************************************************/
         #endregion Dependency Properties
 
-        public ObservableCollection<GenericClass> LoadGenericData ( string table , bool UseTrueColumns , string ConnectionString )
+        public async Task<ObservableCollection<GenericClass>> LoadData ( string table , bool UseTrueColumns , string ConnectionString )
         {
             ObservableCollection<GenericClass> collection = new ObservableCollection<GenericClass> ( );
-            //dglayoutlist.Clear ();
             datagridControl . ItemsSource = null;
-            string ResultString = "";
-            collection = LoadGeneric ( $"SpLoadTableAsGeneric {table}" , ConnectionString , out ResultString );
-            //datagridControl . ItemsSource = collection;
+
+            IEnumerable<ObservableCollection<GenericClass>> result;
+            await Task . Run ( ( ) => GetSqlData<ObservableCollection<GenericClass>> ( table , ConnectionString ) );
+            // collection =  result as ObservableCollection<GenericClass>;
+            //var data = new ObservableCollection<ObservableCollection<GenericClass>> ( result );
+            collection = Data as ObservableCollection<GenericClass>;
+            // Create a completely new instance via seriazable Clone method stored in NewWpfDev.Utils (in ObjectCopier class file)
+            GridData = NewWpfDev . Utils . CopyCollection ( collection , GridData );
+            //            GridData = collection .MakeClone (  );
             datagridControl . UpdateLayout ( );
             Data = collection;
             PostProcessData ( collection , datagridControl , table , UseTrueColumns );
@@ -137,13 +174,42 @@ namespace UserControls
             int colcount = GetGenericColumnCount ( collection , gcc );
             // Clear list f column info as we are loading a  different table
             dglayoutlist . Clear ( );
-
+            CurrentTable = table;
             GetNewColumnsInfo ( collection , table );
 
             ShowTrueColumns ( Dgrid , table , colcount , UseTrueColumns );
-            return collection;
-        }
+            return GridData;
 
+        }
+        /**************************************************************************************************************/
+        public ObservableCollection<GenericClass> LoadGenericData ( string table , bool UseTrueColumns , string ConnectionString )
+        {
+            ObservableCollection<GenericClass> collection = new ObservableCollection<GenericClass> ( );
+            //dglayoutlist.Clear ();
+            datagridControl . ItemsSource = null;
+            string ResultString = "";
+
+            collection = LoadGeneric ( $"SpLoadTableAsGeneric {table}" , ConnectionString , out ResultString );
+            // Create a completely new instance via seriazable Clone method stored in NewWpfDev.Utils (in ObjectCopier class file)
+            GridData = NewWpfDev . Utils . CopyCollection ( collection , GridData );
+            //            GridData = collection .MakeClone (  );
+            datagridControl . UpdateLayout ( );
+            Data = collection;
+            PostProcessData ( collection , datagridControl , table , UseTrueColumns );
+            datagridControl . UpdateLayout ( );
+            datagridControl . RefreshGrid ( );
+            // grid IS LOADED by  here....
+            datagridControl . SelectedIndex = 0;
+            GenericClass gcc = datagridControl . SelectedItem as GenericClass;
+            int colcount = GetGenericColumnCount ( collection , gcc );
+            // Clear list f column info as we are loading a  different table
+            dglayoutlist . Clear ( );
+            CurrentTable = table;
+            GetNewColumnsInfo ( collection , table );
+
+            ShowTrueColumns ( Dgrid , table , colcount , UseTrueColumns );
+            return GridData;
+        }
 
         public static int GetGenericColumnCount ( ObservableCollection<GenericClass> collection , GenericClass gcc = null )
         {
@@ -266,7 +332,9 @@ namespace UserControls
                 false );
             return generics;
         }
-        public static ObservableCollection<GenericClass> ExecuteStoredProcedure ( string SqlCommand , string ConnectionString ,
+        public static ObservableCollection<GenericClass> ExecuteStoredProcedure (
+        string SqlCommand ,
+        string ConnectionString ,
         ObservableCollection<GenericClass> generics ,
         out string ResultString ,
         string DbName = "" ,
@@ -278,7 +346,7 @@ namespace UserControls
             string SavedValue = SqlCommand;
             string errormsg = "";
             int totalcolumns = 0;
-            ObservableCollection<BankAccountViewModel> bvmparam = new ObservableCollection<BankAccountViewModel> ( );
+            //           ObservableCollection<BankAccountViewModel> bvmparam = new ObservableCollection<BankAccountViewModel> ( );
             Dictionary<string , object> dict = new Dictionary<string , object> ( );
             //============
             // Sanity checks
@@ -296,7 +364,7 @@ namespace UserControls
                 totalcolumns = CreateGenericCollection (
                     ref generics ,
                     SqlCommand ,
-                     ConnectionString ,
+                        ConnectionString ,
                     Arguments ,
                     "" ,
                     "" ,
@@ -748,7 +816,6 @@ namespace UserControls
                     break;
             }
         }
-
         public void PostProcessData ( ObservableCollection<GenericClass> collection , DataGrid grid , string Table , bool UseTrueColumns )
         {
             List<GenericClass> Glist = new List<GenericClass> ( );
@@ -767,10 +834,10 @@ namespace UserControls
             List<Dictionary<string , string>> ColumnTypesList = new List<Dictionary<string , string>> ( );
             if ( dglayoutlist . Count == 0 )
             {
-//                GetNewColumnsInfo ( collection , Table );
+                //                GetNewColumnsInfo ( collection , Table );
                 MessageBox . Show ( $"There are no column information available for {Table . ToUpper ( )}" , "Table Columns handler" );
-            } 
-                ColumnTypesList = ReplaceDataGridFldNames ( Table , ref grid , ref this . dglayoutlist , colcount ); 
+            }
+            ColumnTypesList = ReplaceDataGridFldNames ( Table , ref grid , ref this . dglayoutlist , colcount );
         }
         public static void LoadActiveRowsOnlyInGrid ( DataGrid Grid , ObservableCollection<GenericClass> genericcollection , int total )
         {
@@ -1272,8 +1339,8 @@ namespace UserControls
             // returns list(Dict<str,str>>)
             // clear reference sturcture first off
             //dglayoutlist . Clear ( );
-            if ( dglayoutlist . Count == 0 )
-                dict = GetDbTableColumns ( ref GenClass , ref ColumnTypesList , ref list , CurrentType , Domain , ref dglayoutlist );
+            //           if ( dglayoutlist . Count == 0 )
+            dict = GetDbTableColumns ( ref GenClass , ref ColumnTypesList , ref list , CurrentType , Domain , ref dglayoutlist );
             // dglayoutlist is now fully populated        
             int index = 0;
             // Add data  for field size
@@ -1308,18 +1375,15 @@ namespace UserControls
         public static Dictionary<string , string> GetDbTableColumns ( ref ObservableCollection<GenericClass> Gencollection , ref List<Dictionary<string , string>> ColumntypesList ,
              ref List<string> list , string dbName , string DbDomain , ref List<DataGridLayout> dglayoutlist )
         {
-            // Make sure we are accessing the correct Db Domain
-            //DapperLibSupport . CheckDbDomain ( DbDomain );
-            //            dglayoutlist . Clear ( );
-
+            // This call CHANGES GridData content to columns data !!
             Dictionary<string , string> dict = GetSpArgs ( ref Gencollection , ref ColumntypesList , ref list , dbName , DbDomain , ref dglayoutlist );
             return dict;
         }
         public static Dictionary<string , string> GetSpArgs ( ref ObservableCollection<GenericClass> Gencollection , ref List<Dictionary<string , string>> ColumntypesList ,
             ref List<string> list , string dbName , string DbDomain , ref List<DataGridLayout> dglayoutlist )
         {
-            //this is an obscollection of dglayoutlist
-                DataTable dt = new DataTable ( );
+            //this is an obs-collection of dglayoutlist
+            DataTable dt = new DataTable ( );
             GenericClass genclass = new GenericClass ( );
             Dictionary<string , string> dict = new Dictionary<string , string> ( );
             try
@@ -1330,7 +1394,7 @@ namespace UserControls
                 if ( dglayoutlist . Count == 0 )
                 {
                     TableColumnsCollection = LoadDbAsGenericData ( "spGetTableColumnWithSize" , Gencollection , ref ColumntypesList , dbName , DbDomain , ref dglayoutlist , true );
-//                    SetValue(DataProperty = Gencollection);
+                    Gencollection = GridData;
                 }
             }
             catch ( Exception ex )
@@ -1344,7 +1408,7 @@ namespace UserControls
             try
             {
                 int charlenindex = 0;
-                foreach ( var item in Gencollection )
+                foreach ( var item in TableColumnsCollection )
                 {
                     GenericClass gc = new GenericClass ( );
                     gc = item as GenericClass;
@@ -1661,19 +1725,18 @@ namespace UserControls
             //grid . Refresh ( );
             //if ( IsCollapsed ) grid . Visibility = Visibility . Collapsed;
         }
-
         public string GetFullColumnInfo ( string spName , string ConString )
         {
             string output = "";
             string errormsg = "";
             int columncount = 0;
             DataTable dt = new DataTable ( );
-            ObservableCollection<DapperGenericsLib . GenericClass> Generics = new ObservableCollection<DapperGenericsLib . GenericClass> ( );
+            ObservableCollection<GenericClass> Generics = new ObservableCollection<GenericClass> ( );
             //        ObservableCollection<BankAccountViewModel> bvmparam = new ObservableCollection<BankAccountViewModel> ( );
             List<string> genericlist = new List<string> ( );
             try
             {
-                DapperGenLib . CreateGenericCollection (
+                CreateGenericCollection (
                 "spGetTableColumnWithSize" ,
                 $"{spName}" ,
                 "" ,
@@ -1816,7 +1879,6 @@ namespace UserControls
                 return "";
             }
         }
-
         public DataTable ProcessSqlCommand ( string SqlCommand , string connstring )
         {
             SqlConnection con;
@@ -1958,54 +2020,795 @@ namespace UserControls
                 }
             }
         }
-    }
-}
-public class DataGridLayout
-{
-    #region OnPropertyChanged
-    public event PropertyChangedEventHandler PropertyChanged;
 
-    protected void OnPropertyChanged ( string PropertyName )
-    {
-        if ( this . PropertyChanged != null )
+        public static ObservableCollection<GenericClass> CreateGenericCollection (
+            string SqlCommand ,
+            string Arguments ,
+            string WhereClause ,
+            string OrderByClause ,
+            ref string errormsg )
         {
-            var e = new PropertyChangedEventArgs ( PropertyName );
-            this . PropertyChanged ( this , e );
+            //====================================
+            // Use DAPPER to run a Stored Procedure
+            //====================================
+            string result = "";
+            bool HasArgs = false;
+            int argcount = 0;
+            //DbToOpen = "";
+            errormsg = "";
+            IEnumerable resultDb;
+            //genericlist = new List<string>();
+            string arg1 = "", arg2 = "", arg3 = "", arg4 = "";
+            Dictionary<string , object> dict = new Dictionary<string , object> ( );
+            string ConString = DbConnectionString;
+
+            ObservableCollection<GenericClass> collection = new ObservableCollection<GenericClass> ( );
+
+            if ( ConString == null || ConString == "" )
+            {
+                //               DapperLibSupport . CheckDbDomain ( "IAN1" );
+                ConString = DbConnectionString;
+            }
+            using ( IDbConnection db = new SqlConnection ( ConString ) )
+            {
+                try
+                {
+                    // Use DAPPER to run  Stored Procedure
+                    try
+                    {
+                        // Parse out the arguments and put them in correct order for all SP's
+                        if ( Arguments . Contains ( "'" ) )
+                        {
+                            bool [ ] argsarray = { false , false , false , false };
+                            int argscount = 0;
+                            // we maybe have args in quotes
+                            string [ ] args = Arguments . Trim ( ) . Split ( '\'' );
+                            for ( int x = 0 ; x < args . Length ; x++ )
+                            {
+                                if ( args [ x ] . Trim ( ) . Contains ( "," ) )
+                                {
+                                    string tmp = args [ x ] . Trim ( );
+                                    if ( tmp . Substring ( tmp . Length - 1 , 1 ) == "," )
+                                    {
+                                        tmp = tmp . Substring ( 0 , tmp . Length - 1 );
+                                        args [ x ] = tmp;
+                                        argsarray [ x ] = true;
+                                        argscount++;
+                                    }
+                                    else
+                                    {
+                                        if ( args [ x ] != "" )
+                                        {
+                                            argsarray [ x ] = true;
+                                            argscount++;
+                                        }
+                                    }
+                                }
+                            }
+                            for ( int x = 0 ; x < argsarray . Length ; x++ )
+                            {
+                                switch ( x )
+                                {
+                                    case 0:
+                                        if ( argsarray [ x ] == true )
+                                            arg1 = args [ x ];
+                                        break;
+                                    case 1:
+                                        if ( argsarray [ x ] == true )
+                                            arg2 = args [ x ];
+                                        break;
+                                    case 2:
+                                        if ( argsarray [ x ] == true )
+                                            arg3 = args [ x ];
+                                        break;
+                                    case 3:
+                                        if ( argsarray [ x ] == true )
+                                            arg4 = args [ x ];
+                                        break;
+                                }
+                            }
+                        }
+                        else if ( Arguments . Contains ( "," ) )
+                        {
+                            string [ ] args = Arguments . Trim ( ) . Split ( ',' );
+                            //string[] args = DbName.Split(',');
+                            for ( int x = 0 ; x < args . Length ; x++ )
+                            {
+                                switch ( x )
+                                {
+                                    case 0:
+                                        arg1 = args [ x ];
+                                        if ( arg1 . Contains ( "," ) )              // trim comma off
+                                            arg1 = arg1 . Substring ( 0 , arg1 . Length - 1 );
+                                        break;
+                                    case 1:
+                                        arg2 = args [ x ];
+                                        if ( arg2 . Contains ( "," ) )              // trim comma off
+                                            arg2 = arg2 . Substring ( 0 , arg2 . Length - 1 );
+                                        break;
+                                    case 2:
+                                        arg3 = args [ x ];
+                                        if ( arg3 . Contains ( "," ) )         // trim comma off
+                                            arg3 = arg3 . Substring ( 0 , arg3 . Length - 1 );
+                                        break;
+                                    case 3:
+                                        arg4 = args [ x ];
+                                        if ( arg4 . Contains ( "," ) )         // trim comma off
+                                            arg4 = arg4 . Substring ( 0 , arg4 . Length - 1 );
+                                        break;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // One or No arguments
+                            arg1 = Arguments;
+                            if ( arg1 . Contains ( "," ) )              // trim comma off
+                                arg1 = arg1 . Substring ( 0 , arg1 . Length - 1 );
+                        }
+                        // Create our aguments using the Dynamic parameters provided by Dapper
+                        var Params = new DynamicParameters ( );
+                        if ( arg1 != "" )
+                            Params . Add ( "Arg1" , arg1 , DbType . String , ParameterDirection . Input , arg1 . Length );
+                        if ( arg2 != "" )
+                            Params . Add ( "Arg2" , arg2 , DbType . String , ParameterDirection . Input , arg2 . Length );
+                        if ( arg3 != "" )
+                            Params . Add ( "Arg3" , arg3 , DbType . String , ParameterDirection . Input , arg3 . Length );
+                        if ( arg4 != "" )
+                            Params . Add ( "Arg4" , arg4 , DbType . String , ParameterDirection . Input , arg4 . Length );
+                        // Call Dapper to get results using it's StoredProcedures method which returns
+                        // a Dynamic IEnumerable that we then parse via a dictionary into collection of GenericClass  records
+                        int colcount = 0;
+
+                        if ( SqlCommand . ToUpper ( ) . Contains ( "SELECT " ) )
+                        {
+                            //                           $"Entering for 'Sql Select'" . cwinfo();
+                            //***************************************************************************************************************//
+                            // Performing a standard SELECT command but returning the data in a GenericClass structure	  (Bank/Customer/Details/etc)
+                            //WORKS JUST FINE
+                            var reslt = db . Query ( SqlCommand , CommandType . Text );
+                            //***************************************************************************************************************//
+                            if ( reslt == null )
+                            {
+                                errormsg = "DT";
+                                return null;
+                            }
+                            else
+                            {
+                                //Although this is duplicated  with the one below we CANNOT make it a method()
+                                errormsg = "DYNAMIC";
+                                int dictcount = 0;
+                                int fldcount = 0;
+                                GenericClass gc = new GenericClass ( );
+
+                                Dictionary<string , string> outdict = new Dictionary<string , string> ( );
+                                try
+                                {
+
+                                    foreach ( var item in reslt )
+                                    {
+                                        try
+                                        {
+                                            // we need to create a dictionary for each row of data then add it to a GenericClass row then add row to Generics Db
+                                            string buffer = "";
+                                            List<int> VarcharList = new List<int> ( );
+                                            // WORKS OK
+                                            //dynamic buff, Dictionary< string, object> dict, out int colcount, ref List<DataGridLayout> dglayoutlist, bool GetLength = false
+                                            ParseDapperRow ( item , dict , out colcount );
+                                            gc = new GenericClass ( );
+                                            dictcount = 1;
+                                            int index = 1;
+                                            fldcount = dict . Count;
+                                            string tmp = "";
+
+
+                                            // Parse reslt.item into  single Dictionary record
+                                            foreach ( var pair in dict )
+                                            {
+                                                try
+                                                {
+                                                    if ( pair . Key != null && pair . Value != null )
+                                                    {
+                                                        AddDictPairToGeneric ( gc , pair , dictcount++ );
+                                                        tmp = $"field{index++} = {pair . Value . ToString ( )}";
+                                                        buffer += tmp + ",";
+                                                        outdict . Add ( pair . Key , pair . Value . ToString ( ) );
+                                                    }
+                                                }
+                                                catch ( Exception ex )
+                                                {
+                                                    //                                                   $"Dictionary ERROR : {ex . Message}" . cwerror ( );
+                                                    result = ex . Message;
+                                                }
+                                            }
+
+                                            //remove trailing comma
+                                            string s = buffer . Substring ( 0 , buffer . Length - 1 );
+                                            buffer = s;
+                                            // We now  have ONE sinlge record, but need to add this  to a GenericClass structure 
+                                            int reccount = 1;
+                                            foreach ( KeyValuePair<string , string> val in outdict )
+                                            {  //
+                                                switch ( reccount )
+                                                {
+                                                    case 1:
+                                                        gc . field1 = val . Value . ToString ( );
+                                                        break;
+                                                    case 2:
+                                                        gc . field2 = val . Value . ToString ( );
+                                                        break;
+                                                    case 3:
+                                                        gc . field3 = val . Value . ToString ( );
+                                                        break;
+                                                    case 4:
+                                                        gc . field4 = val . Value . ToString ( );
+                                                        break;
+                                                    case 5:
+                                                        gc . field5 = val . Value . ToString ( );
+                                                        break;
+                                                    case 6:
+                                                        gc . field6 = val . Value . ToString ( );
+                                                        break;
+                                                    case 7:
+                                                        gc . field7 = val . Value . ToString ( );
+                                                        break;
+                                                    case 8:
+                                                        gc . field8 = val . Value . ToString ( );
+                                                        break;
+                                                    case 9:
+                                                        gc . field9 = val . Value . ToString ( );
+                                                        break;
+                                                    case 10:
+                                                        gc . field10 = val . Value . ToString ( );
+                                                        break;
+                                                    case 11:
+                                                        gc . field11 = val . Value . ToString ( );
+                                                        break;
+                                                    case 12:
+                                                        gc . field12 = val . Value . ToString ( );
+                                                        break;
+                                                    case 13:
+                                                        gc . field13 = val . Value . ToString ( );
+                                                        break;
+                                                    case 14:
+                                                        gc . field14 = val . Value . ToString ( );
+                                                        break;
+                                                    case 15:
+                                                        gc . field15 = val . Value . ToString ( );
+                                                        break;
+                                                    case 16:
+                                                        gc . field16 = val . Value . ToString ( );
+                                                        break;
+                                                    case 17:
+                                                        gc . field17 = val . Value . ToString ( );
+                                                        break;
+                                                    case 18:
+                                                        gc . field18 = val . Value . ToString ( );
+                                                        break;
+                                                    case 19:
+                                                        gc . field19 = val . Value . ToString ( );
+                                                        break;
+                                                    case 20:
+                                                        gc . field20 = val . Value . ToString ( );
+                                                        break;
+                                                }
+                                                reccount += 1;
+                                            }
+                                            //genericlist.Add(buffer);
+                                            collection . Add ( gc );
+                                        }
+                                        catch ( Exception ex )
+                                        {
+                                            result = $"SQLERROR : {ex . Message}";
+                                            errormsg = result;
+                                            //result . cwerror ( );
+                                        }
+                                        //collection.Add(gc);
+                                        dict . Clear ( );
+                                        outdict . Clear ( );
+                                        dictcount = 1;
+                                    }
+                                }
+                                catch ( Exception ex )
+                                {
+                                    //                                   $"OUTER DICT/PROCEDURE ERROR : {ex . Message}" . cwerror ( );
+                                    result = ex . Message;
+                                    errormsg = result;
+                                }
+                                if ( errormsg == "" )
+                                    errormsg = $"DYNAMIC:{fldcount}";
+                                //                             $"Exiting with VALID result" . cwinfo();
+                                return collection; //collection.Count;
+                            }
+                        }
+                        else
+                        {
+                            // probably a stored procedure ?  							
+                            bool IsSuccess = false;
+                            int fldcount = 0;
+                            GenericClass gc = new GenericClass ( );
+
+                            //$"Entering for 'Stored Procedure'" . cwinfo ( );
+                            //***************************************************************************************************************//
+                            // This returns the data from SP commands (only) in a GenericClass Structured format
+                            var reslt = db . Query ( SqlCommand , Params , commandType: CommandType . StoredProcedure );
+                            //***************************************************************************************************************//
+
+                            if ( reslt != null )
+                            {
+                                //Although this is duplicated  with the one above we CANNOT make it a method()
+                                int dictcount = 0;
+                                dict . Clear ( );
+                                long zero = reslt . LongCount ( );
+                                try
+                                {
+                                    foreach ( var item in reslt )
+                                    {
+                                        try
+                                        {
+                                            //	Create a dictionary for each row of data then add it to a GenericClass row then add row to Generics Db
+                                            // List<int> VarcharList = new List<int>();
+                                            ParseDapperRow ( item , dict , out colcount );
+                                            dictcount = 1;
+                                            fldcount = dict . Count;
+                                            if ( fldcount == 0 )
+                                            {
+                                                //no problem, we will get a Datatable anyway
+                                                return null;
+                                            }
+                                            string buffer = "", tmp = "";
+                                            int index = 0;
+                                            foreach ( var pair in dict )
+                                            {
+                                                try
+                                                {
+                                                    if ( pair . Key != null && pair . Value != null )
+                                                    {
+                                                        //AddDictPairToGeneric(gc, pair, dictcount++);
+                                                        tmp = pair . Key . ToString ( ) + $"= Field{index++}";// + pair.Value.ToString();
+                                                        //tmp = pair.Key.ToString() + "=" + pair.Value.ToString();
+                                                        buffer += tmp + ",";
+                                                    }
+                                                }
+                                                catch ( Exception ex )
+                                                {
+                                                    //                                                $"Dictionary ERROR : {ex . Message}" . cwerror ( );
+                                                    result = ex . Message;
+                                                }
+                                            }
+                                            IsSuccess = true;
+                                            string s = buffer . Substring ( 0 , buffer . Length - 1 );
+                                            //                                            $"buffer = {s}" . CW ( );
+                                            buffer = s;
+                                            //genericlist.Add(buffer);
+                                        }
+                                        catch ( Exception ex )
+                                        {
+                                            //                                            $"SQLERROR : {ex . Message}" . cwerror ( );
+                                            //$"Exiting with null" . cwwarn ( );
+                                            return null;
+                                        }
+                                        //										gc . ActiveColumns = dict . Count;
+                                        //ParseListToDbRecord ( genericlist , out gc );
+                                        collection . Add ( gc );
+                                        dict . Clear ( );
+                                        dictcount = 1;
+                                    }
+                                }
+                                catch ( Exception ex )
+                                {
+                                    Debug . WriteLine ( $"OUTER DICT/PROCEDURE ERROR : {ex . Message}" );
+                                    if ( ex . Message . Contains ( "not find stored procedure" ) )
+                                    {
+                                        result = $"SQL PARSE ERROR - [{ex . Message}]";
+                                        errormsg = $"{result}";
+                                        //                                      $"Exiting with null" . cwwarn ( );
+                                        return null;
+                                    }
+                                    else
+                                    {
+                                        long x = reslt . LongCount ( );
+                                        if ( x == ( long ) 0 )
+                                        {
+                                            result = $"ERROR : [{SqlCommand}] returned ZERO records... ";
+                                            errormsg = $"DYNAMIC:0";
+                                            //                                           $"Exiting with null" . cwwarn ( );
+                                            return null;
+                                        }
+                                        else
+                                        {
+                                            result = ex . Message;
+                                            errormsg = $"UNKNOWN :{ex . Message}";
+                                        }
+                                        //                                        $"Exiting with null" . cwwarn ( );
+                                        return null;
+                                    }
+                                }
+                            }
+                            if ( IsSuccess == false )
+                            {
+                                errormsg = $"Dapper request returned zero results, maybe one or more arguments are required, or the Procedure does not return any values ?";
+                                Debug . WriteLine ( errormsg );
+                            }
+                            else
+                            {
+                                //$"Exiting with null" . cwwarn ( );
+                                //return null;
+                            }
+                            //return 0;
+                        }
+                    }
+                    catch ( Exception ex )
+                    {
+                        Debug . WriteLine ( $"STORED PROCEDURE ERROR : {ex . Message}" );
+                        //$"STORED PROCEDURE ERROR : {ex . Message}" . cwerror ( );
+                        result = ex . Message;
+                        errormsg = $"SQLERROR : {result}";
+                        //return null;
+                    }
+                }
+                catch ( Exception ex )
+                {
+                    //                   $"Sql Error, {ex . Message}, {ex . Data}" . cwerror ( );
+                    result = ex . Message;
+                    //                   $"STORED PROCEDURE ERROR : {ex . Message}" . cwerror ( );
+                }
+            } // end using {} - MUST get here  to close connection correctly
+              //            $"Exiting with null" . cwwarn ( );
+            return null;
+            //            return dict.Count;
+        }
+
+        public void BuildTableWithValidTypes ( )
+        {
+            string fname = "", ftype = "", intstring = "";
+            string [ ] temp;
+            int decsize = 0, decimalsize = 0;
+
+            foreach ( var item in dglayoutlist )
+            {
+                fname = item . Fieldname;
+                ftype = item . Fieldtype;
+            }
+        }
+
+        public string [ ] CreateSqlSPArgs ( string commandline, string newdbname="" )
+        {
+            string [ ] strings;
+            strings = commandline . Split ( "," );
+            //if(newdbname != "")
+            //{
+            string [ ] newstring = new string [ strings .Length + 2 ];
+            newstring [ 0 ] = newdbname;
+            foreach ( string item in strings )
+            {
+                Debug . WriteLine ($"{item}");
+            }
+            strings = newstring;
+            //}
+            Debug . WriteLine ($"{strings}");
+            return strings;
+        }
+        public int CreateGenericDbStoredProcedure ( string SqlCommand , string [ ] args , string ConString , out string err )
+        //--------------------------------------------------------------------------------------------------------------------------------------------------------
+        {
+            //####################################################################################//
+            // Handles running a dapper stored procedure call with transaction support & throws exceptions back to caller
+            //####################################################################################//
+            int gresult = -1;
+            string Con = ConString;
+            SqlConnection sqlCon = null;
+            err = "";
+
+            //===============================================//
+            // This version successfully creates a new Db as specified by the args[] string array
+            //===============================================//
+
+            try
+            {
+                using ( sqlCon = new SqlConnection ( Con ) )
+                {
+                    sqlCon . Open ( );
+                    string [ ] str = SqlCommand . Split ( ' ' );
+                    using ( var tran = sqlCon . BeginTransaction ( ) )
+                    {
+                        var parameters = new DynamicParameters ( );
+                        if ( args . Length > 0 )
+                        {
+                            //string s = SqlCommand . Substring ( 19 ) . Trim ( );
+                            string s = str [1];
+                            parameters . Add ( $"Arg1" ,  s,
+                                DbType . String ,
+                                ParameterDirection . Input ,
+                                s . Length );
+                            for ( int x = 0 ; x < args . Length ; x++ )
+                            {
+                                string [ ] fields;
+                                string fld="", type = "";
+                                fields = args [ x ] . Split ( ' ' );
+                                fld = fields [ 0 ];
+                                for(int y=0 ; y < fields.Length-1; y++ )
+                                    type += fields [ y ]+" ";
+                                 parameters . Add ( $"fld{x+1}" , $"{type}" , DbType . String , ParameterDirection . Input , type.Length);
+                                Debug . WriteLine ( $"fld{x + 1}" , $"{type}" );
+                            }
+                        }
+                        //Create the new table as requested
+                        gresult = sqlCon . Execute ( "spCreateNewDbTable" , parameters , commandType: CommandType . StoredProcedure , transaction: tran );
+                        // Commit the transaction
+                        tran . Commit ( );
+                        gresult = 1;
+                    }
+                }
+            }
+            catch ( Exception ex )
+            {
+                Debug . WriteLine ( $"Error {ex . Message}, {ex . Data}" );
+                DapperGenericsLib . Utils . DoErrorBeep ( 280 , 100 , 1 );
+                DapperGenericsLib . Utils . DoErrorBeep ( 190 , 200 , 1 );
+                err = $"Error {ex . Message}";
+            }
+            //WpfLib1 . Utils . trace ( );
+            return gresult;
+        }
+
+        #region create new Sql table
+
+        public List<GenericToRealStructure> CreateFullColumnInfo ( string spName , string ConString )
+        {
+            string output = "";
+            string errormsg = "";
+            int columncount = 0;
+            string fname = "", ftype = "", intstring = "";
+            List<GenericToRealStructure> newstructure = new List<GenericToRealStructure> ( );
+            DataTable dt = new DataTable ( );
+            ObservableCollection<GenericClass> Generics = new ObservableCollection<GenericClass> ( );
+            List<string> genericlist = new List<string> ( );
+            try
+            {
+                CreateGenericCollection (
+                "spGetTableColumnWithSize" ,
+                $"{spName}" ,
+                "" ,
+                "" ,
+                 ref errormsg );
+                dt = ProcessSqlCommand ( "spGetTableColumnWithSize  " + spName , ConString );
+                if ( dt . Rows . Count == 0 )
+                    columncount = 0;
+
+                int decsize = 0, decpart = 0, decroot = 0;
+
+                foreach ( var item in dt . Rows )
+                {
+                    GenericClass gc = new GenericClass ( );
+                    string store = "";
+                    DataRow dr = item as DataRow;
+                    columncount = dr . ItemArray . Count ( );
+                    if ( columncount == 0 )
+                        columncount = 1;
+                    // we only need max cols - 1 here !!!
+                    for ( int x = 0 ; x < columncount ; x++ )
+                        store += dr . ItemArray [ x ] . ToString ( ) + ",";
+                    output += store;
+                }
+                // we now have the result, so lets process them
+                // data is fieldname, sql-datatype, size (where appropriate)
+                string buffer = output;
+                string [ ] lines = buffer . Split ( ',' );
+                output = "";
+                int counter = 0;
+                string type = "";
+                string tmp = "";
+                foreach ( var item in lines )
+                {
+                    switch ( counter )
+                    {
+                        //----------------------------------------//
+                        case 0:     //field name
+                            fname = $"{item}";
+                            break;
+                        //----------------------------------------//
+                        case 1: //field type
+                            ftype = $"{item}";
+                            break;
+                        //----------------------------------------//
+                        case 2: // size (1)
+                            if ( ftype == "varchar" || ftype == "nvarchar" )
+                            {
+                                decroot = Convert . ToInt16 ( item );
+                            }
+                            break;
+                        //----------------------------------------//
+                        case 3: // Size 2 (Decimal root)
+                            if ( ftype == "int" )
+                            {
+                                if ( item != "" ) decroot = Convert . ToInt16 ( item );
+                                else decroot = 0;
+                            }
+                            else if ( ftype == "decimal" )
+                            {
+                                if ( item != "" )
+                                    decroot = Convert . ToInt16 ( item );
+                                else
+                                    decroot = 0;
+                            }
+                            break;
+                        case 4: // Size 3 (decimal Radix)
+                            if ( ftype == "decimal" || ftype == "float" )
+                            {
+                                decpart = Convert . ToInt32 ( item );
+                            }
+                            // else decimalsize = 0;
+                            // We now have all the data types for this column
+                            // Add data  to our storage structure
+                            GenericToRealStructure schema = new GenericToRealStructure ( );
+                            schema . fname = fname;
+                            schema . ftype = ftype;
+                            if ( decroot != 0 )
+                                schema . decroot = decroot;
+                            if ( decpart != 0 )
+                                schema . decpart = decpart;
+
+                            newstructure . Add ( schema );
+                            // cleanup ready for next column
+                            fname = "";
+                            ftype = "";
+                            decsize = 0;
+                            decroot = 0;
+                            decpart = 0;
+                            break;
+
+                        //----------------------------------------//
+                        default:
+                            counter = 0;
+                            break;
+                    }
+                    if ( counter < 4 )
+                        counter++;
+                    else
+                        counter = 0;
+
+                    //                   output = output . Substring ( 0 , output . Length - 1 );
+                    // we now have a list of the Args for the selected SP in output
+                    // Show it in a TextBox if it takes 1 or more args
+                    // format is ("fielddname, fieldtype, size1, size2\n,")
+                }
+                //       ShowLoadtime ( );
+                return newstructure;
+            }
+            catch ( Exception ex )
+            {
+                MessageBox . Show ( $"SQL ERROR 1125 - {ex . Message}" );
+                return null;
+            }
+        }
+        public string CreateSqlCommand ( List<GenericToRealStructure> TableStructure , string newDbName , out string [ ] args )
+        {
+            string line = "";
+            string [ ] strings = new string [ TableStructure . Count * 10 ];
+            string output = "";
+            string fields = "";
+            int index = 1;
+            int arrayindex = 0;
+            output = $" {newDbName} (";
+           // strings [ arrayindex++ ] = $"{newDbName}";
+            //foreach ( var item in TableStructure )
+            //{
+            //    fields += $"{item . fname}, ";
+            //    strings [ arrayindex++ ] = item . fname;
+            //}
+            //output += fields . Substring ( 0 , fields . Length - 2 );
+            foreach ( var item in TableStructure )
+            {
+                if ( item . fname . ToUpper ( ) == "ID" )
+                {
+                    line += $"{item . fname} {item . ftype} IDENTITY(1,1) NOT NULL ";
+                    strings [ arrayindex++ ] = line;
+                }
+                else
+                {
+                    line += $"{item . fname} {item . ftype}";
+                    if ( item . ftype == "int" )
+                        line += $" NULL ";
+                    else if ( item . ftype == "decimal" || item . ftype == "double" )
+                        line += $"({item . decroot},{item . decpart}) NULL";
+                    else if ( item . ftype == "nvarchar" )
+                        line += $"({item . decroot}) NULL ";
+                    else
+                        line += $" NULL ";
+                    strings [ arrayindex++ ] = line;
+                }
+                output += line;
+                index++;
+                line = "";
+            }
+            output = output . Trim();
+            output += ")";
+            int validargs = 0;
+            foreach ( string item in strings )
+            {
+                if ( item == null )
+                    break;
+                validargs++;
+            }
+            string [ ] newargs = new string [ validargs ];
+
+            for ( int x = 0 ; x < validargs ; x++ )
+            {
+                newargs [ x ] = strings [ x ];
+            }
+            args = newargs;
+            return output;
+        }
+
+        public static DataTable GetDataTable ( string commandline , string connstring )
+        {
+            //        $"Entering " . cwinfo();
+            DataTable dt = new DataTable ( );
+            try
+            {
+                SqlConnection con;
+                string ConString = connstring;
+                if ( ConString == "" )
+                {
+                    //CheckDbDomain ( "IAN1" );
+                    ConString = connstring;
+                }
+                con = new SqlConnection ( ConString );
+                using ( con )
+                {
+                    SqlCommand cmd = new SqlCommand ( commandline , con );
+                    SqlDataAdapter sda = new SqlDataAdapter ( cmd );
+                    sda . Fill ( dt );
+                }
+            }
+            catch ( Exception ex )
+            {
+                Debug . WriteLine ( $"Failed to load Db - {ex . Message}, {ex . Data}" );
+                return null;
+            }
+            //        $"Exiting " . cwinfo();
+            return dt;
+        }
+
+        #endregion
+        public void GetSqlData<T> ( string table , string constring )
+        {
+            // IEnumerable<T> data;
+
+            //using ( var connection = new SqlConnection ( constring ) )
+            //{
+            DataTable dt = GetDataTable ( $@"SELECT * FROM {table}" , constring );
+
+            ObservableCollection<T> data2 = new ObservableCollection<T> ( );
+            // process dt to our collection
+            foreach ( DataRow row in dt . Rows )
+            {
+                //row . ItemArray [ x]
+                GenericClass clas = new GenericClass ( );
+                //clas = row as ObservableCollection<GenericClass>;
+                // data2 . Add ( clas );
+            }
+            //connection . Open ( );
+            //var query = $@"SELECT * FROM {table}";
+            ////                IEnumerable enumItem = data . GetEnumerator ( );
+            ////IEnumerable<DataRow> data = from BankAccount in ;
+            //dynamic data = connection . Query<GenericClass> ( @"Select * from bankaccount");
+            //IEnumerator enumItem = data. GetEnumerator ( );
+            //while ( enumItem . MoveNext ( ) )
+            //{
+            //    var  dat = enumItem . Current as GenericClass;
+            //    data2 . Add ( dat);
+            //    Debug . WriteLine ( $"{ enumItem . Current}");
+            //}
+            //<GenericClass> data2 = new ObservableCollection<ObservableCollection<GenericClass>> ( data );
+            // int count = data . Count ( );
+            //while (MoveNext())
+            //{
+            //    data2 . Add ( data[x] as ObservableCollection<GenericClass> );
+            //}
+            //            }
+            //return data;
         }
     }
-
-    #endregion OnPropertyChanged
-
-    private string fieldname;
-    private string fieldtype;
-    private int fieldlength;
-    private object datavalue;
-    public string Fieldname
-    {
-        get { return fieldname; }
-        set { fieldname = value; OnPropertyChanged ( nameof ( Fieldname ) ); }
-    }
-    public string Fieldtype
-    {
-        get { return ( string ) fieldtype; }
-        set { fieldtype = value; OnPropertyChanged ( nameof ( Fieldtype ) ); }
-    }
-    public int Fieldlength
-    {
-        get { return fieldlength; }
-        set { fieldlength = value; OnPropertyChanged ( nameof ( Fieldlength ) ); }
-    }
-    public object DataValue
-    {
-        get
-        {
-            return ( object ) datavalue;
-        }
-        set { datavalue = value; OnPropertyChanged ( nameof ( DataValue ) ); }
-    }
-
-    public DataGridLayout ( )
-    { }
-
-
 }

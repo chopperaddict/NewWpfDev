@@ -18,12 +18,14 @@
         <DataGrid x:Name="datagridControl"  
                   Height="{Binding ActualHeight, ElementName=dgCtrl}"
                   Width="{Binding ActualWidth, ElementName=dgCtrl}"
-                  Background="Brown" 
-                  Foreground="Black"
-                  AlternatingRowBackground="Yellow"
+                  Background="{Binding Background, ElementName=dgCtrl}"
+                  Foreground="{Binding Foreground, ElementName=dgCtrl}"
+                  AlternatingRowBackground="{Binding AlternateBackground, ElementName=dgCtrl}"
                   Margin="0 0 0 0"
+                  CellStyle="{Binding Cellstyle, ElementName=dgCtrl}"
                   HorizontalAlignment="Stretch"
                    VerticalAlignment="Stretch"/>
+        
         <Canvas x:Name="canvas" 
             Height="{Binding ActualHeight, ElementName=dgCtrl}"
             Width="{Binding ActualWidth , ElementName=dgCtrl}"

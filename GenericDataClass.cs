@@ -6,8 +6,9 @@ using System.Diagnostics;
 
 namespace NewWpfDev 
 {
- 
-    public class GenericClass
+
+    [Serializable]
+    public class GenericClass 
     {
 
         #region OnPropertyChanged
@@ -21,6 +22,12 @@ namespace NewWpfDev
                 this.PropertyChanged(this, e);
             }
         }
+
+        public object Clone ( )
+        {
+            throw new NotImplementedException ( );
+        }
+
         /// <summary>
         /// Warns the developer if this object does not have
         /// a public property with the specified name. This

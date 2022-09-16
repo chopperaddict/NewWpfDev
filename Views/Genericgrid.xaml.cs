@@ -4,21 +4,10 @@ using System . Collections . ObjectModel;
 using System . Data;
 using System . Data . SqlClient;
 using System . Diagnostics;
-using System . Linq;
 using System . Threading . Tasks;
 using System . Windows;
 using System . Windows . Controls;
 using System . Windows . Input;
-
-using DapperGenericsLib;
-
-using DocumentFormat . OpenXml . InkML;
-using DocumentFormat . OpenXml . Office2010 . Drawing;
-
-using NewWpfDev;
-using NewWpfDev . UserControls;
-
-using ServiceStack;
 
 using UserControls;
 
@@ -39,10 +28,13 @@ namespace Views
         public DataGrid Dgrid;
         public int ColumnsCount = 0;
         public bool bStartup = true;
-        public bool ShowColumnHeaders = false; 
-        public string CurrentTable = "";
+        public bool ShowColumnHeaders = false;
 
-        string DbConnectionString = "Data Source=DINO-PC;Initial Catalog=\"IAN1\";Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+        //This is Updated by my Grid Control whenever it loads a different table
+        // NB : Must be declared as shown, including it's name;
+        public static string CurrentTable = "";
+
+        public static string DbConnectionString = "Data Source=DINO-PC;Initial Catalog=\"IAN1\";Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
         public Genericgrid ( )
         {
             InitializeComponent ( );
@@ -51,10 +43,11 @@ namespace Views
             dgControl = this . GenGridCtrl;
             Dgrid = dgControl . datagridControl;
             Task . Run ( ( ) => LoadDbTables ( "BankAccount" ) );
-           SelectCurrentTable ( "BankAccount" );
+            SelectCurrentTable ( "BankAccount" );
             ToggleColumnHeaders . IsChecked = ShowColumnHeaders;
-           ColumnsCount = Dgrid . Columns . Count;
+            ColumnsCount = Dgrid . Columns . Count;
             bStartup = false;
+            DatagridControl . SetParent ( ( Control ) this );
             Mouse . SetCursor ( Cursors . Arrow );
         }
         public void SelectCurrentTable ( string table )
@@ -74,13 +67,26 @@ namespace Views
         //**********************************//
 
         #region local control support
-
-        private void SqlTables_SelectionChanged ( object sender , SelectionChangedEventArgs e )
+        private async void SqlTables_SelectionChanged ( object sender , SelectionChangedEventArgs e )
         {
             string selection = e . AddedItems [ 0 ] . ToString ( );
+            //var result = dgControl . LoadData ( $"{selection}" , ShowColumnHeaders , DbConnectionString );
+            var result = dgControl.LoadGenericData ( $"{selection}" , ShowColumnHeaders , DbConnectionString );
+            //            Task  res 
+            //                = await Task.Run ( () => dgControl . LoadData ( $"{selection}" , ShowColumnHeaders , DbConnectionString ) );
+            /////           GridData = dgControl . LoadGenericData ( $"{selection}" , ShowColumnHeaders , DbConnectionString );
+        }
+        private async void asyncSqlTables_SelectionChanged ( object sender , SelectionChangedEventArgs e )
+        {
+            string selection = e . AddedItems [ 0 ] . ToString ( );
+
+
             // call User Control to load the selected table from the current Sql Db
-            GridData = dgControl . LoadGenericData ( $"{selection}" , ShowColumnHeaders , DbConnectionString );
-         }
+           var result = await dgControl . LoadData ( $"{selection}" , ShowColumnHeaders , DbConnectionString );
+
+             //var result  = await Task.Run( () =>dgControl . LoadGenericData ( $"{selection}" , ShowColumnHeaders , DbConnectionString ));
+//            var result = dgControl . LoadData ( $"{selection}" , ShowColumnHeaders , DbConnectionString );
+        }
 
         private async Task<bool> LoadDbTables ( string currentTable )
         {   //task to load list of Db Tables
@@ -179,10 +185,13 @@ namespace Views
 
         private void ToggleColumnHeaders_Checked ( object sender , RoutedEventArgs e )
         {
-             CheckBox cb = sender as CheckBox;
-            if ( cb . IsChecked == true )
+            CheckBox cb = sender as CheckBox;
+            if ( bStartup== false  && cb . IsChecked == true )
                 ShowColumnHeaders = true;
-              int colcount = dgControl . datagridControl . Columns . Count;
+            else
+                ShowColumnHeaders = false;
+
+            int colcount = dgControl . datagridControl . Columns . Count;
             dgControl . ShowTrueColumns ( dgControl . datagridControl , CurrentTable , colcount , ShowColumnHeaders );
         }
 
@@ -213,12 +222,40 @@ namespace Views
                 MessageBox . Show ( "To view the Tables Data Structure you need to use the Toggle Column Headers 1st..." , "No Data Available" );
                 return;
             }
-            dgControl.GetFullColumnInfo ( CurrentTable, DbConnectionString );
-        }
+            dgControl . GetFullColumnInfo ( DatagridControl . CurrentTable , DbConnectionString );
 
-         private void Close_Click ( object sender , RoutedEventArgs e )
+            List<GenericToRealStructure> TableStructure = dgControl . CreateFullColumnInfo ( DatagridControl . CurrentTable , DbConnectionString );
+            // We now have a full SQl Structure for the current table in TableStructure
+            string NewDbName = NewTableName . Text . Trim ( ); 
+            if( NewDbName == "")
+            {
+                MessageBox . Show ( "Please enter a suitable name for the table you want to create !","Naming Error");
+                return;
+            }
+            // Sort out  our  new table structure
+            string [ ] Sqlargs;
+            string commandline = dgControl.CreateSqlCommand ( TableStructure , NewDbName , out Sqlargs);
+            // Now we have got a fully formatted SqlCommand and the necessary arguments using the special CreateGenericDbStoredProcedure S.P.
+            if(dgControl . CreateGenericDbStoredProcedure ( $"spCREATENEWDBTABLE {NewDbName} " , Sqlargs , DbConnectionString , out string err ) == 1)
+            {
+                //Table creates successfuilly, so Copy data to new table
+                foreach ( var item in GenGridCtrl. datagridControl.Items )
+                {
+
+
+                }
+
+            }
+          }
+      private void Close_Click ( object sender , RoutedEventArgs e )
         {
             this . Close ( );
+        }
+
+        private void IsLoaded ( object sender , RoutedEventArgs e )
+        {
+            ToggleColumnHeaders . IsChecked = true;
+
         }
 
         #endregion local control support
