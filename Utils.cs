@@ -3103,6 +3103,13 @@ namespace NewWpfDev
             ctrl . SetValue ( ListboxColorCtrlAP . SelectionBackgroundProperty , DependencyProperty . UnsetValue );
             ctrl . SetValue ( ListboxColorCtrlAP . SelectionForegroundProperty , DependencyProperty . UnsetValue );
         }
+        public static string ReverseString(string input )
+        {
+            string output = "";
+            for ( int x = input . Length - 1 ; x >= 0 ; x-- )
+                output += input [ x ];
+            return output;
+        }
         public static T CopyCollection<T> ( T input , T output )
         {
             output = ObjectCopier . Clone<T> ( input );

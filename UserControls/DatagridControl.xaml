@@ -8,11 +8,52 @@
              KeyDown="UserControl_KeyDown"
              x:Name="dgCtrl"
              mc:Ignorable="d" 
-             Background="Red"
              d:DesignHeight="450" d:DesignWidth="800">
+    
     <UserControl.Resources>
+        <!--#region WORKING entire DataGrid Column header row Style-->
+        <Style x:Key="ColumnHeaderStyle" TargetType="{x:Type DataGridColumnHeader}">
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Background" Value="{Binding Path=HeaderBackground, ElementName=dgCtrl}"/>
+            <Setter Property="Foreground" Value="{Binding Path=HeaderForeground, ElementName=dgCtrl}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="DataGridColumnHeader">
+                        <Grid Width="{Binding}">
+                            <Border BorderThickness="1" 
+                                    Width="{Binding}"
+                                    CornerRadius="2" 
+                                    Background="{Binding Path=HeaderBackground, ElementName=dgCtrl}"
+                                    BorderBrush="{StaticResource Red0}">
+
+                                <TextBlock Text="{TemplateBinding  Content}" 
+                                            VerticalAlignment="Center" 
+                                            HorizontalAlignment="Center" 
+                                            TextWrapping="Wrap"
+                                            Width="{Binding}"/>
+                            </Border>
+                            <!--<ContentPresenter />-->
+                            <!--// THIS allows the columns to be resized !!!!!-->
+                            <Thumb x:Name="PART_RightHeaderGripper" Grid.Column="1"
+                                HorizontalAlignment="Right"
+                                Width="2" BorderThickness="1"
+                                BorderBrush="{Binding VerticalGridLinesBrush, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}}"
+                                Cursor="SizeWE"/>
+                        </Grid>
+                        <!--</DataGridHeaderBorder>-->
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <!--#endregion DataGrid Column header row-->
+
+
+
     </UserControl.Resources>
 
+    <!--//// This is a generic DataGrid that supports loading virtually ANY SqlTable
+            and also allows you to copy them (as the full real schema) to a new table-->
+    
     <Grid>
 
         <DataGrid x:Name="datagridControl"  
@@ -21,11 +62,19 @@
                   Background="{Binding Background, ElementName=dgCtrl}"
                   Foreground="{Binding Foreground, ElementName=dgCtrl}"
                   AlternatingRowBackground="{Binding AlternateBackground, ElementName=dgCtrl}"
+                  CanUserResizeColumns="true"
+                  CanUserReorderColumns="True"
+                  CanUserResizeRows="True"
                   Margin="0 0 0 0"
+                  BorderBrush="{Binding Path=HeaderBackground, ElementName=dgCtrl}"
                   CellStyle="{Binding Cellstyle, ElementName=dgCtrl}"
                   HorizontalAlignment="Stretch"
-                   VerticalAlignment="Stretch"/>
-        
+                  FontSize="16"
+                  FontWeight="{Binding Path=FontWeight, ElementName=dgCtrl}"                  
+                DataGrid.ColumnHeaderStyle="{StaticResource ColumnHeaderStyle}">
+                   VerticalAlignment="Stretch">
+        </DataGrid>
+
         <Canvas x:Name="canvas" 
             Height="{Binding ActualHeight, ElementName=dgCtrl}"
             Width="{Binding ActualWidth , ElementName=dgCtrl}"
@@ -43,7 +92,7 @@
 				MouseMove="Flowdoc_MouseMove"
 				LostFocus="Flowdoc_LostFocus"
 				Opacity="1"
-				Panel.ZIndex="4"
+				Panel.ZIndex="44"
 				PreviewMouseLeftButtonDown="LvFlowdoc_PreviewMouseLeftButtonDown"
 				Visibility="Collapsed"
 				Width="620">

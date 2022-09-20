@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:NewWpfDev.Views"
              mc:Ignorable="d" 
              x:Name="LbSelector"
-             Panel.ZIndex =" 10"
+             Panel.ZIndex ="45"
              MouseMove="GenLbControl_MouseMove"
              MouseLeave="titlebar_MouseLeave"
              PreviewMouseLeftButtonDown="LbSelector_PreviewMouseLeftButtonDown"
@@ -95,6 +95,7 @@
                 Visibility="Visible"
                 VerticalAlignment="Top"
                 HorizontalAlignment="Stretch"/>
+        
         <Border x:Name="border" BorderThickness="9" BorderBrush="LightGreen" 
             MouseEnter="border_MouseEnter"  
             MouseLeave="border_MouseMove"
@@ -102,6 +103,7 @@
             MouseLeftButtonDown="border_MouseLeftButtonDown"
             MouseLeftButtonUp="border_MouseLeftButtonUp"
             MouseMove="border_MouseMove"
+            Panel.ZIndex="45"
             VerticalAlignment="Stretch"
             HorizontalAlignment="Stretch">
             <!--PreviewMouseMove="border_PreviewMouseMove"-->

@@ -538,8 +538,7 @@ namespace NewWpfDev . UserControls
         {
             this . Visibility = Visibility . Collapsed;
             Mouse . OverrideCursor = Cursors . Arrow;
-            Mouse . OverrideCursor = Cursors . Arrow;
-            BorderSelected = -1;
+           BorderSelected = -1;
         }
 
         #region Dependency properties

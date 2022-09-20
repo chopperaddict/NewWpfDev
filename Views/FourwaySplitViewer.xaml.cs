@@ -64,7 +64,6 @@ namespace NewWpfDev . Views {
         public FourwaySplitViewer ( ) {
             InitializeComponent ( );
             this . DataContext = this;
-            //Utils . SetupWindowDrag ( this );
             // setup check boxes & ListBox
             LoadViaSqlCmd . IsChecked = false;
             BgWorker . IsChecked = true;
@@ -89,7 +88,6 @@ namespace NewWpfDev . Views {
             imgup = new BitmapImage ( new Uri ( @"\icons\down arroiw red.png" , UriKind . Relative ) );
             vimgmove = new BitmapImage ( new Uri ( @"\icons\right arroiw red.png" , UriKind . Relative ) );
             LhHsplitter = new BitmapImage ( new Uri ( @"\icons\down arroiw red.png" , UriKind . Relative ) );
-            //            lsplitrow1 . Height = (GridLength)1;
             FillListBox = true;
             // Toggle magnify if set to disable
             List<object> list = new List<object> ( );

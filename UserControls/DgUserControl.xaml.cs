@@ -242,7 +242,8 @@ namespace NewWpfDev . UserControls {
                 Tabview . Tabcntrl . dgUserctrl . grid1 . Foreground = FindResource ( "Red5" ) as SolidColorBrush;
                 // Gvm = new ObservableCollection<GenericClass> ( );
                 Gvm = SqlSupport . LoadGeneric ( SqlCommand , out ResultString , 0 , false );
-                CreateGenericColumns ( SqlServerCommands . GetGenericColumnCount ( Gvm ) );
+                int maxcols = 0;
+                CreateGenericColumns ( Tabview . Tabcntrl . dgUserctrl . grid1, SqlServerCommands . GetGenericColumnCount ( Gvm ) );
                 SqlServerCommands . LoadActiveRowsOnlyInGrid ( Tabview . Tabcntrl . dgUserctrl . grid1 , Gvm , SqlServerCommands . GetGenericColumnCount ( Gvm ) );
 
                 // Set Datagrid to the new Data Template
@@ -287,7 +288,7 @@ namespace NewWpfDev . UserControls {
         #endregion Hilite TabItem header on mouse Entry / Exit
 
         #region DataGrid columns creation
-        private void CreateBankColumns ( ) {
+        private void CreateBankColumns (DataGrid grid1 ) {
             $"Creating Bank Datagrid Columns " . cwinfo ( );
             grid1 . Columns . Clear ( );
             //Debug . WriteLine ( $"CREATING BANK COLUMNS" );
@@ -321,7 +322,7 @@ namespace NewWpfDev . UserControls {
             grid1 . Columns . Add ( c7 );
             $"Exiting Bank Datagrid Columns " . cwinfo ( );
         }
-        private void CreateCustomerColumns ( ) {
+        private void CreateCustomerColumns ( DataGrid grid1 ) {
             $"Creating Customer Datagrid Columns " . cwinfo ( );
             grid1 . Columns . Clear ( );
             //Debug . WriteLine ( $"CREATING CUSTOMER COLUMNS" );
@@ -372,7 +373,7 @@ namespace NewWpfDev . UserControls {
             $"Exitting Customer Datagrid Columns " . cwinfo ( );
         }
 
-        private void CreateGenericColumns ( int maxcols ) {
+        private void CreateGenericColumns ( DataGrid grid1 , int maxcols ) {
             $"Creating Generic Datagrid Columns " . cwinfo ( );
             grid1 . Columns . Clear ( );
             //Debug . WriteLine ( $"CREATING CUSTOMER COLUMNS" );

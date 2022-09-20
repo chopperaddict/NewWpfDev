@@ -881,6 +881,7 @@ namespace NewWpfDev . Views
                         line2: $"the table [{CurrentTableName}] that was queried returned a record count of {genaccts . Count}.\nThe structure of this data is not recognised, so a generic structure has been used..." ,
                         line3: $"{SqlCommand . ToUpper ( )}" , clr3: "Blue4"
                         );
+                    
                 }
             }
             ShowLoadtime ( );

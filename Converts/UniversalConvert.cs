@@ -4,7 +4,7 @@ using System . Windows;
 using System . Windows . Data;
 //using System . Windows . Media;
 
-namespace NewWpfDev
+namespace NewWpfDev . Converts
 {
     public class UniversalConvert : IValueConverter
     {
@@ -15,7 +15,7 @@ namespace NewWpfDev
             if ( str . Contains ( "System.Windows.Media.Brush" ) )
             {
                 if ( ( string ) parameter == "" )
-                    return    null;
+                    return null;
 
                 System . Windows . Media . SolidColorBrush brush = ( System . Windows . Media . SolidColorBrush ) Application . Current . FindResource ( parameter as string );
                 return brush;

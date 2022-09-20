@@ -4,4 +4,5 @@
     public string ftype;
     public int decroot;
     public int decpart;
+    public int colindex;
 }

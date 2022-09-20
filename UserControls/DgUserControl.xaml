@@ -13,7 +13,7 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
         <templates:TvDataTemplateSelectors x:Key="myDataTemplateSelector"/>
-        <root:UniversalConvert x:Key="UniversalConvert"/>
+        <conv:UniversalConvert x:Key="UniversalConvert"/>
         
         <Style x:Key="MenuItemBlue" TargetType="{x:Type MenuItem}">
             <Setter Property="Background" Value="Transparent" />
