@@ -49,15 +49,15 @@
                                 <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource Blue2}"/>
                                 <!--<Setter Property="Padding" TargetName="Bd"  Value="5,0,5,5"/>-->
                                 <Setter Property="Background" TargetName="Bd" Value="{StaticResource Blue2}"/>
-                                <Setter Property="MenuItem.Foreground"  Value="{StaticResource White0}"/>
+                                <Setter Property="TextElement.Foreground"  Value="{StaticResource White0}"/>
                             </Trigger>
-                            <Trigger Property="IsHighlighted" Value="False">
+                            <!--<Trigger Property="IsHighlighted" Value="False">
                                 <Setter Property="Height" TargetName="Bd" Value="25"/>
                                 <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource Orange4}"/>
-                                <!--<Setter Property="Padding" TargetName="Bd"  Value="5,0,5,5"/>-->
-                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Orange4}"/>
+                                --><!--<Setter Property="Padding" TargetName="Bd"  Value="5,0,5,5"/>-->
+                                <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Orange4}"/>--><!--
                                 <Setter Property="MenuItem.Foreground" TargetName="ContentPresenter" Value="{StaticResource Black0}"/>
-                            </Trigger>
+                            </Trigger>-->
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
@@ -86,7 +86,6 @@
                  Style="{StaticResource MenuItemBlue}">
                 <MenuItem.Header>
                     <TextBlock 
-                                DataContext="Tabview"
                                 Text="Magnify +2"
                                 FontSize="16"
                                  Height="25"

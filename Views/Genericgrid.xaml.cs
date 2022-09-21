@@ -2,18 +2,14 @@
 using System . Collections . Generic;
 using System . Collections . ObjectModel;
 using System . Data;
+using System . Diagnostics;
+using System . IO;
 using System . Threading . Tasks;
 using System . Windows;
 using System . Windows . Controls;
-using System . Windows . Controls . Primitives;
-using System . Windows . Documents . DocumentStructures;
 using System . Windows . Input;
 using System . Windows . Media;
-
-//using Dapper;
-//using DapperGenericsLib;
-//using NewWpfDev;
-//using NewWpfDev . ViewModels;
+using DapperGenericsLib;
 using NewWpfDev . Views;
 
 //using ServiceStack;
@@ -33,6 +29,7 @@ namespace Views
     public partial class Genericgrid : Window
     {
         public static ObservableCollection<GenericClass> GridData = new ObservableCollection<GenericClass> ( );
+        public static ObservableCollection<GenericClass> ColumnsData = new ObservableCollection<GenericClass> ( );
         public DatagridControl dgControl;
         public DataGrid Dgrid;
         public int ColumnsCount = 0;
@@ -44,9 +41,19 @@ namespace Views
         public static string CurrentTable = "";
 
         public static string DbConnectionString = "Data Source=DINO-PC;Initial Catalog=\"IAN1\";Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+
+        public string infotext
+        {
+            get { return ( string ) GetValue ( infotextProperty ); }
+            set { SetValue ( infotextProperty , value ); }
+        }
+        public static readonly DependencyProperty infotextProperty =
+            DependencyProperty . Register ( "infotext" , typeof ( string ) , typeof ( Genericgrid ) , new PropertyMetadata ( "Information text goes here ...." ) );
+
         public Genericgrid ( )
         {
             InitializeComponent ( );
+            this.DataContext = this;
             Mouse . SetCursor ( Cursors . Wait );
             CurrentTable = "BankAccount";
             dgControl = this . GenGridCtrl;
@@ -60,6 +67,7 @@ namespace Views
             Flags . UseScrollView = false;
             Mouse . SetCursor ( Cursors . Arrow );
             // TODO  TEMP ON:Y
+            infotext = File . ReadAllText (@$"C:\users\ianch\documents\GenericGridInfo.Txt" );
             NewTableName . Text = "qwerty";
         }
         public void SelectCurrentTable ( string table )
@@ -280,13 +288,16 @@ namespace Views
             }
             CurrentTable = NewDbName;
             MessageBoxResult mbresult = MessageBox . Show ( "If you want to select only certain columns from the current table to be saved, Click YES, else click No" , "Data Formatting ?" ,
-                MessageBoxButton . YesNo ,
+                MessageBoxButton . YesNoCancel ,
                 MessageBoxImage . Question ,
                 MessageBoxResult . No );
 
             //int x = 0;
+            if ( mbresult == MessageBoxResult . Cancel )
+                return -1;
             if ( mbresult == MessageBoxResult . Yes )
             {
+                // Save a set with only user selected columns
                 string [ ] args = new string [ 20 ];
                 UseSelectedColumns = true;
                 string Output = dgControl . GetFullColumnInfo ( DatagridControl . CurrentTable , DbConnectionString , false );
@@ -317,105 +328,84 @@ namespace Views
                             collection . Add ( tem );
                         }
                     }
-                    {
-                        //Create collection of items
-                            collection = new ObservableCollection<GenericClass> ( );
-                        foreach ( string col in FldNames )
-                        {
-                            GenericClass tem = new GenericClass ( );
-                            tem . field1 = col;
-                            collection . Add ( tem );
-                        }
-                        ColNames . ItemsSource = collection;
-                        // We now have a list of all Column names, so let user choose what to save to a new table!
-                    }
                 }
-                    //SelectedRows . Clear ( );
-                    //                    return -1;
-   
-                       FieldSelectionGrid . Visibility = Visibility . Visible;
+                //ALL WORKING  20/9/2022 - We now have a list of all Column names with
+                //column type & size data, so let user choose what to save to a new table!
+                SelectedRows . Clear ( );
+                // load selection dialog with available clumns
+                ColNames . ItemsSource = collection;
+                // Show dialog
+                FieldSelectionGrid . Visibility = Visibility . Visible;
             }
             else
             {
+                // just  do a direct copy
+                string [ ] args = { $"{SqlTables . SelectedItem . ToString ( )}" , $"{NewDbName}" , "" , "" };
+                dgControl . ProcessUniversalStoredProcedure ( "spCopyDb" , args , out string err );
+                // make deep copy of table else it gets cleared elsewhere
+                // Create a completely new instance via seriazable Clone method stored in NewWpfDev.Utils (in ObjectCopier class file)
+                ObservableCollection<GenericClass> deepcopy = new ObservableCollection<GenericClass> ( );
+                string originalname = $"{SqlTables . SelectedItem . ToString ( )}";
+                deepcopy = NewWpfDev . Utils . CopyCollection ( GridData , deepcopy );
+                GridData = deepcopy;
+                string[] args1 = { $"{NewDbName}" };
+                int colcount = dgControl . datagridControl . Columns . Count;
+                 DatagridControl . LoadActiveRowsOnlyInGrid ( dgControl . datagridControl , GridData , colcount);
+                List<DapperGenericsLib . DataGridLayout> dglayoutlist = new List<DapperGenericsLib . DataGridLayout> ( );
+                DapperLibSupport . ReplaceDataGridFldNames ( NewDbName , ref dgControl . datagridControl , ref dglayoutlist , colcount );
+                LoadDbTables ( NewDbName );
+                SelectCurrentTable ( NewDbName );
 
-                      List<GenericToRealStructure> TableStruct = new List<GenericToRealStructure> ( );
-                    if ( TableStruct.Count== 0 )
-                        TableStruct = dgControl . CreateFullColumnInfo ( DatagridControl . CurrentTable , DbConnectionString );
-
-
-                string [ ] args = new string [ 20 ];
-                UseSelectedColumns = true;
-                string Output = dgControl . GetFullColumnInfo ( DatagridControl . CurrentTable , DbConnectionString , false );
-                string buffer = "";
-                int index = 0;
-                args = Output . Split ( '\n' );
-                foreach ( var item in args )
+                if ( dgControl . datagridControl . Items . Count > 0 )
                 {
-                    if ( item != null && item . Trim ( ) != "" )
-                    {
-                        string [ ] RawFldNames = item . Split ( ' ' );
-                        string [ ] flds = { "" , "" , "" , "" };
-                        int y = 0;
-                        for ( int x = 0 ; x < RawFldNames . Length ; x++ )
-                        {
-                            if ( RawFldNames [ x ] . Length > 0 )
-                                flds [ y++ ] = ( RawFldNames [ x ] );
-                        }
-                        buffer = flds [ 0 ];
-                        if ( buffer != null && buffer . Trim ( ) != "" )
-                        {
-                            FldNames . Add ( buffer . ToUpper ( ) );
-                            GenericClass tem = new GenericClass ( );
-                            tem . field1 = buffer . ToUpper ( );    // fname
-                            tem . field2 = flds [ 1 ];   //ftype
-                            tem . field4 = flds [ 3 ];   // decroot
-                            tem . field3 = flds [ 2 ];   // decpart
-                            collection . Add ( tem );
-                        }
-                    }
-
+                    statusbar . Content = $"New Table [{NewDbName}] Created successfully, {dgControl . datagridControl . Items . Count} records inserted & Table is now shown in datagrid above....";
+                    DapperGenericsLib . Utils . DoErrorBeep ( 400 , 100 , 1 );
+                    DapperGenericsLib . Utils . DoErrorBeep ( 300 , 400 , 1 );
                 }
-                CreateAsyncTable ( NewDbName , TableStruct );
+                else
+                {
+                    statusbar . Content = $"New Table [{NewDbName}] could NOT be Created. Error was [{err}] ";
+                    DapperGenericsLib . Utils . DoErrorBeep ( 320 , 100 , 1 );
+                    DapperGenericsLib . Utils . DoErrorBeep ( 260 , 200 , 1 );
+                }
+                NewTableName . Text = NewDbName;
 
+                //    List<GenericToRealStructure> TableStruct = new List<GenericToRealStructure> ( );
+                //    TableStruct = dgControl . CreateFullColumnInfo ( DatagridControl . CurrentTable , DbConnectionString );
 
-                //GenericClass selColumns = new GenericClass ( );
-                //List<GenericToRealStructure> grsList = new List<GenericToRealStructure> ( );
-                //DataGrid grid = ColNames;
-                //int selindex = 0;
-                //int rowindex = 0;
-                //bool startup = true;
-                //// Create list of  items 
-                //List<int> columnsindex = new List<int> ( );
-                //foreach ( GenericClass item in GridData )
-                //{
-                //    GenericToRealStructure grs = new GenericToRealStructure ( );
-                //    grs . colindex = selindex++;
-                //    grs . fname = item . field1;
-                //    grs . ftype = item . field2;
-                //    if ( item . field3 != "" )
-                //        grs . decroot = Convert . ToInt32 ( item . field3 );
-                //    if ( item . field4 != "" )
+                //    string [ ] args = new string [ 20 ];
+                //    UseSelectedColumns = true;
+                //    string Output = dgControl . GetFullColumnInfo ( DatagridControl . CurrentTable , DbConnectionString , false );
+                //    string buffer = "";
+                //    int index = 0;
+                //    args = Output . Split ( '\n' );
+                //    foreach ( var item in args )
                 //    {
-                //        if ( item . field4 . Contains ( "," ) )
+                //        if ( item != null && item . Trim ( ) != "" )
                 //        {
-                //            int indx = 0;
-                //            for ( int entry = 0 ; entry < item . field4 . Length ; entry++ )
+                //            string [ ] RawFldNames = item . Split ( ' ' );
+                //            string [ ] flds = { "" , "" , "" , "" };
+                //            int y = 0;
+                //            for ( int x = 0 ; x < RawFldNames . Length ; x++ )
                 //            {
-                //                if ( item . field4 [ entry ] == ',' )
-                //                {
-                //                    item . field4 = item . field4 . Substring ( 0 , entry );
-                //                    break;
-                //                }
+                //                if ( RawFldNames [ x ] . Length > 0 )
+                //                    flds [ y++ ] = ( RawFldNames [ x ] );
+                //            }
+                //            buffer = flds [ 0 ];
+                //            if ( buffer != null && buffer . Trim ( ) != "" )
+                //            {
+                //                FldNames . Add ( buffer . ToUpper ( ) );
+                //                GenericClass tem = new GenericClass ( );
+                //                tem . field1 = buffer . ToUpper ( );    // fname
+                //                tem . field2 = flds [ 1 ];   //ftype
+                //                tem . field4 = flds [ 3 ];   // decroot
+                //                tem . field3 = flds [ 2 ];   // decpart
+                //                collection . Add ( tem );
                 //            }
                 //        }
-                //        grs . decpart = Convert . ToInt32 ( item . field4 );
-                //    }
-                //    if ( startup )
-                //    { grsList . Add ( grs ); startup = false; }
-                //}
-                //        CreateAsyncTable ( NewDbName , null );
-
             }
+            //    string err = "";
+            //    CreateAsyncTable ( NewDbName , TableStruct , out err );
             Mouse . OverrideCursor = Cursors . Arrow;
             return 1;
         }
@@ -461,7 +451,6 @@ namespace Views
             List<GenericToRealStructure> grsList = new List<GenericToRealStructure> ( );
             DataGrid grid = ColNames;
             int selindex = 0;
-//            int rowindex = 0;
             // Create list of selected items only
             List<int> columnsindex = new List<int> ( );
             foreach ( GenericClass item in ColNames . SelectedItems )
@@ -489,66 +478,116 @@ namespace Views
                     }
                 }
                 grsList . Add ( grs );
-            }
-            //    //    GenericClass tem = new GenericClass ( );
-            //    //    tem = item;
-            //    //    collection . Add ( tem );
-            //    //}
-            //    // Assign this collection to selection datagrid and show it
-            //    ColNames . ItemsSource = collection;
-            //FieldSelectionGrid . Visibility = Visibility . Visible;
+                Debug . WriteLine ( $"GrsList DATA : {grs . fname}, {grs . ftype}, {grs . decroot}, {grs . decpart}, {grs . colindex}" );
+                {
 
-            //List<GenericToRealStructure> grsList = new List<GenericToRealStructure> ( );
-            //foreach ( var item in collection )
-            //{
-            //    GenericToRealStructure grs = new GenericToRealStructure ( );
-            //    grs . fname = item . field1;
-            //    grs . ftype = item . field2;
-            //    if ( item . field3 != "" )
-            //        grs . decroot = Convert . ToInt32 ( item . field3 );
-            //    if ( item . field4 != "" )
-            //    {
-            //        if ( item . field4 . Contains ( "," ) )
-            //        {
-            //            int indx = 0;
-            //            for ( int entry = 0 ; entry < item . field4 . Length ; entry++ )
-            //            {
-            //                if ( item . field4 [ entry ] == ',' )
-            //                {
-            //                    item . field4 = item . field4 . Substring ( 0 , entry );
-            //                    break;
-            //                }
-            //            }
-            //        }
-            //        grs . decpart = Convert . ToInt32 ( item . field4 );
-            //    }
-            //    grsList . Add ( grs );
-            //}
-            CreateAsyncTable ( CurrentTable , grsList );
+                }
+            }
+            // We now have all selected columns in grslist List, so hide selection dialog again
+            FieldSelectionGrid . Visibility = Visibility . Collapsed;
+
+            // Needed ????
+            {
+                //GenericClass tem = new GenericClass ( );
+                //tem = item;
+                //collection . Add ( tem );
+                //}
+                // Assign this collection to selection datagrid and show it
+                //ColNames . ItemsSource = collection;
+
+                //List<GenericToRealStructure> grsList = new List<GenericToRealStructure> ( );
+                //foreach ( var item in collection )
+                //{
+                //    GenericToRealStructure grs = new GenericToRealStructure ( );
+                //    grs . fname = item . field1;
+                //    grs . ftype = item . field2;
+                //    if ( item . field3 != "" )
+                //        grs . decroot = Convert . ToInt32 ( item . field3 );
+                //    if ( item . field4 != "" )
+                //    {
+                //        if ( item . field4 . Contains ( "," ) )
+                //        {
+                //            int indx = 0;
+                //            for ( int entry = 0 ; entry < item . field4 . Length ; entry++ )
+                //            {
+                //                if ( item . field4 [ entry ] == ',' )
+                //                {
+                //                    item . field4 = item . field4 . Substring ( 0 , entry );
+                //                    break;
+                //                }
+                //            }
+                //        }
+                //        grs . decpart = Convert . ToInt32 ( item . field4 );
+                //    }
+                //    grsList . Add ( grs );
+                //}
+            }
+            string err = "";
+            CreateAsyncTable ( CurrentTable , grsList , out err );
+            Mouse . OverrideCursor = Cursors . Arrow;
+            e . Handled = true;
         }
-        public async Task<int> CreateAsyncTable ( string NewDbName , List<GenericToRealStructure> TableStruct )
+        public int CreateAsyncTable ( string NewDbName , List<GenericToRealStructure> TableStruct , out string err )
         {
             int x = 0;
             dgControl = GenGridCtrl;
-            int result = dgControl . CreateLimitedTableAsync ( NewDbName , TableStruct );
-            x = Convert . ToInt32 ( result );
-            if ( x == -1 )
+            string error = "";
+            err = "";
+            // Assign new collection to special collection for now
+            ColumnsData = dgControl . CreateLimitedTableAsync ( NewDbName , TableStruct , out error );
+            if ( error != "" ) err = error;
+            // We should now have all the data in our new columns only table
+            if ( GridData == null )
                 return -1;
             if ( x == -2 )
                 NewTableName . Focus ( );
             if ( x == -3 )
                 statusbar . Content = $"New Table creation failed, see error log file for more infomation....";
-            if ( x == 1 )
+             if ( GridData != null )
             {
-                await Task . Run ( async ( ) => LoadDbTables ( NewDbName ) );
+                // reload list of tables so new one is shown as well
+                LoadDbTables ( NewDbName );
+                // select new table in dropdown list only
                 SelectCurrentTable ( NewDbName );
-                statusbar . Content = $"New Table [{NewDbName}] Created successfully, data copied & {NewDbName} is now displayed in datagrid above....";
-                DapperGenericsLib . Utils . DoErrorBeep ( 380 , 100 , 1 );
-                DapperGenericsLib . Utils . DoErrorBeep ( 340 , 100 , 1 );
+                // clear display grid contents
+                dgControl . datagridControl . ItemsSource = null;
+                if ( ColumnsData . Count > 0 )
+                {
+                    //Load new columns only data into datarid
+                    DatagridControl . LoadActiveRowsOnlyInGrid ( dgControl . datagridControl , ColumnsData , TableStruct . Count );
+                }
+                else
+                {
+                    // Load ALL records into datagrid
+                    DatagridControl . LoadActiveRowsOnlyInGrid ( dgControl . datagridControl , GridData , TableStruct . Count );
+                }
+                //Update Column headers to original column names, so we need to create dummy list just to call Replace headers method
+                List<DapperGenericsLib . DataGridLayout> dglayoutlist = new List<DapperGenericsLib . DataGridLayout> ( );
+                DapperLibSupport . ReplaceDataGridFldNames ( NewDbName , ref dgControl . datagridControl , ref dglayoutlist , TableStruct . Count );
+
+                // make deep copy of table else it gets cleared elsewhere
+                // Create a completely new instance via seriazable Clone method stored in NewWpfDev.Utils (in ObjectCopier class file)
+                ObservableCollection<GenericClass> deepcopy = new ObservableCollection<GenericClass> ( );
+                deepcopy = NewWpfDev . Utils . CopyCollection ( ColumnsData , deepcopy );
+                GridData = deepcopy;
+
+                if ( dgControl . datagridControl . Items . Count > 0 )
+                {
+                    statusbar . Content = $"New Table [{NewDbName}] Created successfully, {dgControl . datagridControl . Items . Count} records inserted & Table is now shown in datagrid above....";
+                    DapperGenericsLib . Utils . DoErrorBeep ( 400 , 100 , 1 );
+                    DapperGenericsLib . Utils . DoErrorBeep ( 300 , 400 , 1 );
+                }
+                else
+                {
+                    statusbar . Content = $"New Table [{NewDbName}] could NOT be Created. Error was [{err}] ";
+                    DapperGenericsLib . Utils . DoErrorBeep ( 320 , 100 , 1 );
+                    DapperGenericsLib . Utils . DoErrorBeep ( 260 , 200 , 1 );
+                }
                 NewTableName . Text = NewDbName;
             }
             // clear temporay grid data
             ColNames . ItemsSource = null;
+            Mouse . OverrideCursor = Cursors . Arrow;
             // hide selection dialog
             FieldSelectionGrid . Visibility = Visibility . Collapsed;
             return 1;
@@ -619,6 +658,15 @@ namespace Views
             FieldSelectionGrid . Visibility = Visibility . Collapsed;
         }
 
+         private void ShowInfo ( object sender , RoutedEventArgs e )
+        {
+            InfoGrid . Visibility = Visibility . Visible;
+        }
 
+        private void InfoGrid_KeyDown ( object sender , KeyEventArgs e )
+        {
+            if ( e . Key == Key . Escape )
+                InfoGrid . Visibility = Visibility . Collapsed;
+        }
     }
 }

@@ -6,12 +6,62 @@
         xmlns:local="clr-namespace:Views"
         xmlns:users="clr-namespace:UserControls"
         mc:Ignorable="d"
-     WindowChrome.ResizeGripDirection="BottomRight"
+        WindowChrome.ResizeGripDirection="BottomRight"
 	    ResizeMode="CanResizeWithGrip"
         Loaded="IsLoaded"
-           Title="Genericgrid" Height="450" Width="800"
-            x:Name="Gengrid">
+        Title="Generic SQL Tables - Rigth Click for more information..." Foreground="White" Height="450" Width="800"
+        MinHeight="450" MinWidth="800"
+        KeyDown="InfoGrid_KeyDown"
+        x:Name="Gengrid">
     <Window.Resources>
+
+        <ContextMenu x:Key="ContextMenu2" Width="220" HasDropShadow="True">
+
+            <ContextMenu.Resources>
+                <!--<local:CanMagnify x:Key="CanMagnify"/>-->
+            </ContextMenu.Resources>
+            <!--IsEnabled="{Binding CanExpand}"-->
+            <MenuItem Style="{StaticResource MenuItemBlue}">
+                <MenuItem.Header>
+                    <TextBlock 
+                                Text="Close Context Menu"
+                                FontSize="16"
+                                 Height="25"
+                                Padding="10 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="350"/>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <MenuItem  x:Name="ShowInformation" Click="ShowInfo"
+                 Style="{StaticResource MenuItemBlue}">
+                <MenuItem.Header>
+                    <TextBlock 
+                                 Text="Show Information"
+                                FontSize="16"
+                                 Height="25"
+                                Padding="10 0 0 0"
+                                Margin="0 0 0 0"                                
+                                Width="350"/>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <!--<MenuItem   x:Name="Colpapse2" Click="" 
+                    Style="{StaticResource MenuItemBlue}">
+                <MenuItem.Header>
+                    <TextBlock 
+                                Text="Magnify -2"
+                                FontSize="16"
+                                 Height="25"
+                                Padding="10 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="350"/>
+                </MenuItem.Header>
+            </MenuItem>-->
+
+             <!--</MenuItem>-->
+
+        </ContextMenu>
 
         <Style x:Key="ButtonSlant" TargetType="Button">
             <!--Default layout-->
@@ -122,10 +172,8 @@
                 </Setter.Value>
             </Setter>
             <Style.Triggers>
-                <!--// Window IS FOCUSED-->
 
                 <!--#region Special Triggers for Generic style Tables-->
-                <!--Clever stuff Eh ??-->
                 <MultiDataTrigger>
                     <MultiDataTrigger.Conditions>
                         <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="False" />
@@ -167,15 +215,38 @@
 
     </Window.Resources>
     
-    <Grid Background="{StaticResource Black2OrangeSlant}" >
+    <!--<Window.DataContext>
+        <local:Genericgrid/>
+    </Window.DataContext>-->
+    
+    <Grid Background="{StaticResource Black2OrangeSlant}">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="85"/>
             <RowDefinition Height="30" />
         </Grid.RowDefinitions>
 
+        <Grid x:Name="InfoGrid" Grid.Row="0" Grid.RowSpan="2"
+              Margin="0 0 0 15" 
+              Background="Transparent"  
+              Height="350" Width="760"
+              Visibility="Collapsed" 
+              Panel.ZIndex="150">
+                <Border BorderBrush="Yellow" BorderThickness="2 10 2 15" Height="350" Width="760">
+                    <TextBlock Text="{Binding Path=infotext}"
+                            Padding="5 5 5 5"
+                            FontSize="16"
+                              FontWeight="DemiBold"
+                            TextWrapping="Wrap" 
+                            Background="{StaticResource Black8}" 
+                            Foreground="Black" 
+                            Visibility="Visible"/>
+                </Border>
+        </Grid>
+
         <users:DatagridControl x:Name="GenGridCtrl"   
             Grid.Row="0" 
+            ContextMenu="{StaticResource ContextMenu2}"
             Background="Transparent" 
             FontSize="16"
             FontWeight="Normal"
@@ -186,13 +257,14 @@
             HeaderForeground="White"
             Margin="5 0 5 0"
             Tablename="BankAccount"/>
-            <!--Foreground="Red"-->
-
+        <!--Foreground="Red"-->
+ 
         <ComboBox x:Name="SqlTables" 
                   Grid.Row="1" HorizontalAlignment="Left" 
                   Width="200" Height="25"  FontSize="16"
                   Margin="155,9,0,0" 
                    VerticalAlignment="Top"
+                  HorizontalContentAlignment="Center"
                   SelectionChanged="SqlTables_SelectionChanged"/>
         <Label Content="Select SQL Table : " 
                  HorizontalAlignment="Left"               
@@ -204,9 +276,9 @@
                   Content="Toggle headers" HorizontalAlignment="Left" Foreground="White" FontSize="16" VerticalAlignment="Top"
                   Click="ToggleColumnHeaders_Click"  Height="20" Margin="180,13,0,0" Grid.Row="1" Width="132" RenderTransformOrigin="0.5,0.5"/>
 
-        <!--//***********************************//-->
-        <!--#region Buttons-->
-        <!--//***********************************//-->
+        <!--//***********************************//
+        #region Buttons
+        //***********************************//-->
         <Button Height="35" Width="160" Content="Show Full Columns Schema" 
                 HorizontalAlignment="Right"
                  VerticalAlignment="Top"
@@ -233,9 +305,9 @@
                 Click="Close_Click" Margin="0,5,5,5" 
                 Style="{StaticResource ButtonSlant}"/>
 
-        <!--//***********************************//-->
-        <!--#endregion Buttons-->
-        <!--//***********************************//-->
+        <!--//***********************************//
+        #endregion Buttons
+        //***********************************//-->
 
         <Label Content="Save New Table As : " Grid.Row="1" 
                  HorizontalAlignment="Left"
@@ -257,8 +329,8 @@
                FontStyle="Italic"/>
 
         <!--//***********************************//-->
-        <!--#region RowSelectionDialog-->
-        <!--//***********************************//-->
+        <!--#region RowSelectionDialog
+        //***********************************//-->
 
         <Grid x:Name="FieldSelectionGrid" Margin="0,30,0,0" 
               Grid.Row="0" Width="350"
@@ -275,7 +347,7 @@
                  Grid.Row="0"
                  Background="Cyan"
                  SelectionMode="Extended"
-                      SelectionChanged="ColNames_SelectionChanged"
+                 SelectionChanged="ColNames_SelectionChanged"
                  Margin="10,10,10,9" >
             </DataGrid>
             
@@ -303,11 +375,11 @@
                 Background="Red" Foreground="White" Grid.Row="1"/>
             
         </Grid>
-        <!--//***********************************//-->
-        <!--#endregion RowSelectionDialog-->
-        <!--//***********************************//-->
+        <!--//***********************************//
+        #endregion RowSelectionDialog
+        //***********************************//-->
 
     </Grid>
 </Window>
     
-    
+   

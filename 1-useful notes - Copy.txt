@@ -1223,7 +1223,7 @@ dynamicParameters.Add("TestOutput", 0, Dbtype.Int32, ParameterDirection.Output);
 			generics = CreateDatabase ( UniversalGrid , genericlist  );
 			SqlServerCommands sqlc = new SqlServerCommands();
 
-			// Caution : This loads the data into the Datarid with only the selected rows
+			// Caution : This loads the data into the Datagrid with only the selected rows
 			// //visible in the grid so do NOT repopulate the grid after making this call
 			sqlc . LoadActiveRowsOnlyInGrid ( UniversalGrid , generics , DapperSupport . GetGenericColumnCount ( generics ) );
 	

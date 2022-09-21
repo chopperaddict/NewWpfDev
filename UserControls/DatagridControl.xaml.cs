@@ -23,8 +23,6 @@ using NewWpfDev . Models;
 using NewWpfDev . UserControls;
 
 using GenericClass = NewWpfDev . GenericClass;
-using DocumentFormat . OpenXml . Office . Word;
-using System . Windows . Documents . DocumentStructures;
 
 namespace UserControls
 {
@@ -2546,8 +2544,8 @@ namespace UserControls
             catch ( Exception ex )
             {
                 Debug . WriteLine ( $"Error {ex . Message}, {ex . Data}" );
-                DapperGenericsLib . Utils . DoErrorBeep ( 280 , 100 , 1 );
-                DapperGenericsLib . Utils . DoErrorBeep ( 190 , 200 , 1 );
+                DapperGenericsLib . Utils . DoErrorBeep ( 230 , 100 , 1 );
+                DapperGenericsLib . Utils . DoErrorBeep ( 160 , 200 , 1 );
                 err = $"Error {ex . Message}";
             }
             //            WpfLib1 . Utils . trace ("CreateGenericDbStoredProcedure" );
@@ -2777,14 +2775,14 @@ namespace UserControls
 
         public void GetSqlData<T> ( string table , string constring )
         {
-             DataTable dt = GetDataTable ( $@"SELECT * FROM {table}" , constring );
+            DataTable dt = GetDataTable ( $@"SELECT * FROM {table}" , constring );
 
             ObservableCollection<T> data2 = new ObservableCollection<T> ( );
             // process dt to our collection
             foreach ( DataRow row in dt . Rows )
             {
                 GenericClass clas = new GenericClass ( );
-             }
+            }
             //connection . Open ( );
             //var query = $@"SELECT * FROM {table}";
             ////                IEnumerable enumItem = data . GetEnumerator ( );
@@ -2830,7 +2828,10 @@ namespace UserControls
                 TableStructure = CreateFullColumnInfo ( DatagridControl . CurrentTable , DbConnectionString );
             else
             {
-                CreateLimitedTableAsync ( NewTableName , TableStruct );
+                string error = "";
+                CreateLimitedTableAsync ( NewTableName , TableStruct, out error );
+                if(error != "")
+                    Debug . WriteLine ($"ERROR : {error}");
                 return 1;
             }
             // We now have a full SQl Structure for the current table in TableStructure
@@ -3069,13 +3070,16 @@ namespace UserControls
             Mouse . OverrideCursor = Cursors . Arrow;
             return gresult;
         }
-        public int CreateLimitedTableAsync ( string NewTableName , List<GenericToRealStructure> TableStruct )
+        public ObservableCollection<GenericClass> CreateLimitedTableAsync ( string NewTableName , List<GenericToRealStructure> TableStruct, out string error )
         {
             // We now have a full SQl Structure for the current table in TableStructure
             // Sort out  our  new table structure
             string [ ] Sqlargs;
             int gresult = -1;
+            bool ColumnMissed = false;
             string commandline = "";
+            error = "";
+            ObservableCollection<GenericClass> LimitedColumnTable = new ObservableCollection<GenericClass> ( );
             commandline = CreateSqlCommand ( TableStruct , NewTableName , out Sqlargs );
             // Now we have got a fully formatted SqlCommand and the necessary arguments using the special CreateGenericDbStoredProcedure S.P.
             try
@@ -3088,112 +3092,188 @@ namespace UserControls
                     List<string> datavalues = new List<string> ( );
                     int rangecount = TableStruct . Count;
                     int datastartvalue = 0, y = 0, x = 0, itemscount = 0;
-                    string Con = DbConnectionString;
-                    err = "";
+                    string Con = DbConnectionString;                   
                     gresult = -1;
                     SqlConnection sqlCon = null;
                     Mouse . OverrideCursor = Cursors . Wait;
-                    Debug . WriteLine ( "running Task" );
-                    // Get data from correct columns only
+                    Debug . WriteLine ( "Loading data from current table to new 'Columns only' table" );
+                    // We have a new EMPTY table, so add data from correct columns only
                     foreach ( GenericClass item in GridData )
                     {
-                        if ( y >= TableStruct . Count )
-                            break;
-                        if ( TableStruct [ y ] . colindex == 0 )
+                        try
                         {
-                            datavalues . Add ( item . field1 ); y++; continue;
+                            while ( true )
+                            {
+                                if ( y >= TableStruct . Count )
+                                {
+                                    // Add new "selected columns"  record to temp table
+                                    AddColumnToTempTable ( datavalues , LimitedColumnTable );
+                                    datavalues . Clear ( );
+                                    y = 0;
+                                    break;
+                                }
+                                if ( TableStruct [ y ] . colindex > 19 )
+                                {
+                                    y++;
+                                    ColumnMissed = true;
+                                    error = $"Unable to handle column {TableStruct [ y ] . colindex}, Max selected column # is 19";
+                                    continue;
+                                }//Debug . WriteLine ( $"y={y} : {TableStruct [y].fname}, {TableStruct [y].ftype}, {TableStruct [y].decroot},{TableStruct [y].decpart}, {TableStruct [ y ].colindex}" );
+                               // Debug . WriteLine ( $"data = {item . field1}, {item . field2}, {item . field3}, {item . field4} " );
+                                if ( TableStruct [ y ] . colindex == 0 )
+                                {
+                                    datavalues . Add ( item . field1 ); y++; continue;
+                                }
+                                if ( TableStruct [ y ] . colindex == 1 )
+                                {
+                                    datavalues . Add ( item . field2 ); y++; continue;
+                                }
+                                if ( TableStruct [ y ] . colindex == 2 )
+                                {
+                                    datavalues . Add ( item . field3 ); y++; continue;
+                                }
+                                if ( TableStruct [ y ] . colindex == 3 )
+                                {
+                                    datavalues . Add ( item . field4 ); y++; continue;
+                                }
+                                if ( TableStruct [ y ] . colindex == 4 )
+                                {
+                                    datavalues . Add ( item . field5 ); y++; continue;
+                                }
+                                if ( TableStruct [ y ] . colindex == 5 )
+                                {
+                                    datavalues . Add ( item . field6 ); y++; continue;
+                                }
+                                if ( TableStruct [ y ] . colindex == 6 )
+                                {
+                                    datavalues . Add ( item . field7 ); y++; continue;
+                                }
+                                if ( TableStruct [ y ] . colindex == 7 )
+                                {
+                                    datavalues . Add ( item . field8 ); y++; continue;
+                                }
+                                if ( TableStruct [ y ] . colindex == 8 )
+                                {
+                                    datavalues . Add ( item . field9 ); y++; continue;
+                                }
+                                if ( TableStruct [ y ] . colindex == 9 )
+                                {
+                                    datavalues . Add ( item . field10 ); y++; continue;
+                                }
+                                if ( TableStruct [ y ] . colindex == 10 )
+                                {
+                                    datavalues . Add ( item . field11 ); y++; continue;
+                                }
+                                if ( TableStruct [ y ] . colindex == 11 )
+                                {
+                                    datavalues . Add ( item . field12 ); y++; continue;
+                                }
+                                if ( TableStruct [ y ] . colindex == 12 )
+                                {
+                                    datavalues . Add ( item . field13 ); y++; continue;
+                                }
+                                if ( TableStruct [ y ] . colindex == 13 )
+                                {
+                                    datavalues . Add ( item . field14 ); y++; continue;
+                                }
+                                if ( TableStruct [ y ] . colindex == 14 )
+                                {
+                                    datavalues . Add ( item . field15 ); y++; continue;
+                                }
+                                if ( TableStruct [ y ] . colindex == 15 )
+                                {
+                                    datavalues . Add ( item . field16 ); y++; continue;
+                                }
+                                if ( TableStruct [ y ] . colindex == 16 )
+                                {
+                                    datavalues . Add ( item . field17 ); y++; continue;
+                                }
+                                if ( TableStruct [ y ] . colindex == 17 )
+                                {
+                                    datavalues . Add ( item . field18 ); y++; continue;
+                                }
+                                if ( TableStruct [ y ] . colindex == 18 )
+                                {
+                                    datavalues . Add ( item . field19 ); y++; continue;
+                                }
+                                if ( TableStruct [ y ] . colindex == 19 )
+                                {
+                                    datavalues . Add ( item . field20 ); y++; continue;
+                                }
+                            }
                         }
-                        if ( TableStruct [ y ] . colindex == 1 )
+                        catch ( Exception ex )
                         {
-                            datavalues . Add ( item . field2 ); y++;  continue;
-                        }
-                        if ( TableStruct [ y ] . colindex == 2 )
-                        {
-                            datavalues . Add ( item . field3 ); y++; continue;
-                        }
-                        if ( TableStruct [ y ] . colindex == 3 )
-                        {
-                            datavalues . Add ( item . field4 ); y++; continue;
-                        }
-                        if ( TableStruct [ y ] . colindex == 4 )
-                        {
-                            datavalues . Add ( item . field5 ); y++; continue;
-                        }
-                        if ( TableStruct [ y ] . colindex == 5 )
-                        {
-                            datavalues . Add ( item . field6 ); y++; continue;
-                        }
-                        if ( TableStruct [ y ] . colindex == 6 )
-                        {
-                            datavalues . Add ( item . field7 ); y++; continue;
-                        }
-                        if ( TableStruct [ y ] . colindex == 7 )
-                        {
-                            datavalues . Add ( item . field8 ); y++; continue;
-                        }
-                        if ( TableStruct [ y ] . colindex == 8 )
-                        {
-                            datavalues . Add ( item . field9 ); y++; continue;
-                        }
-                        if ( TableStruct [ y ] . colindex == 9 )
-                        {
-                            datavalues . Add ( item . field10 ); y++; continue;
-                        }
-                        if ( TableStruct [ y ] . colindex == 10 )
-                        {
-                            datavalues . Add ( item . field11 ); y++; continue;
-                        }
-                        if ( TableStruct [ y ] . colindex == 11 )
-                        {
-                            datavalues . Add ( item . field12 ); y++; continue;
-                        }
-                        if ( TableStruct [ y ] . colindex == 12 )
-                        {
-                            datavalues . Add ( item . field13 ); y++; continue;
-                        }
-                        if ( TableStruct [ y ] . colindex == 13 )
-                        {
-                            datavalues . Add ( item . field14 ); y++; continue;
-                        }
-                        if ( TableStruct [ y ] . colindex == 14 )
-                        {
-                            datavalues . Add ( item . field15 ); y++; continue;
-                        }
-                        if ( TableStruct [ y ] . colindex == 15 )
-                        {
-                            datavalues . Add ( item . field16 ); y++; continue;
-                        }
-                        if ( TableStruct [ y ] . colindex == 16 )
-                        {
-                            datavalues . Add ( item . field17 ); y++; continue;
-                        }
-                        if ( TableStruct [ y ] . colindex == 17 )
-                        {
-                            datavalues . Add ( item . field18 ); y++; continue;
-                        }
-                        if ( TableStruct [ y ] . colindex == 18 )
-                        {
-                            datavalues . Add ( item . field19 ); y++; continue;
-                        }
-                        if ( TableStruct [ y ] . colindex == 19 )
-                        {
-                            datavalues . Add ( item . field20 ); y++; continue;
+                            Debug . WriteLine ( $"{ex . Message}, {ex . Data}, y={y}, columns count={TableStruct . Count}" );
+                            error = $"Table creation failed... Reason = [{ex.Message}]";
+                            return null;
                         }
                     }
-                    return 1;
+                    Debug . WriteLine ($"Loaded {LimitedColumnTable.Count} records into LimitedColumnTable." );
+                    return LimitedColumnTable;
                 }
-                return -1;
+                error = "Table creation failed...";
+                return null;
             }
             catch ( Exception ex )
             {
-                Debug . WriteLine ($"{ex.Message}, {ex.Data}");
+                Debug . WriteLine ( $"{ex . Message}, {ex . Data}" );
                 Mouse . OverrideCursor = Cursors . Arrow;
-                return -1; }
-            
+                return null;
+            }
+        }
+        public void AddColumnToTempTable ( List<string> datavalues , ObservableCollection<GenericClass> LimitedColumnTable )
+        {
+            GenericClass tempclass = new GenericClass ( );
+
+            if ( datavalues . Count >= 20 )
+                tempclass . field20 = datavalues [ 19 ];
+            if ( datavalues . Count >= 19 )
+                tempclass . field19 = datavalues [ 18 ];
+            if ( datavalues . Count >= 18 )
+                tempclass . field18 = datavalues [ 17 ];
+            if ( datavalues . Count >= 17 )
+                tempclass . field17 = datavalues [ 16 ];
+            if ( datavalues . Count >= 16 )
+                tempclass . field16 = datavalues [ 15 ];
+            if ( datavalues . Count >= 15 )
+                tempclass . field15 = datavalues [ 14 ];
+            if ( datavalues . Count >= 14 )
+                tempclass . field14 = datavalues [ 13 ];
+            if ( datavalues . Count >= 13 )
+                tempclass . field13 = datavalues [ 12 ];
+            if ( datavalues . Count >= 12 )
+                tempclass . field11 = datavalues [ 10 ];
+            if ( datavalues . Count >= 11 )
+                tempclass . field12 = datavalues [ 10 ];
+            if ( datavalues . Count >= 10 )
+                tempclass . field10 = datavalues [ 9 ];
+            if ( datavalues . Count >= 9 )
+                tempclass . field9 = datavalues [ 8 ];
+            if ( datavalues . Count >= 8 )
+                tempclass . field8 = datavalues [ 7 ];
+            if ( datavalues . Count >= 7 )
+                tempclass . field7 = datavalues [ 6 ];
+            if ( datavalues . Count >= 6 )
+                tempclass . field6 = datavalues [ 5 ];
+            if ( datavalues . Count >= 5 )
+                tempclass . field5 = datavalues [ 4 ];
+            if ( datavalues . Count >= 4 )
+                tempclass . field4 = datavalues [ 3 ];
+            if ( datavalues . Count >= 3 )
+                tempclass . field3 = datavalues [ 2 ];
+            if ( datavalues . Count >= 2 )
+                tempclass . field2 = datavalues [ 1 ];
+            if ( datavalues . Count >= 1 )
+                tempclass . field1 = datavalues [ 0 ];
+
+
+
+            LimitedColumnTable . Add ( tempclass );
         }
         //*********************************//        
         #endregion table creation        //*********************************//
-        
+
 
         //*********************************//        
         #region utility support
@@ -3214,7 +3294,7 @@ namespace UserControls
             CheckResetDbConnection ( DbDomain , out string constring );
             DapperGenLib . CurrentConnectionString = constring;
             $"Exiting " . cwinfo ( 0 );
-        }      
+        }
 
         public static void LoadConnectionStrings ( )
         {
@@ -3340,7 +3420,7 @@ namespace UserControls
             string Con = DbConnectionString;
             SqlConnection sqlCon = null;
 
-            RunStoredProc ( );
+           //RunStoredProc ( );
 
 
             Mouse . OverrideCursor = Cursors . Wait;
