@@ -1093,7 +1093,7 @@ namespace NewWpfDev . SQL
 			LoadListData ( Grid , genericcollection , total );
 			Grid . SelectedIndex = 0;
 			Grid . Visibility = Visibility . Visible;
-			Grid . Refresh ( );
+			//Grid . Refresh ( );
 			Grid . Focus ( );
 		}
 		public static bool Executestoredproc (string SqlCommand, string ConString )

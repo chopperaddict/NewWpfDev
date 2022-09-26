@@ -23,6 +23,7 @@ using NewWpfDev . Models;
 using NewWpfDev . UserControls;
 
 using GenericClass = NewWpfDev . GenericClass;
+using Views;
 
 namespace UserControls
 {
@@ -76,9 +77,10 @@ namespace UserControls
             InitializeComponent ( );
             Dgrid = datagridControl;
             GridData = new ObservableCollection<GenericClass> ( );
-            Dgrid . UpdateLayout ( );
+            //Dgrid . UpdateLayout ( );
             Flowdoc . ExecuteFlowDocMaxmizeMethod += new EventHandler ( MaximizeFlowDoc );
             FlowDoc . FlowDocClosed += Flowdoc_FlowDocClosed;
+            GenericGridSupport . SetPointers ( this , null );
         }
         public static void SetParent ( Control parent )
         {
@@ -179,11 +181,11 @@ namespace UserControls
             // Create a completely new instance via seriazable Clone method stored in NewWpfDev.Utils (in ObjectCopier class file)
             GridData = NewWpfDev . Utils . CopyCollection ( collection , GridData );
             //ObservableCollection<GenericClass>  clonedGridData = collection .MakeClone (  );
-            datagridControl . UpdateLayout ( );
+            //datagridControl . UpdateLayout ( );
             Data = collection;
             PostProcessData ( collection , datagridControl , table , UseTrueColumns );
-            datagridControl . UpdateLayout ( );
-            datagridControl . RefreshGrid ( );
+            //datagridControl . UpdateLayout ( );
+            //datagridControl . RefreshGrid ( );
             // grid IS LOADED by  here....
             datagridControl . SelectedIndex = 0;
             GenericClass gcc = datagridControl . SelectedItem as GenericClass;
@@ -209,11 +211,11 @@ namespace UserControls
             // Create a completely new instance via seriazable Clone method stored in NewWpfDev.Utils (in ObjectCopier class file)
             GridData = NewWpfDev . Utils . CopyCollection ( collection , GridData );
             //            GridData = collection .MakeClone (  );
-            datagridControl . UpdateLayout ( );
+            //datagridControl . UpdateLayout ( );
             Data = collection;
             PostProcessData ( collection , datagridControl , table , UseTrueColumns );
-            datagridControl . UpdateLayout ( );
-            datagridControl . RefreshGrid ( );
+            //datagridControl . UpdateLayout ( );
+            //datagridControl . RefreshGrid ( );
             // grid IS LOADED by  here....
             datagridControl . SelectedIndex = 0;
             GenericClass gcc = datagridControl . SelectedItem as GenericClass;
@@ -1254,7 +1256,7 @@ namespace UserControls
             Grid . SelectedIndex = 0;
             Grid . Visibility = Visibility . Visible;
             //			GridCount . Text = Grid . Items . Count . ToString ( );
-            Grid . UpdateLayout ( );
+            //Grid . UpdateLayout ( );
             Grid . Focus ( );
             //        $"Exiting " . cwinfo();
         }
@@ -1377,7 +1379,7 @@ namespace UserControls
                     }
                 }
                 // Grid now has valid column names, but still got All 20 ??
-                Grid1 . UpdateLayout ( );
+                //Grid1 . UpdateLayout ( );
             }
             return ColumnTypesList;
         }
@@ -1730,7 +1732,7 @@ namespace UserControls
                 if ( indexer <= grid . Columns . Count )
                     dgc . Header = $"Field{indexer++}";
             }
-            grid . UpdateLayout ( );
+            //grid . UpdateLayout ( );
             //grid . Refresh ( );
             //if ( IsCollapsed ) grid . Visibility = Visibility . Collapsed;
         }
@@ -2829,9 +2831,9 @@ namespace UserControls
             else
             {
                 string error = "";
-                CreateLimitedTableAsync ( NewTableName , TableStruct, out error );
-                if(error != "")
-                    Debug . WriteLine ($"ERROR : {error}");
+                CreateLimitedTableAsync ( NewTableName , TableStruct , out error );
+                if ( error != "" )
+                    Debug . WriteLine ( $"ERROR : {error}" );
                 return 1;
             }
             // We now have a full SQl Structure for the current table in TableStructure
@@ -3070,7 +3072,7 @@ namespace UserControls
             Mouse . OverrideCursor = Cursors . Arrow;
             return gresult;
         }
-        public ObservableCollection<GenericClass> CreateLimitedTableAsync ( string NewTableName , List<GenericToRealStructure> TableStruct, out string error )
+        public ObservableCollection<GenericClass> CreateLimitedTableAsync ( string NewTableName , List<GenericToRealStructure> TableStruct , out string error )
         {
             // We now have a full SQl Structure for the current table in TableStructure
             // Sort out  our  new table structure
@@ -3092,7 +3094,7 @@ namespace UserControls
                     List<string> datavalues = new List<string> ( );
                     int rangecount = TableStruct . Count;
                     int datastartvalue = 0, y = 0, x = 0, itemscount = 0;
-                    string Con = DbConnectionString;                   
+                    string Con = DbConnectionString;
                     gresult = -1;
                     SqlConnection sqlCon = null;
                     Mouse . OverrideCursor = Cursors . Wait;
@@ -3119,7 +3121,7 @@ namespace UserControls
                                     error = $"Unable to handle column {TableStruct [ y ] . colindex}, Max selected column # is 19";
                                     continue;
                                 }//Debug . WriteLine ( $"y={y} : {TableStruct [y].fname}, {TableStruct [y].ftype}, {TableStruct [y].decroot},{TableStruct [y].decpart}, {TableStruct [ y ].colindex}" );
-                               // Debug . WriteLine ( $"data = {item . field1}, {item . field2}, {item . field3}, {item . field4} " );
+                                 // Debug . WriteLine ( $"data = {item . field1}, {item . field2}, {item . field3}, {item . field4} " );
                                 if ( TableStruct [ y ] . colindex == 0 )
                                 {
                                     datavalues . Add ( item . field1 ); y++; continue;
@@ -3205,11 +3207,11 @@ namespace UserControls
                         catch ( Exception ex )
                         {
                             Debug . WriteLine ( $"{ex . Message}, {ex . Data}, y={y}, columns count={TableStruct . Count}" );
-                            error = $"Table creation failed... Reason = [{ex.Message}]";
+                            error = $"Table creation failed... Reason = [{ex . Message}]";
                             return null;
                         }
                     }
-                    Debug . WriteLine ($"Loaded {LimitedColumnTable.Count} records into LimitedColumnTable." );
+                    Debug . WriteLine ( $"Loaded {LimitedColumnTable . Count} records into LimitedColumnTable." );
                     return LimitedColumnTable;
                 }
                 error = "Table creation failed...";
@@ -3420,7 +3422,7 @@ namespace UserControls
             string Con = DbConnectionString;
             SqlConnection sqlCon = null;
 
-           //RunStoredProc ( );
+            //RunStoredProc ( );
 
 
             Mouse . OverrideCursor = Cursors . Wait;

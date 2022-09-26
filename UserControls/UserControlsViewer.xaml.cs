@@ -406,7 +406,7 @@ namespace NewWpfDev . UserControls
             Contentctrl . Visibility = Visibility . Visible;
             Contentctrl . Content = uclb;
             Contentctrl . Refresh ( );
-            uhw . Refresh ( );
+            //uhw . Refresh ( );
             InfoPanel . Text = $"List of User Controls ";
         }
     }

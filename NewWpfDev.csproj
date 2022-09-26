@@ -26,6 +26,8 @@
     <Compile Remove="ViewModels\DatagridUserControlViewModel.cs" />
     <Compile Remove="ViewModels\GenericClass.cs" />
     <Compile Remove="Views\GenericSelectBoxControl.xaml - Copy.cs" />
+    <Compile Remove="Views\NONBUILD-Genericgrid.xaml.cs" />
+    <Compile Remove="Views\old-Genericgrid.xaml.cs" />
     <Compile Remove="Views\UserCtrlHost.xaml.cs" />
   </ItemGroup>
 
@@ -209,6 +211,7 @@
   <ItemGroup>
     <Page Remove="UserControls\FlowDoc - Copy.xaml" />
     <Page Remove="Views\GenericSelectBoxControl - Copy.xaml" />
+    <Page Remove="Views\old-Genericgrid.xaml" />
     <Page Remove="Views\UserCtrlHost.xaml" />
   </ItemGroup>
 

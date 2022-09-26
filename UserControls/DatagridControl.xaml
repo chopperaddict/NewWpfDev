@@ -67,12 +67,12 @@
                   CanUserResizeRows="True"
                   Margin="0 0 0 0"
                   BorderBrush="{Binding Path=HeaderBackground, ElementName=dgCtrl}"
-                  CellStyle="{Binding Cellstyle, ElementName=dgCtrl}"
                   HorizontalAlignment="Stretch"
                   FontSize="16"
                   FontWeight="{Binding Path=FontWeight, ElementName=dgCtrl}"                  
                 DataGrid.ColumnHeaderStyle="{StaticResource ColumnHeaderStyle}">
-                   VerticalAlignment="Stretch">
+                  <!--CellStyle="{Binding Cellstyle, ElementName=dgCtrl}"-->
+                   <!--VerticalAlignment="Stretch">-->
         </DataGrid>
 
         <Canvas x:Name="canvas" 

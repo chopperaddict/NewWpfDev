@@ -2760,8 +2760,8 @@ namespace NewWpfDev
             grid . SelectedIndex = row;
             grid . SelectedItem = row;
             WpfLib1 . Utils . ScrollLBRecordIntoView ( grid , row );
-            grid . UpdateLayout ( );
-            grid . Refresh ( );
+            //grid . UpdateLayout ( );
+            //grid . Refresh ( );
             //			var v = grid .VerticalAlignment;
         }
         /// <summary>

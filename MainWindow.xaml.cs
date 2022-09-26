@@ -1,28 +1,14 @@
-﻿
-
-using NewWpfDev . UserControls;
-using NewWpfDev. ViewModels;
-using NewWpfDev. Views;
-
-using NewWpfDev . Views;
-using NewWpfDev. Views;
-
-using System;
+﻿using System;
 using System . Collections . Generic;
-using System . IO;
-using System . Linq;
 using System . Net;
-using System . Text;
-using System . Threading . Tasks;
 using System . Windows;
 using System . Windows . Controls;
-using System . Windows . Data;
-using System . Windows . Documents;
 using System . Windows . Input;
 using System . Windows . Media;
-using System . Windows . Media . Imaging;
-using System . Windows . Navigation;
-using System . Windows . Shapes;
+
+using NewWpfDev . UserControls;
+using NewWpfDev . ViewModels;
+using NewWpfDev . Views;
 
 using Views;
 
@@ -30,7 +16,6 @@ using Canvas = System . Windows . Controls . Canvas;
 
 namespace NewWpfDev
 {
-
     #region Generic System wide structures and Definitions
     // All System wide Delegates are declared here...
     #region DELEGATE DECLARATIONS
@@ -38,7 +23,7 @@ namespace NewWpfDev
     //public delegate void LoadTableWithDapperDelegate ( string Sqlcommand , string TableType , object bvm , object Args);
     #endregion DELEGATE DECLARATIONS
 
-    
+
     // Required to allow various  items  towork without these classes actually being in this Project
     #region dummy classes
     public class EditDb
@@ -512,7 +497,7 @@ namespace NewWpfDev
 
         private void Button5_Cick ( object sender , RoutedEventArgs e )
         {
-           Genericgrid grid = new Genericgrid ( );
+            Genericgrid grid = new Genericgrid ( );
             grid . Show ( );
         }
     }
