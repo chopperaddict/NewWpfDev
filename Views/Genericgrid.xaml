@@ -5,17 +5,55 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Views"
         xmlns:users="clr-namespace:UserControls"
+        xmlns:conv="clr-namespace:NewWpfDev.Converts"
         mc:Ignorable="d"
         WindowChrome.ResizeGripDirection="BottomRight"
 	    ResizeMode="CanResizeWithGrip"        
         Title="Generic SQL Tables - Right Click for more information..."
         TextElement.Foreground="White"
-        Height="550" Width="800"
-        MinHeight="550" MinWidth="800"
+        Height="750" Width="1000"
+        MinHeight="750" MinWidth="1000"
         Loaded="Grid_Loaded"
+        LostFocus="FieldSelectionGrid_LostFocus"
         KeyDown="InfoGrid_KeyDown"
+        MouseDoubleClick="Gengrid_MouseDoubleClick"
         x:Name="Gengrid">
     <Window.Resources>
+
+        <conv:IncreaseByParamValue x:Key="IncreaseByParamValue" />
+        <conv:ReduceByParamValue x:Key="ReduceByParamValue"/>
+
+        <!--// template that removes  that annoying image panel at left of context menus-->
+        <ItemsPanelTemplate x:Key="NoImageMenu">
+            <StackPanel Margin="-40,0,0,0" Background="White"/>
+        </ItemsPanelTemplate>
+
+        <Style x:Key="StackPanelStyle1" TargetType="{x:Type StackPanel}">
+            <Style.Triggers>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="false"/>
+                    </MultiTrigger.Conditions>
+                    <MultiTrigger.Setters>
+                        <Setter Property="Background" Value="{StaticResource Cyan1}"/>
+                        <Setter Property="TextElement.Foreground"  Value="{StaticResource Blue0}"/>
+                        <Setter Property="Height" Value="25"/>
+                    </MultiTrigger.Setters>
+                </MultiTrigger>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="True"/>
+                    </MultiTrigger.Conditions>
+                    <MultiTrigger.Setters>
+                        <Setter Property="Background" Value="{StaticResource Yellow1}"/>
+                        <Setter Property="TextElement.FontWeight" Value="DemiBold"/>
+                        <Setter Property="TextElement.FontStyle" Value="Italic"/>
+                        <Setter Property="TextElement.Foreground"  Value="{StaticResource Black0}"/>
+                        <Setter Property="Height" Value="25"/>
+                    </MultiTrigger.Setters>
+                </MultiTrigger>
+            </Style.Triggers>
+        </Style>
 
         <Style x:Key="YellowTextGradient" TargetType="TextBlock">
             <Style.Triggers>
@@ -70,60 +108,112 @@
             </Style.Triggers>
         </Style>
 
-        <!--<Style x:Key="ComboxItemsStyle" TargetType="{x:Type ComboBox}">
+        <Style x:Key="SpStringsStyle" TargetType="{x:Type ListBoxItem}">
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="ComboBox">
+                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                        <Border x:Name="Bd" SnapsToDevicePixels="true">
+
+                            <ContentPresenter x:Name="Contentpresenter" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                                SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+
+                        </Border>
                         <ControlTemplate.Triggers>
-                            -->
-        <!--<Trigger Property="IsSelected" Value="True">
-                                <Setter Property="TextElement.Background" Value="{StaticResource Red5}"/>
-                                <Setter Property="TextElement.Foreground" Value="{StaticResource White0}"/>
-                            </Trigger>-->
-        <!--
                             <MultiTrigger>
                                 <MultiTrigger.Conditions>
-                                    <Condition Property="IsMouseOver" Value="false"/>
+                                    <!--<Condition Property="IsMouseOver" Value="False"/>-->
+                                    <Condition Property="IsSelected" Value="false"/>
                                 </MultiTrigger.Conditions>
-                                <MultiTrigger.Setters>
-                                    <Setter Property="Background" Value="{StaticResource Cyan6}"/>
-                                    <Setter Property="Foreground" Value="{StaticResource Cyan0}"/>
-                                    -->
-        <!--<Setter Property="CbItemText.Background" Value="{StaticResource Cyan1}"/>-->
-        <!--
-                                </MultiTrigger.Setters>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Black3}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Contentpresenter" Value="{StaticResource White0}"/>
+                                <Setter Property="Padding" TargetName="Bd" Value="10,0,0,0"/>
                             </MultiTrigger>
-
-                            <MultiTrigger>
-                                <MultiTrigger.Conditions>
-                                    <Condition Property="IsSelected" Value="true"/>
-                                </MultiTrigger.Conditions>
-                                <MultiTrigger.Setters>
-                                    <Setter Property="Background" Value="{StaticResource Red5}"/>
-                                    <Setter Property="Foreground" Value="{StaticResource White0}"/>
-                                    -->
-        <!--<Setter Property="CbItemText.Background" Value="{StaticResource Red5}"/>-->
-        <!--
-                                </MultiTrigger.Setters>
-                            </MultiTrigger>
-
                             <MultiTrigger>
                                 <MultiTrigger.Conditions>
                                     <Condition Property="IsMouseOver" Value="true"/>
+                                    <Condition Property="IsSelected" Value="true"/>
                                 </MultiTrigger.Conditions>
-                                <MultiTrigger.Setters>
-                                    <Setter Property="Background" Value="{StaticResource Red5}"/>
-                                    <Setter Property="Foreground" Value="{StaticResource White0}"/>
-                                    -->
-        <!--<Setter Property="CbItemText.Background" Value="{StaticResource Red5}"/>-->
-        <!--
-                                </MultiTrigger.Setters>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Yellow0}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{StaticResource Red0}"/>
+                                <Setter Property="Padding" TargetName="Bd" Value="10,0,0,0"/>
                             </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="False"/>
+                                    <Condition Property="IsSelected" Value="true"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Red5}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Contentpresenter" Value="{StaticResource White0}"/>
+                                <Setter Property="Padding" TargetName="Bd" Value="10,0,0,0"/>
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="true"/>
+                                    <Condition Property="IsSelected" Value="false"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Orange4}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Contentpresenter" Value="{StaticResource Black0}"/>
+                                <Setter Property="Padding" TargetName="Bd" Value="10,0,0,0"/>
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                        <!--more ....-->
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+
+        <Style x:Key="MenuItemBlue" TargetType="{x:Type MenuItem}">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="Black" />
+            <!--<Setter Property="BorderBrush" Value="{StaticResource HeaderBorderBrushYellow}" />-->
+            <Setter Property="BorderThickness" Value="1.5" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="HorizontalContentAlignment" Value="left" />
+            <Setter Property="VerticalAlignment" Value="Bottom" />
+            <Setter Property="VerticalContentAlignment" Value="Bottom" />
+            <Setter Property="MinHeight" Value="25" />
+            <!--<Setter Property="Cursor" Value="Hand" />-->
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type MenuItem}">
+                        <Border x:Name="Bd" 
+							  Padding="17,0,17,0" 
+							  BorderBrush="{TemplateBinding BorderBrush}" 
+							  BorderThickness="{TemplateBinding BorderThickness}" 
+							  Background="{TemplateBinding Background}" 
+							  SnapsToDevicePixels="True" 
+							  Uid="Border_38">
+                            <ContentPresenter x:Name="ContentPresenter"  
+										Content="{TemplateBinding Header}" 
+										Margin="{TemplateBinding Padding}" 
+										RecognizesAccessKey="True" 
+										SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+										Uid="ContentPresenter_33"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter Property="Height" TargetName="Bd" Value="25"/>
+                                <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource Blue2}"/>
+                                <!--<Setter Property="Padding" TargetName="Bd"  Value="5,0,5,5"/>-->
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Blue2}"/>
+                                <Setter Property="TextElement.Foreground"  Value="{StaticResource White0}"/>
+                            </Trigger>
+                            <!--<Trigger Property="IsHighlighted" Value="False">
+                                <Setter Property="Height" TargetName="Bd" Value="25"/>
+                                <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource Orange4}"/>
+                                -->
+                            <!--<Setter Property="Padding" TargetName="Bd"  Value="5,0,5,5"/>-->
+                            <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Orange4}"/>-->
+                            <!--
+                                <Setter Property="MenuItem.Foreground" TargetName="ContentPresenter" Value="{StaticResource Black0}"/>
+                            </Trigger>-->
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-        </Style>-->
+        </Style>
 
 
         <!--- Dont understand why it has to be mouseover=false & ExitAction, but it works that way, not if true-->
@@ -150,48 +240,6 @@
             </Style.Triggers>
         </Style>
 
-
-        <!--<ContextMenu x:Key="ContextMen2" Width="240" HasDropShadow="True">
-            <ContextMenu.Resources>
-            </ContextMenu.Resources>
-            <MenuItem Style="{StaticResource MenuItemBlue}">
-                <MenuItem.Header>
-                    <TextBlock 
-                                Text="Close Context Menu"
-                                FontSize="16"
-                                 Height="25"
-                                Padding="10 0 0 0"
-                                Margin="0 0 0 0"
-                                Width="350"/>
-                </MenuItem.Header>
-            </MenuItem>
-
-            <MenuItem  x:Name="ShowInformation" Click="ShowInfo"
-                 Style="{StaticResource MenuItemBlue}">
-                <MenuItem.Header>
-                    <TextBlock 
-                                 Text="Show Information"
-                                FontSize="16"
-                                 Height="25"
-                                Padding="10 0 0 0"
-                                Margin="0 0 0 0"                                
-                                Width="350"/>
-                </MenuItem.Header>
-            </MenuItem>
-
-            <MenuItem   x:Name="SelectedRowsOnly" Click="SaveSelectedOnly" 
-                    Style="{StaticResource MenuItemBlue}">
-                <MenuItem.Header>
-                    <TextBlock 
-                                Text="Save Selected Rows only"
-                                FontSize="16"
-                                 Height="25"
-                                Padding="10 0 0 0"
-                                Margin="0 0 0 0"
-                                Width="350"/>
-                </MenuItem.Header>
-            </MenuItem>
-        </ContextMenu>-->
 
         <Style x:Key="ButtonSlant" TargetType="Button">
             <!--Default layout-->
@@ -342,174 +390,692 @@
             </Style.Triggers>
         </Style>
 
+
+        <ContextMenu
+            x:Key="GenGridContextMenu" Width="350" 
+            HasDropShadow="True"
+            ContextMenuService.Placement="Center"
+            ContextMenuService.VerticalOffset="-10"
+            Background="Orange">
+
+            <ContextMenu.Style>
+                <Style TargetType="{x:Type ContextMenu}">
+                    <Setter Property="ItemsPanel" Value="{StaticResource NoImageMenu}"/>
+                </Style>
+            </ContextMenu.Style>
+
+            <MenuItem>
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                    Text="Close Popup Menu"
+                                    FontSize="16"
+                                     Height="25"
+                                    Padding="20 0 0 0"
+                                    Margin="0 0 0 0"
+                                    Width="350"/>
+                    </StackPanel>
+                </MenuItem.Header>
+                <!--<MenuItem.Icon>
+                        <Image Source="/Icons/progressSkip.ico" Height="15" Width="25" />
+                    </MenuItem.Icon>-->
+            </MenuItem>
+
+            <MenuItem  Click="ShowInfo">
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                    Text="Show Info about this control"
+                                    FontSize="16"
+                                     Height="25"
+                                    Padding="20 0 0 0"
+                                    Margin="0 0 0 0"
+                                    Width="350"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <MenuItem  Click="ShowColumnInfo_Click" >
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                    Text="Show full schema for table" 
+                                    FontSize="16"
+                                     Height="25"
+                                    Padding="20 0 0 0"
+                                    Margin="0 0 0 0"
+                                    Width="350"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <MenuItem  Click="ReloadTables" >
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                    Text="Reload List of tables" 
+                                    FontSize="16"
+                                     Height="25"
+                                    Padding="20 0 0 0"
+                                    Margin="0 0 0 0"
+                                    Width="350"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <MenuItem  Click="ShowFilter_Click" >
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                    Text="Filter current table records" 
+                                    FontSize="16"
+                                     Height="25"
+                                    Padding="20 0 0 0"
+                                    Margin="0 0 0 0"
+                                    Width="350"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <MenuItem  Click="SearchStoredProc" >
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                    Text="Find text in All Stored Procedures" 
+                                    FontSize="16"
+                                     Height="25"
+                                    Padding="20 0 0 0"
+                                    Margin="0 0 0 0"
+                                    Width="350"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <MenuItem  Click="SaveAsNewTable" >
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                    Text="Save table to a new table" 
+                                    FontSize="16"
+                                     Height="25"
+                                    Padding="20 0 0 0"
+                                    Margin="0 0 0 0"
+                                    Width="350"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <!--<MenuItem  Click="SaveSelectedOnly" >
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                    Text="Save selected items to new table" 
+                                    FontSize="16"
+                                     Height="25"
+                                    Padding="20 0 0 0"
+                                    Margin="0 0 0 0"
+                                    Width="350"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>-->
+
+        </ContextMenu>
+
     </Window.Resources>
 
-    <Grid Background="{StaticResource Black2OrangeSlant}">
+    <!--//***********************************************************************************************//-->
+
+    <Grid x:Name="maingrid" Background="{StaticResource Black2OrangeSlant}" 
+          LostFocus="FieldSelectionGrid_LostFocus">
         <Grid.RowDefinitions>
             <RowDefinition Height="1"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition x:Name="row2" Height="*"/>
             <RowDefinition Height="85"/>
             <RowDefinition Height="25" />
             <RowDefinition Height="55" />
         </Grid.RowDefinitions>
 
-        <!--//************************//-->
-        <!--#region info panel-->
-        <!--//************************//-->
-        <Grid x:Name="InfoGrid"
-              Grid.Row="1" 
-              Grid.RowSpan="1"
-               Margin="0 0 0 15" 
-               Background="Transparent"  
-               Height="450" Width="760"
-               Panel.ZIndex="250"
-               Visibility="Collapsed" >
+        <!--************************************-->
+        <!--#region Canvas-->
+        <!--************************************-->
+        <Canvas x:Name="Filtercanvas"
+                Panel.ZIndex="11" 
+                Margin="0,0,0,6" 
+                Grid.Row="1"
+                Width="{Binding ActualWidth, ElementName=maingrid}"
+                LostFocus="FieldSelectionGrid_LostFocus" Grid.RowSpan="2">
 
-            <Border BorderBrush="Yellow" 
-                    Background="{StaticResource Orange2BlackSlant}"                    
-                    Margin="0 5 0 0"
-                    BorderThickness="2 10 2 15" 
-                    VerticalAlignment="Top" 
-                    Height="320" 
-                    Width="760" 
-                    Visibility="Visible"
-                    Panel.ZIndex="251">
-                <Grid
-                    Grid.Row="0"
-                    Height="{Binding ActualHeight, ElementName=InfoGrid}"
-                    Width="{Binding ActualWidth, ElementName=InfoGrid}">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="25"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <TextBlock Grid.Row="0"
-                    Margin="0 5 0 0"
-                    VerticalAlignment="Top" 
-                    Height="330" 
-                    Width="760" 
-                    FontSize="16"
-                    FontWeight="DemiBold"
-                    Foreground="Red"
-                    Background="Cyan"
-                               TextAlignment="Center"
-                    Text="Press Escape or Double-Click on thiis panel to close it...."
-                    Panel.ZIndex="251"/>
+            <!--************************************-->
+            <!--#region colmn selection-->
+            <!--************************************-->
+            <Grid x:Name="FieldSelectionGrid" 
+              Grid.Row="1" Width="350"
+              Panel.ZIndex="12"  
+              PreviewMouseLeftButtonDown="Filtering_PreviewMouseLeftButtonDown"
+              PreviewMouseMove="Filtering_MouseMove"
+              LostFocus="FieldSelectionGrid_LostFocus"
+              Background="{StaticResource Black7}"
+              HorizontalAlignment="Center" 
+              Height="291" 
+              Canvas.Top="30" 
+              VerticalAlignment="Top"
+              Visibility="Collapsed" >
 
-                    <FlowDocumentScrollViewer x:Name="RTBox" 
-                                      Grid.Row="3" 
-                                      Height="250" Width="750" 
-                                      Panel.ZIndex="252" 
-                                          
-                                      Margin="0 0,5,170"
-                                      MouseDoubleClick="RTBox_MouseRightButtonDown"
-                                      Visibility="Visible"/>
-                </Grid>
-            </Border>
-        </Grid>
-        <!--//************************//-->
-        <!--#endregion info panel-->
-        <!--//************************//-->
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="35"/>
+                    <RowDefinition Height="25"/>
+                </Grid.RowDefinitions>
 
-        <!--//************************//-->
-        <!--#region Filtering-->
-        <!--//************************//-->
-        <Grid x:Name="Filtering" 
-              Grid.Row="1"
-                  Margin="0 0 0 0" 
-                  Height="225" Width="500"
-                  Background="Cyan"  
-                  Panel.ZIndex="255"
-                  Visibility="Collapsed" 
-                  >
-            <Border x:Name="filterdlg"
-                Grid.Row="0" Grid.RowSpan="1"
-                BorderBrush="{StaticResource Red3}" 
-                BorderThickness="2 20 2 15" 
-                Height="{Binding ActualHeight, ElementName=Filtering}"
-                Width="{Binding ActualWidth, ElementName=Filtering}"
-                Panel.ZIndex="256"
-                Visibility="Visible"
-                >
-                <!--Background="{StaticResource Black6}"-->
-                <!--Background="{StaticResource Black8}"-->
-                <Grid
-                        Height="{Binding ActualHeight, ElementName=Filterdlg}"
-                        Width="{Binding ActualWidth, ElementName=Filterdlg}">
-                    <TextBlock x:Name="FilterText"
-                            Text="    Enter a fully qualified SQL fllter clause (without the 'Where') into the field below"
-                            Height="39"
-                            Padding="5 0 0 5"
+                <DataGrid x:Name="ColNames"
+                     Grid.Row="0"
+                     Background="Cyan"
+                     SelectionMode="Extended"
+                     SelectionChanged="ColNames_SelectionChanged"
+                     Margin="10,10,10,9" >
+                </DataGrid>
+
+                <TextBlock x:Name="Prompt" 
+                   Grid.Row="2"
+                   Text="Hold Ctrl and Click on each column you want included..."
+                   TextAlignment="Center"
+                   Padding="0 2 0 0"
+                   Margin="10 0 10 0"
+                   Background="Red"
+                   Foreground="White" UseLayoutRounding="True"/>
+
+                <Button x:Name="GoBtn" 
+                        Width="100" Height="30" 
+                        HorizontalAlignment="Right" Margin="0,-10,10,0"
+                        VerticalAlignment="Center"
+                        Content="Go!"
+                        Click="GoBtn_Click"
+                        Background="Green" Foreground="Red" Grid.Row="1"/>
+
+                <Button x:Name="stopBtn" 
+                        Width="100" Height="30" 
+                    HorizontalAlignment="Right" Margin="0,-10,120,0"
+                    VerticalAlignment="Center"
+                    Content="Cancel"
+                    Click="stopBtn_Click"
+                    Background="Red" Foreground="White" Grid.Row="1"/>
+
+            </Grid>
+            <!--#endregion colmn selection-->
+
+            <!--//************************//-->
+            <!--#region Filtering-->
+            <!--//************************//-->
+            <Grid x:Name="Filtering" 
+                Grid.Row="1" 
+                Grid.RowSpan="5" 
+                Background="Cyan"  
+                MouseLeftButtonDown="Filtering_PreviewMouseLeftButtonDown"
+                MouseLeftButtonUp="Filtering_MouseLeftButtonUp"
+                MouseMove="Filtering_MouseMove"
+                 LostFocus="FieldSelectionGrid_LostFocus"
+                Panel.ZIndex="255"
+                  Canvas.Left="150"
+                  Canvas.Top ="256"
+                  KeyDown="Filtering_KeyDown"
+                 HorizontalAlignment="Center" 
+                 VerticalAlignment="Top" 
+                 Visibility="Collapsed" Height="230" Width="500" >
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="119*"/>
+                    <RowDefinition Height="117*"/>
+                </Grid.RowDefinitions>
+
+                <Border x:Name="filterdlg"
+                    Grid.Row="0" Grid.RowSpan="2"
+                    BorderBrush="{StaticResource Red3}" 
+                    BorderThickness="2 30 2 15" 
+                    LostFocus="FieldSelectionGrid_LostFocus"
+                    Height="{Binding ActualHeight, ElementName=Filtering}"
+                    Width="{Binding ActualWidth, ElementName=Filtering}"
+                    Panel.ZIndex="256"
+                    Visibility="Visible">
+                    <StackPanel>
+
+                        <TextBlock x:Name="FilterBanner"
+                            Text="Generic Table Viewer - Filtering System"
+                            Height="21"
+                            Padding="0 0 0 0"
                             VerticalAlignment="Top"
-                            Margin="0,5,8,0"
+                            Margin="10 -26,10 0"
                             FontSize="16"
                             FontWeight="DemiBold"
                             TextWrapping="Wrap" 
-                            Background="Transparent" 
-                               TextAlignment="Center"
+                            Background="{StaticResource Orange4}" 
+                            LostFocus="FieldSelectionGrid_LostFocus"
+                            TextAlignment="Center"
                             Panel.ZIndex="256"
                             Foreground="Black" 
                             Visibility="Visible"/>
 
-                    <Label Content="Where" 
-                            Height="30" Width="56" 
-                            FontSize="16" 
-                           FontWeight="DemiBold"
-                            HorizontalAlignment="Left" 
+                        <Grid
+                                Height="{Binding ActualHeight, ElementName=Filterdlg}"
+                                Width="{Binding ActualWidth, ElementName=Filterdlg}"
+                                LostFocus="FieldSelectionGrid_LostFocus">
+
+                            <TextBlock x:Name="FilterText"
+                                    Text="    Enter a fully qualified SQL fllter clause (without the 'Where') into the field below"
+                                    Height="39"
+                                    Padding="5 0 0 5"
+                                    VerticalAlignment="Top"
+                                    Margin="0,5,8,0"
+                                    FontSize="16"
+                                    FontWeight="DemiBold"
+                                    TextWrapping="Wrap" 
+                                    Background="Transparent" 
+                                    LostFocus="FieldSelectionGrid_LostFocus"
+                                    TextAlignment="Center"
+                                    Panel.ZIndex="256"
+                                    Foreground="Black" 
+                                    Visibility="Visible"/>
+
+                            <Label Content="Where" 
+                                        Height="30" Width="56" 
+                                        FontSize="16" 
+                                        FontWeight="DemiBold"
+                                        HorizontalAlignment="Left" 
+                                        VerticalAlignment="Top"
+                                        LostFocus="FieldSelectionGrid_LostFocus"
+                                        Foreground="Black" 
+                                        Background="{StaticResource Cyan2}"
+                                        Margin="10,71,0,0"
+                                        Padding="5 3 0 0"
+                                        Visibility="Visible"/>
+
+                            <TextBox x:Name="filtertext" 
+                                        Background="{StaticResource White1}" 
+                                        CaretBrush="Blue" 
+                                        Foreground="Red"
+                                        Focusable="True"
+                                        Height="80" Width="408" 
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Top"
+                                        TextAlignment="Center" 
+                                        TextWrapping="Wrap"
+                                        Margin="78,49,0,0" 
+                                        LostFocus="FieldSelectionGrid_LostFocus"     
+                                        Padding="5 1 5 0" 
+                                        Panel.ZIndex="256"
+                                        FontSize="16" 
+                                        Text="Enter SQL filtering code here ...."
+                                        Visibility="Visible" TabIndex="1"/>
+
+                            <Button Height="35" Width="120 "
+                                        Click="Filter_Click"
+                                        Style="{StaticResource ButtonSlant}"
+                                        Foreground="White" 
+                                        Content="Apply Filter" 
+                                        Margin="0,0,10,-46" 
+                                        Panel.ZIndex="256"                                    
+                                         LostFocus="FieldSelectionGrid_LostFocus"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Bottom"
+                                        Visibility="Visible"/>
+
+                            <Button Height="35" Width="120 " 
+                                        Click="closeFilter"
+                                        Foreground="LightGreen" 
+                                        Style="{StaticResource ButtonSlant}"
+                                        Content="Cancel" 
+                                        Margin="0,0,140,-46" 
+                                    KeyDown="Button_KeyDown"
+                                        Panel.ZIndex="256"
+                                        LostFocus="FieldSelectionGrid_LostFocus"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Bottom"
+                                        Visibility="Visible"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </Grid>
+            <!--//************************//-->
+            <!--#endregion Filtering-->
+
+            <!--************************************-->
+            <!--smalller search dialog-->
+            <!--#region StringSearchResults-->
+            <!--************************************-->
+            <!--// This is the smaller dialog to allow text entry to be searched for-->
+            <Border x:Name="SpStringsSelection" 
+                    BorderThickness="5" 
+                    BorderBrush="Purple"
+                    Height="201" 
+                    Width="379"
+                    Canvas.Top="103" 
+                    Canvas.Left="211"    
+                    Panel.ZIndex="12"  
+                    Focusable="True"
+                    KeyDown="SpStringsSelection_KeyDown"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Top"
+                     Visibility="Collapsed">
+
+                <Grid 
+                        Grid.Row="1" 
+                        Height="200" 
+                        Width="375"
+                        PreviewMouseLeftButtonDown="Filtering_PreviewMouseLeftButtonDown"
+                        PreviewMouseMove="Filtering_MouseMove"
+                        LostFocus="FieldSelectionGrid_LostFocus"
+                        Panel.ZIndex="12"  
+                        Background="{StaticResource Cyan3}"
+                        HorizontalAlignment="Center" 
+                        VerticalAlignment="Center"
+                        Visibility="Visible" >
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock 
+                           Text="Enter the exact text you want to find in the Stored Procedures in the field below"
+                           TextAlignment="Center"
+                           Padding="0 2 0 0"
+                           Margin="56,5,51,0"     
+                        Foreground="Black"
+                        FontSize="14"
+                        TextWrapping="Wrap"
+                          UseLayoutRounding="True" Height="40" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5">
+                    </TextBlock>
+
+                    <TextBlock x:Name="Prompt1"
+                           Text="Dbl Click or Press 'Show Text'to select a procedure to view"
+                           TextAlignment="Center"
+                           Padding="0 2 0 0"
+                           Margin="10,162,10,0"
+                           Background="Red"
+                           Foreground="White" UseLayoutRounding="True" Height="28" VerticalAlignment="Top"/>
+
+                    <TextBox x:Name="selectedSp"
+                             Margin="11,56,9,102"
+                             Text="Enter Search term here ..."
+                             TextAlignment="Center"
+                             FocusVisualStyle="{x:Null}"
+                             Focusable="True"
+                             Padding="0 4 0 0"
+                             FontWeight="Bold"
+                             FontSize="20"/>
+
+                    <Button x:Name="GoBtn1" 
+                            Width="100" Height="40" 
+                            HorizontalAlignment="Right" 
+                            Margin="0,115,12,0"
                             VerticalAlignment="Top"
-                            Foreground="Black" 
-                            Background="{StaticResource Cyan2}"
-                            Margin="10,71,0,0"
-                            Padding="5 3 0 0"
-                            Visibility="Visible"/>
-                    <TextBox x:Name="filtertext" 
-                            Background="{StaticResource White1}" 
-                             CaretBrush="Blue" 
-                            Foreground="Red"
-                            Focusable="True"
-                            Height="80" Width="408" 
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Center"
-                            TextAlignment="Center" 
-                             TextWrapping="Wrap"
-                            Margin="78,0,0,0" 
-                            Padding="5 1 5 0" 
-                             Panel.ZIndex="256"
-                            FontSize="16" 
-                            Text="Enter SQL filtering code here ...."
-                             Visibility="Visible" TabIndex="1"/>
-                    <Button Height="35" Width="120 "
-                            Click="Filter_Click"
+                            Content="Show Text"
+                            Click="GoBtn1_Click"
                             Style="{StaticResource ButtonSlant}"
-                            Foreground="White" 
-                            Content="Apply Filter" 
-                            Margin="0 0 10 10" 
-                            Panel.ZIndex="256"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Bottom"
-                            Visibility="Visible"/>
-                    <Button Height="35" Width="120 " 
-                            Click="closeFilter"
-                            Foreground="LightGreen" 
+                            Foreground="White"/>
+
+                    <Button x:Name="stopBtn1" 
+                            Width="100" Height="40" 
+                            HorizontalAlignment="Right" Margin="0,115,120,0"
+                            VerticalAlignment="Top"
                             Style="{StaticResource ButtonSlant}"
-                            Content="Cancel" 
-                            Margin="0 24 140 10" 
-                            Panel.ZIndex="256"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Bottom"
-                            Visibility="Visible"/>
+                            Content="Cancel"
+                            KeyDown="stopBtn1_KeyDown"
+                            Click="stopBtn1_Click"
+                            Foreground="Orange"/>
+
+                    <CheckBox x:Name="Autoclose" Content="Close on selection"
+                              VerticalAlignment="Bottom"
+                              IsChecked="True"
+                              FontSize="14"
+                              Margin="11,0,0,56" 
+                              HorizontalAlignment="Left" 
+                              Width="133"/>
                 </Grid>
             </Border>
-        </Grid>
-        <!--//************************//-->
-        <!--#endregion Filtering-->
-        <!--//************************//-->
+            <!--#endregion StringSearchResults-->
+
+            <!--************************************-->
+            <!--Larger Search dialog-->
+            <!--#region SPselectiondialog-->
+            <!--************************************-->
+
+            <!--// This is the larger dialog that allow selection from any SP's that 
+            //have returned after the SQL search has been completd-->
+            <Border x:Name="SpStringsSelector" 
+                BorderThickness="3" BorderBrush="White"
+                    Height="314" 
+                Width="365"
+                KeyDown="SpStrings_KeyDown"                    
+                Panel.ZIndex="14"  
+                Focusable="True"
+                Canvas.Top="30" 
+                Canvas.Left="250"
+                Visibility="Collapsed">
+
+                <Grid 
+                        Grid.Row="1" 
+                        Height="{Binding ActualHeight, ElementName=SpStringsSelector}" 
+                        Width="{Binding ActualWidth, ElementName=SpStringsSelector}"                         
+                        Panel.ZIndex="14"  
+                        Margin="0 0 0 0"
+                        PreviewMouseLeftButtonDown="Filtering_PreviewMouseLeftButtonDown"
+                        PreviewMouseMove="Filtering_MouseMove"
+                        LostFocus="FieldSelectionGrid_LostFocus"
+                        Background="{StaticResource Cyan0}"
+                        HorizontalAlignment="Center" 
+                        VerticalAlignment="Top"
+                        Visibility="Visible" >
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="35"/>
+                        <RowDefinition Height="35"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock x:Name="Infopanel" 
+                           Grid.Row="0"
+                           Text="ALL Stored procedures that contain the Search term..."
+                           TextAlignment="Center"
+                           Padding="0 4 0 0"
+                           Margin="0,1,0,218"
+                           Background="Red"
+                           Foreground="White" UseLayoutRounding="True"/>
+
+                    <ListBox x:Name="ProcNames"
+                            Grid.Row="0"
+                            Background="{StaticResource Black7}"
+                            SelectionMode="Single"
+                            FontSize="16"
+                            FontWeight="DemiBold"
+                             MouseDoubleClick="ProcNames_MouseDoubleClick"
+                            ItemContainerStyle="{StaticResource SpStringsStyle}"
+                            Margin="10, 40,10,15">
+                        <ListBoxItem/>
+                    </ListBox>
+
+                    <TextBlock x:Name="Prompt2" 
+                           Grid.Row="2"
+                           Text="Dbl Click or Press 'Show Text' to select a procedure to be shown"
+                           Height="25"
+                           TextAlignment="Center"
+                           Padding="0 2 0 0"
+                           Margin="10 0 10 0"
+                           Background="Red"
+                           Foreground="White" UseLayoutRounding="True"/>
+
+                    <Button x:Name="GoBtn2" 
+                        Width="100" Height="30" 
+                        HorizontalAlignment="Right" Margin="0,0,10,0"
+                        VerticalAlignment="Top"
+                        FontWeight="Normal"
+                        Content="Show Text"
+                        Click="GoBtn2_Click"
+                        Style="{StaticResource ButtonSlant}"
+                        Foreground="White" 
+                        Grid.Row="1"/>
+
+                    <Button x:Name="stopBtn2" 
+                    Width="100" Height="30" 
+                    HorizontalAlignment="Right" Margin="0,0,120,0"
+                    VerticalAlignment="Top"
+                    Style="{StaticResource ButtonSlant}"
+                    Content="Cancel"
+                    Click="stopBtn2_Click"
+                    Foreground="Orange" Grid.Row="1"/>
+
+                </Grid>
+            </Border>
+            <!--************************************-->
+            <!--#endregion SPselectiondialog-->
+
+            <!--************************************-->
+            <!--<users:FlowDoc x:Name="Flowdoc"
+				backGround="{StaticResource Gray5}"
+				borderColor="{StaticResource Orange1}"
+				Canvas.Left="45"
+				Canvas.Top="64"
+				Height="300"
+				Margin="0 0 0 0"
+									  
+				LostFocus="Flowdoc_LostFocus"
+				MouseLeftButtonUp="Flowdoc_MouseLeftButtonUp"	
+				MouseMove="Flowdoc_MouseMove"
+				PreviewMouseLeftButtonDown="Flowdoc_PreviewMouseLeftButtonDown"
+				
+				Opacity="1"
+				Panel.ZIndex="2"
+				Visibility="Visible"
+				Width="520" />-->
+
+            <!--//************************//-->
+            <!--Infogrid-->
+            <!--#regionScrollDocument info panel-->
+            <!--//************************//-->
+            <Grid x:Name="InfoGrid"
+              Grid.Row="1" 
+              Grid.RowSpan="1"
+               Margin="0 -5 0 15" 
+                  Canvas.Top="5"
+                  Canvas.Left="10"
+               Background="Transparent"  
+               Panel.ZIndex="250"
+               Height="{Binding ActualHeight, ElementName=GenGridCtrl, Converter={StaticResource IncreaseByParamValue},ConverterParameter=0}"      
+                Width="{Binding ActualWidth, ElementName=GenGridCtrl, Converter={StaticResource ReduceByParamValue},ConverterParameter=10}"      
+                IsVisibleChanged="InfoGrid_IsVisibleChanged"
+                Visibility="Collapsed" >
+
+                <Border x:Name="InfoBorder" 
+                    BorderBrush="Orange" 
+                    Background="{StaticResource Orange2BlackSlant}"                    
+                    Margin="0 5 0 0"
+                    Opacity="1"
+                    BorderThickness="2 10 2 15" 
+                    VerticalAlignment="Top" 
+                    Panel.ZIndex="251"
+                    Height="{Binding ActualHeight, ElementName=InfoGrid}" 
+                    Width="{Binding ActualWidth, ElementName=InfoGrid}"
+                    Visibility="Visible">
+                    <!--Height="{Binding ActualHeight, ElementName=ViewerGrid}"
+                    Width="{Binding ActualWidth, ElementName=ViewerGrid}"-->
+                    <!--Height="320" 
+                    Width="760"-->
+
+                    <Grid x:Name="ViewerGrid"
+                            Grid.Row="0"
+                            VerticalAlignment="Top"
+                            HorizontalAlignment="Left"
+                            Height="{Binding ActualHeight, ElementName=InfoGrid, Converter={StaticResource IncreaseByParamValue},ConverterParameter=-20}"      
+                            Width="{Binding ActualWidth, ElementName=InfoGrid}">
+                        <!--Height="{Binding ActualHeight, ElementName=InfoGrid}"-->
+                        <!--Height="470"
+                    Width="760"-->
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="25"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <!--Width="750"-->
+                        <Grid x:Name="bannergrid" Grid.Row="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <!--Width="{Binding ActualWidth, ElementName=ViewerGrid}"-->
+                            <TextBlock 
+                                Margin="0 0 0 0"
+                                Grid.Column="0"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Top" 
+                                Height="35"
+                                 FontSize="16"
+                                FontWeight="DemiBold"
+                                Foreground="Red"
+                                Background="Cyan"
+                                TextAlignment="Center"
+                                Text="Press Escape, Dbl-Click in viewer or Click 'Close' icon on this panel to close it...."
+                                Panel.ZIndex="251"/>
+
+                            <Border Background="Cyan" Grid.Column="1">
+                                <Image
+                                    x:Name="CloseIcon" Source="\icons\red-cross-icon.png"
+                                    Grid.Column="1"                           
+                                    Height="20" Width="20"
+                                    Panel.ZIndex="252"
+                                    HorizontalAlignment="Right"
+                                    MouseLeftButtonDown="CloseIcon_MouseLeftButtonDown"
+                                    Margin="0,-1,6,0" Grid.RowSpan="2"/>
+                                <!--Height="270" Width="740"-->
+                            </Border>
+                        </Grid>
+
+                        <!--Height="{Binding ActualHeight, ElementName=ViewerGrid,Converter={StaticResource ReduceByParamValue},ConverterParameter=40}" 
+                        Width="{Binding ActualWidth, ElementName=ViewerGrid,Converter={StaticResource ReduceByParamValue},ConverterParameter=20}"-->
+                        <!--Height="{Binding ActualHeight, ElementName=ViewerGrid}"-->
+                        <FlowDocumentScrollViewer x:Name="RTBox" 
+                        MinWidth="200"
+                        Height="{Binding ActualHeight, ElementName=ViewerGrid, Converter={StaticResource ReduceByParamValue},ConverterParameter=60}"      
+                        Width="{Binding ActualWidth, ElementName=ViewerGrid}" 
+                        Grid.Row="3" 
+                        Panel.ZIndex="252"                                           
+                        Margin="0 0,0,0"
+                        HorizontalScrollBarVisibility="Visible"
+                        VerticalScrollBarVisibility="Visible"
+                        Background="{StaticResource Black0}"
+                        Foreground="{StaticResource White0}"                                              
+                        MouseDoubleClick="RTBox_MouseRightButtonDown"
+                        TextOptions.TextFormattingMode="Ideal"
+                        TextOptions.TextRenderingMode="ClearType"
+                        Visibility="Collapsed">
+                            <FlowDocumentScrollViewer.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Close Viewer" Click="MenuItem_Click"/>
+                                    <MenuItem Header="Copy" Command="Copy"/>
+                                    <MenuItem Header="SelectAll" Command="SelectAll"/>
+                                    <MenuItem Header="Reload Tables List" Click="ReloadTables"/>
+                                </ContextMenu>
+                            </FlowDocumentScrollViewer.ContextMenu>
+
+                        </FlowDocumentScrollViewer>
+                        <RichTextBox x:Name="RTB" Grid.Row="3" 
+                                      Height="250" Width="750" 
+                                      Panel.ZIndex="252"                                           
+                                      Margin="0 0,5,170"
+                                    Visibility="Collapsed"/>
+                    </Grid>
+                </Border>
 
 
+            </Grid>
+            <!--//************************//-->
+            <!--#endregion info panel-->
+            <!--//************************//-->
+
+        </Canvas>
+
+        <!--#endregion Canvas-->
+
         <!--//************************//-->
+        <!--Datagrid-->
         <!--#region display Grid-->
         <!--//************************//-->
-        <!--ContextMenu="{StaticResource ContextMenu2}"-->
-            <!--Cellstyle="{StaticResource BankAccountGridStyle}"-->
         <users:DatagridControl x:Name="GenGridCtrl"   
             Grid.Row="1" 
             Background="Transparent" 
@@ -520,13 +1086,12 @@
             HeaderBackground="Blue"
             HeaderForeground="White"                               
             Margin="5 0 5 0"
+           ContextMenu="{StaticResource GenGridContextMenu}"
             Visibility="Visible"
             Tablename="BankAccount" >
-            <!--BorderBrush="{StaticResource Blue5}"-->
         </users:DatagridControl>
-        <!--//************************//-->
+
         <!--#endregion display Grid-->
-        <!--//************************//-->
 
         <!--//************************//-->
         <!--#region Main Btn Panel-->
@@ -554,10 +1119,11 @@
                   VerticalAlignment="Top"
                   Click="ToggleColumnHeaders_Click" 
                   Height="20" 
-                  Margin="180,29,0,0" 
-                  Grid.Row="1"
+                  Margin="267,35,0,0" 
+                  Grid.Row="4"
                   Width="132" 
                   RenderTransformOrigin="0.5,0.5"
+                  Panel.ZIndex="5"
                   Visibility="Collapsed"/>
 
         <Button x:Name="CloseBtn" Width="67" 
@@ -585,7 +1151,6 @@
                    Margin="0 0 5 47"
                    Background="Orange"
                    Foreground="Black"/>
-
 
         <Label Content="Save New Table As : " Grid.Row="2" 
                  HorizontalAlignment="Left"
@@ -625,53 +1190,9 @@
         <!--//************************//-->
 
         <!--***********************************-->
-        <!--#region RowFillteringDialog-->
+        <!--#region RowFillteringDialog popup-->
         <!--***********************************-->
 
-        <Grid x:Name="FieldSelectionGrid"
-              Margin="0,30,0,0" 
-              Grid.Row="1" Width="350"
-              Visibility="Collapsed" 
-              Background="{StaticResource Black7}">
-
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="35"/>
-                <RowDefinition Height="25"/>
-            </Grid.RowDefinitions>
-
-            <DataGrid x:Name="ColNames"
-                 Grid.Row="0"
-                 Background="Cyan"
-                 SelectionMode="Extended"
-                 SelectionChanged="ColNames_SelectionChanged"
-                 Margin="10,10,10,9" >
-            </DataGrid>
-
-            <TextBlock x:Name="Prompt" 
-                   Grid.Row="2"
-                   Text="Hold Ctrl and Click on each column you want included..."
-                   TextAlignment="Center"
-                   Padding="0 2 0 0"
-                   Margin="10 0 10 0"
-                   Background="Red"
-                   Foreground="White" UseLayoutRounding="True"/>
-
-            <Button x:Name="GoBtn" Width="100" Height="30" 
-                HorizontalAlignment="Right" Margin="0,-10,10,0"
-                VerticalAlignment="Center"
-                Content="Go!"
-                Click="GoBtn_Click"
-                Background="Green" Foreground="Red" Grid.Row="1"/>
-
-            <Button x:Name="stopBtn" Width="100" Height="30" 
-                HorizontalAlignment="Right" Margin="0,-10,120,0"
-                VerticalAlignment="Center"
-                Content="Cancel"
-                Click="stopBtn_Click"
-                Background="Red" Foreground="White" Grid.Row="1"/>
-
-        </Grid>
         <TextBlock
             Foreground="White"
             Background="Transparent"
@@ -680,20 +1201,29 @@
             Grid.Row="2" HorizontalAlignment="Left" 
             Width="Auto" Height="26"  
             Margin="360,11,0,0" 
-            VerticalAlignment="Top"
-            />
-            <ComboBox x:Name="OptionsList" 
+            VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5"
+            >
+            <TextBlock.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform AngleX="-12.095"/>
+                    <RotateTransform/>
+                    <TranslateTransform X="-2.786"/>
+                </TransformGroup>
+            </TextBlock.RenderTransform>
+        </TextBlock>
+        <ComboBox x:Name="OptionsList" 
             Grid.Row="2" HorizontalAlignment="Left" 
             Width="270" Height="30"  FontSize="18"
-            Margin="403,41,0,0" 
+            Margin="403,0,0,14" 
             SelectionChanged="OptionsList_Selected"
-            VerticalAlignment="Top"
+            VerticalAlignment="Bottom"
             HorizontalContentAlignment="Center"   >
             <ComboBoxItem >
                 <TextBlock Text="Processing Options .." Style="{StaticResource YellowTextGradient}"
                         TextAlignment="Center" Width="245" />
             </ComboBoxItem>
-           <ComboBoxItem>
+            <ComboBoxItem>
                 <TextBlock Text="Show Full Schema" Style="{StaticResource YellowTextGradient}"
                         TextAlignment="Center" Width="245" />
             </ComboBoxItem>
@@ -713,11 +1243,40 @@
                 <TextBlock Text="Save Selected Rows to Table" Style="{StaticResource YellowTextGradient}"
                         TextAlignment="Center" Width="245" />
             </ComboBoxItem>
-          </ComboBox>
+            <ComboBoxItem>
+                <TextBlock Text="Find Text in Stored Procedures" Style="{StaticResource YellowTextGradient}"
+                        TextAlignment="Center" Width="245" />
+            </ComboBoxItem>
+        </ComboBox>
 
         <!--***********************************-->
         <!--#endregion RowFilteringDialog-->
         <!--***********************************-->
+
+
+
+        <!--// TREEVIEW EXAMPLE FOR TESTING-->
+        <!--<TreeView ItemsSource="{Binding Source={StaticResource MyBooks}, Path=Booklist}">
+            <TreeView.Resources>
+                // Format for Hierarchcal treeview data
+                // x:Types are all classes
+                <HierarchicalDataTemplate DataType="{x:Type local:Book}"
+                                          ItemsSource="{Binding Chapters}">
+                    <TextBlock Text="{Binding BookTitle"/>
+                </HierarchicalDataTemplate>
+                <HierarchicalDataTemplate DataType="{x:Type local:Chapter}"
+                                          ItemsSource="{Binding Articles}">
+                    <TextBlock Text="{Binding ChapterTitle"/>
+                </HierarchicalDataTemplate>
+                <DataTemplate DataType="{x:Type local: Chapter?}">
+                    <WrapPanel>
+                        <TextBlock Text="{Binding ChapterTtile}"/>
+                        <Line X1="1" X2="100" Stretch="Fill" StrokeThickness="1" Stroke="Red" StrokeDashArray="1"/>
+                        <TextBlock Text="{Binding PageNum}"/>
+        </WrapPanel>
+                  </DataTemplate>
+            </TreeView.Resources>
+        </TreeView>-->
 
     </Grid>
 </Window>

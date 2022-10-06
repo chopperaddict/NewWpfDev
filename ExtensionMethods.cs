@@ -10,6 +10,7 @@ using System . Windows . Media;
 using System . Diagnostics;
 using System . Runtime . CompilerServices;
 using System . Windows . Controls;
+using System . IO;
 
 namespace NewWpfDev
 {
@@ -39,7 +40,12 @@ namespace NewWpfDev
         {
             if ( level == 0 ) return;
             string [ ] tmp = path . Split ( '\\' );
-            Debug . WriteLine ( $"{line} ** {message} ** : : {name} (.) in {tmp [ 5 ] + "\\" + tmp [ 6 ]}" );
+            string errmsg = $"\n{name} : {line} ";
+           errmsg += $"in {tmp [ tmp . Length - 2 ]}";
+            errmsg += $"\\{tmp [ tmp . Length - 1 ]}\n**INFO** = [  {message} ]";
+            Debug . WriteLine ( $"\n{errmsg}");
+            if(MainWindow.LogCWOutput)
+            File.AppendAllText( @"C:\users\ianch\documents\CW.log",errmsg);
         }
         //-------------------------------------------------------------------------------------------------------//
         //Snippet = cwe

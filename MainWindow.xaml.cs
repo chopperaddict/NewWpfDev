@@ -227,7 +227,10 @@ namespace NewWpfDev
         public static CustomerViewModel cvm = null;
         public static DetailsViewModel dvm = null;
         public static GenericSelectBoxControl glb = new GenericSelectBoxControl ( );
-
+        
+        static public bool USE_ID_IDENTITY = false;
+        static public bool SQL_USE_DMY_DATES = false;
+        static public bool LogCWOutput = false;
         #region Dynamic variables
 
         //public static dynamic DgridDynamic;
@@ -498,6 +501,7 @@ namespace NewWpfDev
         private void Button5_Cick ( object sender , RoutedEventArgs e )
         {
             Genericgrid grid = new Genericgrid ( );
+            // This line creates24  FormatExceptions lines in output windw
             grid . Show ( );
         }
     }

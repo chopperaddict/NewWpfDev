@@ -1510,21 +1510,26 @@ namespace NewWpfDev
         }
         public static string ConvertInputDate ( string datein )
         {
-            string YYYMMDD = "";
-            string [ ] datebits;
-            // This filter will strip off the "Time" section of an excel date
-            // and return us a valid YYYY/MM/DD string
-            char [ ] ch = { '/' , ' ' };
-            datebits = datein . Split ( ch );
-            if ( datebits . Length < 3 )
-                return datein;
+            // only   do this id our SQL server is NOT confiigured to use 
+            if ( MainWindow . SQL_USE_DMY_DATES == false )
+            {
+                string YYYMMDD = "";
+                string [ ] datebits;
+                // This filter will strip off the "Time" section of an excel date
+                // and return us a valid YYYY/MM/DD string
+                char [ ] ch = { '/' , ' ' };
+                datebits = datein . Split ( ch );
+                if ( datebits . Length < 3 )
+                    return datein;
 
-            // check input to see if it needs reversing ?
-            if ( datebits [ 0 ] . Length == 4 )
-                YYYMMDD = datebits [ 0 ] + "/" + datebits [ 1 ] + "/" + datebits [ 2 ];
-            else
-                YYYMMDD = datebits [ 2 ] + "/" + datebits [ 1 ] + "/" + datebits [ 0 ];
-            return YYYMMDD;
+                // check input to see if it needs reversing ?
+                if ( datebits [ 0 ] . Length == 4 )
+                    YYYMMDD = datebits [ 0 ] + "/" + datebits [ 1 ] + "/" + datebits [ 2 ];
+                else
+                    YYYMMDD = datebits [ 2 ] + "/" + datebits [ 1 ] + "/" + datebits [ 0 ];
+                return YYYMMDD;
+            }
+            else return datein;
         }
         public static CustomerViewModel CreateCustomerRecordFromString ( string input )
         {
@@ -2725,7 +2730,7 @@ namespace NewWpfDev
                 }
                 catch ( Exception ex )
                 {
-                    Debug . WriteLine ( $"{ex . Message}, {ex . Data}" );
+                    Debug . WriteLine ( $"{ex . Message}" );
                 }
             }
         }
@@ -2961,7 +2966,7 @@ namespace NewWpfDev
                 }   // END WHILE index < max
             }
             int counter = 0;
-//            Debug . WriteLine ( $"*****************************************************]" );
+            //            Debug . WriteLine ( $"*****************************************************]" );
             foreach ( var item in Styles )
             {
                 if ( item == "Dark Mode" )
@@ -2973,8 +2978,8 @@ namespace NewWpfDev
                 }
                 counter++;
             }
-//            Debug . WriteLine ( $"*****************************************************]" );
-           Debug . WriteLine ( $"Identified {counter} valid DataGrid styles in {fullvalidpaths . Count} Style source files in {dirs . Length} valid folders" );
+            //            Debug . WriteLine ( $"*****************************************************]" );
+            Debug . WriteLine ( $"Identified {counter} valid DataGrid styles in {fullvalidpaths . Count} Style source files in {dirs . Length} valid folders" );
             return fullvalidstyles;
         }   // METHOD END
 
@@ -3103,7 +3108,7 @@ namespace NewWpfDev
             ctrl . SetValue ( ListboxColorCtrlAP . SelectionBackgroundProperty , DependencyProperty . UnsetValue );
             ctrl . SetValue ( ListboxColorCtrlAP . SelectionForegroundProperty , DependencyProperty . UnsetValue );
         }
-        public static string ReverseString(string input )
+        public static string ReverseString ( string input )
         {
             string output = "";
             for ( int x = input . Length - 1 ; x >= 0 ; x-- )

@@ -1,29 +1,242 @@
-﻿==============================================================================================================
+﻿=============================================================================================================
+    How to mosify the defaulst context menu in a flowdocument
+===============================================================================================================
+            <FlowDocumentScrollViewer.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Close Viewer" Command="{Binding CloseCommand}"/>
+                        <MenuItem Header="Copy" Command="Copy"/>
+                        <MenuItem Header="SelectAll" Command="SelectAll"/>
+                        <MenuItem Header="Reload Tables List" Command="{Binding ReloadCommand}"/>
+                    </ContextMenu>
+                </FlowDocumentScrollViewer.ContextMenu>
+
+=============================================================================================================
+    How to drop a table conditionality in SSQL server
+===============================================================================================================
+
+	IF OBJECT_ID(N'dbo.SearchResult', N'U') IS NOT NULL  
+   DROP TABLE [dbo].[SearchResult]; 
+
+=============================================================================================================
+    How to setup a Canvas containing any Controls(s) you want to be able to drag around inside a parent canvas
+===============================================================================================================
+        <Canvas x:Name="Filtercanvas"
+                Panel.ZIndex="11" 
+                Margin="0,0,0,0" 
+                Grid.Row="1"  
+                Grid.RowSpan="5"
+                Height="{Binding ActualHeight, ElementName=maingrid}"
+                Width="{Binding ActualWidth, ElementName=maingrid}"
+                LostFocus="FieldSelectionGrid_LostFocus">
+
+              #region FILTERING SUPPORT incl movnng it around
+
+              // Our control's Name is [ Filtering ]
+                public object MovingObject; // The control to be moved around
+                public double FirstXPos = 0.0;
+                public double FirstYPos = 0.0;
+                public double width = 0.0, height = 0.0, top = 0.0, left = 0.0;
+
+                private void ShowFilter_Click (object sender , RoutedEventArgs e)
+                {
+                     Filtering . Visibility = Visibility . Visible;
+                    Filtering . UpdateLayout();
+                    filtertext . Text = "";
+                    filtertext . Focus();
+                    type = sender . GetType();
+                    Debug . WriteLine($"Show Type is {type}");
+                    width = Filtering . ActualWidth;
+                    height = Filtering . ActualHeight;
+                    Debug . WriteLine($"Show - left {left} top {top}");
+                    MovingObject = Filtering;
+                    if ( MovingObject != null )
+                    {
+                        ( MovingObject as FrameworkElement ) . SetValue(Canvas . LeftProperty , 100.0);
+                        ( MovingObject as FrameworkElement ) . SetValue(Canvas . TopProperty , 50.0);
+                    }
+                }
+                private void Filtering_PreviewMouseLeftButtonDown (object sender , MouseButtonEventArgs e)
+                {
+                    type = sender . GetType();
+                    Grid filtergrid = sender as Grid;
+                    MovingObject = Filtering;
+                    FirstXPos = e . GetPosition(filtergrid) . X;
+                    FirstYPos = e . GetPosition(filtergrid) . Y;
+                    left = e . GetPosition(( MovingObject as FrameworkElement ) . Parent as FrameworkElement) . X - FirstXPos;
+                    top = e . GetPosition(( MovingObject as FrameworkElement ) . Parent as FrameworkElement) . Y - FirstYPos;
+                }
+                private void Filtering_MouseMove (object sender , MouseEventArgs e)
+                {
+                    Grid filtergrid = sender as Grid;
+                    if ( filtergrid != null && e . LeftButton == MouseButtonState . Pressed )
+                    {
+                        type = sender . GetType();
+                        height = filtergrid . ActualHeight;
+                        width = filtergrid . ActualWidth;
+                        left = e . GetPosition(( MovingObject as FrameworkElement ) . Parent as FrameworkElement) . X - FirstXPos;
+                        top = e . GetPosition(( MovingObject as FrameworkElement ) . Parent as FrameworkElement) . Y - FirstYPos;
+                        if ( left > 5) //&& left < ( Filtercanvas . Width - left ) ) 
+                            ( MovingObject as FrameworkElement ) . SetValue(Canvas . LeftProperty , left);
+                        if(top > 0 )//&& top < (Filtercanvas.Height - top ))
+                            ( MovingObject as FrameworkElement ) . SetValue(Canvas . TopProperty , top);
+                    }
+                }
+                private void Filtering_MouseLeftButtonUp (object sender , MouseButtonEventArgs e)
+                {
+                    Filtering . ReleaseMouseCapture();
+                }
+                private void FieldSelectionGrid_LostFocus (object sender , RoutedEventArgs e)
+                {
+                     Filtering . ReleaseMouseCapture();
+                }
+                private void closeFilter (object sender , RoutedEventArgs e)
+                {
+                    Filtering . Visibility = Visibility . Collapsed;
+                    GenGridCtrl . Visibility = Visibility . Visible;
+                    Filtering . ReleaseMouseCapture();
+                }
+                #endregion FILTERING SUPPORT incl moving it around
+    </Canvas>
+=============================================================================================================
+    how to best specify easily configured popup context menus
+    using a style on the stackpanel that can be configured for each menu item pretty  easily
+    as shown in the style below
+===============================================================================================================
+     <ContextMenu
+            x:Key="GenGridContextMenu" Width="350" 
+            HasDropShadow="True"
+            ContextMenuService.Placement="Center"
+            ContextMenuService.VerticalOffset="-10"
+            Background="Orange">
+
+            <ContextMenu.Style>
+                <Style TargetType="{x:Type ContextMenu}">
+                    <Setter Property="ItemsPanel" Value="{StaticResource NoImageMenu}"/>
+                </Style>
+            </ContextMenu.Style>
+
+            <MenuItem   >
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                    Text="Close Popup Menu"
+                                    FontSize="16"
+                                     Height="25"
+                                    Padding="20 0 0 0"
+                                    Margin="0 0 0 0"
+                                    Width="350"/>
+                    </StackPanel>
+                </MenuItem.Header>
+                <!--<MenuItem.Icon>
+                        <Image Source="/Icons/progressSkip.ico" Height="15" Width="25" />
+                    </MenuItem.Icon>-->
+            </MenuItem>
+     </ContextMenu>
+
+     <Style x:Key="StackPanelStyle1" TargetType="{x:Type StackPanel}">
+            <Style.Triggers>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="false"/>
+                    </MultiTrigger.Conditions>
+                    <MultiTrigger.Setters>
+                        <Setter Property="Background" Value="{StaticResource Cyan1}"/>
+                        <Setter Property="TextElement.Foreground"  Value="{StaticResource Blue0}"/>
+                        <Setter Property="Height" Value="25"/>
+                    </MultiTrigger.Setters>
+                </MultiTrigger>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="True"/>
+                    </MultiTrigger.Conditions>
+                    <MultiTrigger.Setters>
+                        <Setter Property="Background" Value="{StaticResource Yellow1}"/>
+                        <Setter Property="TextElement.FontWeight" Value="DemiBold"/>
+                        <Setter Property="TextElement.FontStyle" Value="Italic"/>
+                        <Setter Property="TextElement.Foreground"  Value="{StaticResource Black0}"/>
+                        <Setter Property="Height" Value="25"/>
+                    </MultiTrigger.Setters>
+                </MultiTrigger>
+            </Style.Triggers>
+        </Style>
+
+
+=============================================================================================================
+    hoow to remove that annoying image panel at left of context menus-->
+===============================================================================================================
+        <Windows.Resources>
+            <ItemsPanelTemplate x:Key="NoImageMenu">
+                <StackPanel Margin="-40,0,0,0" Background="White"/>
+            </ItemsPanelTemplate>
+
+            then just adjust margin left offset as needed....
+
+            it is included as ofllows :-
+                  <ContextMenu
+                        x:Key="TVContextMenu" Width="350" 
+                        HasDropShadow="True"
+                        Background="Blue">
+                        <ContextMenu.Style>
+                            <Style TargetType="{x:Type ContextMenu}">
+                                <Setter Property="ItemsPanel" Value="{StaticResource NoImageMenu}"/>
+                            </Style>
+                        </ContextMenu.Style>
+
+                        ... menu items
+                    </ContextMenu>
+
+=============================================================================================================
+	// How to get a value from SQL pprocessing as OUTPUT value
+===============================================================================================================
+proc xxxxxxx
+@Arg1 int,
+@ Arg2 nvarchar(20) OUTPUT		// this is for QuantityPerUnit.......
+
+ some processing commands..........
+
+SELECT
+    @Arg2 = @@Identity	// @@IDENTITY is a reserved phrase
+
+	// Dapper version :-
+	parameters . Add ( "Arg1" , args [ 0 ] , DbType . String , ParameterDirection . Input , args [ 0 ] . Length );
+	parameters . Add ( "Arg2" , args [ 0 ] , DbType . String , ParameterDirection . Output , 20);
+	the output value is returned in  the parameter's .Value field
+	eg: int result = parameters.Value;
+
+	ADO version :-
+	cmd . Parameters . AddWithValue ( "@arg1" , tablename );
+ 	cmd . Parameters . Add ( "@QuantityPerUnit" , SqlDbType . VarChar , 20 );
+    cmd . Parameters [ "@QuantityPerUnit" ] . Direction = ParameterDirection . Output;
+
+	the output value is returned in  the parameter's .Value field
+	eg: int result = parameters.Value;
+
+=============================================================================================================
 	// How to get a count of all columns in any datagrid
 ===============================================================================================================
  
- int colcount = dgControl . datagridControl . Columns . Count;
+	int colcount = dgControl . datagridControl . Columns . Count;
 
 ==============================================================================================================
-	// How to access movement of a  splitter bar & control its   contents
+	// How to access movement of a  splitter bar & control its contents
 ===============================================================================================================
 
-		Add this  to DragStarted method
-           var heightDescriptor = DependencyPropertyDescriptor . FromProperty ( RowDefinition . HeightProperty , typeof ( ItemsControl ) ); 
-            heightDescriptor . AddValueChanged ( SplitterGrid . RowDefinitions [ 0 ] , SplitterHeightChanged );
+	Add this  to DragStarted method
+        var heightDescriptor = DependencyPropertyDescriptor . FromProperty ( RowDefinition . HeightProperty , typeof ( ItemsControl ) ); 
+        heightDescriptor . AddValueChanged ( SplitterGrid . RowDefinitions [ 0 ] , SplitterHeightChanged );
 
-        private void SplitterHeightChanged ( object sender , EventArgs e )
-        {
-            datagrid1 . Height = SplitterGrid . RowDefinitions [ 0 ] . ActualHeight - 30;
-            datagrid2 . Height = SplitterGrid . RowDefinitions [ 1 ] . ActualHeight - 110;
-        }
+    private void SplitterHeightChanged ( object sender , EventArgs e )
+    {
+        datagrid1 . Height = SplitterGrid . RowDefinitions [ 0 ] . ActualHeight - 30;
+        datagrid2 . Height = SplitterGrid . RowDefinitions [ 1 ] . ActualHeight - 110;
+    }
 ==============================================================================================================
 	// How to discover all instances of a specified control (DataGrid) in a given parent (this)
 ===============================================================================================================
-                // This WORKS = returns all DataGrids in selected Parent (this)
-                var result = WpfLib1.Utils . FindVisualChildren<DataGrid> ( this  );
-				OR
-				IEnumerable<DataGrid> collection = this.Children.OfType<DataGrid>(); 
+        // This WORKS = returns all DataGrids in selected Parent (this)
+        var result = WpfLib1.Utils . FindVisualChildren<DataGrid> ( this  );
+		OR
+		IEnumerable<DataGrid> collection = this.Children.OfType<DataGrid>(); 
 
 ==============================================================================================================
 	// How to access ConfigurationManager Sql Connectioin strings
@@ -40,7 +253,7 @@
 ==============================================================================================================
 	// How to fix resource no found in VS2022
 	=============================================================================================================
-setx VSXAML_DISABLE_ON_DEMAND_RESOURCE_VALUES 1
+	setx VSXAML_DISABLE_ON_DEMAND_RESOURCE_VALUES 1
 
 ==============================================================================================================
 	// How to use Themes ???
@@ -52,6 +265,7 @@ Support for themes in a WPF application must be explicitly enabled by adding the
   ResourceDictionaryLocation.SourceAssembly
  )]
 This will instruct WPF to look for an embedded resource file called themes\generic.xaml to determine the default look of the application's controls.
+
 ==============================================================================================================
 	// How to use a MultiBinding to format output of a field
 ===============================================================================================================
@@ -783,7 +997,6 @@ NB See DataErrorWindow for a different Method
 
             LeftPanelgrid . ColumnDefinitions [ 0 ] . Width= new GridLength ( 20 , GridUnitType . Star );
             LeftPanelgrid . ColumnDefinitions [ 2 ] . Width= new GridLength ( 20 , GridUnitType . Star );
-
 ===============================================================================================================
 	// How to use my  Flowdoc in any file
 ===============================================================================================================
@@ -828,7 +1041,7 @@ NB See DataErrorWindow for a different Method
 			// Window wide  !!
 			// Called  when a Flowdoc MOVE has ended
 			MovingObject = fdl . Flowdoc_MouseLeftButtonUp ( sender , Flowdoc , MovingObject , e );
-			ReleaseMouseCapture ( );
+			MovingObject.ReleaseMouseCapture ( );
 		}
 
 		// CALLED WHEN  LEFT BUTTON PRESSED

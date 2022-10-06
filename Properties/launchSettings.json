@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "NewWpfDev": {
+      "commandName": "Project",
+      "workingDirectory": "C:\\Users\\ianch\\source\\repos\\NewWpfDev\\bin\\Debug\\net6.0-windows",
+      "nativeDebugging": false,
+      "sqlDebugging": true
+    }
+  }
+}

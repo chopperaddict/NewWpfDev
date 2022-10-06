@@ -471,4 +471,12 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <EditorConfigFiles Remove="C:\Users\ianch\source\repos\NewWpfDev\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="C:\Users\ianch\source\repos\NewWpfDev\.editorconfig" />
+  </ItemGroup>
+
 </Project>

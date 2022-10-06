@@ -9,7 +9,7 @@
              x:Name="dgCtrl"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    
+
     <UserControl.Resources>
         <!--#region WORKING entire DataGrid Column header row Style-->
         <Style x:Key="ColumnHeaderStyle" TargetType="{x:Type DataGridColumnHeader}">
@@ -53,7 +53,7 @@
 
     <!--//// This is a generic DataGrid that supports loading virtually ANY SqlTable
             and also allows you to copy them (as the full real schema) to a new table-->
-    
+
     <Grid>
 
         <DataGrid x:Name="datagridControl"  
@@ -65,21 +65,20 @@
                   CanUserResizeColumns="true"
                   CanUserReorderColumns="True"
                   CanUserResizeRows="True"
-                  Margin="0 0 0 0"
+                  Margin="-6,0,6,0"
                   BorderBrush="{Binding Path=HeaderBackground, ElementName=dgCtrl}"
-                  HorizontalAlignment="Stretch"
                   FontSize="16"
                   FontWeight="{Binding Path=FontWeight, ElementName=dgCtrl}"                  
                 DataGrid.ColumnHeaderStyle="{StaticResource ColumnHeaderStyle}">
-                  <!--CellStyle="{Binding Cellstyle, ElementName=dgCtrl}"-->
-                   <!--VerticalAlignment="Stretch">-->
+            <!--CellStyle="{Binding Cellstyle, ElementName=dgCtrl}"-->
+            <!--VerticalAlignment="Stretch">-->
         </DataGrid>
 
         <Canvas x:Name="canvas" 
             Height="{Binding ActualHeight, ElementName=dgCtrl}"
             Width="{Binding ActualWidth , ElementName=dgCtrl}"
             Visibility="Collapsed">
-            
+
             <user:FlowDoc x:Name="Flowdoc" RenderTransformOrigin="0.5,0.5" 
   				backGround="{StaticResource Gray5}"
 				borderColor="{StaticResource Orange1}"

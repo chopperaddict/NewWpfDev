@@ -22,9 +22,6 @@ namespace NewWpfDev. Converts
             public object Convert ( object value , Type targetType , object parameter , CultureInfo culture )
             {
                   double currentvalue = 0;
-#pragma warning disable CS0219 // The variable 'offset' is assigned but its value is never used
-                  double offset = 0;
-#pragma warning restore CS0219 // The variable 'offset' is assigned but its value is never used
                   double d = 0;
                   Type t = targetType;
 
@@ -37,12 +34,12 @@ namespace NewWpfDev. Converts
                         if ( param > 0 )
                         {
                               currentvalue = d + ( param );
-                              Debug. WriteLine ( $"IncreaseByParamValue Converter: value={d} plus parameter={param} *2.3,  Returning {currentvalue}" );
+                              //Debug. WriteLine ( $"IncreaseByParamValue Converter: value={d} plus parameter={param} ,  Returning {currentvalue}" );
                         }
                         else
                         {
                               currentvalue = d;
-                              Debug. WriteLine ( $"IncreaseByParamValue  Converter: value={d}, parameter=0,  Returning {currentvalue}" );
+                             //Debug. WriteLine ( $"IncreaseByParamValue  Converter: value={d}, parameter=0,  Returning {currentvalue}" );
                               // How to access a DP in a converter
                               //DependencyObject dpo = new DependencyObject ( );
                               //object dobj = dpo . GetValue ( ImgButton . ImgWidthProperty );

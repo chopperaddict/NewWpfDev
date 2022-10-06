@@ -465,11 +465,7 @@ namespace NewWpfDev . UserControls
             genclass = backinggrid . SelectedItem as GenericClass;
         }
 
-        private void custnumber_FocusableChanged ( object sender , DependencyPropertyChangedEventArgs e )
-        {
-        }
-
-        private void prevrecord ( object sender , RoutedEventArgs e )
+         private void prevrecord ( object sender , RoutedEventArgs e )
         {
             // = backinggrid
             if ( Datagrid . SelectedIndex > 0 )
