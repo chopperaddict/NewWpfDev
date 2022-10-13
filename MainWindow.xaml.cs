@@ -226,7 +226,7 @@ namespace NewWpfDev
         public static BankAccountViewModel bvm = null;
         public static CustomerViewModel cvm = null;
         public static DetailsViewModel dvm = null;
-        public static GenericSelectBoxControl glb = new GenericSelectBoxControl ( );
+        public static GenericSelectBoxControl glb = new GenericSelectBoxControl (null ,null);
         
         static public bool USE_ID_IDENTITY = false;
         static public bool SQL_USE_DMY_DATES = false;

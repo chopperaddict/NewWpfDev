@@ -195,14 +195,13 @@
             </Grid.RowDefinitions>
 
             <!--Horizontal GridSpitter in left panel.  it lives inside Left slider Panel grid 'LeftPanelgrid'-->
-            <GridSplitter x:Name="lefthorzplitter"
+            <GridSplitter x:Name="lefthorzplitter" Grid.Row="1" Grid.Column="0"
+                            Grid.RowSpan="1"
+						    
+						    Grid.ColumnSpan="1"
 					        ResizeDirection="Rows"         
 						    BorderBrush="{StaticResource Black0}"
 						    BorderThickness="3"
-						    Grid.Row="1"
-                            Grid.RowSpan="1"
-						    Grid.Column="0"
-						    Grid.ColumnSpan="1"
 						    DragStarted="LeftSplitter_DragStarted"  
 						    DragCompleted="LeftSplitter_DragCompleted"
  						    Panel.ZIndex="9"

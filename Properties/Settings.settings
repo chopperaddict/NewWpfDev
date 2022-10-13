@@ -1,5 +1,5 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="NewWpfDev.Properties" GeneratedClassName="Settings">
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
     <Setting Name="xBankSysConnectionString" Type="System.String" Scope="Application">
@@ -34,6 +34,9 @@
     </Setting>
     <Setting Name="AppRootPath" Type="System.String" Scope="User">
       <Value Profile="(Default)">W:\\NewWpfDev\\bin\\Debug\\</Value>
+    </Setting>
+    <Setting Name="FlowDocFont" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
     </Setting>
   </Settings>
 </SettingsFile>

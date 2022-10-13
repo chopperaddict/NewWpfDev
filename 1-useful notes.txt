@@ -1,4 +1,70 @@
 ﻿=============================================================================================================
+    How  to get total columns used in any generic Obs collection
+===============================================================================================================
+
+		int count = NewWpfDev . Utils.GetCollectionColumnCount ( gc );
+
+=============================================================================================================
+    SQL INFO : sample  of an ADO SP calling proc with output parameters
+===============================================================================================================
+	public long MultBySeven(long theNum)
+	{   // Call a Mysql Stored Proc named "multBy7"
+		// which takes an IN parameter, Out parameter (the names are important. Match them)
+		// Multiply the IN by 7 and return the product thru the OUT parameter
+
+		long lParam = 0;
+		using (MySqlConnection lconn = new MySqlConnection(connString))
+		{
+			lconn.Open();
+			using (MySqlCommand cmd = new MySqlCommand())
+			{
+				cmd.Connection = lconn;
+				cmd.CommandText = "multBy7"; // The name of the Stored Proc
+				cmd.CommandType = CommandType.StoredProcedure; // It is a Stored Proc
+
+				// Two parameters below. An IN and an OUT (myNum and theProduct, respectively)
+				cmd.Parameters.AddWithValue("@myNum", theNum); // lazy, not specifying ParameterDirection.Input;
+				cmd.Parameters.AddWithValue("@theProduct", MySqlDbType.Int32);
+				cmd.Parameters["@theProduct"].Direction = ParameterDirection.Output; // from System.Data
+				
+				cmd.ExecuteNonQuery(); // let it rip
+				
+				Object obj = cmd.Parameters["@theProduct"].Value;
+				lParam = (Int32)obj;    // more useful datatype
+			}
+		}
+		return (lParam);
+	} 
+ =============================================================================================================
+    SQL INFO : care with naming
+===============================================================================================================
+
+	CAREFUL : do NOT use SP_ to name Stored procedures
+
+ =============================================================================================================
+    SQL INFO : how to pass output/Return parameters in sql
+===============================================================================================================
+	//how to add RETURN value in sql
+		parameter.Add("c", dbType: DbType.Int32, direction: ParameterDirection.ReturnValue);
+
+	//how to add OUTPUT value in sql
+		parameter.Add("b", dbType: DbType.Int32, direction: ParameterDirection.Output);
+      
+ =============================================================================================================
+    SQL INFO : Correct use of EXEC and  EXEC sp_ExecteSQL in sql
+===============================================================================================================
+ 
+	 CORRECT syntax for using sp_ExecuteSQL is :
+
+	 // for Stored procedures
+		Exec sp_ExecuteSQL @SQL
+	or
+	/// for direct requests
+		Exec (@sql)
+	 NB note the braces on option 2
+	 //*******************************//
+
+ =============================================================================================================
     How to mosify the defaulst context menu in a flowdocument
 ===============================================================================================================
             <FlowDocumentScrollViewer.ContextMenu>
@@ -55,7 +121,7 @@
                         ( MovingObject as FrameworkElement ) . SetValue(Canvas . TopProperty , 50.0);
                     }
                 }
-                private void Filtering_PreviewMouseLeftButtonDown (object sender , MouseButtonEventArgs e)
+                private void DragDialog_LButtonDn (object sender , MouseButtonEventArgs e)
                 {
                     type = sender . GetType();
                     Grid filtergrid = sender as Grid;
@@ -65,7 +131,7 @@
                     left = e . GetPosition(( MovingObject as FrameworkElement ) . Parent as FrameworkElement) . X - FirstXPos;
                     top = e . GetPosition(( MovingObject as FrameworkElement ) . Parent as FrameworkElement) . Y - FirstYPos;
                 }
-                private void Filtering_MouseMove (object sender , MouseEventArgs e)
+                private void DragDialog_Moving (object sender , MouseEventArgs e)
                 {
                     Grid filtergrid = sender as Grid;
                     if ( filtergrid != null && e . LeftButton == MouseButtonState . Pressed )
@@ -81,7 +147,7 @@
                             ( MovingObject as FrameworkElement ) . SetValue(Canvas . TopProperty , top);
                     }
                 }
-                private void Filtering_MouseLeftButtonUp (object sender , MouseButtonEventArgs e)
+                private void DragDialog_Ending (object sender , MouseButtonEventArgs e)
                 {
                     Filtering . ReleaseMouseCapture();
                 }
@@ -1767,17 +1833,6 @@ System . Diagnostics . PresentationTraceSources . DataBindingSource . Switch . L
 	*** Class ListboxColorCtrlAP ***
 	ItemContainerStyle : DataGridColorControlTemplate2
 	ItemContainerStyle : ListBoxColorControlTemplate
-
-===============================================================================================================
-// Howto split grids etc
-===============================================================================================================
-
-		<GridSplitter 
-				Background="Blue" 
-				Height="15"
-				HorizontalAlignment="Stretch"	 
-				ResizeDirection="Rows"
-				ResizeBehavior="BasedOnAlignment"/>
 
 ===============================================================================================================
 // How to access ListBox (or ListView) current record's data from c# using PreviewMouse event

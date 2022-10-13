@@ -113,7 +113,7 @@ namespace NewWpfDev . Views {
         public static List<string> DataTemplatesGen = new List<string> ( );
 
         // Pointer to the special library FlowdocLib.cs 
-        FlowdocLib fdl = new FlowdocLib ( );
+        public FlowdocLib fdl;
 
 
         #region general properties
@@ -288,6 +288,8 @@ namespace NewWpfDev . Views {
             TabViewWin = this;
             //Tctrl = Tabcntrl;
             //Debug . WriteLine ($"{ Tctrl.GetType()}");
+            FlowdocLib fdl = new FlowdocLib ( Flowdoc , canvas );
+
             CreateControlStructs ( );
             InitializeComponent ( );
             LoadDbTables ( null );

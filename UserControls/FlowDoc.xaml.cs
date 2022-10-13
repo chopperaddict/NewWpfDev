@@ -10,6 +10,9 @@ using NewWpfDev . Views;
 //using DocumentFormat . OpenXml . Presentation;
 using System . Collections . Generic;
 using System . Collections;
+using ServiceStack;
+using System . Diagnostics . CodeAnalysis;
+using Views;
 
 namespace NewWpfDev . UserControls
 {
@@ -100,13 +103,21 @@ namespace NewWpfDev . UserControls
 
         // Implement INameScope similar to this:
 
-        public FlowDoc ()
+        public FlowDoc ( )
         {
             InitializeComponent ( );
+            // Reset font to saved default
+            string test = ( string ) Properties . Settings . Default [ "FlowDocFont" ];
+            if ( test != "" )
+            {
+                doc . FontFamily = new FontFamily ( test );
+                flowdoc . FontFamily = new FontFamily ( test );
+                CurrentFont . Text = test;
+            }
             doc . FontSize = ( double ) 16;
             Fontsize = doc . FontSize;
-//            if ( host != null )
-   //             HostControl = host;
+            //            if ( host != null )
+            //             HostControl = host;
         }
 
         private void flowdoc_Loaded ( object sender , RoutedEventArgs e )
@@ -170,6 +181,10 @@ namespace NewWpfDev . UserControls
                 myFlowDocument2 = CreateFlowDocumentScroll ( line1 , clr1 , line2 , clr2 , line3 , clr3 , header , clr4 );
                 fdviewer . Document = myFlowDocument2;
                 textRange = new TextRange ( fdviewer . Document . ContentStart , fdviewer . Document . ContentEnd );
+                //Get font
+                //FontFamily family = NewWpfDev . Utils . GetFlowdocFont ( "FlowDocFont" );
+                //if ( family != null )
+                //    myFlowDocumentScrollViewer . FontFamily = family;
             }
             else
             {
@@ -178,6 +193,10 @@ namespace NewWpfDev . UserControls
                 myFlowDocument = CreateFlowDocument ( line1 , clr1 , line2 , clr2 , line3 , clr3 , header , clr4 );
                 doc . Document = myFlowDocument;
                 textRange = new TextRange ( doc . Document . ContentStart , doc . Document . ContentEnd );
+                //Get font
+                //FontFamily family = NewWpfDev . Utils . GetFlowdocFont ( "FlowDocFont" );
+                //if ( family != null )
+                //    doc . FontFamily = family;
             }
             // Get length of the controls content so we can resize as needed			
             int retcount = 0;
@@ -520,10 +539,10 @@ namespace NewWpfDev . UserControls
         private void FdBorder_MouseMove ( object sender , MouseEventArgs e )
         {
             // Flowdoc is being resized
-            if ( BorderClicked )
-            {
-            }
-            this . Focus ( );
+            //if ( BorderClicked )
+            //{
+            //}
+            //this . Focus ( );
         }
 
         private void FlowdocBorder_PreviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
@@ -538,7 +557,7 @@ namespace NewWpfDev . UserControls
         {
             this . Visibility = Visibility . Collapsed;
             Mouse . OverrideCursor = Cursors . Arrow;
-           BorderSelected = -1;
+            BorderSelected = -1;
         }
 
         #region Dependency properties
@@ -776,7 +795,7 @@ namespace NewWpfDev . UserControls
                 ExecuteFlowDocBorderMethod ( this , e );
         }
 
-        //code to allow this action in flowdocto be andled by an external window
+        //code to allow this action in flowdocto be handled by an external window
         // Clever stuff really
         public event EventHandler<FlowArgs> ExecuteFlowDocResizeMethod;
         protected virtual void OnExecuteResizeMethod ( FlowArgs e )
@@ -861,56 +880,81 @@ namespace NewWpfDev . UserControls
         /// <param name="e"></param>
         private void SelectFont_Click ( object sender , RoutedEventArgs e )
         {
-            Canvas canvas = DapperGenericsLib . Utils . FindVisualParent<Canvas> ( flowdoc as DependencyObject );
-           // FlowDoc element = DapperGenericsLib . Utils . FindVisualParent<FlowDoc> ( flowdoc as DependencyObject );
+            //string [ ] arr = new string [ 20 ];
+           // Canvas fdlcanvas = topcanvas;// DapperGenericsLib . Utils . FindVisualParent<Canvas> ( fdlCanvas as DependencyObject );
+            // FlowDoc element = DapperGenericsLib . Utils . FindVisualParent<FlowDoc> ( flowdoc as DependencyObject );
 
-            if ( canvas == null )
-            {
-                MessageBox . Show ( "Unable to find a parent Canvas control that is required for FlowDoc to work correctly..." , "Invalid Environment" );
-                return;
-            }
+            //if ( fdlcanvas == null )
+            //{
+            //    MessageBox . Show ( "Unable to find a parent Canvas control that is required for FlowDoc to work correctly..." , "Invalid Environment" );
+            //    return;
+            //}
             // Add GenericListBoxControl to our parent's Canvas (Mandatory for FlowDoc anyway)
-            var kids = canvas . Children;
-            bool exists = false;
-            int index = 0;
-            do
-            {
-                foreach ( var item in kids )
-                {
-                    string str = item . ToString ( );
-                    if ( str . ToString ( ) . Contains ( "GenericSelectBoxControl" ) )
-                    {
-                        kids . Remove ( ( UIElement ) item );
-                        exists = true;
-                        break;
-                    }
-                    index++;
-                }
-                if ( exists != true )
-                {
-                    exists = false;
-                    break;
-                }
-                else
-                {
-                    exists = false;
-                    break;
-                }
-            } while ( true );
+           // var kids = fdlcanvas . Children;
+            { 
+            //bool exists = false;
+            //int index = 0;
+            //object[ ] childs = new object [ 10 ];
+            ////do
+            ////{
+            //    foreach ( var item in kids )
+            //    {
+            //        string str = item . ToString ( );
+            //        if ( str.  Contains ( "GenericSelectBoxControl"))
+            //        {
+            //            childs [ index ] = item;
+            //            //kids . Remove ( ( UIElement ) item );
+            //            exists = true;
+            //            index++;
+            //            continue;
+            //            //break;
+            //        }
+            ////        index++;
+            //    }
+            //    //if ( exists != true )
+            //    //{
+            //    //    exists = false;
+            //    //    break;
+            //    //}
+            //    //else
+            //    //{
+            //    //    exists = false;
+            //    //    break;
+            //    //}
+            ////} while ( true );
 
-            if ( exists != true )
-            {
-                //Create new Control to be added
-                GenericSelectBoxControl newselbox = MainWindow.glb;
-                newselbox . Name = "LbSelector";
-                newselbox . SetHost ( this );
-                canvas . Children . Add ( newselbox );
-                newselbox . Visibility = Visibility . Visible;
+            //if(exists && index > 0 )
+            //{
+            //    int indx = 0;
+            //    for(int v = index ; v >0 ;v-- )
+            //    {
+            //        if ( childs [v] != null )
+            //        kids . Remove ( ( UIElement ) childs [v-1] );
+            //    }
+            //}
+            GenericSelectbox newselbox = new GenericSelectbox ();
+                //            GenericSelectBoxControl newselbox = MainWindow . glb;
+                if ( newselbox == null )
+                {
+ //                   newselbox . SetHost ( topcanvas );
+                    newselbox . Name = "LbSelector";
+                }//Create new Control to be added
+                //try
+                //{
+                //    fdlcanvas . Children . Add ( newselbox );
+                //}
+                //catch ( Exception ex ) {
+                //    MessageBox . Show ( $"Unable to add GenericSelectionBox to canvas.Children collection\n\n{ex.Message}" , "Canvas Error" );
+                //    return; }
+               // newselbox . Visibility = Visibility . Visible;
+                //FontFamily NewFamily = NewWpfDev . Utils . ResetFont ( "FlowDocFont" );
+                //if ( NewFamily != null )
+                //    newselbox . FontFamily = NewFamily;
                 // Load list of Windows Fonts
                 List<string> fonts = DapperGenericsLib . Utils . GetFontsList ( );
                 newselbox . listbox . ItemsSource = fonts;
                 string match = CurrentFont . Text . Trim ( );
-                index = 0;
+               int index = 0;
                 // Highlight current font in use
                 foreach ( string item in newselbox . listbox . Items )
                 {
@@ -926,7 +970,6 @@ namespace NewWpfDev . UserControls
             }
             this . Focus ( );
         }
-
         private void listbox_Mouseleftdown ( object sender , MouseButtonEventArgs e )
         {
             SelectFont_Click ( sender , null );
@@ -943,6 +986,9 @@ namespace NewWpfDev . UserControls
             this . doc . UpdateLayout ( );
             this . doc . UpdateDefaultStyle ( );
             this . fdviewer . UpdateDefaultStyle ( );
+            Properties . Settings . Default . FlowDocFont = fontFamily . ToString ( );
+            Properties . Settings . Default . Save ( );
+
             if ( this . doc . Visibility == Visibility . Visible )
             {
                 this . doc . FontFamily = fontFamily;

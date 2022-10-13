@@ -60,7 +60,7 @@ namespace NewWpfDev
             // pass down dictionary that will return with column names and SQL types
             Dictionary<string , string> Columntypes = new Dictionary<string , string> ( );
             List<Dictionary<string , string>> ColumnTypesList = new List<Dictionary<string , string>> ( );
-            "ENTERING : " . cwinfo ( );
+            //"ENTERING : " . cwinfo ( );
             // clear reference sturcture first off
             dglayoutlist . Clear ( );
 
@@ -91,7 +91,7 @@ namespace NewWpfDev
                 // Grid now has valid column names, but still got All 20 ??
                 Grid . UpdateLayout ( );
             }
-            "EXITING : " . cwinfo ( );
+            //"EXITING : " . cwinfo ( );
             return ColumnTypesList;
         }
 
@@ -104,7 +104,7 @@ namespace NewWpfDev
              string DbDomain ,
              ref List<DapperGenericsLib . DataGridLayout> dglayoutlist )
         {
-            $"Entering " . cwinfo ( );
+            //$"Entering " . cwinfo ( );
             // Make sure we are accessing the correct Db Domain
             DapperLibSupport . CheckDbDomain ( DbDomain );
             Dictionary<string , string> dict = DapperGenLib . GetSpArgs ( ref Gencollection , ref ColumntypesList , ref list , dbName , DbDomain , ref dglayoutlist );
@@ -114,17 +114,17 @@ namespace NewWpfDev
         #region non Extension support methods
         public static void CheckDbDomain ( string DbDomain )
         {
-            $"Entering " . cwinfo ( 0 );
+            //$"Entering " . cwinfo ( 0 );
             if ( DapperGenLib . ConnectionStringsDict == null || DapperGenLib . ConnectionStringsDict . Count == 0 )
                 LoadConnectionStrings ( );
             CheckResetDbConnection ( DbDomain , out string constring );
             DapperGenLib . CurrentConnectionString = constring;
-            $"Exiting " . cwinfo ( 0 );
+            //$"Exiting " . cwinfo ( 0 );
         }
         public static void LoadConnectionStrings ( )
         {
             // This one works just fine - its in NewWpfDev
-            $"Entering " . cwinfo ( 0 );
+            //$"Entering " . cwinfo ( 0 );
             Settings defaultInstance = ( ( Settings ) ( global::System . Configuration . ApplicationSettingsBase . Synchronized ( new Settings ( ) ) ) );
             try
             {
@@ -144,12 +144,12 @@ namespace NewWpfDev
             {
 
             }
-            $"Exiting " . cwinfo ( 0 );
+            //$"Exiting " . cwinfo ( 0 );
         }
         public static bool CheckResetDbConnection ( string currdb , out string constring )
         {
             //string constring = "";
-            $"Entering " . cwinfo ( 0 );
+            //$"Entering " . cwinfo ( 0 );
             currdb?.ToUpper ( );
             // This resets the current database connection to the one we re working with (currdb - in UPPER Case!)- should be used anywhere that We switch between databases in Sql Server
             // It also sets the Flags.CurrentConnectionString - Current Connectionstring  and local variable
@@ -165,7 +165,7 @@ namespace NewWpfDev
                         //test it
                         constring = connstring;
                         con . Close ( );
-                        $"Exiting " . cwinfo ( 0 );
+                        //$"Exiting " . cwinfo ( 0 );
                         return true;
                     }
                     else
@@ -192,7 +192,7 @@ namespace NewWpfDev
         public static string GetDictionaryEntry ( Dictionary<string , string> dict , string key , out string dictvalue )
         {
             string keyval = "";
-            $"Entering " . cwinfo ( 0 );
+            //$"Entering " . cwinfo ( 0 );
 
             if ( dict . Count == 0 )
                 LoadConnectionStrings ( );
@@ -207,8 +207,8 @@ namespace NewWpfDev
             dictvalue = keyval;
             if ( keyval . Contains ( "Data Source" ) == false )
                 $"Exiting with No connection string" . cwwarn ( );
-            else
-                $"Exiting " . cwinfo ( 0 );
+           // else
+                //$"Exiting " . cwinfo ( 0 );
             return keyval;
         }
         #endregion support methods

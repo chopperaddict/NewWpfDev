@@ -1,4 +1,5 @@
-﻿using System;
+﻿#define USECW
+using System;
 using System . Collections . Generic;
 using System . Linq;
 using System . Text;
@@ -17,6 +18,22 @@ namespace NewWpfDev
     public static class ExtensionMethods
     {
         private static Action EmptyDelegate = delegate ( ) { };
+
+        //Snippet = trk
+        //[Conditional ( "USECW" )]
+        public static void Track (
+            this string message ,
+            int level = 1 ,
+            [CallerFilePath] string path = null ,
+            [CallerMemberName] string name = null ,
+            [CallerLineNumber] int line = -1 )
+        {
+            if ( level == 0 ) return;
+            string [ ] tmp = path . Split ( '\\' );
+            int len = tmp . Length;
+            string filedetails = $"{tmp [ len - 3 ]}/{tmp [ len - 2 ]}/{tmp[len-1]}";
+            Debug . WriteLine ( $"** TRACK** : {line} :  {filedetails} : {name.ToUpper()}" );
+        }
 
         public static void log (
             this string message ,

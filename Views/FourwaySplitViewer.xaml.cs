@@ -127,7 +127,7 @@ namespace NewWpfDev . Views {
             //LeftPanelgrid . RowDefinitions [ 1 ] . Height = new GridLength ( 20 , GridUnitType . Pixel );
             //LeftPanelgrid . RowDefinitions [ 2 ] . Height = new GridLength ( 20 , GridUnitType . Star );
 
-            //Maingrid . ColumnDefinitions [ 0 ] . Width= new GridLength ( 0 , GridUnitType . Pixel );
+            Maingrid . ColumnDefinitions [ 0 ] . Width= new GridLength ( 0 , GridUnitType . Pixel );
             //Maingrid . ColumnDefinitions [ 1 ] . Width = new GridLength ( 30 , GridUnitType . Pixel );
             //Maingrid . ColumnDefinitions [ 2 ] . Width = new GridLength ( 1 , GridUnitType . Star );
             //Maingrid . ColumnDefinitions [ 3 ] . Width = new GridLength ( 10 , GridUnitType . Pixel );
@@ -240,7 +240,7 @@ namespace NewWpfDev . Views {
         private static Stopwatch timer = new Stopwatch ( );
 
         // Flowdoc file wide variables
-        public FlowdocLib fdl = new FlowdocLib ( );
+        public FlowdocLib fdl;
 #pragma warning disable CS0414 // The field 'FourwaySplitViewer.XLeft' is assigned but its value is never used
         private double XLeft = 0;
 #pragma warning restore CS0414 // The field 'FourwaySplitViewer.XLeft' is assigned but its value is never used
@@ -283,6 +283,8 @@ namespace NewWpfDev . Views {
             EventControl . DetDataLoaded += EventControl_DetDataLoaded;
             EventControl . GenDataLoaded += EventControl_GenDataLoaded;
             // FlowDoc support
+            fdl = new FlowdocLib ( Flowdoc , canvas );
+
             Flowdoc . ExecuteFlowDocMaxmizeMethod += new EventHandler ( MaximizeFlowDoc );
             //           Flowdoc. ExecuteFlowDocBorderMethod += FlowDoc_ExecuteFlowDocBorderMethod;
             this . SizeChanged += Datagrids_SizeChanged;

@@ -1932,7 +1932,6 @@
                                             Height="24"
                                             HorizontalAlignment="Center"
 		        		                        Panel.ZIndex="25" Grid.Row="0"  >
-
                                         <TextBlock 
                                                Background="Transparent"
                                                Text="{Binding LeftSplitterText, FallbackValue=Drag Up/down}" 
@@ -1940,7 +1939,6 @@
                                                Foreground="White"
                                                Margin="0 2 0 0"
                                                HorizontalAlignment="Center"/>
-
                                         <Image Source="{Binding LsplitterImage}"  Margin="15 0 0 5"
 	        				    	                        Panel.ZIndex="25"  Height="20" Width="20" />
 

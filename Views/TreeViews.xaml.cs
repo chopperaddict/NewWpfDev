@@ -433,7 +433,8 @@ namespace NewWpfDev. Views
             treeViews = this;
             listBox . Items . Clear ( );
             ActiveTree . Items . Clear ( );
-            fdl = new FlowdocLib ( );
+            fdl = new FlowdocLib ( Flowdoc , canvas );
+
             FdMargin . Left = Flowdoc . Margin . Left;
             FdMargin . Top = Flowdoc . Margin . Top;
             TvExplorer = new ExplorerClass ( );

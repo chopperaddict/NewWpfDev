@@ -38,14 +38,14 @@ namespace NewWpfDev. Converts
                         }
                         else
                         {
-                              currentvalue = d;
+                              currentvalue = d + (param);
                              //Debug. WriteLine ( $"IncreaseByParamValue  Converter: value={d}, parameter=0,  Returning {currentvalue}" );
                               // How to access a DP in a converter
                               //DependencyObject dpo = new DependencyObject ( );
                               //object dobj = dpo . GetValue ( ImgButton . ImgWidthProperty );
                               //offset = System . Convert . ToDouble ( dobj );
                               //currentvalue = d - ( offset * 4 );
-                              //Debug. WriteLine ( $"ResetTextWidth Converter: value={d} parameter={param}, ImgWidth={offset},  Returning {currentvalue}" );
+                              //Debug. WriteLine ( $"ResetTextWidth Converter: value={d}  + parameter={param}, Returning {currentvalue}" );
                         }
                         return currentvalue;
                   }
@@ -53,7 +53,7 @@ namespace NewWpfDev. Converts
                   {
                         d = ( double ) value;
                         currentvalue = d - ( double ) 35;
-                        Debug. WriteLine ( $"ResetTextWidth Converter has returned {currentvalue} from {d} - 35" );
+                        //Debug. WriteLine ( $"ResetTextWidth Converter has returned {currentvalue} from {d} - 35" );
                   }
 
                   return currentvalue;

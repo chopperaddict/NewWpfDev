@@ -77,7 +77,7 @@
         </Style>
 
     </UserControl.Resources>
-    <Grid x:Name="lbgrid">
+    <Grid x:Name="lbgrid" Panel.ZIndex="255">
         <!--// Try to keep TextBlock OUTSIDE the border-->
         <TextBlock x:Name="titlebar" Background="Red"
                 Height="30"        
@@ -103,7 +103,7 @@
             MouseLeftButtonDown="border_MouseLeftButtonDown"
             MouseLeftButtonUp="border_MouseLeftButtonUp"
             MouseMove="border_MouseMove"
-            Panel.ZIndex="45"
+            Panel.ZIndex="256"
             VerticalAlignment="Stretch"
             HorizontalAlignment="Stretch">
             <!--PreviewMouseMove="border_PreviewMouseMove"-->

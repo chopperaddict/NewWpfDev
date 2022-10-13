@@ -5,6 +5,7 @@ using NewWpfDev . Views;
 using System;
 using System . Collections . Generic;
 using System . ComponentModel;
+using System . Diagnostics;
 using System . Linq;
 using System . Security . RightsManagement;
 using System . Text;
@@ -99,9 +100,21 @@ namespace NewWpfDev . Models
         public double CpFirstXPos = 0;
         public double CpFirstYPos = 0;
         public static bool IsScrollbarActive { get; set; }
+        public static Canvas parentcanvas { get; set; }
+        public static FlowDoc flowdoc { get; set; }
+
+
 
         #endregion Flowdoc Variables
-
+        public FlowdocLib (FlowDoc ctrl, Canvas Parentcanvas)
+        {
+            if ( ctrl != null )
+                flowdoc = ctrl;
+            if ( Parentcanvas == null )
+                parentcanvas = Flowdoc. topcanvas;
+            else
+                parentcanvas = Parentcanvas;
+        }
         #region Methods
         public void ShowInfo ( FlowDoc Flowdoc , Canvas canvas , string line1 = "" , string clr1 = "" , string line2 = "" , string clr2 = "" , string line3 = "" , string clr3 = "" , string header = "" , string clr4 = "" , bool beep = false )
         {

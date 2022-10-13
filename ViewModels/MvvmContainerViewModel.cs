@@ -342,7 +342,8 @@
 
         public void ExecuteCommandClose ( object obj )
         {
-            var parent = Utils . FindVisualParent<Window> ( ContainerWin );
+            string[] arr = new string [ 20 ];
+            var parent = Utils . FindVisualParent<Window> ( ContainerWin, out arr );
             parent . Close ( );
         }
         #endregion Command Handlers

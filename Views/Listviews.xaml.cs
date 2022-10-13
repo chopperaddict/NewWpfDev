@@ -115,7 +115,7 @@ namespace NewWpfDev . Views
 
         public static string CurrentSqlConnection = "BankSysConnectionString";
         public static Dictionary<string , string> DefaultSqlCommands = new Dictionary<string , string> ( );
-        public FlowdocLib fdl = new FlowdocLib ( );
+        public FlowdocLib fdl;
         #endregion  Public variables
 
         #region private variables
@@ -256,6 +256,8 @@ namespace NewWpfDev . Views
             InitializeComponent ( );
             this . DataContext = this;
             Startup = true;
+            FlowdocLib fdl = new FlowdocLib ( Flowdoc , canvas );
+
             UseFlowdoc = false;
             UseScrollViewer = false;
             Usetimer = true;

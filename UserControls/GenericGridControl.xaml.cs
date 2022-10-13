@@ -56,7 +56,7 @@ namespace NewWpfDev . UserControls
 
         // Flowdoc file wide variables
         // Pointer to the special library FlowdocLib.cs 
-        FlowdocLib fdl = new FlowdocLib ( );
+        FlowdocLib fdl;
         private double XLeft = 0;
         private double YTop = 0;
         private bool UseFlowdoc = true;
@@ -186,6 +186,8 @@ namespace NewWpfDev . UserControls
             Mouse . SetCursor ( Cursors . Wait );
             this . UpdateLayout ( );
             ThisWin = this;
+            FlowdocLib fdl = new FlowdocLib ( Flowdoc , canvas );
+
             splithandler = new ExtendSplitter ( this );
             //          this . DataContext = this;  // DO NOT SET CONTEXT HERE !!!!!!  Do it in XAML code !
             GenericGrid1 = datagrid1;

@@ -34,7 +34,6 @@ using System . Runtime . Serialization . Formatters . Binary;
 using System . Reflection;
 using NewWpfDev . AttachedProperties;
 using NewWpfDev . Properties;
-using System . Runtime . CompilerServices;
 
 namespace NewWpfDev
 {
@@ -835,6 +834,12 @@ namespace NewWpfDev
                         foundChild = ( T ) child;
                         break;
                     }
+                    else
+                    {
+                        // child element found.
+                        Type type = childName . GetType ( );
+                        foundChild = ( T ) FindChild ( child , type );
+                    }
                 }
                 else
                 {
@@ -864,27 +869,75 @@ namespace NewWpfDev
             }
             return null;
         }
-        public static T FindVisualParent<T> ( UIElement element ) where T : UIElement
+        public static void FindVisualParent ( UIElement element , out object [ ] array )
         {
+            int indx = 0;
+            object [ ] arr = new object [ 20 ];
+            UIElement parent = element as UIElement;
+            if ( parent . GetType ( ) == typeof ( Border ) )
+            {
+                arr [ 0 ] = parent;
+                indx++;
+            }
+            array = arr;
+            while ( parent != null )
+            {
+                parent = VisualTreeHelper . GetParent ( parent ) as UIElement;
+                if ( parent != null )
+                {
+                    // see if this is the top level (Canvas is next up the chain)
+                    if ( parent . GetType ( ) == typeof ( Canvas ) )
+                        break;  // Yes it is
+                    else
+                    {   // nope !!  try next oen 
+                        arr [ indx ] = parent as object;
+                        indx++;
+                    }
+                }
+            }
+            array = arr;
+        }
+
+        public static T FindVisualParent<T> ( UIElement element , out string [ ] array ) where T : UIElement
+        {
+            int indx = 1;
+            string [ ] arr = new string [ 20 ];
             UIElement parent = element;
+            arr [ 0 ] = parent . ToString ( );
+            array = arr;
             while ( parent != null )
             {
                 var correctlyTyped = parent as T;
                 if ( correctlyTyped != null )
                 {
+                    array = arr;
                     return correctlyTyped;
                 }
                 parent = VisualTreeHelper . GetParent ( parent ) as UIElement;
+                if ( parent != null )
+                    arr [ indx ] = parent . ToString ( );
+                indx++;
             }
+            array = arr;
             return null;
         }
-        public static parentItem FindVisualParent<parentItem> ( DependencyObject obj ) where parentItem : DependencyObject
+        public static parentItem FindVisualParent<parentItem> ( DependencyObject obj , out string [ ] objectarray ) where parentItem : DependencyObject
         {
+            // Climbs UP the visual tree
+            string [ ] array = new string [ 20 ];
+            int index = 0;
             DependencyObject parent = VisualTreeHelper . GetParent ( obj );
+            Type type = parent . GetType ( );
+            array [ index++ ] = type . ToString ( );
             while ( parent != null && !parent . GetType ( ) . Equals ( typeof ( parentItem ) ) )
             {
                 parent = VisualTreeHelper . GetParent ( parent );
+                if ( parent == null ) break;
+                type = parent . GetType ( );
+                if ( index < 20 )
+                    array [ index++ ] = type . ToString ( );
             }
+            objectarray = array;
             return parent as parentItem;
         }
         public static string GetDataSortOrder ( string commandline )
@@ -1724,7 +1777,7 @@ namespace NewWpfDev
             {
                 var v = original . GetType ( );
                 bool isScrollbar = original . GetType ( ) . Equals ( typeof ( ScrollBar ) );
-                if ( !isScrollbar . Equals ( typeof ( ScrollBar ) ) )
+                if ( isScrollbar . Equals ( typeof ( ScrollBar ) ) == false )
                 {
                     if ( original . GetType ( ) . Equals ( typeof ( DataGrid ) ) )
                     {
@@ -1738,7 +1791,7 @@ namespace NewWpfDev
                     {
                         return false;
                     }
-                    else if ( FindVisualParent<ScrollBar> ( original as DependencyObject ) != null )
+                    else if ( FindVisualParent<ScrollBar> ( original as DependencyObject , out string [ ] objectarray ) != null )
                     {
                         //scroll bar is clicked
                         return true;
@@ -1870,6 +1923,8 @@ namespace NewWpfDev
             UIElement OBJ = new UIElement ( );
             int indx = 0;
             bool success = false;
+            string [ ] arr = new string [ 20 ];
+
             // try to step up the visual tree ?
             do
             {
@@ -1879,82 +1934,82 @@ namespace NewWpfDev
                 switch ( indx )
                 {
                     case 1:
-                        OBJ = FindVisualParent<DataGrid> ( ui );
+                        OBJ = FindVisualParent<DataGrid> ( ui , out arr );
                         if ( OBJ != null )
                             success = true;
                         break;
                     case 2:
-                        OBJ = FindVisualParent<Button> ( ui );
+                        OBJ = FindVisualParent<Button> ( ui , out arr );
                         if ( OBJ != null )
                             success = true;
                         break;
                     case 3:
-                        OBJ = FindVisualParent<Slider> ( ui );
+                        OBJ = FindVisualParent<Slider> ( ui , out arr );
                         if ( OBJ != null )
                             success = true;
                         break;
                     case 4:
-                        OBJ = FindVisualParent<ListView> ( ui );
+                        OBJ = FindVisualParent<ListView> ( ui , out arr );
                         if ( OBJ != null )
                             success = true;
                         break;
                     case 5:
-                        OBJ = FindVisualParent<ListBox> ( ui );
+                        OBJ = FindVisualParent<ListBox> ( ui , out arr );
                         if ( OBJ != null )
                             success = true;
                         break;
                     case 6:
-                        OBJ = FindVisualParent<ComboBox> ( ui );
+                        OBJ = FindVisualParent<ComboBox> ( ui , out arr );
                         if ( OBJ != null )
                             success = true;
                         break;
                     case 7:
-                        OBJ = FindVisualParent<WrapPanel> ( ui );
+                        OBJ = FindVisualParent<WrapPanel> ( ui , out arr );
                         if ( OBJ != null )
                             success = true;
                         break;
                     case 8:
-                        OBJ = FindVisualParent<CheckBox> ( ui );
+                        OBJ = FindVisualParent<CheckBox> ( ui , out arr );
                         if ( OBJ != null )
                             success = true;
                         break;
                     case 9:
-                        OBJ = FindVisualParent<DataGridRow> ( ui );
+                        OBJ = FindVisualParent<DataGridRow> ( ui , out arr );
                         if ( OBJ != null )
                             success = true;
                         break;
                     case 10:
-                        OBJ = FindVisualParent<DataGridCell> ( ui );
+                        OBJ = FindVisualParent<DataGridCell> ( ui , out arr );
                         if ( OBJ != null )
                             success = true;
                         break;
                     case 11:
-                        OBJ = FindVisualParent<Canvas> ( ui );
+                        OBJ = FindVisualParent<Canvas> ( ui , out arr );
                         if ( OBJ != null )
                             success = true;
                         break;
                     case 12:
-                        OBJ = FindVisualParent<GroupBox> ( ui );
+                        OBJ = FindVisualParent<GroupBox> ( ui , out arr );
                         if ( OBJ != null )
                             success = true;
                         break;
                     case 13:
-                        OBJ = FindVisualParent<ProgressBar> ( ui );
+                        OBJ = FindVisualParent<ProgressBar> ( ui , out arr );
                         if ( OBJ != null )
                             success = true;
                         break;
                     case 14:
-                        OBJ = FindVisualParent<Ellipse> ( ui );
+                        OBJ = FindVisualParent<Ellipse> ( ui , out arr );
                         if ( OBJ != null )
                             success = true;
                         break;
                     case 15:
-                        OBJ = FindVisualParent<RichTextBox> ( ui );
+                        OBJ = FindVisualParent<RichTextBox> ( ui , out arr );
                         if ( OBJ != null )
                             success = true;
                         break;
                     case 16:
-                        OBJ = FindVisualParent<TextBlock> ( ui );
+                        OBJ = FindVisualParent<TextBlock> ( ui , out arr );
                         if ( OBJ != null )
                             success = true;
                         break;
@@ -1984,27 +2039,27 @@ namespace NewWpfDev
                         } while ( true );
                         break;
                     case 18:
-                        OBJ = FindVisualParent<ContentPresenter> ( ui );
+                        OBJ = FindVisualParent<ContentPresenter> ( ui , out arr );
                         if ( OBJ != null )
                             success = true;
                         break;
                     case 19:
-                        OBJ = FindVisualParent<Grid> ( ui );
+                        OBJ = FindVisualParent<Grid> ( ui , out arr );
                         if ( OBJ != null )
                             success = true;
                         break;
                     case 20:
-                        OBJ = FindVisualParent<Window> ( ui );
+                        OBJ = FindVisualParent<Window> ( ui , out arr );
                         if ( OBJ != null )
                             success = true;
                         break;
                     case 21:
-                        OBJ = FindVisualParent<ScrollContentPresenter> ( ui );
+                        OBJ = FindVisualParent<ScrollContentPresenter> ( ui , out arr );
                         if ( OBJ != null )
                             success = true;
                         break;
                     case 22:
-                        OBJ = FindVisualParent<Rectangle> ( ui );
+                        OBJ = FindVisualParent<Rectangle> ( ui , out arr );
                         if ( OBJ != null )
                             success = true;
                         break;
@@ -2043,36 +2098,62 @@ namespace NewWpfDev
             //gv . Show ( );
             //// Save to disk file
         }
-        public static bool HitTestBorder ( object sender , MouseButtonEventArgs e )
+        public static bool HitTestValidMoveType ( object sender , MouseButtonEventArgs e )
         {
             object original = e . OriginalSource;
-#pragma warning disable CS0168 // The variable 'ex' is declared but never used
             try
             {
                 var v = original . GetType ( );
+                //object = v . Parent;
                 if ( original . GetType ( ) . Equals ( typeof ( Border ) ) )
                 {
-                    return true;
+                    Debug . WriteLine ( "Border" ); return false;
                 }
                 Type type = original . GetType ( );
                 if ( type . Equals ( typeof ( TextBlock ) ) )
                 {
-                    return false;
+                    //Debug . WriteLine ( "TextBlock" ); return false;
                 }
-                if ( type . Equals ( typeof ( Grid ) ) )
+                else if ( type . Equals ( typeof ( Rectangle ) ) )
                 {
-                    return false;
+                    //var vv = FindVisualParent<ScrollBar>(sender as DependencyObject , out string [ ] objectarray);
+                    string [ ] arr = new string [ 20 ];
+                    var vv = FindVisualParent<Rectangle> ( sender as UIElement , out arr );
+                    if ( vv == null )
+                    {
+                        string arrayitem = arr [ 0 ];
+                    }
+                    Debug . WriteLine ( "Rectangle" ); return true;
                 }
-                if ( type . Equals ( typeof ( TreeViewItem ) ) )
+                else if ( type . Equals ( typeof ( ScrollBar ) ) || type . Equals ( typeof ( Thumb ) ) )
                 {
-                    //                  Debug. WriteLine ( "Grid clicked" );
-                    return false;
+                    //Debug . WriteLine ( "ScrollBar / Thumb" ); return true;
                 }
-                else if ( FindVisualParent<Border> ( original as DependencyObject ) != null )
+                else if ( type . Equals ( typeof ( Grid ) ) )
+                {
+                    Debug . WriteLine ( "Grid" ); return false;
+                }
+                else if ( type . Equals ( typeof ( ListBox ) ) )
+                {
+                    Debug . WriteLine ( "ListBox" ); return true;
+                }
+                else if ( type . Equals ( typeof ( ListView ) ) )
+                {
+                    Debug . WriteLine ( "ListView" ); return true;
+                }
+                else if ( type . Equals ( typeof ( Button ) ) )
+                {
+                    //Debug . WriteLine ( "Button" ); return false;
+                }
+                else if ( type . Equals ( typeof ( TreeViewItem ) ) )
+                {
+                   //Debug . WriteLine ( "TreeViewItem" ); return true;
+                }
+                else if ( FindVisualParent<Border> ( original as DependencyObject , out string [ ] objectarray ) != null )
                 {
                     //scroll bar is clicked
-                    Debug . WriteLine ( "Calling FindVisualParent" );
-                    return true;
+                    Debug . WriteLine ( "FindVisualParent FAILED in HitTestValidMoveType() - 2155" );
+                    return false;
                 }
                 return false;
             }
@@ -2099,7 +2180,7 @@ namespace NewWpfDev
                 {
                     return false;
                 }
-                else if ( FindVisualParent<Border> ( original as DependencyObject ) != null )
+                else if ( FindVisualParent<Border> ( original as DependencyObject , out string [ ] objectarray ) != null )
                 {
                     //scroll bar is clicked
                     Debug . WriteLine ( "Calling FindVisualParent" );
@@ -2161,14 +2242,21 @@ namespace NewWpfDev
             grid . ScrollIntoView ( grid . SelectedItem );
             grid . UpdateLayout ( );
         }
+
+
         public static List<object> GetChildControls ( UIElement parent , string TypeRequired )
         {
             // this uses  the TabControlHelper class
             UIElement element = new UIElement ( );
+            object o = null;
             List<object> objects = new List<object> ( );
             IEnumerable alltabcontrols = null;
             //TODO
-            //if ( TypeRequired == "*" )
+            if ( TypeRequired == "Grid" )
+            {
+                o = FindChild ( parent , typeof ( Grid ) );
+                objects . Add ( o );
+            }
             //    alltabcontrols = TabControlHelper . FindChildren<UIElement> ( parent );
             //else if ( TypeRequired == "Button" )
             //    alltabcontrols = TabControlHelper . FindChildren<Button> ( parent );
@@ -2182,8 +2270,8 @@ namespace NewWpfDev
             //    alltabcontrols = TabControlHelper . FindChildren<ListView> ( parent );
             //else if ( TypeRequired == "TextBox" )
             //    alltabcontrols = TabControlHelper . FindChildren<TextBox> ( parent );
-            ////else if ( TypeRequired == "WrapPanel" )
-            ////    alltabcontrols = TabControlHelper . FindChildren<WrapPanel> ( parent );
+            //else if ( TypeRequired == "WrapPanel" )
+            //    alltabcontrols = TabControlHelper . FindChildren<WrapPanel> ( parent );
             //else if ( TypeRequired == "Border" )
             //    alltabcontrols = TabControlHelper . FindChildren<Border> ( parent );
             //else if ( TypeRequired == "Slider" )
@@ -2195,23 +2283,23 @@ namespace NewWpfDev
             //else if ( TypeRequired == "" )
             //    alltabcontrols = TabControlHelper . FindChildren<UIElement> ( parent );
             //if ( alltabcontrols != null )
-            {
-                int count = 0;
-                IEnumerator enumerator = alltabcontrols . GetEnumerator ( );
-                try
-                {
-                    while ( enumerator . MoveNext ( ) )
-                    {
-                        count++;
-                        var v = enumerator . Current;
-                        objects . Add ( v );
-                    }
-                }
-                finally
-                {
-                    Debug . WriteLine ( $"Found {count} controls of  type {TypeRequired}" );
-                }
-            }
+            //{
+            //    int count = 0;
+            //    IEnumerator enumerator = alltabcontrols . GetEnumerator ( );
+            //    try
+            //    {
+            //        while ( enumerator . MoveNext ( ) )
+            //        {
+            //            count++;
+            //            var v = enumerator . Current;
+            //            objects . Add ( v );
+            //        }
+            //    }
+            //    finally
+            //    {
+            //        Debug . WriteLine ( $"Found {count} controls of  type {TypeRequired}" );
+            //    }
+            //}
             Debug . WriteLine ( "Finished FindChildren() 4\n" );
 
             return objects;
@@ -2691,7 +2779,7 @@ namespace NewWpfDev
                 {
                     Debug . WriteLine ( "DataGrid is clicked" );
                 }
-                else if ( FindVisualParent<DataGridColumnHeader> ( original as DependencyObject ) != null )
+                else if ( FindVisualParent<DataGridColumnHeader> ( original as DependencyObject , out string [ ] objectarray ) != null )
                 {
                     //Header bar is clicked
                     return true;
@@ -3120,6 +3208,52 @@ namespace NewWpfDev
             output = ObjectCopier . Clone<T> ( input );
             return output; ;
         }
-
+        public static int GetCollectionColumnCount ( GenericClass gc )
+        {
+            int count = 0;
+            if ( gc . field1 == null || gc . field1 == "" ){count = 0; return count;}
+            if ( gc . field2 == null || gc . field2 == "" ) { count = 1; return count; }
+            if ( gc . field3 == null || gc . field3 == "" ) { count = 2; return count; }
+            if ( gc . field4 == null || gc . field4 == "" ) { count = 3; return count; }
+            if ( gc . field5 == null || gc . field5 == "" ) { count = 4; return count; }
+            if ( gc . field6 == null || gc . field6 == "" ) { count = 5; return count; }
+            if ( gc . field7 == null || gc . field7 == "" ) { count = 6; return count; }
+            if ( gc . field8 == null || gc . field8 == "" ) { count = 7; return count; }
+            if ( gc . field9 == null || gc . field9 == "" ) { count = 8; return count; }
+            if ( gc . field10 == null || gc . field10 == "" ) { count = 9; return count; }
+            if ( gc . field11 == null || gc . field11 == "" ) { count = 10; return count; }
+            if ( gc . field12 == null || gc . field12 == "" ) { count = 11; return count; }
+            if ( gc . field13 == null || gc . field13 == "" ) { count = 12; return count; }
+            if ( gc . field14 == null || gc . field14 == "" ) { count = 13; return count; }
+            if ( gc . field15 == null || gc . field15 == "" ) { count = 14; return count; }
+            if ( gc . field16 == null || gc . field16 == "" ) { count = 15; return count; }
+            if ( gc . field17 == null || gc . field17 == "" ) { count = 16; return count; }
+            if ( gc . field18 == null || gc . field18 == "" ) { count = 17; return count; }
+            if ( gc . field19 == null || gc . field19 == "" ) { count = 18; return count; }
+            return count;
+        }
+        static public FontFamily ResetFont ( string fontname )
+        {
+            FontFamily fontfamily = null;
+            string test = ( string ) Properties . Settings . Default [ fontname ];
+            if ( test != "" )
+                fontfamily = new FontFamily ( test );
+            return fontfamily;
+        }
+        static public FontFamily GetFlowdocFont ( string font= "")
+        {
+            FontFamily fontfamily = null;
+            if ( font == "" )
+            {
+                 fontfamily = new FontFamily (  );
+            }
+            else
+            {
+                string test = ( string ) Properties . Settings . Default [ font ];
+                if ( test != "" )
+                    fontfamily = new FontFamily ( test );
+             }
+            return fontfamily;
+        }
     }
 }

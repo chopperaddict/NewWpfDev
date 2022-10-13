@@ -13,6 +13,7 @@ using Dapper;
 using DocumentFormat . OpenXml . Drawing;
 
 using NewWpfDev;
+using NewWpfDev . ViewModels;
 
 using UserControls;
 
@@ -29,18 +30,18 @@ namespace Views
             public string Decroot;
             public string Decpart;
         }
-        static public StructurefieldInfo structurefieldInfo = new StructurefieldInfo();
-        static public List<StructurefieldInfo> FieldInfo = new List<StructurefieldInfo>();
-        static public ObservableCollection<DapperGenericsLib . GenericClass> TableStructure = new ObservableCollection<DapperGenericsLib . GenericClass>();
+        static public StructurefieldInfo structurefieldInfo = new StructurefieldInfo ( );
+        static public List<StructurefieldInfo> FieldInfo = new List<StructurefieldInfo> ( );
+        static public ObservableCollection<DapperGenericsLib . GenericClass> TableStructure = new ObservableCollection<DapperGenericsLib . GenericClass> ( );
         static public DatagridControl dgControl;
         static public Genericgrid GenericControl;
         static public DataGrid Gengrid;
 
-        public GenericGridSupport ()
+        public GenericGridSupport ( )
         {
             GenericControl = Genericgrid . GenControl;
         }
-        static public void SetPointers (DatagridControl dg , Genericgrid geng)
+        static public void SetPointers ( DatagridControl dg , Genericgrid geng )
         {
             // setup master pointer to controls
             if ( dg != null )
@@ -53,21 +54,21 @@ namespace Views
                 GenericControl = geng;
             }
         }
-        static public List<string> CallStoredProcedure (List<string> list , string sqlcommand)
+        static public List<string> CallStoredProcedure ( List<string> list , string sqlcommand )
         {
             //This call returns us a DataTable
-            DataTable dt = dgControl . GetDataTable(sqlcommand);
+            DataTable dt = dgControl . GetDataTable ( sqlcommand );
             if ( dt != null )
-                list = GetDataDridRowsAsListOfStrings(dt);
+                list = GetDataDridRowsAsListOfStrings ( dt );
             return list;
         }
-        public static List<string> GetDataDridRowsAsListOfStrings (DataTable dt)
+        public static List<string> GetDataDridRowsAsListOfStrings ( DataTable dt )
         {
-            List<string> list = new List<string>();
+            List<string> list = new List<string> ( );
             foreach ( DataRow row in dt . Rows )
             {
-                var txt = row . Field<string>(0);
-                list . Add(txt);
+                var txt = row . Field<string> ( 0 );
+                list . Add ( txt );
             }
             return list;
         }
@@ -75,7 +76,7 @@ namespace Views
         //***************************************************//
         // support method  for  saving selected items onlly
         //***************************************************//
-        static public int CreateNewTable (string NewDbName , string CurrentTable , ObservableCollection<DapperGenericsLib . GenericClass> collection , out string err)
+        static public int CreateNewTable ( string NewDbName , string CurrentTable , ObservableCollection<DapperGenericsLib . GenericClass> collection , out string err )
         {
             // All working WELL 30/9/2022
             err = "";
@@ -102,15 +103,15 @@ namespace Views
                     // Dec Root
                     if ( fldinfo . Decroot != "" )
                     {
-                        if ( fldinfo . Type . ToUpper() == "DECIMAL"
-                             || fldinfo . Type . ToUpper() == "DOUBLE"
-                                || fldinfo . Type . ToUpper() == "FLOAT"
-                                || fldinfo . Type . ToUpper() == "DOUBLE_PRECISION"
-                                || fldinfo . Type . ToUpper() == "DEC" )
+                        if ( fldinfo . Type . ToUpper ( ) == "DECIMAL"
+                             || fldinfo . Type . ToUpper ( ) == "DOUBLE"
+                                || fldinfo . Type . ToUpper ( ) == "FLOAT"
+                                || fldinfo . Type . ToUpper ( ) == "DOUBLE_PRECISION"
+                                || fldinfo . Type . ToUpper ( ) == "DEC" )
                             flddata += $" ({fldinfo . Decroot} ";
-                        else if ( fldinfo . Type . ToUpper() == "INT"
-                            || fldinfo . Type . ToUpper() == "BOOL"
-                            || fldinfo . Type . ToUpper() == "SMALLINT" )
+                        else if ( fldinfo . Type . ToUpper ( ) == "INT"
+                            || fldinfo . Type . ToUpper ( ) == "BOOL"
+                            || fldinfo . Type . ToUpper ( ) == "SMALLINT" )
                         {
                             //flddata += $" ( {fldinfo . Decroot} ) ";
                             if ( MainWindow . USE_ID_IDENTITY )
@@ -118,29 +119,29 @@ namespace Views
                             else
                                 flddata += $" NOT NULL";
                         }
-                        else if ( fldinfo . Type . ToUpper() == "SMALLINT"
-                            || fldinfo . Type . ToUpper() == "TINYINT"
-                            || fldinfo . Type . ToUpper() == "BIT"
-                            || fldinfo . Type . ToUpper() == "INT"
-                            || fldinfo . Type . ToUpper() == "MEDIUMINT" )
+                        else if ( fldinfo . Type . ToUpper ( ) == "SMALLINT"
+                            || fldinfo . Type . ToUpper ( ) == "TINYINT"
+                            || fldinfo . Type . ToUpper ( ) == "BIT"
+                            || fldinfo . Type . ToUpper ( ) == "INT"
+                            || fldinfo . Type . ToUpper ( ) == "MEDIUMINT" )
                         {
                             flddata += $" ( {fldinfo . Decroot} ) ";
                         }
-                        else if ( fldinfo . Type . ToUpper() == "DATETIME"
-                            || fldinfo . Type . ToUpper() == "TIMESTAMP"
-                            || fldinfo . Type . ToUpper() == "TIME"
-                            || fldinfo . Type . ToUpper() == "MEDIUMINT" )
+                        else if ( fldinfo . Type . ToUpper ( ) == "DATETIME"
+                            || fldinfo . Type . ToUpper ( ) == "TIMESTAMP"
+                            || fldinfo . Type . ToUpper ( ) == "TIME"
+                            || fldinfo . Type . ToUpper ( ) == "MEDIUMINT" )
                         {
                             if ( fldinfo . Decroot != "" )
                                 flddata += $" ( {fldinfo . Decroot} ) ";
                             else
                                 flddata += $"  ";
                         }
-                        else if ( fldinfo . Type . ToUpper() == "VARCHAR"
-                            || fldinfo . Type . ToUpper() == "CHAR"
-                            || fldinfo . Type . ToUpper() == "NCHAR"
-                            || fldinfo . Type . ToUpper() == "NVARCHAR"
-                            || fldinfo . Type . ToUpper() == "VARBINARY" )
+                        else if ( fldinfo . Type . ToUpper ( ) == "VARCHAR"
+                            || fldinfo . Type . ToUpper ( ) == "CHAR"
+                            || fldinfo . Type . ToUpper ( ) == "NCHAR"
+                            || fldinfo . Type . ToUpper ( ) == "NVARCHAR"
+                            || fldinfo . Type . ToUpper ( ) == "VARBINARY" )
                         {
                             if ( fldinfo . Decroot != "" )
                                 flddata += $" ( {fldinfo . Decroot} ) ";
@@ -158,11 +159,11 @@ namespace Views
                     {
                         if ( fldinfo . Decpart != "" && fldinfo . Decpart != "0" )
                         {
-                            if ( fldinfo . Type . ToUpper() == "DECIMAL"
-                                || fldinfo . Type . ToUpper() == "DOUBLE"
-                                || fldinfo . Type . ToUpper() == "FLOAT"
-                                || fldinfo . Type . ToUpper() == "DOUBLE_PRECISION"
-                                || fldinfo . Type . ToUpper() == "DEC" )
+                            if ( fldinfo . Type . ToUpper ( ) == "DECIMAL"
+                                || fldinfo . Type . ToUpper ( ) == "DOUBLE"
+                                || fldinfo . Type . ToUpper ( ) == "FLOAT"
+                                || fldinfo . Type . ToUpper ( ) == "DOUBLE_PRECISION"
+                                || fldinfo . Type . ToUpper ( ) == "DEC" )
                                 flddata += $", {fldinfo . Decpart} ) ";
                             else
                                 flddata += $" ";
@@ -172,13 +173,13 @@ namespace Views
                     }
                     else
                     {
-                        if ( fldinfo . Type . ToUpper() == "VARCHAR"
-                            || fldinfo . Type . ToUpper() == "CHAR"
-                            || fldinfo . Type . ToUpper() == "NCHAR"
-                            || fldinfo . Type . ToUpper() == "NVARCHAR"
-                            || fldinfo . Type . ToUpper() == "VARBINARY" )
+                        if ( fldinfo . Type . ToUpper ( ) == "VARCHAR"
+                            || fldinfo . Type . ToUpper ( ) == "CHAR"
+                            || fldinfo . Type . ToUpper ( ) == "NCHAR"
+                            || fldinfo . Type . ToUpper ( ) == "NVARCHAR"
+                            || fldinfo . Type . ToUpper ( ) == "VARBINARY" )
                             flddata += $" ";
-                        else if ( fldinfo . Type . ToUpper() == "DATETIME" || fldinfo . Type . ToUpper() == "DATE" )
+                        else if ( fldinfo . Type . ToUpper ( ) == "DATETIME" || fldinfo . Type . ToUpper ( ) == "DATE" )
                             flddata += $" ";
                         else
                             flddata += $") ";
@@ -188,12 +189,12 @@ namespace Views
                         args2 [ row + 1 ] = $"{flddata}, ";
                     else
                         args2 [ row + 1 ] = $"{flddata}, ";
-                    if ( args2 [ row + 1 ] . Contains(", ,") ) args2 [ row + 1 ] = args2 [ row + 1 ] . Substring(0 , args2 [ row + 1 ] . Length - 4);
-                    args2 [ row + 1 ] = NewWpfDev . Utils . ReverseString(args2 [ row + 1 ] . Trim());
-                    if ( args2 [ row + 1 ] [ 0 ] != ',' ) args2 [ row + 1 ] = $",{args2 [ row + 1 ] . Substring(1)}";
-                    args2 [ row + 1 ] = NewWpfDev . Utils . ReverseString(args2 [ row + 1 ]);
+                    if ( args2 [ row + 1 ] . Contains ( ", ," ) ) args2 [ row + 1 ] = args2 [ row + 1 ] . Substring ( 0 , args2 [ row + 1 ] . Length - 4 );
+                    args2 [ row + 1 ] = NewWpfDev . Utils . ReverseString ( args2 [ row + 1 ] . Trim ( ) );
+                    if ( args2 [ row + 1 ] [ 0 ] != ',' ) args2 [ row + 1 ] = $",{args2 [ row + 1 ] . Substring ( 1 )}";
+                    args2 [ row + 1 ] = NewWpfDev . Utils . ReverseString ( args2 [ row + 1 ] );
                     if ( row + 1 >= FieldInfo . Count )
-                        args2 [ row + 1 ] = args2 [ row + 1 ] . Substring(0 , args2 [ row + 1 ] . Length - 1);
+                        args2 [ row + 1 ] = args2 [ row + 1 ] . Substring ( 0 , args2 [ row + 1 ] . Length - 1 );
                 }
                 // now working 24/9/2022
                 //**********************************//
@@ -201,34 +202,36 @@ namespace Views
                 //**********************************//
                 string [ ] args = { "" , "" };
                 args [ 0 ] = args2 [ 0 ];
-                args [ 1 ] = CreateSqlTablestructureString(args2);
+                args [ 1 ] = CreateSqlTablestructureString ( args2 );
 
                 //**********************************//
                 // now Create new table structure
                 //**********************************//
                 //while ( true )
                 //{   2nd call
-                int result = dgControl . ProcessUniversalStoredProcedure("CreateTableTest" , args , out err);
-                if ( err != "" && err . ToUpper() . Contains("PROBLEM-FILE  EXISTS") == false )
+                int recordcount = 0;
+                string Tablename = "";
+                int result = dgControl . ProcessUniversalStoredProcedure ( "CreateTableTest" , args , out err , out recordcount , out Tablename );
+                if ( err != "" && err . ToUpper ( ) . Contains ( "PROBLEM-FILE  EXISTS" ) == false )
                 {
-                    Debug . WriteLine($"Table creation failed [{err}]");
-                    MessageBoxResult result2 = MessageBox . Show($"A table with the selected name already exists in the database.\nDo you want to overwrite it with the newly selected data ?\n\nError message  ={err}" , "" ,
-                        MessageBoxButton . YesNoCancel , MessageBoxImage . Question , MessageBoxResult . No);
+                    Debug . WriteLine ( $"Table creation failed [{err}]" );
+                    MessageBoxResult result2 = MessageBox . Show ( $"A table with the selected name already exists in the database.\nDo you want to overwrite it with the newly selected data ?\n\nError message  ={err}" , "" ,
+                        MessageBoxButton . YesNoCancel , MessageBoxImage . Question , MessageBoxResult . No );
                     if ( result2 == MessageBoxResult . Yes )
                     {
                         string [ ] args3 = { "" };
                         err = "";
                         args3 [ 0 ] = NewDbName;
-                        result = dgControl . ProcessUniversalStoredProcedure("spDropTable" , args3 , out err);
-                        if ( err != "" && err . ToUpper() . Contains("PROBLEM-FILE  EXISTS") == false )
+                        result = dgControl . ProcessUniversalStoredProcedure ( "spDropTable" , args3 , out err , out recordcount , out Tablename );
+                        if ( err != "" && err . ToUpper ( ) . Contains ( "PROBLEM-FILE  EXISTS" ) == false )
                         {
-                            MessageBoxResult result3 = MessageBox . Show($"Failed to delete (Drop) the original table, so processing will now end\n Error message  ={err}" , "Deletion failed" ,
-                                MessageBoxButton . OK , MessageBoxImage . Error , MessageBoxResult . OK);
+                            MessageBoxResult result3 = MessageBox . Show ( $"Failed to delete (Drop) the original table, so processing will now end\n Error message  ={err}" , "Deletion failed" ,
+                                MessageBoxButton . OK , MessageBoxImage . Error , MessageBoxResult . OK );
                         }
                         else
                         {
-                            result = dgControl . ProcessUniversalStoredProcedure("CreateTableTest" , args , out err);
-                            GenericControl . statusbar . Text = $"New table named [{NewDbName . ToUpper()}] was created succesfully...."; Debug . WriteLine($"{GenericControl . statusbar . Text}");
+                            result = dgControl . ProcessUniversalStoredProcedure ( "CreateTableTest" , args , out err , out recordcount , out Tablename );
+                            GenericControl . statusbar . Text = $"New table named [{NewDbName . ToUpper ( )}] was created succesfully...."; Debug . WriteLine ( $"{GenericControl . statusbar . Text}" );
                             success = true;
                         }
                     }
@@ -237,13 +240,13 @@ namespace Views
                 {
                     // Table created successfulllly !!!!!!
                     // Add data here 
-                    GenericControl . statusbar . Text = $"New table named [{NewDbName . ToUpper()}] was created succesfully...."; Debug . WriteLine($"{GenericControl . statusbar . Text}");
+                    GenericControl . statusbar . Text = $"New table named [{NewDbName . ToUpper ( )}] was created succesfully...."; Debug . WriteLine ( $"{GenericControl . statusbar . Text}" );
                     success = true;
                 }
             }
             catch ( Exception ex )
             {
-                Debug . WriteLine($"{ex . Message}");
+                Debug . WriteLine ( $"{ex . Message}" );
             }
             if ( success == true )
                 return -1;
@@ -253,47 +256,47 @@ namespace Views
 
         // saveselected support methods
 
-        static public bool SqlInsertGenericRecord (string DataString , string fldnames , string NewDbName , out string err , out int recsinserted)
+        static public bool SqlInsertGenericRecord ( string DataString , string fldnames , string NewDbName , out string err , out int recsinserted )
         {
             err = "";
             recsinserted = 0;
             bool success = true;
             // Insert  a single record into SQL table 'NewDbName'
-            Dictionary<string , string> dict = new Dictionary<string , string>();
+            Dictionary<string , string> dict = new Dictionary<string , string> ( );
             string err2 = "";
 
-            Debug . WriteLine($"Inserting new record containing\n[{fldnames} + \n{DataString} ]\n");
+            Debug . WriteLine ( $"Inserting new record containing\n[{fldnames} + \n{DataString} ]\n" );
             SqlConnection sqlCon = null;
             string Con = Genericgrid . DbConnectionString;
             string argument2 = "";
-            argument2 += $" {fldnames . Trim()} values {DataString . Trim()}";
+            argument2 += $" {fldnames . Trim ( )} values {DataString . Trim ( )}";
             try
             {
-                using ( sqlCon = new SqlConnection(Con) )
+                using ( sqlCon = new SqlConnection ( Con ) )
                 {
                     string cmd = "";
-                    sqlCon . Open();
+                    sqlCon . Open ( );
                     // Now add argument(s)  to SQL command
-                    var parameters = new DynamicParameters();
-                    parameters . Add($"Arg1" , $"{NewDbName}" ,
+                    var parameters = new DynamicParameters ( );
+                    parameters . Add ( $"Arg1" , $"{NewDbName}" ,
                        DbType . String ,
                        ParameterDirection . Input ,
-                       NewDbName . Length);
-                    parameters . Add($"Arg2" , argument2 ,
+                       NewDbName . Length );
+                    parameters . Add ( $"Arg2" , argument2 ,
                        DbType . String ,
                        ParameterDirection . Input ,
-                       argument2 . Length);
+                       argument2 . Length );
 
                     try
                     {
-                        int res3 = sqlCon . Execute("spInsertGenericRecord" , parameters , commandType: CommandType . StoredProcedure);
-                        $"RESULT of  [{DataString}] = {res3} (Success)" . CW();
+                        int res3 = sqlCon . Execute ( "spInsertGenericRecord" , parameters , commandType: CommandType . StoredProcedure );
+                        $"RESULT of  [{DataString}] = {res3} (Success)" . CW ( );
                         recsinserted++;
                         success = true;
                     }
                     catch ( Exception ex )
                     {
-                        $"Record Insertion failed = {ex . Message}" . CW();
+                        $"Record Insertion failed = {ex . Message}" . CW ( );
                         err = $"Record Insertion failed = {ex . Message}";
                         success = false;
                     }
@@ -302,49 +305,49 @@ namespace Views
             }
             catch ( Exception ex )
             {
-                Debug . WriteLine($"{ex . Message}");
+                Debug . WriteLine ( $"{ex . Message}" );
                 return false;
             }
             return true;
         }
 
-        public bool PerformSingleRecInsert (string processQuery , Dictionary<string , string> dict , out string err)
+        public bool PerformSingleRecInsert ( string processQuery , Dictionary<string , string> dict , out string err )
         {
             string Con = Genericgrid . DbConnectionString;
             int index = 0;
             Mouse . OverrideCursor = Cursors . Wait;
             SqlConnection sqlCon = null;
-            Debug . WriteLine($"Running Stored Procedure {processQuery}");
-            using ( sqlCon = new SqlConnection(Con) )
+            Debug . WriteLine ( $"Running Stored Procedure {processQuery}" );
+            using ( sqlCon = new SqlConnection ( Con ) )
             {
                 string cmd = "";
-                sqlCon . Open();
+                sqlCon . Open ( );
                 // Now add argument(s)  to SQL command
-                var parameters = new DynamicParameters();
+                var parameters = new DynamicParameters ( );
                 foreach ( var key in dict )
                     if ( key . Key . Length > 0 && key . Key != "-" )
                     {
-                        string fldname = key . Key . ToString();
-                        parameters . Add($"Arg[{index++}]," , $"{fldname}" ,
+                        string fldname = key . Key . ToString ( );
+                        parameters . Add ( $"Arg[{index++}]," , $"{fldname}" ,
                        DbType . String ,
                        ParameterDirection . Input ,
-                       fldname . Length);
+                       fldname . Length );
                     }
                 err = "";
                 try
                 {
-                    int result = sqlCon . Execute(processQuery , parameters , commandType: CommandType . Text);
-                    Debug . WriteLine($"RESULT of  [{processQuery}] = {result} (Success)");
+                    int result = sqlCon . Execute ( processQuery , parameters , commandType: CommandType . Text );
+                    Debug . WriteLine ( $"RESULT of  [{processQuery}] = {result} (Success)" );
                 }
                 catch ( Exception ex )
                 {
-                    Debug . WriteLine($"{ex . Message}");
+                    Debug . WriteLine ( $"{ex . Message}" );
                 }
             }
             return true;
         }
 
-        static public string CreateNewSqlTableStructure (string CurrentTable , string NewDbName , ObservableCollection<DapperGenericsLib . GenericClass> collection , out string err)
+        static public string CreateNewSqlTableStructure ( string CurrentTable , string NewDbName , ObservableCollection<DapperGenericsLib . GenericClass> collection , out string err )
         {
             // Called iteratively by CreateNewTableStructure ( ) for eachh record selected
             // Creates && Returns the list of fields in SQL INSERT format
@@ -355,30 +358,30 @@ namespace Views
             err = "";
             if ( GetFullDetails )
             {
-                collection . Clear();
+                collection . Clear ( );
 
                 //*****************************//
                 // Get full column info with sizes
                 //*****************************//
-                SqlDataString = dgControl . GetFullColumnInfo(NewDbName , CurrentTable , Genericgrid . DbConnectionString , false , false);
+                SqlDataString = dgControl . GetFullColumnInfo ( NewDbName , CurrentTable , Genericgrid . DbConnectionString , false , false );
                 // SqlDataString  has column info delimited  by " \n"
-                SqlDataString = SqlDataString . Trim();
-                string [ ] args = SqlDataString . Split("\n");
+                SqlDataString = SqlDataString . Trim ( );
+                string [ ] args = SqlDataString . Split ( "\n" );
                 string buffer = "";
-                FieldInfo . Clear();
-                collection . Clear();
+                FieldInfo . Clear ( );
+                collection . Clear ( );
                 //**********************************************//
                 // create new collection of all structure info from args
                 //which has valid column info for the current table
                 //**********************************************//
-                DapperGenericsLib . GenericClass tem = new DapperGenericsLib . GenericClass();
+                DapperGenericsLib . GenericClass tem = new DapperGenericsLib . GenericClass ( );
                 for ( int y = 0 ; y < args . Length ; y++ )
                 {
-                    string [ ] RawFldNames = args [ y ] . Split(',');
+                    string [ ] RawFldNames = args [ y ] . Split ( ',' );
                     for ( int z = 0 ; z < RawFldNames . Length ; z++ )
                     {
-                        tem = new DapperGenericsLib . GenericClass();
-                        tem . field1 = RawFldNames [ 0 ] . ToUpper();    // fname
+                        tem = new DapperGenericsLib . GenericClass ( );
+                        tem . field1 = RawFldNames [ 0 ] . ToUpper ( );    // fname
                         tem . field2 = RawFldNames [ 1 ];   //ftype
                         if ( RawFldNames . Length >= 3 ) tem . field3 = RawFldNames [ 2 ];   // decroot
                         else tem . field3 = "";
@@ -389,51 +392,51 @@ namespace Views
                         structurefieldInfo . Decroot = tem . field3;
                         structurefieldInfo . Decpart = tem . field4;
                     }
-                    FieldInfo . Add(structurefieldInfo);
-                    collection . Add(tem);
+                    FieldInfo . Add ( structurefieldInfo );
+                    collection . Add ( tem );
                     InsertFieldsString += $"{structurefieldInfo . Name},";
                 }
             }
             //remove final comma
-            InsertFieldsString = InsertFieldsString . TrimEnd();
-            InsertFieldsString = InsertFieldsString . Substring(0 , InsertFieldsString . Length - 1);
+            InsertFieldsString = InsertFieldsString . TrimEnd ( );
+            InsertFieldsString = InsertFieldsString . Substring ( 0 , InsertFieldsString . Length - 1 );
             InsertFieldsString = $"({InsertFieldsString})";
 
             //**************************************************************************************//
             // collection is obscollection<DapperGenericsLib.GenericClass> contains true field names + types + sizes
             // so lets create table structure here !
             //**************************************************************************************//
-            int res = CreateNewTable(NewDbName , CurrentTable , collection , out err);
+            int res = CreateNewTable ( NewDbName , CurrentTable , collection , out err );
             if ( err != "" || res == -8 )
             {
-                MessageBox . Show($"An error occurred while trying to create the table {NewDbName . ToUpper()}\nProcessing has been cancelled" , "Table Creation");
+                MessageBox . Show ( $"An error occurred while trying to create the table {NewDbName . ToUpper ( )}\nProcessing has been cancelled" , "Table Creation" );
                 err = "Table creation failed....";
                 return "";
             }
             return InsertFieldsString;  // success
         }
-        static public int ProcessSelectedRows (out int recsinserted , string CurrentTable , bool ShowDuplicateErrors = true)
+        public int ProcessSelectedRows ( out int recsinserted , string CurrentTable , bool ShowDuplicateErrors = true )
         {
             // process to save all selected records to specified SQL table
-            List<string> FldNames = new List<string>();
-            List<string> selrecords = new List<string>();
+            List<string> FldNames = new List<string> ( );
+            List<string> selrecords = new List<string> ( );
             recsinserted = 0;
-            ObservableCollection<DapperGenericsLib . GenericClass> collection = new ObservableCollection<DapperGenericsLib . GenericClass>();
-            string NewDbName = GenericControl . NewTableName . Text . Trim();
-            Genericgrid . CurrentTable = NewDbName;
+            ObservableCollection<DapperGenericsLib . GenericClass> collection = new ObservableCollection<DapperGenericsLib . GenericClass> ( );
+            string NewDbName = GenericControl . NewTableName . Text . Trim ( );
+            CurrentTable = NewDbName;
             // Save a set with only selected rows included
             string SqlDataString = "";
 
             if ( dgControl . datagridControl . SelectedItems . Count == 1 )
             {
-                MessageBoxResult res2 = MessageBox . Show($"Only a single record is selected ?  \nDo you really want to save it to a new and seperate SQL Table ?" , "Selected Record(s) Question ?" ,
-                    MessageBoxButton . YesNo , MessageBoxImage . Question , MessageBoxResult . No);
+                MessageBoxResult res2 = MessageBox . Show ( $"Only a single record is selected ?  \nDo you really want to save it to a new and seperate SQL Table ?" , "Selected Record(s) Question ?" ,
+                    MessageBoxButton . YesNo , MessageBoxImage . Question , MessageBoxResult . No );
                 if ( res2 == MessageBoxResult . No ) return -1;
             }
 
             if ( NewDbName == "" )  // Sanity check
             {
-                MessageBox . Show("Please enter a suitable name for the table you want to create !" , "Table name required");
+                MessageBox . Show ( "Please enter a suitable name for the table you want to create !" , "Table name required" );
                 return -9;
             }
             //"1 - Started in ProcessSelectedRows()" . CW ( );
@@ -446,22 +449,22 @@ namespace Views
             //********************************************************************//
             // Ckeck if new table already exists - works well 26/9/2022
             //********************************************************************//
-            int ret = DatagridControl . TestIfFileExists(NewDbName , out err);
+            int ret = DatagridControl . TestIfFileExists ( NewDbName , out err );
             if ( ret > 0 && err == "" )
             {
-                Debug . WriteLine($"Table {NewDbName} already Exists.");
-                MessageBoxResult res3 = MessageBox . Show($"The table named [{NewDbName . ToUpper()}] already exists\n YES will overwrite it annd add selected data  to it\nNO will cancel processing to let you enter a new table name??" , "File already Exists" ,
-                  MessageBoxButton . YesNo , MessageBoxImage . Warning , MessageBoxResult . Yes);
+                Debug . WriteLine ( $"Table {NewDbName} already Exists." );
+                MessageBoxResult res3 = MessageBox . Show ( $"The table named [{NewDbName . ToUpper ( )}] already exists\n YES will overwrite it annd add selected data  to it\nNO will cancel processing to let you enter a new table name??" , "File already Exists" ,
+                  MessageBoxButton . YesNo , MessageBoxImage . Warning , MessageBoxResult . Yes );
                 if ( res3 == MessageBoxResult . Yes )
                 {
-                    int retv = DropTable(NewDbName , CurrentTable , out err);
+                    int retv = DropTable ( NewDbName , CurrentTable , out err );
                     if ( err != "" )
                     {
-                        Debug . WriteLine($"{err}");
+                        Debug . WriteLine ( $"{err}" );
                         return -9;
                     }
                     else
-                        Debug . WriteLine($"{NewDbName} does not exist. so we are carrying on");
+                        Debug . WriteLine ( $"{NewDbName} does not exist. so we are carrying on" );
                 }
                 else
                     return -9;
@@ -473,16 +476,16 @@ namespace Views
             //********************************************************************************//
             //  All well, table does not exist, so create it here based on currently open table- 1ST TRY
             //********************************************************************************//
-            string insertfieldsstring = CreateNewSqlTableStructure(GenericControl . SqlTables . SelectedItem . ToString() , NewDbName , collection , out err);
+            string insertfieldsstring = CreateNewSqlTableStructure ( GenericControl . SqlTables . SelectedItem . ToString ( ) , NewDbName , collection , out err );
             if ( err != "" || insertfieldsstring == "" )
             {
-                Debug . WriteLine($"ERROR : {err}");
+                Debug . WriteLine ( $"ERROR : {err}" );
                 return -8;
             }
             else
             {
                 // We  now have a nice SQL Insert fields string in insertfieldsstring
-                Debug . WriteLine($"Table Creation for {NewDbName} was completed  successfully");
+                Debug . WriteLine ( $"Table Creation for {NewDbName} was completed  successfully" );
                 GenericControl . statusbar . Text = $"Table Creation for {NewDbName} was completed  successfully";
                 //****************************************************************************//
                 // Grab stucture details for all fields so we can reference them later - 3rd call 
@@ -508,20 +511,20 @@ namespace Views
                 // create Sql string of each record's data and call CreateSqlInsertCommand( )
                 // to get Sql string for the fields  as  we iterate
                 //*****************************************************************************//
-                datarow = item4 . ToString();
+                datarow = item4 . ToString ( );
                 SqlDataString = "";
-                Debug . WriteLine($"Item = {datarow}\n");
+                Debug . WriteLine ( $"Item = {datarow}\n" );
                 string part1 = "";
                 string [ ] dataflds2 = { "" , "" };
-                string [ ] dataflds = datarow . Split(',');
-                DapperGenericsLib . GenericClass gc = new DapperGenericsLib . GenericClass();
+                string [ ] dataflds = datarow . Split ( ',' );
+                DapperGenericsLib . GenericClass gc = new DapperGenericsLib . GenericClass ( );
                 for ( int cnt = 0 ; cnt < dataflds . Length ; cnt++ )
                 {
                     part1 = dataflds [ cnt ];
-                    dataflds2 = part1 . Split('=');
-                    dataflds2 [ 1 ] = dataflds2 [ 1 ] . Trim();
-                    if ( dataflds2 [ 1 ] . Contains('}') )
-                        dataflds2 [ 1 ] = dataflds2 [ 1 ] . Substring(0 , dataflds2 [ 1 ] . Length - 1) . Trim();
+                    dataflds2 = part1 . Split ( '=' );
+                    dataflds2 [ 1 ] = dataflds2 [ 1 ] . Trim ( );
+                    if ( dataflds2 [ 1 ] . Contains ( '}' ) )
+                        dataflds2 [ 1 ] = dataflds2 [ 1 ] . Substring ( 0 , dataflds2 [ 1 ] . Length - 1 ) . Trim ( );
                     gc = TableStructure [ cnt ];
 
                     #region Data type checking
@@ -529,13 +532,13 @@ namespace Views
                     // we now have the field name - so check its field type from DapperGenericsLib
                     // If it is not a  numeriic type, then wrap it in SQL single quote marks
                     //*********************************************************************************//
-                    if ( gc . field2 . ToUpper() == "CHAR" ||
-                        gc . field2 . ToUpper() == "VARCHAR" ||
-                        gc . field2 . ToUpper() == "NVARCHAR" ||
-                        gc . field2 . ToUpper() == "TEXT" ||
-                        gc . field2 . ToUpper() == "BLOB" ||
-                        gc . field2 . ToUpper() == "BINARY" ||
-                        gc . field2 . ToUpper() == "TINYTEXT" )
+                    if ( gc . field2 . ToUpper ( ) == "CHAR" ||
+                        gc . field2 . ToUpper ( ) == "VARCHAR" ||
+                        gc . field2 . ToUpper ( ) == "NVARCHAR" ||
+                        gc . field2 . ToUpper ( ) == "TEXT" ||
+                        gc . field2 . ToUpper ( ) == "BLOB" ||
+                        gc . field2 . ToUpper ( ) == "BINARY" ||
+                        gc . field2 . ToUpper ( ) == "TINYTEXT" )
                     {   // its a string type, quotes are required
                         dataflds2 [ 1 ] = $"'{dataflds2 [ 1 ]}'";
                     }
@@ -547,10 +550,10 @@ namespace Views
                     //*********************************************************************************//
                     #endregion Data type checking
 
-                    if ( dataflds2 [ 1 ] . Contains('/') )
-                        dataflds2 [ 1 ] = NewWpfDev . Utils . ConvertInputDate(dataflds2 [ 1 ]);
+                    if ( dataflds2 [ 1 ] . Contains ( '/' ) )
+                        dataflds2 [ 1 ] = NewWpfDev . Utils . ConvertInputDate ( dataflds2 [ 1 ] );
                     if ( cnt >= dataflds . Length )
-                        dataflds2 [ 1 ] = dataflds2 [ 1 ] . Substring(0 , dataflds2 [ 1 ] . Length - 1);
+                        dataflds2 [ 1 ] = dataflds2 [ 1 ] . Substring ( 0 , dataflds2 [ 1 ] . Length - 1 );
                     flds [ cnt ] = dataflds2 [ 1 ];
                 }
                 dataflds2 [ 1 ] = "(";
@@ -558,15 +561,15 @@ namespace Views
                 {
                     if ( flds [ x ] == "" )
                     {
-                        dataflds2 [ 1 ] = dataflds2 [ 1 ] . Substring(0 , dataflds2 [ 1 ] . Length - 1);
+                        dataflds2 [ 1 ] = dataflds2 [ 1 ] . Substring ( 0 , dataflds2 [ 1 ] . Length - 1 );
                         break;
                     }
                     else
                         dataflds2 [ 1 ] += flds [ x ] + ",";
                 }
-                dataflds2 [ 1 ] = dataflds2 [ 1 ] . Trim() + ")";
+                dataflds2 [ 1 ] = dataflds2 [ 1 ] . Trim ( ) + ")";
                 SqlDataString = dataflds2 [ 1 ];
-                Debug . WriteLine($"DATA= {SqlDataString}");
+                Debug . WriteLine ( $"DATA= {SqlDataString}" );
 
                 #endregion  create Sql Data string
 
@@ -575,23 +578,23 @@ namespace Views
                 // and we  already have THE FIELD'S STRING in insertfieldsstring
                 // so we can now call Insert for new table which occurs from insertfieldsString()
                 //***************************//
-                GenericControl . statusbar . Text = $"Saving Selected Rows only to new  table named [{NewDbName . ToUpper()}]....";
-                "3 - Calling CreateSqlInsertCommand ()" . CW();
+                GenericControl . statusbar . Text = $"Saving Selected Rows only to new  table named [{NewDbName . ToUpper ( )}]....";
+                "3 - Calling CreateSqlInsertCommand ()" . CW ( );
                 insertcount++;
                 string res4 = "";
                 // This call actualy inserts the new record data
-                string insertfieldsString = CreateSqlInsertCommand(NewDbName , SqlDataString , insertfieldsstring , args , "" , dgControl . datagridControl . Columns . Count , out res4);
+                string insertfieldsString = CreateSqlInsertCommand ( NewDbName , SqlDataString , insertfieldsstring , args , "" , dgControl . datagridControl . Columns . Count , out res4 );
                 if ( res4 == "" )
                 {
-                    $"4 - CREATESQLINSERTCOMMAND returned Insert string = \n[{insertfieldsString}]'" . CW();
-                    Debug . WriteLine($"Record {insertcount} for {SqlDataString} was added to new table {NewDbName}");
-                    $"Record {insertcount} for {SqlDataString} was added to new table {NewDbName}" . CW();
+                    $"4 - CREATESQLINSERTCOMMAND returned Insert string = \n[{insertfieldsString}]'" . CW ( );
+                    Debug . WriteLine ( $"Record {insertcount} for {SqlDataString} was added to new table {NewDbName}" );
+                    $"Record {insertcount} for {SqlDataString} was added to new table {NewDbName}" . CW ( );
                     recsinserted++;
                 }
                 else
                 {
-                    Debug . WriteLine($"Record {insertcount} for {SqlDataString} \nto new table {NewDbName} FAILED");
-                    $"Creation of field info string for {SqlDataString} FAILED\n{res4}" . CW();
+                    Debug . WriteLine ( $"Record {insertcount} for {SqlDataString} \nto new table {NewDbName} FAILED" );
+                    $"Creation of field info string for {SqlDataString} FAILED\n{res4}" . CW ( );
                     return -9;
                 }
                 SqlDataString = "";
@@ -599,27 +602,31 @@ namespace Views
             //   end of selected records processing
             return -1;
         }
-        static public int DropTable (string NewDbName , string CurrentTable , out string err)
+        static public int DropTable ( string NewDbName , string CurrentTable , out string err )
         {
             err = "";
             string [ ] args = { "" };
             args [ 0 ] = NewDbName;
             //args [ 1 ] = CurrentTable;
-            int result = dgControl . ProcessUniversalStoredProcedure("spDropTable" , args , out err);
+            int recordcount = 0;
+            string Tablename = "";
+            int result = dgControl . ProcessUniversalStoredProcedure ( "spDropTable" , args , out err , out recordcount , out Tablename );
             if ( err != "" )
             {
                 err = $"Unable to Drop/Create the Table {args [ 0 ]} REASON = {err} ";
                 return -9;
             }
-            else MessageBox . Show($"Table {NewDbName} has been deleted successfully !" , "SQL tablle deletion" , MessageBoxButton . OK);
+            else MessageBox . Show ( $"Table {NewDbName} has been deleted successfully !" , "SQL tablle deletion" , MessageBoxButton . OK );
             return -1;
         }
-        static public string CreateSqlTablestructureString (string [ ] row)
+        static public string CreateSqlTablestructureString ( string [ ] row )
         {
             string SqlDataString = "";
             bool alldone = false;
             string validflds = "";
             string data = "";
+            "" . Track ( );
+
             for ( int q = 1 ; q <= 20 ; q++ )
             {
                 if ( alldone ) break;
@@ -639,7 +646,7 @@ namespace Views
                         continue;
                     case 4:
                         if ( row [ q ] == null || row [ q ] == "" ) alldone = true;
-                        else if ( row [ q ] . Contains(",") ) data += row [ q ] . Trim() . Substring(0 , row [ q ] . Length - 1) + ",";
+                        else if ( row [ q ] . Contains ( "," ) ) data += row [ q ] . Trim ( ) . Substring ( 0 , row [ q ] . Length - 1 ) + ",";
                         else data += $"{row [ q ]}";
                         continue;
                     case 5:
@@ -710,11 +717,11 @@ namespace Views
             }
 
             if ( data [ data . Length - 1 ] == ',' )
-                data = data . Trim() . Substring(0 , data . Length - 1);
+                data = data . Trim ( ) . Substring ( 0 , data . Length - 1 );
 
             return data;
         }
-        static public string CreateDataString (DapperGenericsLib . GenericClass row)
+        static public string CreateDataString ( DapperGenericsLib . GenericClass row )
         {
             string SqlDataString = "";
             bool alldone = false;
@@ -739,7 +746,7 @@ namespace Views
                         continue;
                     case 4:
                         if ( row . field4 == null ) alldone = true;
-                        else if ( row . field4 . Contains(",") ) data += row . field4 . Trim() . Substring(0 , row . field4 . Length - 1) + ",";
+                        else if ( row . field4 . Contains ( "," ) ) data += row . field4 . Trim ( ) . Substring ( 0 , row . field4 . Length - 1 ) + ",";
                         else data += $"{row . field4},";
                         continue;
                     case 5:
@@ -810,8 +817,8 @@ namespace Views
             }
 
             if ( data [ data . Length - 1 ] == ',' )
-                data = data . Trim() . Substring(0 , data . Length - 1);
-            string [ ] temp = data . Split(",");
+                data = data . Trim ( ) . Substring ( 0 , data . Length - 1 );
+            string [ ] temp = data . Split ( "," );
             string fld = "";
             for ( int p = 0 ; p < dgControl . datagridControl . SelectedItems . Count ; p++ )
             {
@@ -822,36 +829,36 @@ namespace Views
                     {
                         validflds = temp [ x ];
                         if ( validflds == "ID" && MainWindow . USE_ID_IDENTITY == true )
-                            fld = validflds . Trim();
+                            fld = validflds . Trim ( );
                         else if ( validflds == "ID" )
                         {
                             ID_Record = true;
                             break;
                         }
                         else
-                            fld = validflds . Trim();
-                        if ( fld . Contains("})") )
+                            fld = validflds . Trim ( );
+                        if ( fld . Contains ( "})" ) )
                         {
-                            fld = fld . Substring(0 , fld . Length - 1);
-                            if ( fld . Contains(" ") )
+                            fld = fld . Substring ( 0 , fld . Length - 1 );
+                            if ( fld . Contains ( " " ) )
                             {
-                                string [ ] splitter = fld . Split(" ");
-                                if ( splitter [ 0 ] . Contains("/") )
+                                string [ ] splitter = fld . Split ( " " );
+                                if ( splitter [ 0 ] . Contains ( "/" ) )
                                 {
-                                    splitter [ 0 ] = NewWpfDev . Utils . ConvertInputDate(splitter [ 0 ]);
+                                    splitter [ 0 ] = NewWpfDev . Utils . ConvertInputDate ( splitter [ 0 ] );
                                     fld = splitter [ 0 ];
                                 }
                             }
                         }
                         else
                         {
-                            if ( fld . Contains(" ") )
+                            if ( fld . Contains ( " " ) )
                             {
-                                string [ ] splitter = fld . Split(" ");
-                                if ( splitter [ 0 ] . Contains("/") )
+                                string [ ] splitter = fld . Split ( " " );
+                                if ( splitter [ 0 ] . Contains ( "/" ) )
                                 {
-                                    splitter [ 0 ] = NewWpfDev . Utils . ConvertInputDate(splitter [ 0 ]);
-                                    fld = $" {splitter [ 0 ]}" . TrimStart() . TrimEnd();
+                                    splitter [ 0 ] = NewWpfDev . Utils . ConvertInputDate ( splitter [ 0 ] );
+                                    fld = $" {splitter [ 0 ]}" . TrimStart ( ) . TrimEnd ( );
                                 }
                             }
                         }
@@ -861,33 +868,33 @@ namespace Views
 
                     SqlDataString += $"{fld},";
                     if ( SqlDataString . Length > 0 )
-                        SqlDataString = SqlDataString . Substring(0 , SqlDataString . Length - 1);
+                        SqlDataString = SqlDataString . Substring ( 0 , SqlDataString . Length - 1 );
                 }
             }   // lower for ()
             return SqlDataString;
         }
 
-        static public string RemoveLeadingSpaces (string processQuery)
+        static public string RemoveLeadingSpaces ( string processQuery )
         {
-            if ( processQuery . Trim() . Contains(" ") )
+            if ( processQuery . Trim ( ) . Contains ( " " ) )
             {
-                processQuery = NewWpfDev . Utils . ReverseString(processQuery);
-                processQuery = processQuery . Substring(0 , processQuery . Length - 1);
-                processQuery = NewWpfDev . Utils . ReverseString(processQuery);
+                processQuery = NewWpfDev . Utils . ReverseString ( processQuery );
+                processQuery = processQuery . Substring ( 0 , processQuery . Length - 1 );
+                processQuery = NewWpfDev . Utils . ReverseString ( processQuery );
             }
             return processQuery;
         }
 
-        static public string CreateSqlInsertCommand (string NewDbName , string recorddata , string insertstring , string [ ] args , string AllFields , int maxcols , out string res)
+        static public string CreateSqlInsertCommand ( string NewDbName , string recorddata , string insertstring , string [ ] args , string AllFields , int maxcols , out string res )
         {
             res = "";
-            Debug . WriteLine($"Using INSERT INTO {NewDbName} {insertstring}\n{recorddata}");
-            $"11 - Calling SqlInsertGenericRecord() with \n{insertstring} + {recorddata}" . CW();
+            Debug . WriteLine ( $"Using INSERT INTO {NewDbName} {insertstring}\n{recorddata}" );
+            $"11 - Calling SqlInsertGenericRecord() with \n{insertstring} + {recorddata}" . CW ( );
             int recsinserted = 0;
             string err = "";
-            if ( SqlInsertGenericRecord(recorddata , insertstring , NewDbName , out err , out recsinserted) == true )
+            if ( SqlInsertGenericRecord ( recorddata , insertstring , NewDbName , out err , out recsinserted ) == true )
             {
-                Debug . WriteLine($"Insertion of {recorddata} Succeeded");
+                Debug . WriteLine ( $"Insertion of {recorddata} Succeeded" );
             }
             else
             {
@@ -896,16 +903,17 @@ namespace Views
             // Go get next record
             return insertstring;
         }
-        static public int SaveAsNewTable ()
+        static public int SaveAsNewTable ( string CurrentTable , string newtable , out  string err)
         {
-            List<string> FldNames = new List<string>();
-            ObservableCollection<DapperGenericsLib . GenericClass> collection = new ObservableCollection<DapperGenericsLib . GenericClass>();
-            string NewDbName = GenericControl . NewTableName . Text . Trim();
-            Genericgrid . CurrentTable = NewDbName;
-            MessageBoxResult mbresult = MessageBox . Show("Click YES to save entire table as a new table, \n\nTo save selected columns only to a new table click NO\n& use the Save Selected Records option" , "Table Duplication ?" ,
+            err = ""; 
+            List<string> FldNames = new List<string> ( );
+            ObservableCollection<DapperGenericsLib . GenericClass> collection = new ObservableCollection<DapperGenericsLib . GenericClass> ( );
+            string NewDbName = GenericControl . NewTableName . Text . Trim ( );
+            //Ctrl.CurrentTable = NewDbName;
+            MessageBoxResult mbresult = MessageBox . Show ( $"Click YES to save entire table as a new table that will\nbe named [ {newtable . ToUpper ( )} ], \n\nTo save selected columns only to the new table click NO\n& use the Save Selected Records option" , "Table Duplication ?" ,
                 MessageBoxButton . YesNoCancel ,
                 MessageBoxImage . Question ,
-                MessageBoxResult . No);
+                MessageBoxResult . No );
 
             if ( mbresult == MessageBoxResult . Cancel )
                 return -1;
@@ -914,44 +922,45 @@ namespace Views
 
                 // Save a set with only user selected columns
                 string [ ] args = new string [ 20 ];
-                string SqlDataString = dgControl . GetFullColumnInfo(DatagridControl . CurrentTable , DatagridControl . CurrentTable , Genericgrid . DbConnectionString , false);
+                string SqlDataString = dgControl . GetFullColumnInfo ( CurrentTable , DatagridControl . CurrentTable , Genericgrid . DbConnectionString , false );
                 string buffer = "";
                 int index = 0;
 
                 if ( NewDbName == "" )  // Sanity check
                 {
-                    MessageBox . Show("Please enter a suitable name for the table you want to create !" , "Naming Error");
+                    MessageBox . Show ( "Please enter a suitable name for the table you want to create !" , "Naming Error" );
                     return -1;
                 }
 
-                args = SqlDataString . Split('\n');
+                args = SqlDataString . Split ( '\n' );
                 foreach ( var item in args )
-                    if ( item != null && item . Trim() != "" )
+                    if ( item != null && item . Trim ( ) != "" )
                     {
-                        string [ ] RawFldNames = item . Split(' ');
+                        string [ ] RawFldNames = item . Split ( ' ' );
                         string [ ] flds = { "" , "" , "" , "" };
                         int y = 0;
                         for ( int x = 0 ; x < RawFldNames . Length ; x++ )
                             if ( RawFldNames [ x ] . Length > 0 )
                                 flds [ y++ ] = RawFldNames [ x ];
                         buffer = flds [ 0 ];
-                        if ( buffer != null && buffer . Trim() != "" )
+                        if ( buffer != null && buffer . Trim ( ) != "" )
                         {
-                            FldNames . Add(buffer . ToUpper());
-                            DapperGenericsLib . GenericClass tem = new DapperGenericsLib . GenericClass();
-                            tem . field1 = buffer . ToUpper();    // fname
+                            FldNames . Add ( buffer . ToUpper ( ) );
+                            DapperGenericsLib . GenericClass tem = new DapperGenericsLib . GenericClass ( );
+                            tem . field1 = buffer . ToUpper ( );    // fname
                             tem . field2 = flds [ 1 ];   //ftype
                             tem . field4 = flds [ 3 ];   // decroot
                             tem . field3 = flds [ 2 ];   // decpart
-                            collection . Add(tem);
+                            collection . Add ( tem );
                         }
                     }
                 //ALL WORKING  20/9/2022 - We now have a list of all Column names with
                 //column type & size data, so let user choose what to save to a new table!
-                GenericControl . SelectedRows . Clear();
+                GenericControl . SelectedRows . Clear ( );
                 // load selection dialog with available clumns
                 GenericControl . ColNames . ItemsSource = collection;
                 // Show dialog
+                //GenericControl . FieldSelectBorder . Visibility = Visibility . Visible;
                 GenericControl . FieldSelectionGrid . Visibility = Visibility . Visible;
             }
             else
@@ -959,48 +968,42 @@ namespace Views
                 // just  do a direct copy
                 if ( NewDbName == "" )  // Sanity check
                 {
-                    MessageBox . Show("Please enter a suitable name for the table you want to create !" , "Naming Error");
+                    MessageBox . Show ( "Please enter a suitable name for the table you want to create !" , "Naming Error" );
                     return -1;
                 }
-                string [ ] args = { $"{GenericControl . SqlTables . SelectedItem . ToString()}" , $"{NewDbName}" };
-                dgControl . ProcessUniversalStoredProcedure("spCopyDb" , args , out string err);
+                string [ ] args = { $"{GenericControl . SqlTables . SelectedItem . ToString ( )}" , $"{NewDbName}" };
+                int recordcount = 0;
+                string Tablename = "";
+                if ( dgControl . ProcessUniversalStoredProcedure ( "spCopyDb" , args , out err, out recordcount , out Tablename) == -9 )
+                {
+                    //GenericControl . statusbar . Text = $"The Copy of {GenericControl . SqlTables . SelectedItem . ToString ( )} to {NewDbName} FAILED.  The reason was {err}";
+                    return -9;
+
+                }
                 // make deep copy of table else it gets cleared elsewhere
                 // Create a completely new instance via seriazable Clone method stored in NewWpfDev.Utils (in ObjectCopier class file)
-                string originalname = $"{GenericControl . SqlTables . SelectedItem . ToString()}";
-                ObservableCollection<NewWpfDev . GenericClass> deepcopy = new ObservableCollection<NewWpfDev . GenericClass>();
-                deepcopy = NewWpfDev . Utils . CopyCollection(( ObservableCollection<NewWpfDev . GenericClass> )Genericgrid . GridData , ( ObservableCollection<NewWpfDev . GenericClass> )deepcopy);
+                string originalname = $"{GenericControl . SqlTables . SelectedItem . ToString ( )}";
+                ObservableCollection<NewWpfDev . GenericClass> deepcopy = new ObservableCollection<NewWpfDev . GenericClass> ( );
+                deepcopy = NewWpfDev . Utils . CopyCollection ( ( ObservableCollection<NewWpfDev . GenericClass> ) Genericgrid . GridData , ( ObservableCollection<NewWpfDev . GenericClass> ) deepcopy );
                 Genericgrid . GridData = deepcopy;
                 string [ ] args1 = { $"{NewDbName}" };
                 int colcount = dgControl . datagridControl . Columns . Count;
-                DatagridControl . LoadActiveRowsOnlyInGrid(dgControl . datagridControl , Genericgrid . GridData , colcount);
-                GenericControl . ResetColumnHeaderToTrueNames(NewDbName , dgControl . datagridControl);
-                GenericControl . LoadDbTables(NewDbName);
-                //SelectCurrentTable ( NewDbName );
-                GenericControl . statusbar . Text = $"The current table [{Genericgrid . CurrentTable . ToUpper()}] was saved as [{NewDbName . ToUpper()}] successfully ...";
-
-                //if ( dgControl . datagridControl . Items . Count > 0 )
-                //{
-                //    Utils . DoErrorBeep ( 500 , 100 , 2 );
-                //}
-                //else
-                //{
-                //    GenericControl . statusbar . Text = $"New Table [{NewDbName}] could NOT be Created. Error was [{err}] ";
-                //    Utils . DoErrorBeep ( 320 , 100 , 1 );
-                //    Utils . DoErrorBeep ( 260 , 300 , 1 );
-                //}
-                //GenericControl . NewTableName . Text = NewDbName;
+                DatagridControl . LoadActiveRowsOnlyInGrid ( dgControl . datagridControl , Genericgrid . GridData , colcount );
+                GenericControl . ResetColumnHeaderToTrueNames ( NewDbName , dgControl . datagridControl );
+                GenericControl . LoadDbTables ( NewDbName );
+                GenericControl . statusbar . Text = $"The current table [{DatagridControl . CurrentTable . ToUpper ( )}] was saved as [{NewDbName . ToUpper ( )}] successfully ...";
             }
             Mouse . OverrideCursor = Cursors . Arrow;
             return 1;
         }
 
-        static public void SelectCurrentTable (string table)
+        static public void SelectCurrentTable ( string table )
         {
             int index = 0;
-            string currentTable = table . ToUpper();
+            string currentTable = table . ToUpper ( );
             foreach ( string item in GenericControl . SqlTables . Items )
             {
-                if ( currentTable == item . ToUpper() )
+                if ( currentTable == item . ToUpper ( ) )
                 {
                     GenericControl . SqlTables . SelectedIndex = index;
                     break;
@@ -1008,19 +1011,19 @@ namespace Views
                 index++;
             }
         }
-        static public int GetTableColumnsCount (string tname , string [ ] args)
+        static public int GetTableColumnsCount ( string tname , string [ ] args )
         {
-            List<string> SqlQuerylist = new List<string>();
+            List<string> SqlQuerylist = new List<string> ( );
             string spCommand = "drop table if exists zz; drop table if exists zzz; " +
                 $"select column_name,upper(Table_name) as name into zz from information_schema.columns; " +
                  $"select column_name, name into zzz from zz where name='{tname}'; " +
                  $"select count(name) as cnt from zzz;";
-            SqlQuerylist = DatagridControl . ProcessUniversalQueryStoredProcedure(spCommand , args , out string err2);
-            Debug . WriteLine($"Direct SQL query returned [ {SqlQuerylist [ 0 ]} ]");
+            SqlQuerylist = DatagridControl . ProcessUniversalQueryStoredProcedure ( spCommand , args , out string err2 );
+            Debug . WriteLine ( $"Direct SQL query returned [ {SqlQuerylist [ 0 ]} ]" );
             if ( err2 != "" )
-                Debug . WriteLine($"SqlCommand [ {spCommand} ] failed : Reason [ {err2} ]");
+                Debug . WriteLine ( $"SqlCommand [ {spCommand} ] failed : Reason [ {err2} ]" );
             // result is returned in List<strng with just one row.
-            int colcount = Convert . ToInt32(SqlQuerylist [ 0 ]);
+            int colcount = Convert . ToInt32 ( SqlQuerylist [ 0 ] );
             return colcount;
         }
         // EOF EOF EOF EOF EOF EOF EOF EOF EOF EOF EOF EOF EOF EOF EOF EOF EOF EOF EOF EOF EOF EOF 

@@ -1,22 +1,30 @@
 ﻿using System;
+using System . Collections . Generic;
 using System . Diagnostics;
+using System . Text;
 using System . Windows;
 using System . Windows . Controls;
+using System . Windows . Data;
+using System . Windows . Documents;
 using System . Windows . Input;
 using System . Windows . Media;
-
-using NewWpfDev . Models;
+using System . Windows . Media . Imaging;
+using System . Windows . Shapes;
 using NewWpfDev . UserControls;
 
-using Canvas = System . Windows . Controls . Canvas;
+using NewWpfDev . Views;
 
-namespace NewWpfDev . Views
+namespace Views
 {
     /// <summary>
-    /// Interaction logic for GenericSelectBoxControl.xaml
+    /// Interaction logic for GenericSelectbox.xaml
     /// </summary>
-    public partial class GenericSelectBoxControl : UserControl
+    public partial class GenericSelectbox : Window
     {
+        public GenericSelectbox ( )
+        {
+            InitializeComponent ( );
+        }
         #region Properties
 
         public static event EventHandler<SelectionArgs> ListSelection;
@@ -59,12 +67,12 @@ namespace NewWpfDev . Views
         {
             fdlcanvas = Fdlcanvas;
         }
-        public GenericSelectBoxControl ( Control fdparentl , Canvas canvas )
+        public GenericSelectbox ( Control fdparentl , Canvas canvas )
         {
             InitializeComponent ( );
             fdlcanvas = canvas;
             // this is the DP for LBSELECTOR (Name for the entire control)
-            GenericSelectBoxControl gsb = this;
+            GenericSelectbox gsb = this;
             if ( fdlcanvas == null )
             {
                 ( gsb as FrameworkElement ) . SetValue ( Canvas . LeftProperty , ( double ) 100 );
@@ -78,7 +86,7 @@ namespace NewWpfDev . Views
                 // this . SetValue ( GenSelectBoxProperty , fdlcanvas );
             }
             BorderMLeft = 100;
-            border . Width = 300;
+            GenSelectWindow . border . Width = 300;
             border . Height = 400;
             Ctrlstats . Top = 150;
             CtrlTop = 150;
@@ -165,8 +173,8 @@ namespace NewWpfDev . Views
             // Update font textbox
             fdl . CurrentFont . Text = listbox . SelectedItem . ToString ( );
             string newfont = listbox . SelectedItem . ToString ( );
-            Properties . Settings . Default . FlowDocFont = newfont;
-            Properties . Settings . Default . Save ( );
+            //Application.Current. Properties.Settings . Default . FlowDocFont = newfont;
+            //Properties . Settings . Default . Save ( );
 
             fdl . fontFamily = new FontFamily ( listbox . SelectedItem . ToString ( ) );
             fdl . UpdateFontDisplay ( );
@@ -831,10 +839,11 @@ namespace NewWpfDev . Views
         }
     }
 }
-//public class ListboxHostArgs : EventArgs
-//{
-//    public UIElement HostUIElement;
-//    public Control HostControl;
-//    public string HostName;
-//    public string HostType;
-//}
+public class ListboxHostArgs : EventArgs
+{
+    public UIElement HostUIElement;
+    public Control HostControl;
+    public string HostName;
+    public string HostType;
+}  
+

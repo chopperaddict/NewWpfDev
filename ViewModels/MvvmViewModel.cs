@@ -132,12 +132,13 @@ namespace NewWpfDev . ViewModels
 			ParentBGView . filtertext . TextChanged += mvgm . filter_TextChanged;
 			ParentBGView . acfiltertext . TextChanged += mvgm . acfilter_TextChanged;
 
-			fdl = new FlowdocLib ( );
-		}
+            FlowdocLib fdl = new FlowdocLib ( Flowdoc , canvas );
 
- 		#region ICommand Methods 
-		// ICommand CanExecute's
-		private bool CanExecuteLoadData ( object arg )
+        }
+
+        #region ICommand Methods 
+        // ICommand CanExecute's
+        private bool CanExecuteLoadData ( object arg )
 		{ return true; }
 		public bool CanExecuteDebugger ( object arg )
 		{return true;}

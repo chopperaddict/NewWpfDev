@@ -19,6 +19,7 @@ public class DataGridLayout
     private string fieldname;
     private string fieldtype;
     private int fieldlength;
+    private int colindex;
     private object datavalue;
     public string Fieldname
     {
@@ -34,6 +35,11 @@ public class DataGridLayout
     {
         get { return fieldlength; }
         set { fieldlength = value; OnPropertyChanged ( nameof ( Fieldlength ) ); }
+    }
+    public int Colindex
+    {
+        get { return colindex; }
+        set { colindex = value; OnPropertyChanged ( nameof ( Colindex ) ); }
     }
     public object DataValue
     {

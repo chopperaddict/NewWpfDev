@@ -72,7 +72,17 @@ namespace NewWpfDev. AttachedProperties
             // Using a DependencyProperty as the backing store for HeaderForeground.  This enables animation, styling, binding, etc...
             public static readonly DependencyProperty HeaderForegroundProperty =
                     DependencyProperty . RegisterAttached ( "HeaderForeground", typeof ( Brush ), typeof ( DataGridColumnsColorAP ), new PropertyMetadata ( Brushes.Black ) );
-            #endregion HeaderForeground 
-        
-      }
+        #endregion HeaderForeground 
+
+        public static string ActiveDragControl ( DependencyObject obj )
+        {return ( string ) obj . GetValue ( ActiveDragControlProperty );}
+
+        public static void SetMyProperty ( DependencyObject obj , string  value )
+        {obj . SetValue ( ActiveDragControlProperty , value );}
+
+        public static readonly DependencyProperty ActiveDragControlProperty =
+            DependencyProperty . RegisterAttached ( "ActiveDragControl" , typeof ( string  ) , typeof ( DataGridColumnsColorAP ) , new PropertyMetadata ( "" ) );
+
+
+    }
 }

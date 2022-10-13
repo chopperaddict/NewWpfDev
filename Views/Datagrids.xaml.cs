@@ -121,7 +121,7 @@ namespace NewWpfDev. Views
         private static Stopwatch timer = new Stopwatch ( );
 
         // Flowdoc file wide variables
-        public FlowdocLib fdl = new FlowdocLib ( );
+        public FlowdocLib fdl;
 #pragma warning disable CS0414 // The field 'Datagrids.XLeft' is assigned but its value is never used
         private double XLeft = 0;
 #pragma warning restore CS0414 // The field 'Datagrids.XLeft' is assigned but its value is never used
@@ -169,6 +169,7 @@ namespace NewWpfDev. Views
             this . DataContext = this;
             //Utils . SetupWindowDrag ( this );
             // setup check boxes & ListBox
+            FlowdocLib fdl = new FlowdocLib ( Flowdoc , canvas );
             LoadViaSqlCmd . IsChecked = false;
             BgWorker . IsChecked = true;
             UseBGThread = true;

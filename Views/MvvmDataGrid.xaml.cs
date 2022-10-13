@@ -33,7 +33,7 @@ namespace NewWpfDev . Views
 		public MvvmViewModel MvvM { get; set; }
 		public static MvvmDataGrid BankGridViewWindow { get; set; }
 
-		public  static FlowdocLib fdl = new FlowdocLib();
+        public static FlowdocLib fdl;
 		public  static FlowDoc fdoc = new FlowDoc();
 		public string CurrentDb = "BANKACCOUNT";
 		private bool IsBankActive { get; set; }
@@ -55,11 +55,12 @@ namespace NewWpfDev . Views
 		{
 			// WORKS WELL   			
 			InitializeComponent ( );
+            FlowdocLib fdl = new FlowdocLib ( Flowdoc , canvas );
 
-			// Get  the base class loaded into variable
-		}
+            // Get  the base class loaded into variable
+        }
 
-		private void BankGV_Loaded ( object sender , RoutedEventArgs e )
+        private void BankGV_Loaded ( object sender , RoutedEventArgs e )
 		{
 			IsBankActive = false;
 			MvvM = new MvvmViewModel ( this );
