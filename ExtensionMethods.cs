@@ -1,4 +1,6 @@
 ﻿#define USECW
+#define USETRACK
+#undef USETRACK
 using System;
 using System . Collections . Generic;
 using System . Linq;
@@ -17,24 +19,37 @@ namespace NewWpfDev
 {
     public static class ExtensionMethods
     {
-        private static Action EmptyDelegate = delegate ( ) { };
 
+        private static Action EmptyDelegate = delegate ( ) { };
         //Snippet = trk
         //[Conditional ( "USECW" )]
         public static void Track (
             this string message ,
+            int direction = 0 ,
             int level = 1 ,
             [CallerFilePath] string path = null ,
             [CallerMemberName] string name = null ,
             [CallerLineNumber] int line = -1 )
         {
+#if USETRACK
             if ( level == 0 ) return;
             string [ ] tmp = path . Split ( '\\' );
             int len = tmp . Length;
-            string filedetails = $"{tmp [ len - 3 ]}/{tmp [ len - 2 ]}/{tmp[len-1]}";
-            Debug . WriteLine ( $"** TRACK** : {line} :  {filedetails} : {name.ToUpper()}" );
-        }
+            string filedetails = $"{tmp [ len - 3 ]}/{tmp [ len - 2 ]}/{tmp [ len - 1 ]}";
+            if ( MainWindow . LOGTRACK )
+            {
+                if ( direction == 0 )
+                    File . AppendAllText ( $@"C:\users\ianch\Documents\NewWpfDev.Trace.log" , $"** IN  ** : {line} :  {filedetails} : {name . ToUpper ( )}\n" );
+                else
+                    File . AppendAllText ( $@"C:\users\ianch\Documents\NewWpfDev.Trace.log" , $"** OUT ** : {line} :  {filedetails} : {name . ToUpper ( )}\n" );
 
+            }
+            if ( direction == 0 )
+                Debug . WriteLine ( $"** TRACK - IN ** : {line} :  {filedetails} : {name . ToUpper ( )}" );
+            else
+                Debug . WriteLine ( $"** TRACK - OUT ** : {line} :  {filedetails} : {name . ToUpper ( )}" );
+#endif
+        }
         public static void log (
             this string message ,
             [CallerLineNumber] int line = -1 ,
@@ -45,7 +60,17 @@ namespace NewWpfDev
             output = path == null ? "No file path" : $"\t{path}  : ";
             output += line < 0 ? "No line  : " : "Line " + $"{line} : ";
             output += name == null ? " No member name" : $"( {name} )";
-            Debug . WriteLine ( $"{output}\n{message}\n" );
+            Debug . WriteLine ( $"{output}\n{message}" );
+        }
+
+        public static void DapperTrace (
+            this string message ,
+            int level = 1 ,
+            [CallerFilePath] string path = null ,
+            [CallerMemberName] string name = null ,
+            [CallerLineNumber] int line = -1 )
+        {
+            Debug . WriteLine ( $"\nExecuting : [ {message . ToUpper ( )} ]\n{path}\\{name} : {line}\n" );
         }
 
         public static void CW (
@@ -58,11 +83,11 @@ namespace NewWpfDev
             if ( level == 0 ) return;
             string [ ] tmp = path . Split ( '\\' );
             string errmsg = $"\n{name} : {line} ";
-           errmsg += $"in {tmp [ tmp . Length - 2 ]}";
+            errmsg += $"in {tmp [ tmp . Length - 2 ]}";
             errmsg += $"\\{tmp [ tmp . Length - 1 ]}\n**INFO** = [  {message} ]";
-            Debug . WriteLine ( $"\n{errmsg}");
-            if(MainWindow.LogCWOutput)
-            File.AppendAllText( @"C:\users\ianch\documents\CW.log",errmsg);
+            Debug . WriteLine ( $"\n{errmsg}" );
+            if ( MainWindow . LogCWOutput )
+                File . AppendAllText ( @"C:\users\ianch\documents\CW.log" , errmsg );
         }
         //-------------------------------------------------------------------------------------------------------//
         //Snippet = cwe
@@ -105,7 +130,7 @@ namespace NewWpfDev
             if ( level == 0 ) return;
             string [ ] tmp = path . Split ( '\\' );
             string namestr = $"{name + " ()" . PadRight ( 25 )}";
-        Debug . WriteLine ( $"INFO : {line . ToString ( ) . PadRight ( 6 )} : {namestr} ::** {message . PadRight ( 20 )}  : : File= {tmp [ 5 ] + "\\" + tmp [ 6 ]}" );
+            Debug . WriteLine ( $"INFO : {line . ToString ( ) . PadRight ( 6 )} : {namestr} ::** {message . PadRight ( 20 )}  : : File= {tmp [ 5 ] + "\\" + tmp [ 6 ]}" );
         }
         //-------------------------------------------------------------------------------------------------------//
 

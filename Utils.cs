@@ -34,6 +34,8 @@ using System . Runtime . Serialization . Formatters . Binary;
 using System . Reflection;
 using NewWpfDev . AttachedProperties;
 using NewWpfDev . Properties;
+using GenericSqlLib . Models;
+using NewWpfDev . Models;
 
 namespace NewWpfDev
 {
@@ -262,6 +264,8 @@ namespace NewWpfDev
                 {
                     Debug . WriteLine ( $"Unable to access Dictionary {dict} to identify key value [{key}]" );
                     key = key + "ConnectionString";
+                    DoErrorBeep ( 370 , 100 , 1 );
+                    DoErrorBeep ( 270 , 500 , 1 );
                     //WpfLib1 . Utils .DoErrorBeep ( 250 , 50 , 1 );
                 }
             }
@@ -347,10 +351,11 @@ namespace NewWpfDev
             try
             {
                 if ( Flags . ConnectionStringsDict . Count > 0 )
-                    return;
+                    Flags . ConnectionStringsDict . Clear ( );
                 Flags . ConnectionStringsDict . Add ( "IAN1" , ( string ) Properties . Settings . Default [ "BankSysConnectionString" ] );
                 Flags . ConnectionStringsDict . Add ( "NORTHWIND" , ( string ) Properties . Settings . Default [ "NorthwindConnectionString" ] );
                 Flags . ConnectionStringsDict . Add ( "PUBS" , ( string ) Properties . Settings . Default [ "PubsConnectionString" ] );
+                Flags . ConnectionStringsDict . Add ( "ADVENTUREWORKS2019" , ( string ) Properties . Settings . Default [ "AdventureWorks2019" ] );
                 WpfLib1 . Utils . WriteSerializedCollectionJSON ( Flags . ConnectionStringsDict , @"C:\users\ianch\DbConnectionstrings.dat" );
             }
             catch ( NullReferenceException ex )
@@ -1155,6 +1160,25 @@ namespace NewWpfDev
                 constring = "";
                 return false;
             }
+        }
+
+        public static string GetCheckCurrentConnectionString ( string CurrentTableDomain)
+        {
+            string Con = "";
+            if ( NewWpfDev . Utils . CheckResetDbConnection ( CurrentTableDomain , out string constring ) == false )
+            {
+                Debug . WriteLine ( $"Failed to set connection string for {CurrentTableDomain . ToUpper ( )} Db" );
+                return null;
+            }
+            else
+            {
+                Con = GenericDbUtilities . CheckSetSqlDomain ( CurrentTableDomain );
+                if ( Con == "" )
+                {   // drop down to default of IAN1
+                    Con = MainWindow . SqlCurrentConstring;
+                }
+            }
+            return Con;
         }
         /// <summary>
         /// A Generic data reader for any ObservableCollection&lt;T&gt; type
@@ -2147,7 +2171,7 @@ namespace NewWpfDev
                 }
                 else if ( type . Equals ( typeof ( TreeViewItem ) ) )
                 {
-                   //Debug . WriteLine ( "TreeViewItem" ); return true;
+                    //Debug . WriteLine ( "TreeViewItem" ); return true;
                 }
                 else if ( FindVisualParent<Border> ( original as DependencyObject , out string [ ] objectarray ) != null )
                 {
@@ -2300,7 +2324,7 @@ namespace NewWpfDev
             //        Debug . WriteLine ( $"Found {count} controls of  type {TypeRequired}" );
             //    }
             //}
-            Debug . WriteLine ( "Finished FindChildren() 4\n" );
+            //Debug . WriteLine ( "Finished FindChildren() 4\n" );
 
             return objects;
         }
@@ -3211,7 +3235,7 @@ namespace NewWpfDev
         public static int GetCollectionColumnCount ( GenericClass gc )
         {
             int count = 0;
-            if ( gc . field1 == null || gc . field1 == "" ){count = 0; return count;}
+            if ( gc . field1 == null || gc . field1 == "" ) { count = 0; return count; }
             if ( gc . field2 == null || gc . field2 == "" ) { count = 1; return count; }
             if ( gc . field3 == null || gc . field3 == "" ) { count = 2; return count; }
             if ( gc . field4 == null || gc . field4 == "" ) { count = 3; return count; }
@@ -3240,20 +3264,38 @@ namespace NewWpfDev
                 fontfamily = new FontFamily ( test );
             return fontfamily;
         }
-        static public FontFamily GetFlowdocFont ( string font= "")
+        static public FontFamily GetFlowdocFont ( string font = "" )
         {
             FontFamily fontfamily = null;
             if ( font == "" )
             {
-                 fontfamily = new FontFamily (  );
+                fontfamily = new FontFamily ( );
             }
             else
             {
                 string test = ( string ) Properties . Settings . Default [ font ];
                 if ( test != "" )
                     fontfamily = new FontFamily ( test );
-             }
+            }
             return fontfamily;
+        }
+        static public int GetIntFromEnumerable ( IEnumerable value )
+        {
+            // process an IEnumerable returned by Dapper Query's and return an int value
+            int recordcount = 0;
+            IEnumerator enummer = value . GetEnumerator ( );
+            while ( enummer . MoveNext ( ) )
+            {
+                var val = enummer . Current . ToString ( );
+                if ( val != null )
+                {
+                    string [ ] parts = val . Split ( '=' );
+                    string val1 = parts [ 1 ] . Trim ( );
+                    string [ ] more = val1 . Split ( "'" );
+                    recordcount = Convert . ToInt32 ( more [ 1 ] );
+                }
+            }
+            return recordcount;
         }
     }
 }

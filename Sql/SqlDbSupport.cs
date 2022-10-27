@@ -15,11 +15,10 @@ using System . IO;
 using NewWpfDev. Views;
 using System . Reflection;
 using System . Collections . ObjectModel;
-
 namespace NewWpfDev. Sql
 {
-	class SqlDbSupport
-	{
+    class SqlDbSupport
+    {
 		public static bool LoadMultiSqlData ( string CmdString , DataTable dt , string CallerType , EditDb edb )
 		{
 			//THIS IS THE SQL COMMAND TO GET FULL LINES OF DUPLICATED CUSTOMER ACCOUNT #'S DATA
@@ -510,6 +509,5 @@ namespace NewWpfDev. Sql
             }
             return obj;
         }
-
-    }
+ }
 }

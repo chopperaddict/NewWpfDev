@@ -335,8 +335,8 @@
             <MenuItem  x:Name="Expand2" Click="Magnifyplus2"
                  Style="{StaticResource MenuItemBlue}">
                 <MenuItem.Header>
+                                <!--DataContext="Tabview"-->
                     <TextBlock 
-                                DataContext="Tabview"
                                 Text="Magnify +2"
                                 FontSize="16"
                                  Height="25"

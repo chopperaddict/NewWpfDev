@@ -1,4 +1,64 @@
 ﻿=============================================================================================================
+    How to scroll FlowDocScrollViewer from C# code 
+===============================================================================================================
+		if ( e . Key == Key . Up )
+		{
+                FlowDocumentScrollViewer fdsv = sender as FlowDocumentScrollViewer;
+                ScrollViewer sv = fdsv . Template . FindName ( "PART_ContentHost" , fdsv ) as ScrollViewer;
+                FlowdocVerticalpos -= 10;
+                sv . ScrollToVerticalOffset ( FlowdocVerticalpos );
+		}
+
+=============================================================================================================
+    How to show a Context menu from c#
+===============================================================================================================
+ 
+ FrameworkElement . ContextMenu . IsOpen = true;
+
+=============================================================================================================
+    How to ensure you have a copy of a collection that is not effected by changes made to one also effecting the other one
+===============================================================================================================
+    
+	// Create a completely new instance via seriazable Clone method(stored in NewWpfDev.Utils (in ObjectCopier class file))
+            ObservableCollection<GenericClass> Safe_Deepcopy = new ObservableCollection<GenericClass> ( );
+            Safe_Deepcopy = NewWpfDev . Utils . CopyCollection ( ColumnsData , deepcopy );
+            GridData = Safe_Deepcopy ;
+
+			 Now changes made to GridData wl NOT effect Safe_Deepcopy !!!
+
+=============================================================================================================
+    How  to get (any) return vaue from any dapper db.Query
+===============================================================================================================
+                  SQL code :-
+				  alter PROCEDURE [dbo].[spCheckTableExists2] 
+					@Arg1 nvarchar(200)
+					
+					Begin
+				  	 declare @data nvarchar(400);-- dbname to check for	 
+						SELECT count(*) as data FROM INFORMATION_SCHEMA.COLUMNS WHERE upper(table_name) = upper(@Arg1) ;
+						return @data
+				  End
+				  
+				  C# caling code  :
+				  
+                    db.Open ( );
+                    DynamicParameters parameters = new DynamicParameters ();
+                    parameters . Add ( "Arg1" , name , dbType: DbType . String , direction: ParameterDirection . Input );
+                    dynamic reslt = db . Query ( $"spCheckTableExists2" , parameters , commandType: CommandType . StoredProcedure );
+					foreach ( var rows in reslt )
+					{
+						var  flds = rows as IDictionary<string, object>;
+						var data = flds [ "data" ];
+						result = Convert.ToInt32(data);
+						break;
+					}
+					db . Close ( );
+
+					NB another useful Methodto access Dapper data is :
+						gc = DapperSupport . ParseDapperRow ( item , dict , out colcount , ref VarCharLength , GetLengths );
+						that returns a GenericClass object from a DapperRow, as returned  by db.Query()
+   
+=============================================================================================================
     How  to get total columns used in any generic Obs collection
 ===============================================================================================================
 
@@ -65,7 +125,7 @@
 	 //*******************************//
 
  =============================================================================================================
-    How to mosify the defaulst context menu in a flowdocument
+    How to modify the default context menu in a flowdocument
 ===============================================================================================================
             <FlowDocumentScrollViewer.ContextMenu>
                     <ContextMenu>
@@ -77,7 +137,7 @@
                 </FlowDocumentScrollViewer.ContextMenu>
 
 =============================================================================================================
-    How to drop a table conditionality in SSQL server
+    How to drop a table conditionaly in SSQL server
 ===============================================================================================================
 
 	IF OBJECT_ID(N'dbo.SearchResult', N'U') IS NOT NULL  
@@ -175,7 +235,15 @@
             ContextMenuService.VerticalOffset="-10"
             Background="Orange">
 
-            <ContextMenu.Style>
+            // this style can be in the Resources if preferred
+			<ContextMenu.Style>
+                <Style TargetType="{x:Type ContextMenu}">
+                    <Setter Property="ItemsPanel" Value="{StaticResource NoImageMenu}"/>
+                </Style>
+            </ContextMenu.Style>
+
+			Resources  version :-			 
+			<ContextMenu.Style x:Key="NoImageMenu">>
                 <Style TargetType="{x:Type ContextMenu}">
                     <Setter Property="ItemsPanel" Value="{StaticResource NoImageMenu}"/>
                 </Style>

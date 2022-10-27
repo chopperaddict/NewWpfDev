@@ -83,7 +83,7 @@ namespace Views
             Msg1 . Margin = th;
 
             Msg2 . Text = args . msg3;
-           this . Show ( );
+            this . Show ( );
         }
 
         private void BtnOk ( object sender , RoutedEventArgs e )

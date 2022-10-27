@@ -8,6 +8,28 @@
     <StartupObject>NewWpfDev.App</StartupObject>
     <ApplicationIcon>docs.ico</ApplicationIcon>
     <Platforms>AnyCPU;x64</Platforms>
+    <GenerateDocumentationFile>False</GenerateDocumentationFile>
+    <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Deterministic>False</Deterministic>
+    <NoWarn>1701;1702;CS1591;CS1587</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <Deterministic>False</Deterministic>
+    <NoWarn>1701;1702;CS1591;CS1587</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Deterministic>False</Deterministic>
+    <NoWarn>1701;1702;CS1591;CS1587</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Deterministic>False</Deterministic>
+    <NoWarn>1701;1702;CS1591;CS1587</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -107,6 +129,7 @@
     <None Remove="Icons\Information.PNG" />
     <None Remove="Icons\Information2.png" />
     <None Remove="Icons\Information3.png" />
+    <None Remove="Icons\information5 png" />
     <None Remove="Icons\laptop-wifi.png" />
     <None Remove="Icons\laptop-wifi2.png" />
     <None Remove="Icons\large redcross.png" />

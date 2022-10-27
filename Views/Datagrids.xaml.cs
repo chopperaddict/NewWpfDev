@@ -98,7 +98,7 @@ namespace NewWpfDev. Views
         //		private string [ ] ACTypes = {"BANK", "CUSTOMER", "DETAILS", "NWCUSTOMER", "NWCUSTLIMITED", "GENERIC"};
         //		private string [ ] DefaultTables = {"BANKACCOUNT", "CUSTOMER", "SECACCOUNTS", "CUSTOMERS", "GENERICS"};
         private string SqlCommand = "";
-        private string DefaultSqlCommand = "Select * from BankAccount";
+        private string DefaultSqlCommand = "Select * from ian1.dbo.BankAccount";
 #pragma warning disable CS0414 // The field 'Datagrids.Nwconnection' is assigned but its value is never used
         string Nwconnection = "NorthwindConnectionString";
 #pragma warning restore CS0414 // The field 'Datagrids.Nwconnection' is assigned but its value is never used
@@ -169,7 +169,7 @@ namespace NewWpfDev. Views
             this . DataContext = this;
             //Utils . SetupWindowDrag ( this );
             // setup check boxes & ListBox
-            FlowdocLib fdl = new FlowdocLib ( Flowdoc , canvas );
+            fdl = new FlowdocLib ( Flowdoc , canvas );
             LoadViaSqlCmd . IsChecked = false;
             BgWorker . IsChecked = true;
             UseBGThread = true;
@@ -851,7 +851,6 @@ namespace NewWpfDev. Views
         // Just Assign data to grids to display it
         private void LoadGrid ( object obj = null )
         {
-
             ShowLoadtime ( );
 
             // Load whatever data we have received into DataGrid
@@ -862,10 +861,12 @@ namespace NewWpfDev. Views
                 Grid1 . ItemsSource = bankaccts;
                 DbCount = bankaccts . Count;
                 if ( UseFlowdoc == true )
+                {
                     fdl . ShowInfo ( Flowdoc , canvas , line1: $"The requested table [{CurrentType}] was loaded successfully, and the {DbCount} records returned are displayed in the table below" , clr1: "Black0" ,
                     line2: $"The command line used was" , clr2: "Red2" ,
                     line3: $"{SqlCommand . ToUpper ( )}" , clr3: "Blue4" ,
                     header: "Bank Accounts data table" , clr4: "Red5" );
+                }
                 Grid1 . SelectedIndex = 0;
                 Grid1 . Focus ( );
             }

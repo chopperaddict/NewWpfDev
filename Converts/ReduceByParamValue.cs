@@ -47,7 +47,7 @@ namespace NewWpfDev . Converts
                 d = ( double ) currentvalue;
                 currentvalue = d - paramvalue;
                 $"Reduced = {currentvalue} by parameter value {parameter} to {currentvalue}" . cwinfo ( 0 );
-                Debug . WriteLine ( $"ReduceByParamValue : value={value} + Parameter = {parameter}, result = {currentvalue}" );
+ //               Debug . WriteLine ( $"ReduceByParamValue : value={value} + Parameter = {parameter}, result = {currentvalue}" );
                 return currentvalue;
                 //}
                 //else

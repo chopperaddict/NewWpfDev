@@ -52,7 +52,7 @@ namespace Views
         //***************************************************************************************************************//
         public void InitializeMovement ( FrameworkElement controlToMove , Window win )
         {
-            CurrentControl = controlToMove;
+            CtrlDragData.CurrentControl = controlToMove;
             CtrlDragData . CurrentControl = controlToMove;
         }
         //***************************************************************************************************************//
@@ -63,11 +63,12 @@ namespace Views
                 Ismoving = false; return;
             }
             if ( CtrlDragData . CurrentControl == null ) return;
-             CtrlDragData . FirstXPos = e . GetPosition ( CurrentControl ) . X;
-            CtrlDragData . FirstYPos = e . GetPosition ( CurrentControl ) . Y;
-            CtrlDragData . left = e . GetPosition ( ( CurrentControl as FrameworkElement ) . Parent as FrameworkElement ) . X - CtrlDragData . FirstXPos;
-            CtrlDragData . top = e . GetPosition ( ( CurrentControl as FrameworkElement ) . Parent as FrameworkElement ) . Y - CtrlDragData . FirstYPos;
+             CtrlDragData . FirstXPos = e . GetPosition ( CtrlDragData . CurrentControl ) . X;
+            CtrlDragData . FirstYPos = e . GetPosition ( CtrlDragData . CurrentControl ) . Y;
+            CtrlDragData . left = e . GetPosition ( ( CtrlDragData . CurrentControl as FrameworkElement ) . Parent as FrameworkElement ) . X - CtrlDragData . FirstXPos;
+            CtrlDragData . top = e . GetPosition ( ( CtrlDragData . CurrentControl as FrameworkElement ) . Parent as FrameworkElement ) . Y - CtrlDragData . FirstYPos;
             CtrlDragData . Ismoving = true;
+            e . Handled = true;
         }
         //***************************************************************************************************************//
         public void CtrlMoving ( object sender , MouseEventArgs e , Window win =null)
@@ -80,10 +81,10 @@ namespace Views
             if ( e . LeftButton == MouseButtonState . Pressed && CtrlDragData . Ismoving == true )
             {
                 type = sender . GetType ( );
-                CtrlDragData . height = CurrentControl . ActualHeight;
-                CtrlDragData . width = CurrentControl . ActualWidth;
-                CtrlDragData . left = e . GetPosition ( ( CurrentControl as FrameworkElement ) . Parent as FrameworkElement ) . X - CtrlDragData . FirstXPos;
-                CtrlDragData . top = e . GetPosition ( ( CurrentControl as FrameworkElement ) . Parent as FrameworkElement ) . Y - CtrlDragData . FirstYPos;
+                CtrlDragData . height = CtrlDragData . CurrentControl . ActualHeight;
+                CtrlDragData . width = CtrlDragData . CurrentControl . ActualWidth;
+                CtrlDragData . left = e . GetPosition ( ( CtrlDragData . CurrentControl as FrameworkElement ) . Parent as FrameworkElement ) . X - CtrlDragData . FirstXPos;
+                CtrlDragData . top = e . GetPosition ( ( CtrlDragData . CurrentControl as FrameworkElement ) . Parent as FrameworkElement ) . Y - CtrlDragData . FirstYPos;
                 if ( CtrlDragData . left > 5 )
                     ( CtrlDragData . CurrentControl as FrameworkElement ) . SetValue ( Canvas . LeftProperty , CtrlDragData . left );
                 if ( CtrlDragData . top > 0 )

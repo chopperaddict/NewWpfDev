@@ -224,7 +224,8 @@
                                            VerticalAlignment="Center"
                                            HorizontalAlignment="Right" 
                                            Margin="0,0,0,3"/>
-                                <Image x:Name="lhImgUp"  Source="{Binding LhHsplitter}"  Margin="10 0 0 0"
+                                <Image x:Name="lhImgUp"  Source="{Binding LhHsplitter}"  
+                                       Margin="10 0 0 0"
 					    			Height="20" Width="20" />
                                 <TextBlock x:Name="LsVerticalright"  Text=" to view other options..." 
                                            Height="20" 

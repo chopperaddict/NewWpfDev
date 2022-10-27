@@ -11,7 +11,10 @@
         WindowChrome.ResizeGripDirection="BottomRight"
 	    ResizeMode="CanResizeWithGrip"        
         Title="Generic SQL Tables - Right Click for more information..."
+        FontSize="20"
+        FontWeight="Bold"
         TextElement.Foreground="White"
+        SizeChanged="Gengrid_SizeChanged"
         Height="550" Width="800"
         MinHeight="550" MinWidth="880"
         Loaded="Grid_Loaded"
@@ -24,20 +27,84 @@
         <conv:IncreaseByParamValue x:Key="IncreaseByParamValue" />
         <conv:ReduceByParamValue x:Key="ReduceByParamValue"/>
 
-        <!--// template that removes  that annoying image panel at left of context menus-->
-        <ItemsPanelTemplate x:Key="NoImageMenu">
-            <StackPanel Margin="-40,0,0,0" Background="White"/>
-        </ItemsPanelTemplate>
+        <!--#region magic color brushes-->
+
+        <LinearGradientBrush x:Key="VerticalRainbow" StartPoint="0,1" EndPoint="0,0">
+            <GradientStop Color="Red" Offset="1.0"/>
+            <GradientStop Color="Yellow" Offset="0.4"/>
+            <GradientStop Color="Black" Offset="0.5"/>
+            <GradientStop Color="Lime" Offset="0.7"/>
+            <GradientStop Color="Red"  Offset="0.0"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="HorizontalRainbow" StartPoint="1,0" EndPoint="0,0">
+            <GradientStop Color="Red" Offset="1.0"/>
+            <GradientStop Color="Yellow" Offset="0.4"/>
+            <GradientStop Color="Black" Offset="0.5"/>
+            <GradientStop Color="Lime" Offset="0.7"/>
+            <GradientStop Color="Red"  Offset="0.0"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="VerticalGraduated" StartPoint="1, 0" EndPoint="0, 0">
+            <GradientStop Color="Black" Offset="1"/>
+            <GradientStop Color="Black" Offset="0.9"/>
+            <GradientStop Color="Lime" Offset="0.7"/>
+            <GradientStop Color="Lime" Offset="0.6"/>
+            <GradientStop Color="Black" Offset="0"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="HorizontalGraduated" StartPoint="0, 1" EndPoint="0, 0">
+            <GradientStop Color="Black" Offset="1"/>
+            <GradientStop Color="Lime" Offset="0.5"/>
+            <GradientStop Color="Black" Offset="0"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="HSplitterRainbow" StartPoint="1,0" EndPoint="0,0">
+            <GradientStop Color="Red" Offset="1.0"/>
+            <GradientStop Color="Lime" Offset="0.85"/>
+            <GradientStop Color="Yellow" Offset="0.82"/>
+            <GradientStop Color="Black" Offset="0.65"/>
+            <GradientStop Color="Black" Offset="0.45"/>
+            <GradientStop Color="Yellow" Offset="0.18"/>
+            <GradientStop Color="Lime" Offset="0.15"/>
+            <GradientStop Color="Red"  Offset="0.0"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="DiagonalRainbow" StartPoint="0,0.0" EndPoint="1,0.9">
+            <GradientStop Color="Red" Offset="1.0"/>
+            <GradientStop Color="Yellow" Offset="0.4"/>
+            <GradientStop Color="Black" Offset="0.5"/>
+            <GradientStop Color="Lime" Offset="0.7"/>
+            <GradientStop Color="Red"  Offset="0.0"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="Horizontalgradientredblack" StartPoint="0,0.0" EndPoint="1,0.9">
+            <GradientStop Color="Red" Offset="1.0"/>
+            <GradientStop Color="White" Offset="0.8"/>
+            <GradientStop Color="Black" Offset="0.5"/>
+            <GradientStop Color="White" Offset="0.25"/>
+            <GradientStop Color="Red" Offset="0.0"/>
+            <!--<GradientStop Color="Lime" Offset="0.7"/>
+            <GradientStop Color="Red"  Offset="0.0"/>-->
+        </LinearGradientBrush>
+
+        <!--#endregion magic color brushes-->
+
+        <!--//**************************************************************************//-->
+
+        <!--#region Styles-->
 
         <Style x:Key="StackPanelStyle1" TargetType="{x:Type StackPanel}">
+            <Setter Property="Width" Value="425"/>
+
             <Style.Triggers>
                 <MultiTrigger>
                     <MultiTrigger.Conditions>
                         <Condition Property="IsMouseOver" Value="false"/>
                     </MultiTrigger.Conditions>
                     <MultiTrigger.Setters>
-                        <Setter Property="Background" Value="{StaticResource Cyan1}"/>
-                        <Setter Property="TextElement.Foreground"  Value="{StaticResource Blue0}"/>
+                        <Setter Property="Background" Value="{StaticResource White3}"/>
+                        <Setter Property="TextElement.Foreground"  Value="{StaticResource Black0}"/>
                         <Setter Property="Height" Value="25"/>
                     </MultiTrigger.Setters>
                 </MultiTrigger>
@@ -46,10 +113,10 @@
                         <Condition Property="IsMouseOver" Value="True"/>
                     </MultiTrigger.Conditions>
                     <MultiTrigger.Setters>
-                        <Setter Property="Background" Value="{StaticResource Yellow1}"/>
+                        <Setter Property="Background" Value="{StaticResource Red1}"/>
                         <Setter Property="TextElement.FontWeight" Value="DemiBold"/>
                         <Setter Property="TextElement.FontStyle" Value="Italic"/>
-                        <Setter Property="TextElement.Foreground"  Value="{StaticResource Black0}"/>
+                        <Setter Property="TextElement.Foreground"  Value="{StaticResource White0}"/>
                         <Setter Property="Height" Value="25"/>
                     </MultiTrigger.Setters>
                 </MultiTrigger>
@@ -109,6 +176,58 @@
             </Style.Triggers>
         </Style>
 
+        <Style x:Key="SplitterComboStyle" TargetType="TextBlock">
+            <Style.Triggers>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="Button.IsMouseOver" Value="False"/>
+                    </MultiTrigger.Conditions>
+                    <Setter Property="TextElement.Foreground" Value="White" />
+                    <Setter Property="TextElement.Background" >
+                        <Setter.Value>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="#FF684900" Offset="1.0"/>
+                                <GradientStop Color="#FFAB9300" Offset="0"/>
+                            </LinearGradientBrush>
+                        </Setter.Value>
+                    </Setter>
+                </MultiTrigger>
+                <!--<MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="True"/>
+                    </MultiTrigger.Conditions>
+                    <Setter Property="TextElement.Background"  >
+                        <Setter.Value>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="#FF684900" Offset="0.414"/>
+                                <GradientStop Color="{StaticResource ClrWhite4}" Offset="0.953"/>
+                                -->
+                <!--<GradientStop Color="#FF0000" Offset="1"/>-->
+                <!--
+                            </LinearGradientBrush>
+                        </Setter.Value>
+                    </Setter>
+
+                    <Setter Property="TextElement.Foreground"  >
+                        <Setter.Value>
+                            <LinearGradientBrush StartPoint="1,0" EndPoint="0,0">
+                                -->
+                <!--<GradientStop Color="#FF684900" Offset="1.0"/>-->
+                <!--
+                                <GradientStop Color="Black" Offset="0.0"/>
+                                <GradientStop Color="Cyan" Offset="0.2"/>
+                                <GradientStop Color="Cyan" Offset="0.4"/>
+                                <GradientStop Color="White" Offset="1.0"/>
+                                -->
+                <!--<GradientStop Color="#FF0000" Offset="1"/>-->
+                <!--
+                            </LinearGradientBrush>
+                        </Setter.Value>
+                    </Setter>
+                </MultiTrigger>-->
+            </Style.Triggers>
+        </Style>
+
         <Style x:Key="SpStringsStyle" TargetType="{x:Type ListBoxItem}">
             <Setter Property="Template">
                 <Setter.Value>
@@ -164,13 +283,12 @@
             </Setter>
         </Style>
 
-
         <Style x:Key="MenuItemBlue" TargetType="{x:Type MenuItem}">
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="Foreground" Value="Black" />
             <!--<Setter Property="BorderBrush" Value="{StaticResource HeaderBorderBrushYellow}" />-->
             <Setter Property="BorderThickness" Value="1.5" />
-            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="SnapsToDevicePixels" Value="False" />
             <Setter Property="HorizontalContentAlignment" Value="left" />
             <Setter Property="VerticalAlignment" Value="Bottom" />
             <Setter Property="VerticalContentAlignment" Value="Bottom" />
@@ -184,7 +302,7 @@
 							  BorderBrush="{TemplateBinding BorderBrush}" 
 							  BorderThickness="{TemplateBinding BorderThickness}" 
 							  Background="{TemplateBinding Background}" 
-							  SnapsToDevicePixels="True" 
+							  SnapsToDevicePixels="False" 
 							  Uid="Border_38">
                             <ContentPresenter x:Name="ContentPresenter"  
 										Content="{TemplateBinding Header}" 
@@ -197,25 +315,14 @@
                             <Trigger Property="IsHighlighted" Value="True">
                                 <Setter Property="Height" TargetName="Bd" Value="25"/>
                                 <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource Blue2}"/>
-                                <!--<Setter Property="Padding" TargetName="Bd"  Value="5,0,5,5"/>-->
                                 <Setter Property="Background" TargetName="Bd" Value="{StaticResource Blue2}"/>
                                 <Setter Property="TextElement.Foreground"  Value="{StaticResource White0}"/>
                             </Trigger>
-                            <!--<Trigger Property="IsHighlighted" Value="False">
-                                <Setter Property="Height" TargetName="Bd" Value="25"/>
-                                <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource Orange4}"/>
-                                -->
-                            <!--<Setter Property="Padding" TargetName="Bd"  Value="5,0,5,5"/>-->
-                            <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Orange4}"/>-->
-                            <!--
-                                <Setter Property="MenuItem.Foreground" TargetName="ContentPresenter" Value="{StaticResource Black0}"/>
-                            </Trigger>-->
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
-
 
         <!--- Dont understand why it has to be mouseover=false & ExitAction, but it works that way, not if true-->
         <Style TargetType="ComboBox" x:Key="ComboBoxStyle5">
@@ -240,7 +347,6 @@
                 </MultiTrigger>
             </Style.Triggers>
         </Style>
-
 
         <Style x:Key="ButtonSlant" TargetType="Button">
             <!--Default layout-->
@@ -336,6 +442,96 @@
             </Style.Triggers>
         </Style>
 
+        <Style x:Key="DefaultCancelButton" TargetType="{x:Type Button}">
+            <!--Default layout-->
+            <Setter Property="OverridesDefaultStyle" Value="True" />
+            <!--These defaults can be overriden by the Button Code in the design-->
+            <Setter Property="Height" Value="50" />
+            <Setter Property="Width" Value="150" />
+            <Setter Property="BorderBrush" Value="Black" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <!--<Setter Property="Background" Value="{StaticResource Red5}">-->
+            <!--<Setter.Value>
+                    <LinearGradientBrush 
+                                    StartPoint="0.2, 0" EndPoint="0, 1">
+                        <GradientStop Offset="0" Color="#DF000000" />
+                        <GradientStop Offset="4" Color="#69000000" />
+                        <GradientStop Offset="0.5" Color="#69EB5E00" />
+                        <GradientStop Offset="6" Color="#69000000" />
+                        <GradientStop Offset="1" Color="#DF000000" />
+                    </LinearGradientBrush>
+                </Setter.Value>-->
+            <!--</Setter>-->
+            <!--Lets change the Border as well but use the colors
+			defined in the Buttons declaration in the xaml code-->
+
+            <Setter Property="Control.Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border  x:Name="border"
+						Background="{TemplateBinding Background}"
+						BorderBrush="{TemplateBinding BorderBrush}"
+						BorderThickness="{TemplateBinding BorderThickness}"
+						CornerRadius="3,3,3,3">
+                            <ContentPresenter
+							Margin="2"
+							HorizontalAlignment="Center"
+							VerticalAlignment="Center"
+							RecognizesAccessKey="True" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+            <!--Now to handle those pesky Triggers-->
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="False">
+                    <Setter Property="TextElement.Foreground"  Value="{StaticResource White0}"/>
+                    <Setter Property="BorderBrush"  Value="{StaticResource Black0}"/>
+                    <Setter Property="BorderThickness"  Value="3"/>
+                    <Setter Property="FontSize"  Value="14"/>
+                    <Setter Property="Control.Background" Value="{StaticResource Red5}"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="TextElement.Foreground"  Value="{StaticResource Yellow0}"/>
+                    <Setter Property="BorderBrush"  Value="{StaticResource Black0}"/>
+                    <Setter Property="BorderThickness"  Value="3"/>
+                    <Setter Property="FontSize"  Value="14"/>
+                    <Setter Property="Control.Background" Value="{StaticResource Orange0}"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background">
+                        <Setter.Value>
+                            <!--Makes gradient fill work horizontally-->
+                            <RadialGradientBrush Center="0.5, 1.0">
+                                <GradientStop Offset="0" Color="Beige" />
+                                <GradientStop Offset="1" Color="Green" />
+                            </RadialGradientBrush>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="Foreground" Value="Black"/>
+                </Trigger>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsEnabled" Value="False"/>
+                    </MultiTrigger.Conditions>
+                    <MultiTrigger.Setters>
+                        <Setter Property="Background">
+                            <Setter.Value>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                    <GradientStop Color="LightGray" Offset="0.35" />
+                                    <GradientStop Color="DarkGray" Offset="1" />
+                                </LinearGradientBrush>
+                            </Setter.Value>
+                        </Setter>
+                    </MultiTrigger.Setters>
+                </MultiTrigger>
+            </Style.Triggers>
+        </Style>
+
         <Style x:Key="BankAccountGridStyle" TargetType="DataGridCell" BasedOn="{StaticResource {x:Type DataGridCell}}">
             <Setter Property="Background">
                 <Setter.Value>
@@ -387,34 +583,103 @@
                 </MultiDataTrigger>
                 <!--#endregion Special Triggers for Non Bamk/Customer Tables-->
 
-                <!--#endregion Triggers-->
             </Style.Triggers>
         </Style>
 
+        <!--// "Special" style for variable content menu entry-->
+        <Style x:Key="SpecialSelection" TargetType="{x:Type MenuItem}">
+            <Setter Property="Background" Value="{StaticResource White3}" />
+            <Setter Property="Foreground" Value="Black" />
+            <Setter Property="Height"  Value="25" />
+            <!--<Setter Property="BorderThickness" Value="1.5" />-->
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="HorizontalContentAlignment" Value="left" />
+            <Setter Property="VerticalAlignment" Value="Bottom" />
+            <Setter Property="VerticalContentAlignment" Value="Bottom" />
+            <!--<Setter Property="MinHeight" Value="25" />-->
+            <!--<Setter Property="Cursor" Value="Hand" />-->
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type MenuItem}">
+                        <!--BorderBrush="{TemplateBinding BorderBrush}" 
+							  BorderThickness="{TemplateBinding BorderThickness}"-->
+                        <Border x:Name="Bd" 
+							  Padding="0,0,0,0" 
+							  Background="{TemplateBinding Background}" 
+							  SnapsToDevicePixels="False" 
+							  Uid="Border_38">
+                            <ContentPresenter x:Name="ContentPresenter"  
+										Content="{TemplateBinding Header}" 
+										Margin="{TemplateBinding Padding}" 
+										RecognizesAccessKey="True" 
+										SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+										Uid="ContentPresenter_33"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="false"/>
+                                </MultiTrigger.Conditions>
+                                <MultiTrigger.Setters>
+                                    <Setter Property="Background"  TargetName="Bd" Value="{StaticResource Green5}"/>
+                                    <Setter Property="TextElement.Foreground" TargetName="ContentPresenter" Value="{StaticResource Black0}"/>
+                                    <Setter Property="Height" Value="25"/>
+                                </MultiTrigger.Setters>
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True"/>
+                                </MultiTrigger.Conditions>
+                                <MultiTrigger.Setters>
+                                    <Setter Property="Background" TargetName="Bd" Value="{StaticResource Red5}"/>
+                                    <Setter Property="TextElement.FontWeight" Value="DemiBold"/>
+                                    <Setter Property="TextElement.FontStyle" Value="Italic"/>
+                                    <Setter Property="TextElement.Foreground"  TargetName="ContentPresenter"  Value="{StaticResource Yellow1}"/>
+                                    <Setter Property="Height" Value="25"/>
+                                </MultiTrigger.Setters>
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <!--#endregion Styles-->
 
-        <ContextMenu
-            x:Key="GenGridContextMenu" Width="350" 
+        <!--//**************************************************************************//-->
+
+        <!--#region  ContextMenu and support  stuff-->
+
+        <!--// used by Context menus to hide the image area at left-->
+        <ItemsPanelTemplate x:Key="NoImageMenu">
+            <StackPanel Margin="-40,0,0,0" Background="{StaticResource Cyan1}" />
+        </ItemsPanelTemplate>
+        <!--//**************************************************************************//-->
+
+        <!--//Menu for datagrid view-->
+        <ContextMenu  x:Key="GenGridContextMenu"  Width="375" 
             HasDropShadow="True"
             ContextMenuService.Placement="Center"
             ContextMenuService.VerticalOffset="-10"
+                  Closed="ContextMenu_Closed"
             Background="Orange">
 
+            <!--// template that removes  that annoying image panel at left of context menus-->
             <ContextMenu.Style>
                 <Style TargetType="{x:Type ContextMenu}">
                     <Setter Property="ItemsPanel" Value="{StaticResource NoImageMenu}"/>
                 </Style>
             </ContextMenu.Style>
 
-            <MenuItem>
+            <MenuItem x:Name="gm1" Click="MenuItem_Click">
                 <MenuItem.Header>
                     <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
                         <TextBlock 
-                                    Text="Close Popup Menu"
+                                    Text="Switch to Sql Tables viewer"
                                     FontSize="16"
                                      Height="25"
                                     Padding="20 0 0 0"
                                     Margin="0 0 0 0"
-                                    Width="350"/>
+                                     Width="375"/>
                     </StackPanel>
                 </MenuItem.Header>
                 <!--<MenuItem.Icon>
@@ -422,21 +687,79 @@
                     </MenuItem.Icon>-->
             </MenuItem>
 
-            <MenuItem  Click="ShowInfo">
+            <MenuItem  x:Name="gm2"  Click="ShowInfo">
                 <MenuItem.Header>
                     <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
                         <TextBlock 
-                                    Text="Show Info about this control"
+                                    Text="Switch to Info/S.Procedures Viewer"
                                     FontSize="16"
                                      Height="25"
                                     Padding="20 0 0 0"
                                     Margin="0 0 0 0"
-                                    Width="350"/>
+                                     Width="375"/>
                     </StackPanel>
                 </MenuItem.Header>
             </MenuItem>
 
-            <MenuItem  Click="ShowColumnInfo_Click" >
+            <MenuItem   x:Name="gm3" >
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                Text="------------------------------------------------------------------------"
+                                FontSize="8"
+                                    Foreground="Red"
+                                     Height="12"
+                                    Padding="20 0 0 0"
+                                    Margin="0 0 0 0"
+                                     Width="375"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <MenuItem   x:Name="gm4" Click="MenuItem_Click" >
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                    Text="^v Show Sql tables viewer full size" 
+                                    FontSize="16"
+                                     Height="25"
+                                    Padding="20 0 0 0"
+                                    Margin="0 0 0 0"
+                                     Width="375"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <MenuItem   x:Name="gm5" Click="ReloadInfo" >
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                    Text="^v Show Info/S.P Viewer panel full size"
+                                    FontSize="16"
+                                     Height="25"
+                                    Padding="20 0 0 0"
+                                    Margin="0 0 0 0"
+                                     Width="375"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <MenuItem   x:Name="gm6" >
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                Text="------------------------------------------------------------------------"
+                                FontSize="8"
+                                    Foreground="Red"
+                                     Height="12"
+                                    Padding="20 0 0 0"
+                                    Margin="0 0 0 0"
+                                     Width="375"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <MenuItem   x:Name="gm7" Click="ShowColumnInfo_Click" >
                 <MenuItem.Header>
                     <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
                         <TextBlock 
@@ -445,26 +768,12 @@
                                      Height="25"
                                     Padding="20 0 0 0"
                                     Margin="0 0 0 0"
-                                    Width="350"/>
+                                     Width="375"/>
                     </StackPanel>
                 </MenuItem.Header>
             </MenuItem>
 
-            <MenuItem  Click="ReloadTables" >
-                <MenuItem.Header>
-                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
-                        <TextBlock 
-                                    Text="Reload List of tables" 
-                                    FontSize="16"
-                                     Height="25"
-                                    Padding="20 0 0 0"
-                                    Margin="0 0 0 0"
-                                    Width="350"/>
-                    </StackPanel>
-                </MenuItem.Header>
-            </MenuItem>
-
-            <MenuItem  Click="ShowFilter_Click" >
+            <MenuItem   x:Name="gm8" Click="ShowFilter_Click" >
                 <MenuItem.Header>
                     <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
                         <TextBlock 
@@ -473,26 +782,27 @@
                                      Height="25"
                                     Padding="20 0 0 0"
                                     Margin="0 0 0 0"
-                                    Width="350"/>
+                                     Width="375"/>
                     </StackPanel>
                 </MenuItem.Header>
             </MenuItem>
 
-            <MenuItem  Click="SearchStoredProc" >
+            <MenuItem   x:Name="gm9" >
                 <MenuItem.Header>
                     <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
                         <TextBlock 
-                                    Text="Find text in All Stored Procedures" 
-                                    FontSize="16"
-                                     Height="25"
+                                  Text="------------------------------------------------------------------------"
+                                FontSize="8"
+                                    Foreground="Red"
+                                     Height="12"
                                     Padding="20 0 0 0"
                                     Margin="0 0 0 0"
-                                    Width="350"/>
+                                     Width="375"/>
                     </StackPanel>
                 </MenuItem.Header>
             </MenuItem>
 
-            <MenuItem  Click="SaveAsNewTable" >
+            <MenuItem   x:Name="gm10" Click="SaveAsNewTable" >
                 <MenuItem.Header>
                     <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
                         <TextBlock 
@@ -501,127 +811,402 @@
                                      Height="25"
                                     Padding="20 0 0 0"
                                     Margin="0 0 0 0"
-                                    Width="350"/>
+                                     Width="375"/>
                     </StackPanel>
                 </MenuItem.Header>
             </MenuItem>
 
-            <!--<MenuItem  Click="SaveSelectedOnly" >
+            <MenuItem   x:Name="gm11" Click="ReloadTables" >
                 <MenuItem.Header>
                     <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
                         <TextBlock 
-                                    Text="Save selected items to new table" 
+                                    Text="Reload List of tables" 
                                     FontSize="16"
                                      Height="25"
                                     Padding="20 0 0 0"
                                     Margin="0 0 0 0"
-                                    Width="350"/>
+                                     Width="375"/>
                     </StackPanel>
                 </MenuItem.Header>
-            </MenuItem>-->
+            </MenuItem>
+
+            <MenuItem   x:Name="gm12" Click="SearchStoredProc" >
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                    Text="Find text in All Stored Procedures" 
+                                    FontSize="16"
+                                     Height="25"
+                                    Padding="20 0 0 0"
+                                    Margin="0 0 0 0"
+                                     Width="375"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <MenuItem   x:Name="gm13" >
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                Text="------------------------------------------------------------------------"
+                                FontSize="8"
+                                    Foreground="Red"
+                                     Height="12"
+                                    Padding="20 0 0 0"
+                                    Margin="0 0 0 0"
+                                     Width="375"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <MenuItem   x:Name="gm14" Click="LoadAllDatabases" >
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                    Text="Switch to different SQL Database" 
+                                    FontSize="16"
+                                     Height="25"
+                                    Padding="20 0 0 0"
+                                    Margin="0 0 0 0"
+                                     Width="375"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+        </ContextMenu>
+
+        <!--//**************************************************************************//-->
+
+        <!--//Menu for Sp Viewer-->
+        <ContextMenu x:Key="PopupMenu"
+                HasDropShadow="True"
+                Background="Transparent"
+                Opened="ContextMenu_Opened"
+                Closed="InfoContextMenu_Closed"
+                Padding="-40 0 -40 0"
+                 DataContext="{Binding Gengrid}"
+                IsOpen="false"
+                Width="425">
+            <!--The width above sets the OVERALL menu width-->
+            <ContextMenu.Style>
+                <Style TargetType="{x:Type ContextMenu}">
+                    <Setter Property="ItemsPanel" Value="{StaticResource NoImageMenu}"/>
+                </Style>
+            </ContextMenu.Style>
+
+            <ContextMenu.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <VirtualizingStackPanel/>
+                </ItemsPanelTemplate>
+            </ContextMenu.ItemsPanel>
+
+            <MenuItem x:Name="cm1" FontSize="16" Foreground=" White" Click="MenuItem_Click">
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                Text="^v Show Sql tables viewer full size" 
+                                FontSize="16"
+                                Height="25"
+                                Padding="20 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="425"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <MenuItem  x:Name="cm2" FontSize="16" Foreground=" Black" Click="ReloadInfo">
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                Text="^v Show Info/S.P Viewer panel full size" 
+                                FontSize="16"
+                                Height="25"
+                                Padding="20 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="425"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <MenuItem  x:Name="cm3" FontSize="16" Click="LoadAllSPs_Click" IsEnabled="false">
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                Text="------------------------------------------------------------------------"
+                                Foreground="{StaticResource Red0}" 
+                                FontSize="8"
+                                Height="15"
+                                Padding="20 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="425"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <MenuItem x:Name="cm4" FontSize="16" Click="LoadAllSPs_Click">
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                Text="Load ALL available S.P's into list"
+                                FontSize="16"
+                                Height="25"
+                                Padding="20 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="425"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <MenuItem x:Name="cm5" FontSize="16" Click="LoadMatchingSPs_Click">
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                Text="Load only S.P's that match Search term into list"    
+                                FontSize="16"
+                                Height="25"
+                                Padding="20 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="425"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+
+
+            <MenuItem x:Name="cm6" FontSize="16" Click="LoadAllSPs_Click"  IsEnabled="false">
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                Text="------------------------------------------------------------------------"
+                                FontSize="8"
+                                Foreground="{StaticResource Red0}" 
+                                Height="15"
+                                Padding="20 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="425"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <MenuItem x:Name="cm7" FontSize="16" Click="Fontsizeup_Click">
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                Text="Increase viewer Font Size (Press +)"    
+                                FontSize="16"
+                                Height="25"
+                                Padding="20 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="425"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <MenuItem x:Name="cm8" FontSize="16" Click="Fontsizedn_Click">
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                Text="Decrease viewer Font Size (Press -)"    
+                                FontSize="16"
+                                Height="25"
+                                Padding="20 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="425"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <MenuItem x:Name="cm9" FontSize="16" Click="LoadAllSPs_Click"  IsEnabled="false">
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                Text="------------------------------------------------------------------------"
+                                FontSize="8"
+                                Foreground="{StaticResource Red0}" 
+                                Height="15"
+                                Padding="20 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="425"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <MenuItem  x:Name="cm10" FontSize="16" Click="ChangeMatchingSPs_Click">
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                Text="Change the current matching Search term "    
+                                FontSize="16"
+                                Height="25"
+                                Padding="20 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="425"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <MenuItem x:Name="cm11" FontSize="16" Foreground="{StaticResource Green0}" Click="ReloadTables">
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                Text="ReLoad Table Selection Combo with ALL Sql Tables"
+                                FontSize="16"
+                                Height="25"
+                                Padding="20 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="425"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <!--// reload ALL SP.s-->
+            <MenuItem x:Name="cm12" FontSize="16" Click="LoadAllSPs_Click"  IsEnabled="false">
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                Text="------------------------------------------------------------------------"
+                                FontSize="8"
+                                Foreground="{StaticResource Red0}" 
+                                Height="15"
+                                Padding="20 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="425"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <MenuItem  x:Name="cm13" FontSize="16" Foreground=" Black" Click="LoadTechInfo">
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                Text="Load Technical Info about this control" 
+                                FontSize="16"
+                                Height="25"
+                                Padding="20 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="425"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <MenuItem x:Name="cm14" FontSize="16" Click="LoadAllSPs_Click"  IsEnabled="false">
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                Text="------------------------------------------------------------------------"
+                                FontSize="8"
+                                Foreground="{StaticResource Red0}" 
+                                Height="15"
+                                Padding="20 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="425"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <!--Background="{StaticResource White5}"-->
+            <!--Foreground="{StaticResource Red5}"-->
+            <!--Background="{StaticResource White3}"-->
+            <MenuItem x:Name="cm15" 
+                    Height="25"
+                    Padding="20 0 0 0"
+                    FontSize="16" 
+                    Width="425"                      
+                    Click="ExecuteSP_Click"
+                    Style="{StaticResource SpecialSelection}"
+                    Header="{Binding SPExecuteText}">
+            </MenuItem>
+
 
         </ContextMenu>
+
+        <!--#endregion  ContextMenu stuff-->
 
     </Window.Resources>
 
     <!--//***********************************************************************************************//-->
 
-    <Grid x:Name="maingrid" Background="{StaticResource Black2OrangeSlant}" 
-          LostFocus="FieldSelectionGrid_LostFocus">
+    <!--<Grid x:Name="maingrid" Background="{StaticResource DiagonalRainbow}"-->
+    <Grid x:Name="maingrid" Background="{StaticResource Black2OrangeSlant}"
+          LostFocus="FieldSelectionGrid_LostFocus" Opacity="0.9">
         <Grid.RowDefinitions>
-            <RowDefinition Height="1"/>
+            <RowDefinition  x:Name="row1" Height="1"/>
             <RowDefinition x:Name="row2" Height="*"/>
-            <RowDefinition Height="85"/>
-            <RowDefinition Height="25" />
-            <RowDefinition Height="55" />
+            <RowDefinition  x:Name="row5" Height="175"/>
+            <!--//Splitter-->
         </Grid.RowDefinitions>
 
         <!--****************-->
-        <!--#region Canvas-->
+        <!--#region Canvas  / Splitters etc-->
         <!--****************-->
         <Canvas x:Name="Filtercanvas"
                 Panel.ZIndex="11" 
-                Margin="0,-3,0,3"
+                Margin="0,1,0,120"
                 Width="{Binding ActualWidth, ElementName=maingrid}"
-                LostFocus="FieldSelectionGrid_LostFocus" Grid.RowSpan="3">
+                Height="{Binding ActualHeight, ElementName=maingrid, Converter={StaticResource ReduceByParamValue},ConverterParameter=175}"
+                LostFocus="FieldSelectionGrid_LostFocus" 
+                Grid.Row="1"
+                Visibility="Visible">
 
-            <!--************************************-->
-            <!--#region column selection-->
-            <!--************************************-->
-            <!--<Border x:Name="FieldSelectBorder" 
-                        HorizontalAlignment="Stretch" 
-                        VerticalAlignment="Stretch" 
-                        BorderBrush="{StaticResource Blue2}"
-                        PreviewMouseLeftButtonDown="DragDialog_LButtonDn"
-                        PreviewMouseLeftButtonUp="DragDialog_Ending"
-                        PreviewMouseMove="DragDialog_Moving"
-                       BorderThickness="5"
-                        Visibility="Collapsed">-->
-
-                <Grid x:Name="FieldSelectionGrid" 
+            <Grid x:Name="FieldSelectionGrid" 
                     Grid.Row="1" Grid.RowSpan="3" Width="450"
                     Panel.ZIndex="72"  
-                    PreviewMouseLeftButtonDown="ColSelect_DragDialog_LButtonDn"
-                    PreviewMouseLeftButtonUp="ColSelect_DragDialog_Ending"
-                    PreviewMouseMove="ColSelect_DragDialog_Moving"
                     LostFocus="FieldSelectionGrid_LostFocus"
-                    Background="{StaticResource Black4}"
+                    Background="{StaticResource Cyan4}"
                     HorizontalAlignment="Center" 
                     Height="430"                   
                       Canvas.Top="30" 
+                    PreviewMouseLeftButtonDown="ColSelect_DragDialog_LButtonDn"
+                    PreviewMouseLeftButtonUp="ColSelect_DragDialog_Ending"
+                    PreviewMouseMove="ColSelect_DragDialog_Moving"
                     VerticalAlignment="Top"
                     Visibility="Collapsed" >
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="45"/>
+                </Grid.RowDefinitions>
 
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="25"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="30"/>
-                        <RowDefinition Height="45"/>
-                    </Grid.RowDefinitions>
-
-                    <TextBlock x:Name="Banner" 
+                <TextBlock x:Name="Banner" 
                        Grid.Row="0"
-                       Text="Hold Ctrl and Click on each column you want included..."
+                       Text="Save to new table - Columns Selection Utility"
                        TextAlignment="Center"
                        Padding="0 2 0 0"
-                       Margin="10 0 10 0"
+                       Margin="0 0 0 0"
                         FontSize="14"
                         HorizontalAlignment="Stretch"                           
-                       Background="Red"
+                       Background="{StaticResource Blue1}"
                         PreviewMouseLeftButtonDown="DragDialog_LButtonDn"
                         PreviewMouseLeftButtonUp="DragDialog_Ending"
                         PreviewMouseMove="DragDialog_Moving"
                        Foreground="White" UseLayoutRounding="True"/>
-                    <DataGrid x:Name="ColNames"
+
+                <DataGrid x:Name="ColNames"
                         Grid.Row="1"
-                        Background="Cyan"
                         SelectionMode="Extended"
                         FontSize="16"
                         HorizontalAlignment="Stretch"
-                        PreviewMouseLeftButtonDown="DragDialog_LButtonDn"
-                        PreviewMouseLeftButtonUp="DragDialog_Ending"
-                        PreviewMouseMove="DragDialog_Moving"
                         SelectionChanged="ColNames_SelectionChanged"
                         Margin="10,10,10,9" >
-                    </DataGrid>
+                </DataGrid>
 
-                    <TextBlock x:Name="Prompt" 
+                <TextBlock x:Name="Prompt" 
                        Grid.Row="2"
-                       Text="Hold Ctrl and Click on each column you want included..."
+                       Text="Use Ctrl+Click to select each column you want included..."
                        TextAlignment="Center"
                                Height="25"
                        Padding="0 2 0 0"
                        Margin="10 0 10 5"
                         FontSize="14"
+                           FontWeight="DemiBold"
                         HorizontalAlignment="Stretch"                           
-                       Background="Red"
+                       Background="{StaticResource Blue5}"
                         PreviewMouseLeftButtonDown="DragDialog_LButtonDn"
                         PreviewMouseLeftButtonUp="DragDialog_Ending"
                         PreviewMouseMove="DragDialog_Moving"
-                       Foreground="White" 
+                       Foreground="Red" 
                         UseLayoutRounding="True"/>
 
-                    <Button x:Name="GoBtn" 
+                <Button x:Name="GoBtn" 
                        Grid.Row="3"
                         Width="130" Height="35" 
                         FontSize="16"
@@ -630,13 +1215,10 @@
                         VerticalAlignment="Center"
                         Content="Go!"
                         Click="GoBtn_Click"
-                        PreviewMouseLeftButtonDown="DragDialog_LButtonDn"
-                        PreviewMouseLeftButtonUp="DragDialog_Ending"
-                        PreviewMouseMove="DragDialog_Moving"
                         Background="Green" 
                             Foreground="Red" />
 
-                    <Button x:Name="stopBtn" 
+                <Button x:Name="stopBtn" 
                         Width="100" Height="35" 
                         FontSize="16"
                         HorizontalAlignment="Right" 
@@ -644,20 +1226,14 @@
                         VerticalAlignment="Center"
                         Content="Cancel"
                         Click="stopBtn_Click"
-                        PreviewMouseLeftButtonDown="DragDialog_LButtonDn"
-                        PreviewMouseLeftButtonUp="DragDialog_Ending"
-                        PreviewMouseMove="DragDialog_Moving"
                         Background="Red" Foreground="White" Grid.Row="3"/>
 
-                </Grid>
-            <!--</Border>-->
+            </Grid>
             <!--#endregion colmn selection-->
 
-            <!--//************************//-->
             <!--Filering-->
             <!--#region Filtering-->
-                <!--att:ActiveDragControl="Filtering"-->
-               <Grid x:Name="Filtering" 
+            <Grid x:Name="Filtering" 
                 Grid.Row="1" 
                 Grid.RowSpan="5" 
                 Background="Cyan"  
@@ -666,13 +1242,15 @@
                 PreviewMouseMove="Filtering_DragDialog_Moving"
                 LostFocus="FieldSelectionGrid_LostFocus"
                 Panel.ZIndex="255"
-                Canvas.Left="150"
-                Canvas.Top ="256"
+                Canvas.Left="213"
+                Canvas.Top ="46"
                 KeyDown="Filtering_KeyDown"
                 HorizontalAlignment="Center" 
                 VerticalAlignment="Top" 
-                Visibility="Collapsed" Height="230" Width="500" >
-                <!--ActiveDragControl="Filtering"-->
+                  Height="211" 
+                  Width="497" 
+                Visibility="Collapsed" >
+
                 <Grid.RowDefinitions>
                     <RowDefinition Height="119*"/>
                     <RowDefinition Height="117*"/>
@@ -711,7 +1289,7 @@
                                 LostFocus="FieldSelectionGrid_LostFocus">
 
                             <TextBlock x:Name="FilterText"
-                                    Text="    Enter a fully qualified SQL fllter clause (without the 'Where') into the field below"
+                                    Text="    Enter a fully qualified SQL fllter clause (WITHOUT the 'Where' clause part) into the field below"
                                     Height="39"
                                     Padding="5 0 0 5"
                                     VerticalAlignment="Top"
@@ -744,18 +1322,34 @@
                                         CaretBrush="Blue" 
                                         Foreground="Red"
                                         Focusable="True"
-                                        Height="80" Width="408" 
+                                        Height="51" Width="408" 
                                         HorizontalAlignment="Left"
                                         VerticalAlignment="Top"
                                         TextAlignment="Center" 
                                         TextWrapping="Wrap"
-                                        Margin="78,49,0,0" 
+                                        Margin="78,57,0,0" 
                                         LostFocus="FieldSelectionGrid_LostFocus"     
                                         Padding="5 1 5 0" 
                                         Panel.ZIndex="256"
                                         FontSize="16" 
                                         Text="Enter SQL filtering code here ...."
                                         Visibility="Visible" TabIndex="1"/>
+
+                            <TextBlock x:Name="prompt2" 
+                                        Background="Transparent" 
+                                          Foreground="Blue"
+                                        Focusable="True" Width="347" 
+                                        HorizontalAlignment="Left"
+                                        TextAlignment="Center" 
+                                        TextWrapping="Wrap"
+                                        Margin="85,112,0,0" 
+                                        LostFocus="FieldSelectionGrid_LostFocus"     
+                                        Padding="5 1 5 0" 
+                                        Panel.ZIndex="256"
+                                        FontSize="18" 
+                                       FontWeight="DemiBold"
+                                        Text="Press ENTER to apply the filter entered , or Escape to cancel...."
+                                        Visibility="Visible" Height="58" VerticalAlignment="Top" />
 
                             <Button Height="35" Width="120 "
                                         Click="Filter_Click"
@@ -767,7 +1361,7 @@
                                          LostFocus="FieldSelectionGrid_LostFocus"
                                         HorizontalAlignment="Right"
                                         VerticalAlignment="Bottom"
-                                        Visibility="Visible"/>
+                                        Visibility="Collapsed"/>
 
                             <Button Height="35" Width="120 " 
                                         Click="closeFilter"
@@ -780,149 +1374,164 @@
                                         LostFocus="FieldSelectionGrid_LostFocus"
                                         HorizontalAlignment="Right"
                                         VerticalAlignment="Bottom"
-                                        Visibility="Visible"/>
+                                        Visibility="Collapsed"/>
                         </Grid>
                     </StackPanel>
                 </Border>
             </Grid>
             <!--//************************//-->
-            <!--#endregion Filtering-->            
-            
-            <!--************************************-->
-            <!--smalller search dialog-->
+            <!--#endregion Filtering-->
+
+            <!--smaller text search dialog-->
             <!--#region StringSearchResults-->
             <!--************************************-->
-            <!--// This is the smaller dialog to allow text entry to be searched for-->
-                <!--PreviewMouseLeftButtonDown="Search1__DragDialog_LButtonDn"
-                 PreviewMouseLeftButtonUp="Search1_Filtering_DragDialog_Ending"
-                 PreviewMouseMove="Search1_Filtering_DragDialog_Moving"-->
             <Grid x:Name="SpStringsSelection"
-                Height="201" 
+                Height="237" 
                 Width="379"
-                Canvas.Top="103" 
+                Canvas.Top="31" 
                 Canvas.Left="211"    
-                PreviewMouseLeftButtonDown="DragDialog_LButtonDn"
-                PreviewMouseMove="DragDialog_Moving"
-                PreviewMouseLeftButtonUp="DragDialog_Ending"
                 Panel.ZIndex="255"  
+                PreviewMouseRightButtonDown="closeSearchDlg"
+               MouseLeftButtonDown="Search2_DragDialog_LButtonDn"
+               MouseLeftButtonUp="Search2_DragDialog_Ending"
+               MouseMove="Search2_DragDialog_Moving"
                 Focusable="True"
-                Visibility="Collapsed" >
+                Visibility="Collapsed" 
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Top" >
+
                 <Border 
                         BorderThickness="5" 
                         BorderBrush="Purple"
-                        PreviewMouseLeftButtonDown="DragDialog_LButtonDn"
-                        PreviewMouseMove="DragDialog_Moving"
-                        PreviewMouseLeftButtonUp="DragDialog_Ending"
                         KeyDown="SpStringsSelection_KeyDown"
                         LostFocus="FieldSelectionGrid_LostFocus"                    
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Top">
+                        PreviewMouseRightButtonDown="closeSearchDlg"
+                        MouseLeftButtonDown="Search2_DragDialog_LButtonDn"
+                        MouseLeftButtonUp="Search2_DragDialog_Ending"
+                        MouseMove="Search2_DragDialog_Moving"
+                       HorizontalAlignment="Center"
+                        VerticalAlignment="Center" Height="240">
                     <Grid 
                             Grid.Row="1" 
-                            Height="200" 
+                            Height="230" 
                             Width="375"
-                            PreviewMouseLeftButtonDown="DragDialog_LButtonDn"
-                            PreviewMouseMove="DragDialog_Moving"
-                            PreviewMouseLeftButtonUp="DragDialog_Ending"
                            LostFocus="FieldSelectionGrid_LostFocus"
                             Panel.ZIndex="255"  
+                            MouseLeftButtonDown="Search2_DragDialog_LButtonDn"
+                            MouseLeftButtonUp="Search2_DragDialog_Ending"
+                            MouseMove="Search2_DragDialog_Moving"
                             Background="{StaticResource Cyan3}"
+                            PreviewMouseRightButtonDown="closeSearchDlg"
                             HorizontalAlignment="Center" 
-                            VerticalAlignment="Center"
+                            VerticalAlignment="Top"
                             Visibility="Visible" >
 
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="300"/>
+                            <RowDefinition Height="200"/>
                         </Grid.RowDefinitions>
 
                         <TextBlock 
-                            Text="Enter the exact text you want to find in the Stored Procedures in the field below"
+                            Grid.Row="0"
+                            Text="Stored Procedure Search Utility"
                             TextAlignment="Center"
                             Padding="0 2 0 0"
-                            Margin="56,5,51,0"     
-                            PreviewMouseLeftButtonDown="DragDialog_LButtonDn"
-                            PreviewMouseMove="DragDialog_Moving"
-                            PreviewMouseLeftButtonUp="DragDialog_Ending"
-                            Foreground="Black"
-                            FontSize="14"
+                            Margin="4,0,4,0"     
+                            Foreground="White"
+                            Background="Purple"
+                            FontSize="16"
+                            PreviewMouseRightButtonDown="closeSearchDlg"
+                            MouseLeftButtonDown="Search2_DragDialog_LButtonDn"
+                            MouseLeftButtonUp="Search2_DragDialog_Ending"
+                            MouseMove="Search2_DragDialog_Moving"
                             TextWrapping="Wrap"
                             UseLayoutRounding="True" 
-                            Height="40" 
+                            Height="30"
+                            VerticalAlignment="Top" 
+                            RenderTransformOrigin="0.5,0.5"/>
+
+                        <TextBlock 
+
+                            Text="Enter the exact text you want to find in any of the Stored Procedures in the field below..."
+                            TextAlignment="Center"
+                            Padding="0 2 0 0"
+                            Margin="33,38,22,0"     
+                            Foreground="Black"
+                            FontSize="16"
+                            PreviewMouseRightButtonDown="closeSearchDlg"
+                            MouseLeftButtonDown="Search2_DragDialog_LButtonDn"
+                            MouseLeftButtonUp="Search2_DragDialog_Ending"
+                            MouseMove="Search2_DragDialog_Moving"
+                            TextWrapping="Wrap"
+                            UseLayoutRounding="True" 
+                            Height="47" 
                             VerticalAlignment="Top" 
                             RenderTransformOrigin="0.5,0.5">
                         </TextBlock>
 
-                        <TextBlock x:Name="Prompt1"
-                               Text="Dbl Click or Press 'Show Text'to select a procedure to view"
-                               TextAlignment="Center"
-                               Padding="0 2 0 0"
-                                PreviewMouseLeftButtonDown="DragDialog_LButtonDn"
-                                PreviewMouseMove="DragDialog_Moving"
-                                PreviewMouseLeftButtonUp="DragDialog_Ending"
-                               Margin="10,162,10,0"
-                               Background="Red"
-                               Foreground="White" 
-                                UseLayoutRounding="True" 
-                                Height="28" 
-                                VerticalAlignment="Top"/>
-
-                                 <!--FocusVisualStyle="{x:Null}"-->
-                                <!--PreviewMouseLeftButtonDown="Search1_BlockFiltering_Moving"
-                                PreviewMouseLeftButtonUp="Search1_BlockFiltering_Moving"
-                                PreviewMouseMove="Search1_BlockFiltering_Moving"-->
                         <TextBox x:Name="selectedSp"
-                                 Margin="11,56,9,102"
-                                 Text="Enter Search term here ..."
-                                 TextAlignment="Center"
-                                 Panel.ZIndex="12"
-                                 Focusable="True"
-                                 Padding="0 4 0 0"
-                                 FontWeight="Bold"
-                                AcceptsReturn="True" 
-                                 AcceptsTab="True" 
-                                 ClipToBounds="True" 
-                                 UseLayoutRounding="True"
-                                 FontSize="20" TextChanged="selectedSp_TextChanged" />
-                                 <!--OverridesDefaultStyle="True" 
-                                 -->
-                        
+                                Margin="11,90,9,133"
+                                Text="Enter Search term here ..."
+                                TextAlignment="Center"                                 
+                                Panel.ZIndex="12"
+                                Focusable="True"
+                                Padding="0 4 0 0"
+                                FontWeight="Bold"
+                                AcceptsReturn="False" 
+                                AcceptsTab="True" 
+                                PreviewMouseRightButtonDown="closeSearchDlg"
+                                MouseLeftButtonDown="Search2_DragDialog_LButtonDn"
+                                MouseLeftButtonUp="Search2_DragDialog_Ending"
+                                MouseMove="Search2_DragDialog_Moving"
+                                ClipToBounds="True" 
+                                UseLayoutRounding="True"
+                                FontSize="18" 
+                                TextChanged="selectedSp_TextChanged" />
+
                         <Button x:Name="GoBtn1" 
-                                Width="100" Height="40" 
+                                Width="140" Height="40" 
                                 HorizontalAlignment="Right" 
-                                Margin="0,115,12,0"
+                                Margin="0,180,7,0"
                                 VerticalAlignment="Top"
-                                 Content="Show Text"
+                                 Content="Save Search Term"
+                                Command="{Binding FilterStoredprocs}"
+                                MouseLeftButtonDown="Search2_DragDialog_LButtonDn"
+                                MouseLeftButtonUp="Search2_DragDialog_Ending"
+                                MouseMove="Search2_DragDialog_Moving"
+                                Style="{StaticResource ButtonSlant}"                                
+                                Visibility="Visible"
                                 Click="GoBtn1_Click"
-                                Style="{StaticResource ButtonSlant}"
                                 Foreground="White"/>
 
                         <Button x:Name="stopBtn1" 
                                 Width="100" Height="40" 
-                                HorizontalAlignment="Right" Margin="0,115,120,0"
+                                HorizontalAlignment="Left" Margin="120,179,0,0"
                                 VerticalAlignment="Top"
                                   Style="{StaticResource ButtonSlant}"
                                 Content="Cancel"
                                 KeyDown="stopBtn1_KeyDown"
                                 Click="stopBtn1_Click"
+                                MouseLeftButtonDown="Search2_DragDialog_LButtonDn"
+                                MouseLeftButtonUp="Search2_DragDialog_Ending"
+                                MouseMove="Search2_DragDialog_Moving"
+                                Command="{Binding CloseFilterStoredprocs}"
+                                Visibility="Visible"
                                 Foreground="Orange"/>
 
                         <CheckBox x:Name="Autoclose" Content="Close on selection"
                             VerticalAlignment="Bottom"
-                            IsChecked="True"
-                            PreviewMouseLeftButtonDown="DragDialog_LButtonDn"
-                            PreviewMouseMove="DragDialog_Moving"
-                            PreviewMouseLeftButtonUp="DragDialog_Ending"
+                            IsChecked="false"
                             FontSize="14"
                             Margin="11,0,0,56" 
                             HorizontalAlignment="Left" 
-                            Width="133"/>
+                            Width="133"
+                                  Visibility="Collapsed"/>
                     </Grid>
                 </Border>
             </Grid>
             <!--#endregion StringSearchResults-->
 
-            <!--************************************-->
-            <!--Larger Search dialog-->
+            <!--// NOT USED ANY MORE-->
             <!--#region SPselectiondialog-->
             <!--************************************-->
 
@@ -941,7 +1550,7 @@
                 Panel.ZIndex="252"  
                 LostFocus="FieldSelectionGrid_LostFocus"
                 Visibility="Collapsed">
-                
+
                 <Border 
                     BorderThickness="3" BorderBrush="Red"
                     Panel.ZIndex="72"
@@ -951,7 +1560,7 @@
                             Grid.Row="1" 
                             Height="{Binding ActualHeight, ElementName=SpStringsSelector}" 
                             Width="{Binding ActualWidth, ElementName=SpStringsSelector}"                         
-                            Panel.ZIndex="74"  
+                            Panel.ZIndex="253"  
                             Margin="0 0 0 0"
                             PreviewMouseLeftButtonDown="DragDialog_LButtonDn"
                             PreviewMouseMove="DragDialog_Moving"
@@ -998,6 +1607,15 @@
                                Background="Red"
                                Foreground="White" UseLayoutRounding="True"/>
 
+                        <TextBlock x:Name="Prompt3"
+                               Text="Press ENTER to apply the filter entered above, or press Escape to cancel the Filtering operation completely"
+                               TextAlignment="Center"
+                                   TextWrapping="Wrap"
+                               Padding="0 2 0 0"
+                               Margin="0,241,0,4"
+                               Background="Blue"
+                               Foreground="White" UseLayoutRounding="True" Grid.RowSpan="2"/>
+
                         <Button x:Name="GoBtn2" 
                             Width="150" Height="30" 
                             HorizontalAlignment="Right" Margin="0,0,10,0"
@@ -1007,6 +1625,7 @@
                             Click="GoBtn2_Click"
                             Style="{StaticResource ButtonSlant}"
                             Foreground="White" 
+                                Visibility="Collapsed"
                             Grid.Row="1"/>
 
                         <Button x:Name="stopBtn2" 
@@ -1016,6 +1635,7 @@
                         Style="{StaticResource ButtonSlant}"
                         Content="Cancel"
                         Click="stopBtn2_Click"
+                                Visibility="Collapsed"
                         Foreground="Orange" Grid.Row="1"/>
 
                     </Grid>
@@ -1024,253 +1644,491 @@
             <!--************************************-->
             <!--#endregion SPselectiondialog-->
 
-            <!--************************************-->
-            <!--<users:FlowDoc x:Name="Flowdoc"
-				backGround="{StaticResource Gray5}"
-				borderColor="{StaticResource Orange1}"
-				Canvas.Left="45"
-				Canvas.Top="64"
-				Height="300"
-				Margin="0 0 0 0"
-									  
-				LostFocus="Flowdoc_LostFocus"
-				PreviewMouseLeftButtonUp="Flowdoc_MouseLeftButtonUp"	
-				PreviewMouseMove="Flowdoc_MouseMove"
-				PreviewPreviewMouseLeftButtonDown="Flowdoc_PreviewMouseLeftButtonDown"
-				
-				Opacity="1"
-				Panel.ZIndex="2"
-				Visibility="Visible"
-				Width="520" />-->
+            <!--#region SP Execute dialog-->
+            <Grid x:Name="Execsp"
+                Height="411" 
+                Width="634"
+                Canvas.Top="38" 
+                Canvas.Left="85"    
+                Panel.ZIndex="255"  
+                MouseLeftButtonDown="ExecDragDialog_LButtonDn"
+                MouseMove="ExecDragDialog_Moving"
+                MouseLeftButtonUp="ExecDragDialog_Ending"
+                PreviewKeyDown="Execsp_KeyDown"
+                Focusable="True"                  
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center" 
+                Visibility="Collapsed" >
 
-            <!--//************************//-->
-            <!--Container Grid  for SpList + GridSpltter + FlowDocument-->
-            <!--#regionScrollDocument info panel-->
+                <Border x:Name="innerborder"
+                        BorderThickness="5" 
+                        BorderBrush="Black"
+                        KeyDown="Execsp_KeyDown"
+                        PreviewMouseRightButtonDown="closeSearchDlg"
+                        PreviewMouseLeftButtonDown="ExecDragDialog_LButtonDn"
+                        PreviewMouseMove="ExecDragDialog_Moving"
+                        PreviewMouseLeftButtonUp="ExecDragDialog_Ending"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center" Height="412" Width="629">
+
+                    <Grid x:Name="innergrid"
+                            Grid.Row="1" 
+                            Height="{Binding ActualHeight, ElementName=innerborder}" 
+                            Width="{Binding ActualWidth, ElementName=innerborder}"
+                            Panel.ZIndex="255"  
+                            Background="{StaticResource Cyan3}"
+                           KeyDown="Execsp_KeyDown"
+                            PreviewMouseRightButtonDown="closeSearchDlg"
+                            HorizontalAlignment="Center" 
+                            PreviewMouseLeftButtonDown="ExecDragDialog_LButtonDn"
+                            PreviewMouseMove="ExecDragDialog_Moving"
+                            PreviewMouseLeftButtonUp="ExecDragDialog_Ending"
+                            VerticalAlignment="Top"
+                            Visibility="Visible" Margin="0,-1,0,0" >
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Orientation="Vertical" Background="Transparent" Margin="0,7,0,143">
+                            <TextBlock x:Name="Headtext"
+                                       Height="33"
+                                       Text="Active S.P is : "
+                                       TextAlignment="Center"
+                                        Panel.ZIndex="255"  
+                                       FontSize="18"
+                                       Padding="0 0 0 0"
+                                       Background="Red" 
+                                       Foreground="White" Margin="0,-7,0,0"/>
+
+                            <TextBlock x:Name="textprompt1"
+                                Text="{Binding SPExecPrompt}"
+                                TextAlignment="Center"
+                                Padding="0 2 0 0"
+                                Margin="33,5,22,0"     
+                                Foreground="Black"
+                                FontSize="16"
+                                Panel.ZIndex="257"  
+                                KeyDown="Execsp_KeyDown"
+                                TextWrapping="Wrap"
+                                UseLayoutRounding="True" 
+                                PreviewMouseLeftButtonDown="ExecDragDialog_LButtonDn"
+                                PreviewMouseMove="ExecDragDialog_Moving"
+                                PreviewMouseLeftButtonUp="ExecDragDialog_Ending"
+                                Height="54" 
+                                RenderTransformOrigin="0.5,0.5"/>
+                        </StackPanel>
+                        <!--#region SP Execution  dialog-->
+
+                    </Grid>
+                </Border>
+
+                <ListBox x:Name="SPText" 
+                           Background="{StaticResource Gray3}" 
+                           Foreground="Black" 
+                           FontSize="16"
+                           FontWeight="DemiBold"
+                           Margin="16,104,15,152"/>
+
+                <TextBox x:Name="selectSp"
+                            Margin="12,268,13,67"
+                            Text="Enter Arguments here ..."
+                            TextAlignment="Center"
+                            Panel.ZIndex="12"
+                            Focusable="True"
+                            Padding="0 4 0 0"
+                            FontWeight="Bold"
+                            AcceptsReturn="False" 
+                           KeyDown="Execsp_KeyDown"
+                            MouseEnter="selectSp_MouseEnter"
+                            MouseLeave="selectSp_MouseLeave"
+                            PreviewMouseLeftButtonDown="selectSp_MouseLeftButtonDown"
+                            AcceptsTab="false" 
+                            ClipToBounds="True" 
+                            UseLayoutRounding="True"
+                            FontSize="18" />
+
+                <Button x:Name="ExecBtn" 
+                        Width="100" 
+                        Height="41" 
+                        HorizontalAlignment="Right" 
+                        Margin="0,357,16,0"
+                        VerticalAlignment="Top"
+                        KeyDown="Execsp_KeyDown"
+                        Content="Execute"
+                        Command="{Binding FilterStoredprocs}"
+                        Style="{StaticResource ButtonSlant}"                                
+                        Visibility="Visible"
+                        Click="Execsp_Click"/>
+
+                <Button x:Name="stopBtn3" 
+                        Width="100" 
+                        Height="43" 
+                        HorizontalAlignment="Right" 
+                        Margin="0,357,124,0"
+                        VerticalAlignment="Top"
+                        Content="Cancel"
+                        KeyDown="Execsp_KeyDown"
+                        Style="{StaticResource DefaultCancelButton}"
+                        Click="stopBtn1_Click"
+                        Command="{Binding CloseFilterStoredprocs}"
+                        Visibility="Visible"/>
+
+            </Grid>
+            <!--#endregion SP Execute dialog-->
+
+
+            <!--#endregion popup controls-->
+
+        </Canvas>
+
+        <!--//*** Container for Grid  + GridSpltter +  SpList  + FlowDocument ***//-->
+
+        <!--// Containerwith 3 rows for both major view panels & its horizontal splitter-->
+        <Grid x:Name="majorgrid" Grid.Row="1" Grid.RowSpan="1">
+
+            <!-- Hieararchy is : 
+                majorgrid   (3  rows)
+                        InfoGrid   in row 2
+                            InfoBorder 
+                                ViewerGrid
+                                    GridSplitter
+                                        banner + spList + RTBox-->
+
+            <Grid.RowDefinitions>
+                <RowDefinition x:Name="dgrow" Height="*"/>
+                <RowDefinition x:Name="sprow" Height="30"/>
+                <RowDefinition x:Name="vwrow" Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!--//DataGrid -  lives in top row of majorgrid-->
+            <users:DatagridControl x:Name="GenGridCtrl"   
+                Grid.Row="0" 
+                Grid.RowSpan="1"
+                Background="Transparent" 
+                Foreground="Black"
+                FontSize="16"
+                FontWeight="Normal"
+                AlternateBackground="Cyan"
+                HeaderBackground="Blue"
+                HeaderForeground="White"                               
+                Margin="5,0,5,0"
+                PreviewMouseRightButtonDown="GenGridCtrl_PreviewMouseRightButtonDown"
+                Visibility="Visible"
+                Tablename="BankAccount" VerticalAlignment="Top" >
+            </users:DatagridControl>
+
+            <GridSplitter x:Name="Hsplitter" 
+                        Grid.Row="1" 
+                        Width="{Binding ActualWidth, ElementName=splitterText}"
+                        Height="30"
+                        Grid.Column="0"
+                        Grid.ColumnSpan="3"
+                        HorizontalAlignment="Stretch"
+                        Focusable="True"
+                        Cursor="SizeNS"
+                        MouseEnter="hGridSplitter_MouseEnter" 
+                        MouseLeave="hGridSplitter_MouseLeave"
+                        MouseMove="Hsplitter_MouseMove"
+                        Background ="{StaticResource HorizontalGraduated}"
+                        ResizeBehavior="PreviousAndNext"
+                        ToolTipService.ToolTip="Drag up / down to Show / Hide DataGrid"
+                        ToolTipService.HasDropShadow="True"
+                        ToolTipService.BetweenShowDelay="5"
+                        ToolTipService.ShowDuration="5000"
+                        Panel.ZIndex="300"
+                        VerticalAlignment="Stretch">
+                <GridSplitter.Template>
+                    <ControlTemplate>
+                        <Grid 
+						   Background ="{StaticResource HorizontalGraduated}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="20" />
+                            </Grid.RowDefinitions>
+                            <StackPanel 
+                                Orientation="Horizontal" 
+                                HorizontalAlignment="Center" 
+                               Background ="Transparent"
+                                Grid.Row="0"  
+                                >
+                                <TextBlock Text="Drag Up/Down here to change panel sizes" 
+                                        Height="20" 
+                                        Padding="0 4 4 0" 
+                                        FontSize="12"
+                                           
+                                        Foreground="Black"
+                                        FontWeight="DemiBold"
+                                        Background ="Transparent"
+                                        HorizontalAlignment="Left" Margin="30,0,0,0"/>
+                                <Image x:Name="ImgUp"  Source="\icons\updown arrow red copy.png"  Margin="30 4 0 0"
+										               Height="25" Width="20" HorizontalAlignment="Right"/>
+                            </StackPanel>
+                        </Grid>
+
+                    </ControlTemplate>
+                </GridSplitter.Template>
+
+            </GridSplitter>
+
+            <!--Entire  lower panel for info etc-->
+            <!--#region grid InfoGrid-->
+            <!--//Information panel viewer -  lives in bottom row of majorgrid-->
             <Grid x:Name="InfoGrid"
-                    Grid.Row="1" 
-                    Grid.RowSpan="1"
+                    Grid.Row="2" 
                     Margin="0 -5 0 15" 
                     Canvas.Top="5"
                     Canvas.Left="10"
                     Background="Transparent"  
                     Panel.ZIndex="250"
-                    Height="{Binding ActualHeight, ElementName=GenGridCtrl, Converter={StaticResource ReduceByParamValue},ConverterParameter=0}"      
-                    Width="{Binding ActualWidth, ElementName=GenGridCtrl, Converter={StaticResource ReduceByParamValue},ConverterParameter=10}"      
+                    Width="{Binding ActualWidth, ElementName=GenGridCtrl, Converter={StaticResource ReduceByParamValue},ConverterParameter=0}"      
                     IsVisibleChanged="InfoGrid_IsVisibleChanged"
-                    Visibility="Collapsed" >
+                    Visibility="Visible" >
 
+                <!--#region inner info viewer and SP list box container & V Splitter-->
                 <Border x:Name="InfoBorder" 
-                            BorderBrush="Orange" 
+                            BorderBrush="{StaticResource HeaderBrushHorizontalBlackToBlueToBlack}" 
                             Background="{StaticResource Orange2BlackSlant}"                    
                             Margin="0 5 0 0"
                             Opacity="1"
-                            BorderThickness="2 10 2 15" 
+                            BorderThickness="5 5 5 15" 
                             VerticalAlignment="Top" 
                             Panel.ZIndex="251"
                             Height="{Binding ActualHeight, ElementName=InfoGrid}" 
                             Width="{Binding ActualWidth, ElementName=InfoGrid}"
                             Visibility="Visible">
 
-                    <Grid x:Name="ViewerGrid"
+                    <!--// Required  to Handle layout of lower panel with V.Splitter, SP lstbox and info viewer-->
+                    <Grid x:Name="ViewerGrid"                          
                                 Grid.Row="0"
+                                Grid.RowSpan="1"
                                 VerticalAlignment="Top"
                                 HorizontalAlignment="Left"
-                                Height="{Binding ActualHeight, ElementName=InfoGrid, Converter={StaticResource IncreaseByParamValue},ConverterParameter=20}"      
-                                Width="{Binding ActualWidth, ElementName=InfoGrid}">
+                                Panel.ZIndex="251"
+                                Height="{Binding ActualHeight, ElementName=InfoBorder, Converter={StaticResource IncreaseByParamValue},ConverterParameter=5}"      
+                                Width="{Binding ActualWidth, ElementName=InfoGrid}"
+                                Visibility="Visible">
 
                         <Grid.RowDefinitions>
                             <RowDefinition Height="25"/>
+                            <RowDefinition Height="1"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
-                        
+
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition x:Name="col1" Width="*" MaxWidth="300"/>
-                            <ColumnDefinition x:Name="col2" Width="Auto"/>
+                            <ColumnDefinition x:Name="col1" MaxWidth="300" Width="*" />
+                            <ColumnDefinition x:Name="col2" Width="15"/>
                             <ColumnDefinition x:Name="col3" Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <GridSplitter x:Name="Vsplitter" Grid.Row="1" Grid.Column="1" 
-                                   Width="10"
-                                    Grid.ColumnSpan="1"
-                                    Background="Red"
-                                    Focusable="True"
-                                   Cursor="SizeWE"
-                                   MouseEnter="GridSplitter_MouseEnter" 
-                                   MouseLeave="GridSplitter_MouseLeave"
-                                    ResizeBehavior="PreviousAndNext"
-                                   ToolTipService.ToolTip="Drag to Show / Hid List of Stored Procedures"
-                                   ToolTipService.HasDropShadow="True"
-                                   ToolTipService.BetweenShowDelay="5"
-                                   ToolTipService.ShowDuration="1500"
-                                    VerticalAlignment="Stretch"/>
-                                   <!--DragDelta="splitter_DragDelta"-->
+                        <GridSplitter x:Name="Vsplitter" 
+                                           Grid.Row="2" 
+                                           Grid.RowSpan="1" 
+                                           Width="15"
+                                           Panel.ZIndex="251"
+                                           Grid.Column="1"
+                                           Focusable="True"
+                                           Cursor="SizeWE"
+                                           MouseEnter="GridSplitter_MouseEnter" 
+                                           MouseLeave="GridSplitter_MouseLeave"
+                                           MouseMove="Vsplitter_MouseMove"
+                                           Background ="{StaticResource VerticalGraduated}"
+                                            ResizeBehavior="PreviousAndNext"
+                                           ToolTipService.ToolTip="Drag to Show / Hide List of Stored Procedures"
+                                           ToolTipService.HasDropShadow="True"
+                                           ToolTipService.BetweenShowDelay="5000"
+                                           ToolTipService.ShowDuration="3000"
+                                            VerticalAlignment="Stretch">
 
-                        <!--// Red Banner on top of Slist-->
+                        </GridSplitter>
+
+                        <!--// Red Banner on top of plist-->
+
                         <!--#region Banner-->
-                        <Grid x:Name="bannergrid" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3">
+
+                        <Grid x:Name="bannergrid" Grid.Row="0" Grid.RowSpan="1" Grid.Column="0" Grid.ColumnSpan="3">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="30"/>
                             </Grid.ColumnDefinitions>
 
-                            <TextBlock Grid.Column="0" Grid.ColumnSpan="2"
-                                            Margin="0 0 0 0"                                            
-                                            HorizontalAlignment="Stretch"
-                                            VerticalAlignment="Top" 
-                                            Height="35"
-                                             FontSize="16"
-                                            FontWeight="DemiBold"
-                                            Foreground="Red"
-                                            Background="Cyan"
-                                            TextAlignment="Center"
-                                            Text="Press Escape, Dbl-Click in viewer or Click 'Close' icon on this panel to close it...."
-                                            Panel.ZIndex="251"/>
+                            <TextBlock x:Name="InfoHeaderPanel" Grid.Column="0" Grid.ColumnSpan="1"
+                                                        Margin="0 0 0 0"                                            
+                                                        HorizontalAlignment="Stretch"
+                                                        VerticalAlignment="Top" 
+                                                        Height="35"
+                                                         FontSize="16"
+                                                        FontWeight="DemiBold"
+                                                        Foreground="Red"
+                                                        Background="Cyan"
+                                                        TextAlignment="Center"
+                                                        Text="Press Escape, Dbl-Click in viewer or Click 'Close' icon on this panel to close it...."
+                                                        Panel.ZIndex="251"/>
 
-                            <Border Background="Cyan" Grid.Column="1" Grid.ColumnSpan="2">
+                            <Border Background="Cyan" Grid.Column="1" Grid.ColumnSpan="1">
                                 <Image
-                                                    x:Name="CloseIcon" Source="\icons\red-cross-icon.png"
-                                                    Grid.Column="1"                           
-                                                    Height="20" Width="20"
-                                                    Panel.ZIndex="252"
-                                                    HorizontalAlignment="Right"
-                                                    MouseLeftButtonDown="CloseIcon_MouseLeftButtonDown"
-                                                    Margin="0,-1,6,0" Grid.RowSpan="1"/>
+                                                                x:Name="CloseIcon" Source="\icons\red-cross-icon.png"
+                                                                Grid.Column="1"                           
+                                                                Height="25" Width="25"
+                                                                Panel.ZIndex="252"
+                                                                HorizontalAlignment="Right"
+                                                                MouseLeftButtonDown="CloseIcon_MouseLeftButtonDown"
+                                                                Margin="0,-1,6,0" Grid.RowSpan="1"/>
                             </Border>
                         </Grid>
                         <!--#endregion Banner-->
 
                         <!--// Container for SP's List Box-->
+
                         <!--#region SP List box-->
-                        <Grid x:Name="tempgrid" Grid.Row="2" Grid.Column="0"  
-                                    Height="{Binding Height, ElementName=InfoBorder, Converter={StaticResource ReduceByParamValue},ConverterParameter=20}"      
-                                    HorizontalAlignment="Stretch" 
-                                   VerticalAlignment="Stretch"
-                              Visibility="Visible">
+                        <Grid x:Name="tempgrid" Grid.Row="2" 
+                                        Grid.RowSpan="1" 
+                                        Grid.Column="0"  
+                                        Height="{Binding Height, ElementName=InfoBorder, Converter={StaticResource ReduceByParamValue},ConverterParameter=20}"      
+                                        HorizontalAlignment="Stretch" 
+                                        MaxWidth="300"                                  
+                                        VerticalAlignment="Stretch"
+                                        Visibility="Visible">
+
                             <Grid.RowDefinitions>
                                 <RowDefinition x:Name="currow1" Height="25"/>
+                                <RowDefinition x:Name="currow3" Height="25"/>
                                 <RowDefinition x:Name="currow2" Height="*"/>
                             </Grid.RowDefinitions>
 
                             <TextBlock x:Name="SpInfo" 
-                                    Grid.Row="0"
-                                    Text="Help"
-                                    FontSize="16"
-                                    Margin="0 -11 0 0"
-                                    Height="25"
-                                    Background="Red" 
-                                    Foreground="White"
-                                    TextAlignment="Center"
-                                    HorizontalAlignment="Stretch"/>
+                                                Grid.Row="0"
+                                                Text="Info"
+                                                FontSize="16"
+                                                Margin="0 -2 0 0"
+                                                Height="25"
+                                                Background="{StaticResource Red3}" 
+                                                Foreground="White"
+                                                TextAlignment="Center"
+                                                HorizontalAlignment="Stretch"/>
+
+                            <TextBlock x:Name="SpInfo2" 
+                                                Grid.Row="1"
+                                                Text="Sp entry...."
+                                                FontSize="16"
+                                                Margin="0 -11 0 0"
+                                                Height="25"
+                                                Background="{StaticResource White3}" 
+                                                Foreground="{StaticResource Red3}"
+                                                TextAlignment="Center"
+                                                HorizontalAlignment="Stretch"/>
 
                             <ListBox x:Name="Splist" 
-                                    Height="{Binding Height, ElementName=tempgrid, 
-                                            Converter={StaticResource ReduceByParamValue},ConverterParameter=60}"    
-                                     Width="{Binding Width, ElementName=ViewerGrid.col1}"    
-                                     Grid.Row="1"
-                                     Margin="0 -3 0 0"
-                                    VerticalAlignment="Top"
-                                     FontSize="16"
-                                     SelectionChanged="Splist_SelectionChanged"
-                                     FontWeight="DemiBold"                                 
-                                    Foreground="Black"
-                                     ItemContainerStyle="{StaticResource SpStringsStyle}">
+                                                Grid.Row="3"
+                                                Grid.RowSpan="1" 
+                                                Margin="0 -3 0 0"
+                                                Height="{Binding Height, ElementName=tempgrid, 
+                                                Converter={StaticResource ReduceByParamValue},ConverterParameter=60}"    
+                                                Width="{Binding Width, ElementName=ViewerGrid.col1}"    
+                                                VerticalAlignment="Top"
+                                                MaxWidth="300"
+                                                FontSize="16"
+                                                SelectionChanged="Splist_SelectionChanged"
+                                                PreviewMouseRightButtonDown="Splist_PreviewMouseRightButtonDown"
+                                                PreviewMouseRightButtonUp="Splist_PreviewMouseRightButtonUp"
+                                                FontWeight="DemiBold"                                 
+                                                Foreground="Black"
+                                                ToolTipService.ShowDuration="3000"
+                                                ToolTipService.HasDropShadow="True"
+                                                ToolTipService.BetweenShowDelay="5000"
+                                                ItemContainerStyle="{StaticResource SpStringsStyle}">
+                                <ListBox.ToolTip  >
+                                    <ToolTip>
+                                        <Border Width="240" Height="85" BorderBrush="{StaticResource Red4}" BorderThickness="2">
+                                            <TextBlock x:Name="ViewerBanner"
+                                                        Text="Right click to toggle list between All SP's and only those that contain the current search text"
+                                                        Padding="10 5 10 10"
+                                                        Background="{StaticResource White3}"
+                                                        Foreground="Black"
+                                                        FontSize="16"
+                                                        TextWrapping="Wrap"/>
+                                        </Border>
+                                    </ToolTip>
+                                </ListBox.ToolTip>
                             </ListBox>
                         </Grid>
                         <!--#endregion SP List box-->
 
-                        <FlowDocumentScrollViewer x:Name="RTBox" Grid.Row="1" Grid.Column="2"                               
-                                MinWidth="200"    
-                                                   BorderBrush="White"
-                                                   BorderThickness="2"
-                                Height="{Binding Height, ElementName=ViewerGrid, Converter={StaticResource ReduceByParamValue},ConverterParameter=85}"      
-                                Width="{Binding Width, ElementName=ViewerGrid, Converter={StaticResource ReduceByParamValue},ConverterParameter=50}"      
-                                Panel.ZIndex="252"                                           
-                                Margin="0 0,0,45"
-                                HorizontalScrollBarVisibility="Auto"
-                                VerticalScrollBarVisibility="Visible"
-                                Background="{StaticResource Black0}"
-                                Foreground="{StaticResource White0}"                                              
-                                MouseDoubleClick="RTBox_MouseRightButtonDown"
-                                TextOptions.TextFormattingMode="Ideal"
-                                TextOptions.TextRenderingMode="ClearType"
-                                ToolTip="Right Click for Options, or dbl-click to return to Table View"
-                                Visibility="Visible">
-                            <FlowDocumentScrollViewer.ContextMenu>
-                                <ContextMenu>
-                                    <MenuItem Header="Return to Table viewer" Click="MenuItem_Click"/>
-                                    <MenuItem Header="Load All S.P's " Click="LoadAllSPs_Click"/>
-                                    <MenuItem Header="Channge the current Search term for matching" Click="ChangeMatchingSPs_Click"/>
-                                    <MenuItem Header="Load only S.P's matching current Search term" Click="LoadMatchingSPs_Click"/>
-                                    <MenuItem Header="Copy Text" Command="Copy"/>
-                                    <MenuItem Header="SelectAll Text" Command="SelectAll"/>
-                                    <MenuItem Header="Reload Tables List" Click="ReloadTables"/>
-                                    <MenuItem Header="Switch to Information on this control" Click="ReloadInfo"/>
-                                    <MenuItem Header="Switch to S.P Content's viewer" Click="ReloadCurrentSP"/>
-                                </ContextMenu>
-                            </FlowDocumentScrollViewer.ContextMenu>
+                        <!--#region FlowdocScrollViewer-->
+
+                        <FlowDocumentScrollViewer x:Name="RTBox" 
+                                            Grid.Row="2" 
+                                            Grid.RowSpan="1"
+                                            Grid.Column="2"                               
+                                            MinWidth="200"    
+                                            BorderBrush="White"
+                                            BorderThickness="2"
+                                            Height="{Binding Height, ElementName=ViewerGrid, Converter={StaticResource ReduceByParamValue},ConverterParameter=85}"      
+                                            Width="{Binding Width, ElementName=ViewerGrid, Converter={StaticResource ReduceByParamValue},ConverterParameter=40}"      
+                                            Panel.ZIndex="302"                                           
+                                            Margin="0 0,0,5"
+                                            HorizontalScrollBarVisibility="Auto"
+                                            VerticalScrollBarVisibility="Visible"
+                                            Background="{StaticResource Black0}"
+                                            Foreground="{StaticResource White0}"                                              
+                                            PreviewKeyDown="RTBox_PreviewKeyDown"
+                                            PreviewMouseRightButtonDown="RTBox_PreviewMouseRightButtonDown"
+                                            TextOptions.TextFormattingMode="Ideal"
+                                            TextOptions.TextRenderingMode="ClearType"
+                                            ToolTip="Right Click for further Options"
+                                            ToolTipService.ShowDuration="2000"
+                                            ToolTipService.BetweenShowDelay="5000"
+                                            Visibility="Visible">
                         </FlowDocumentScrollViewer>
 
+                        <!--#endregion FlowdocScrollViewer-->
 
-                        <!--<RichTextBox x:Name="RTB" Grid.Row="3" Grid.Column="2"
-                                      Height="250" Width="750" 
-                                      Panel.ZIndex="252"                                           
-                                      Margin="0 0,5,170"
-                                    Visibility="Visible"/>-->
 
-                        <!--ResizeDirection="Columns"-->
                     </Grid>
+                    <!--// ViewerGrid-->
                 </Border>
+                <!--// InfoBorder-->
 
+                <!--#endregion inner info viewer and SP list box container-->
 
             </Grid>
-            <!--//************************//-->
-            <!--#endregion info panel-->
+            <!--// InfoGrid-->
+            <!--// #endregion grid InfoGrid-->
 
-            <!--***********************************-->
-            <!--#endregion RowFilteringDialog-->
 
-        </Canvas>
+        </Grid>
         <!--#endregion Canvas-->
 
         <!--//*****************//-->
         <!--SQL Tables Datagrid-->
         <!--//*****************//-->
-        <!--#region display Grid-->
-        <users:DatagridControl x:Name="GenGridCtrl"   
-            Grid.Row="1" 
-            Background="Transparent" 
-            Foreground="Black"
-            FontSize="16"
-            FontWeight="Normal"
-            AlternateBackground="Cyan"
-            HeaderBackground="Blue"
-            HeaderForeground="White"                               
-            Margin="5 0 5 0"
-           ContextMenu="{StaticResource GenGridContextMenu}"
-            Visibility="Visible"
-            Tablename="BankAccount" >
-        </users:DatagridControl>
 
-        <!--#endregion display Grid-->
-
-        <!--//*********************//-->
+        <!--// bottom buttons/controls panel//-->
         <!--#region Main Btn Panel-->
         <!--//*********************//-->
-
-        <ComboBox x:Name="SqlTables" 
-                  Grid.Row="2" HorizontalAlignment="Left" 
+        <Grid x:Name="BtnGrid" Grid.Row="4" Grid.RowSpan="3" >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="80"/>
+                <RowDefinition Height="90"/>
+            </Grid.RowDefinitions>
+            <ComboBox x:Name="SqlTables" 
+                  Grid.Row="1" HorizontalAlignment="Left" 
                   Width="200" Height="25"  FontSize="16"
                   Margin="132,9,0,0" 
                    VerticalAlignment="Top"
                   HorizontalContentAlignment="Center"
                   SelectionChanged="SqlTables_SelectionChanged"/>
-        <Label Content="Select SQL Table : " 
-                 HorizontalAlignment="Left"               
+
+            <Label Content="Select SQL Table : " 
+                 Grid.Row="1"
+               HorizontalAlignment="Left"               
                Foreground="White"  
                Width="116"
+               Panel.ZIndex="300"
                FontSize="14"
-                 Margin="15,7,0,51" Grid.Row="2"/>
-        <CheckBox x:Name="ToggleColumnHeaders" Checked="ToggleColumnHeaders_Checked" 
+                 Margin="15,7,0,47" />
+
+            <CheckBox x:Name="ToggleColumnHeaders" Checked="ToggleColumnHeaders_Checked" 
                   IsChecked="false" 
                   Content="Toggle headers" 
                   HorizontalAlignment="Left"
@@ -1280,80 +2138,96 @@
                   Click="ToggleColumnHeaders_Click" 
                   Height="20" 
                   Margin="267,35,0,0" 
-                  Grid.Row="4"
+                  Grid.Row="3"
                   Width="132" 
                   RenderTransformOrigin="0.5,0.5"
                   Panel.ZIndex="5"
                   Visibility="Collapsed"/>
 
-        <Button x:Name="CloseApp" Width="87" 
+            <Button x:Name="CloseApp" Width="87" 
+                Grid.Row="1"
                 Height="NaN" 
                 Content="Close App" 
                 HorizontalAlignment="Right"
-                Grid.Row="2"
                 BorderBrush="Red"                
                 Click="CloseApp_Click" Margin="0,46,80,5" 
                 Style="{StaticResource ButtonSlant}"/>
 
-        <Button x:Name="CloseBtn" Width="67" 
+            <Button x:Name="CloseBtn" Width="67" 
+                Grid.Row="1"
                 Height="NaN" 
                 Content="Close" 
                 HorizontalAlignment="Right"
-                Grid.Row="2"
                 BorderBrush="Red"                
                 Click="Close_Click" Margin="0,46,5,5" 
                 Style="{StaticResource ButtonSlant}"/>
 
-        <TextBlock
+            <TextBlock
+                Grid.Row="1" 
                 Foreground="White"
                 Background="Transparent"
                 FontSize="15"
-                Text="Use Dropdown below to select available processing "
-                Grid.Row="2" HorizontalAlignment="Left" 
-                Width="Auto" Height="26"  
-                Margin="360,11,0,0" 
+                Panel.ZIndex="300"
+                Text="Use Dropdown below to select available processing options"
+                HorizontalAlignment="Left" 
+                Width="403" Height="26"  
+                Margin="360,14,0,0" 
                 VerticalAlignment="Top" />
 
-        <ComboBox x:Name="OptionsList" 
-            Grid.Row="2" HorizontalAlignment="Left" 
-            Width="270" Height="30"  FontSize="18"
-            Margin="403,0,0,14" 
-            SelectionChanged="OptionsList_Selected"
-            VerticalAlignment="Bottom"
-            HorizontalContentAlignment="Center"   >
-            <ComboBoxItem >
-                <TextBlock Text="Processing Options .." Style="{StaticResource YellowTextGradient}"
-                        TextAlignment="Center" Width="245" />
-            </ComboBoxItem>
-            <ComboBoxItem>
-                <TextBlock Text="Show Full Schema" Style="{StaticResource YellowTextGradient}"
-                        TextAlignment="Center" Width="245" />
-            </ComboBoxItem>
-            <ComboBoxItem>
-                <TextBlock Text="Reload Tables List" Style="{StaticResource YellowTextGradient}"
-                        TextAlignment="Center" Width="245" />
-            </ComboBoxItem>
-            <ComboBoxItem>
-                <TextBlock Text="Save as New Table" Style="{StaticResource YellowTextGradient}"
-                        TextAlignment="Center" Width="245" />
-            </ComboBoxItem>
-            <ComboBoxItem>
-                <TextBlock Text="Filter table data" Style="{StaticResource YellowTextGradient}"
-                        TextAlignment="Center" Width="245" />
-            </ComboBoxItem>
-            <ComboBoxItem>
-                <TextBlock Text="Save Selected Rows to Table" Style="{StaticResource YellowTextGradient}"
-                        TextAlignment="Center" Width="245" />
-            </ComboBoxItem>
-            <ComboBoxItem>
-                <TextBlock Text="Find Text in Stored Procedures" Style="{StaticResource YellowTextGradient}"
-                        TextAlignment="Center" Width="245" />
-            </ComboBoxItem>
-        </ComboBox>
+            <ComboBox x:Name="OptionsList" 
+                    Grid.Row="1" 
+                    HorizontalAlignment="Left" 
+                    Width="270"
+                    Height="30"  
+                    FontSize="18"
+                    Margin="403,0,0,14" 
+                    Panel.ZIndex="300"
+                    DropDownOpened="OptionsList_DropDownOpened"
+                      DropDownClosed="OptionsList_DropDownClosed"
+                    SelectionChanged="OptionsList_Selected"
+                    VerticalAlignment="Bottom"
+                    HorizontalContentAlignment="Center"   >
 
+                <ComboBoxItem >
+                    <TextBlock Text="Processing Options" Style="{StaticResource YellowTextGradient}"
+                        x:Name="comboText1" TextAlignment="Center" Width="245" />
+                </ComboBoxItem>
+                <ComboBoxItem  >
+                    <TextBlock Text="Show Full Schema" Style="{StaticResource YellowTextGradient}"
+                        x:Name="comboText2" TextAlignment="Center" Width="245" />
+                </ComboBoxItem >
+                <ComboBoxItem >
+                    <TextBlock Text="Reload Tables List" Style="{StaticResource YellowTextGradient}"
+                        x:Name="comboText3" TextAlignment="Center" Width="245" />
+                </ComboBoxItem>
+                <ComboBoxItem >
+                    <TextBlock Text="---------------------------------" Style="{StaticResource SplitterComboStyle}"
+                        x:Name="comboText4" TextAlignment="Center" Width="245" FontSize="10" IsEnabled="False"/>
+                </ComboBoxItem>
+                <ComboBoxItem >
+                    <TextBlock Text="Save as New Table" Style="{StaticResource YellowTextGradient}"
+                        x:Name="comboText5" TextAlignment="Center" Width="245" />
+                </ComboBoxItem>
+                <ComboBoxItem >
+                    <TextBlock Text="Filter table data" Style="{StaticResource YellowTextGradient}"
+                        x:Name="comboText6" TextAlignment="Center" Width="245" />
+                </ComboBoxItem>
+                <ComboBoxItem >
+                    <TextBlock Text="Save Selected Rows to Table" Style="{StaticResource YellowTextGradient}"
+                        x:Name="comboText7" TextAlignment="Center" Width="245" />
+                </ComboBoxItem>
+                <ComboBoxItem >
+                    <TextBlock Text="---------------------------------" Style="{StaticResource SplitterComboStyle}"
+                        x:Name="comboText8" TextAlignment="Center" Width="245" FontSize="10" IsEnabled="False"/>
+                </ComboBoxItem>
+                <ComboBoxItem >
+                    <TextBlock Text="Find Text in Stored Procedures" Style="{StaticResource YellowTextGradient}"
+                        x:Name="comboText9" TextAlignment="Center" Width="245" />
+                </ComboBoxItem>
+            </ComboBox>
 
-        <TextBlock x:Name="Reccount" 
-                Grid.Row="2"
+            <TextBlock x:Name="Reccount" 
+                Grid.Row="1"
                    FontSize="18"
                    FontWeight="Bold"
                    TextAlignment="Center"
@@ -1362,43 +2236,60 @@
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
                    Margin="0 0 5 47"
+               Panel.ZIndex="300"
                    Background="Orange"
                    Foreground="Black"/>
 
-        <Label Content="Save New Table As : " Grid.Row="2" 
-                 HorizontalAlignment="Left"
-               Foreground="White"  
-               Width="136"
-               FontSize="14"
-                 Margin="1,46,0,24" Grid.RowSpan="2"/>
-        <TextBox x:Name="NewTableName" Width="200" Foreground="Red"  Grid.Row="2" FontSize="16"
-                  HorizontalAlignment="Left"  HorizontalContentAlignment="Center" Text="Enter New Table Name ...." Padding="0 1 0 0"
-                KeyDown="statusbar_KeyDown"
-                 Margin="132,45,0,10" GotKeyboardFocus="NewTableName_GotKeyboardFocus"
-                 />
-        <TextBlock x:Name="caption"
-            Text="Current Table Status / Processing information" Grid.Row="3" 
-                 HorizontalAlignment="Stretch"
-               TextAlignment="Center"
-               TextWrapping="Wrap"
-               Background="{StaticResource Red2}"
-               Padding="0 2 0 0"
-               Foreground="{StaticResource White1}"  
-               FontSize="15"
-               FontWeight="DemiBold"
-               FontStyle="Normal"/>
+            <Label Content="Save New Table As : " 
+                    Grid.Row="1" 
+                    HorizontalAlignment="Left"
+                    Foreground="White"  
+                    Width="130"
+                    Panel.ZIndex="300"
+                    FontSize="14"
+                    Margin="1,46,0,8"/>
 
-        <TextBlock x:Name="statusbar"
-            Text="" Grid.Row="4" 
-                 HorizontalAlignment="Stretch"
-               TextAlignment="Center"
-               TextWrapping="Wrap"
-               Background="{StaticResource White7}"
-               Padding="0 2 0 0"
-               Foreground="White"  
-               FontSize="15"
-               FontStyle="Italic"/>
-        <!--//************************//-->
+            <TextBox x:Name="NewTableName" 
+                 Width="200" 
+                 Foreground="Red"  
+                 Grid.Row="1" 
+                 FontSize="16"
+                HorizontalAlignment="Left"  
+                 HorizontalContentAlignment="Center" 
+                 Text="Enter New Table Name ...." 
+                 Padding="0 1 0 0"
+                KeyDown="statusbar_KeyDown"
+                Panel.ZIndex="300"
+                Margin="132,45,0,10" 
+                 GotKeyboardFocus="NewTableName_GotKeyboardFocus"
+                 />
+
+            <TextBlock x:Name="caption"
+                    Text="Current Table Status / Processing information" 
+                    Grid.Row="0" 
+                    HorizontalAlignment="Stretch"
+                    TextAlignment="Center"
+                    TextWrapping="Wrap"
+                    Background="{StaticResource Red2}"
+                    Padding="0 4 0 0"
+                    Foreground="{StaticResource White1}"  
+                    FontSize="15"
+                    FontWeight="DemiBold"
+                    FontStyle="Normal"/>
+
+            <TextBlock x:Name="statusbar"
+                    Text="" Grid.Row="2" 
+                    HorizontalAlignment="Stretch"
+                    TextAlignment="Center"
+                    TextWrapping="Wrap"
+                    Background="{StaticResource White7}"
+                    Padding="10 2 0 10"
+                    Foreground="White"  
+                    FontSize="15"
+                    FontStyle="Italic"/>
+            <!--//************************//-->
+
+        </Grid>
         <!--#endregion Main Btn Panel-->
 
         <!--// TREEVIEW EXAMPLE FOR TESTING-->

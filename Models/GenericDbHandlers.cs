@@ -5,6 +5,7 @@ using System . Collections . ObjectModel;
 using System . Data;
 using System . Data . SqlClient;
 using System . Diagnostics;
+using System . DirectoryServices . ActiveDirectory;
 using System . Linq;
 using System . Windows;
 using System . Windows . Controls;
@@ -40,16 +41,21 @@ namespace NewWpfDev . Models
             SqlServerCommands . LoadActiveRowsOnlyInGrid ( Grid , genaccts , SqlServerCommands . GetGenericColumnCount ( genaccts ) );
             Grid . Columns [ 0 ] . Header = "Query result Information";
         }
-        public static void CheckDbDomain ( string DbDomain )
+        public static string CheckDbDomain ( string DbDomain )
         {
             if ( Flags . ConnectionStringsDict == null || Flags . ConnectionStringsDict . Count == 0 )
                 Utils . LoadConnectionStrings ( );
+            if ( DbDomain == "" )
+                DbDomain = MainWindow . CurrentSqlTableDomain;
             Utils . CheckResetDbConnection ( DbDomain , out string constring );
             ConnString = constring;
             Flags . CurrentConnectionString = constring;
+            MainWindow.SqlCurrentConstring = constring;
+            Debug . WriteLine ($"CheckDbDomain() for {DbDomain} returned {constring}");
+            return constring;
         }
 
-        public static Dictionary<string , string> GetDbTableColumns ( ref ObservableCollection< GenericClass> Gencollection , ref List<string> list , string dbName , string DbDomain , ref List<int> VarCharLength )
+        public static Dictionary<string , string> GetDbTableColumns ( ref ObservableCollection<GenericClass> Gencollection , ref List<string> list , string dbName , string DbDomain , ref List<int> VarCharLength )
         {
             // Make sure we are accessing the correct Db Domain
             CheckDbDomain ( DbDomain );
@@ -58,7 +64,6 @@ namespace NewWpfDev . Models
         }
         private static Dictionary<string , string> GetSpArgs ( ref ObservableCollection<GenericClass> Gencollection , ref List<string> list , string dbName , string DbDomain , ref List<int> VarCharLength )
         {
-            
             GenericClass genclass = new GenericClass ( );
             Dictionary<string , string> dict = new Dictionary<string , string> ( );
             try
@@ -75,7 +80,7 @@ namespace NewWpfDev . Models
 
             dict . Clear ( );
             list . Clear ( );
-            
+
             //			int charlenindex=0;
             //List<string> templist = new List<string> ( );
             //int indx = 0;
@@ -177,8 +182,7 @@ namespace NewWpfDev . Models
                                 try
                                 {
                                     //	Create a dictionary for each row of data then add it to a GenericClass row then add row to Generics Db
-                                    gc = DapperSupport . ParseDapperRow ( item , dict , out colcount , ref VarCharLength , GetLengths );
-                                    //VarcharList . Add ( VarCharLength );
+                                    gc = DapperSupport . ParseDapperRow ( item , out dict , out colcount , ref VarCharLength , GetLengths );
                                     dictcount = 1;
                                     fldcount = dict . Count;
                                     if ( fldcount == 0 )
@@ -205,9 +209,6 @@ namespace NewWpfDev . Models
                                         }
                                     }
                                     IsSuccess = true;
-                                    //string s = buffer . Substring (0, buffer . Length - 1 );
-                                    //buffer = s;
-                                    //genericlist . Add ( buffer );
                                 }
                                 catch ( Exception ex )
                                 {
@@ -215,8 +216,6 @@ namespace NewWpfDev . Models
                                     Debug . WriteLine ( result );
                                     return GenClass;
                                 }
-                                //										gc . ActiveColumns = dict . Count;
-                                //ParseListToDbRecord ( genericlist , out gc );
                                 GenClass . Add ( gc );
                                 dict . Clear ( );
                                 dictcount = 1;
@@ -280,17 +279,17 @@ namespace NewWpfDev . Models
                 foreach ( var item in Grid1 . Columns )
                 {
                     DataGridColumn dgc = item;
-                     try
+                    try
                     {
                         dgc . Header = "";
                         dgc . Header = list [ index++ ];
                         item . Header = dgc . Header;
                         if ( index >= dict . Count )
                         {
-                           break;
+                            break;
                         }
                     }
-                    catch ( ArgumentOutOfRangeException  ex ) { Debug . WriteLine ( $"TODO - BAD Columns - 300 GenericDbHandlers.cs" ); }
+                    catch ( ArgumentOutOfRangeException ex ) { Debug . WriteLine ( $"TODO - BAD Columns - 300 GenericDbHandlers.cs" ); }
                 }
             }
             Grid1 . UpdateLayout ( );
@@ -320,6 +319,26 @@ namespace NewWpfDev . Models
             }
             return list;
         }
+        public static string CheckSetSqlDomain ( string domain )
+        {
+            string ConString = "";
+            if ( domain == "" )
+                ConString = MainWindow . SqlCurrentConstring;
+            else
+            {
+                ConString = CheckDbDomain ( domain );
+                if ( ConString == "" )
+                {
+                    // set to our local definition
+                    ConString = MainWindow . SqlCurrentConstring;
+                }
+                else
+                    MainWindow . SqlCurrentConstring = ConString;
+            }
+            Debug . WriteLine ($"Sql Domain of {ConString}");
+            return ConString;
+        }
+
 
         #region Support methods
         private static DataTable ProcessSqlCommand ( string SqlCommand )

@@ -202,7 +202,7 @@ namespace NewWpfDev. Dapper
 											// we need to create a dictionary for each row of data then add it to a GenericClass row then add row to Generics Db
 											string buffer = "";
 											List< int> VarcharList = new List<int>();
-											gc = ParseDapperRow ( item , dict , out colcount , ref VarcharList );
+											gc = ParseDapperRow ( item , out dict , out colcount , ref VarcharList );
                                             if(gc == null)
 
                                             {
@@ -285,7 +285,7 @@ namespace NewWpfDev. Dapper
 										{
 											//	Create a dictionary for each row of data then add it to a GenericClass row then add row to Generics Db
 											List< int> VarcharList = new List<int>();
-											gc = ParseDapperRow ( item , dict , out colcount , ref VarcharList );
+											gc = ParseDapperRow ( item , out dict , out colcount , ref VarcharList );
                                             if ( gc == null )
                                             {
                                                 IsSuccess = false;
@@ -514,7 +514,7 @@ namespace NewWpfDev. Dapper
 		//--------------------------------------------------------------------------------------------------------------------------------------------------------
 		{
 			//####################################################################################//
-			// Handles running a dapper stored procedure call with transaction support & thrws exceptions back to caller
+			// Handles running a dapper stored procedure call with transaction support & throws exceptions back to caller
 			//####################################################################################//
 			int gresult = -1;
 			//string Con = Flags . CurrentConnectionString;
@@ -529,17 +529,21 @@ namespace NewWpfDev. Dapper
 					sqlCon . Open ( );
 					using ( var tran = sqlCon . BeginTransaction ( ) )
 					{
-						if ( ( SqlCommand . ToUpper ( ) == "SPINSERTSPECIFIEDROW" || SqlCommand . ToUpper ( ) == "SPCREATETABLE" || SqlCommand . ToUpper ( ) == "SPDROPTABLE" ) && args . Length > 0 )
+						if ( ( SqlCommand . ToUpper ( ) == "SPLOADTABLEASGENERIC" || SqlCommand . ToUpper ( ) == "SPINSERTSPECIFIEDROW" 
+                            || SqlCommand . ToUpper ( ) == "SPCREATETABLE" || SqlCommand . ToUpper ( ) == "SPDROPTABLE" ) && args . Length > 0 )
 						{
 							var parameters = new DynamicParameters();
 							if ( args [ 0 ] != "" )
-								parameters . Add ( "Tablename" , args [ 0 ] , DbType . String , ParameterDirection . Input , args [ 0 ] . Length );
+								parameters . Add ( "Arg1" , args [ 0 ] , DbType . String , ParameterDirection . Input , args [ 0 ] . Length );
 							if ( args [ 1 ] != "" )
-								parameters . Add ( "cmd" , args [ 1 ] , DbType . String , ParameterDirection . Input , args [ 1 ] . Length );
-							if ( args [ 2 ] != "" )
-								parameters . Add ( "Values" , args [ 2 ] , DbType . String , ParameterDirection . Input , args [ 2 ] . Length );
-
-							gresult = sqlCon . Execute ( @SqlCommand , parameters , commandType: CommandType . StoredProcedure , transaction: tran );
+								parameters . Add ( "Arg2" , args [ 1 ] , DbType . String , ParameterDirection . Input , args [ 1 ] . Length );
+                            if ( args [ 2 ] != "" )
+                                parameters . Add ( "Arg3" , args [ 2 ] , DbType . String , ParameterDirection . Input , args [ 2 ] . Length );
+                            if ( args [ 3 ] != "" )
+                                parameters . Add ( "Arg4" , args [ 3 ] , DbType . String , ParameterDirection . Input , args [ 3 ] . Length );
+                            if ( args [ 4 ] != "" )
+                                parameters . Add ( "Arg5" , args [  4] , DbType . String , ParameterDirection . Input , args [ 4 ] . Length );
+                            gresult = sqlCon . Execute ( @SqlCommand , parameters , commandType: CommandType . StoredProcedure , transaction: tran );
 						}
 						else
 						{
@@ -4508,15 +4512,14 @@ namespace NewWpfDev. Dapper
 					break;
 			}
 		}
-		public static GenericClass ParseDapperRow ( dynamic buff , Dictionary<string , object> dict , out int colcount , ref List<int> varcharlen , bool GetLength=false)
+		public static GenericClass ParseDapperRow ( dynamic buff , out Dictionary<string , object> dictin , out int colcount , ref List<int> varcharlen , bool GetLength=false)
 		{
-#pragma warning disable CS0219 // The variable 'outstr' is assigned but its value is never used
-			string outstr="";
-#pragma warning restore CS0219 // The variable 'outstr' is assigned but its value is never used
-			//			StringBuilder sb = new StringBuilder();
 			GenericClass GenRow = new GenericClass();
 			int index=0;
 			colcount = 0;
+            dictin = null;
+            Dictionary<string , object> dict = new Dictionary<string , object> ( );
+
 			foreach ( var item in buff )
 			{
                 // Name  and datatype only in buff
@@ -4550,6 +4553,7 @@ namespace NewWpfDev. Dapper
 				}
 			}
 			colcount = index;
+            dictin = dict;
 			return GenRow;
 		}
 		public static string GetStringFromGenericRow ( GenericClass GenRow )

@@ -6,6 +6,7 @@ using System . Data;
 using System . Data . SqlClient;
 using System . Diagnostics;
 using System . Diagnostics . Metrics;
+using System . DirectoryServices . ActiveDirectory;
 using System . Globalization;
 using System . Linq;
 using System . Reflection;
@@ -20,7 +21,6 @@ using System . Windows . Media;
 //using AutoMapper;
 
 using DapperGenericsLib;
-
 using GenericSqlLib . Models;
 
 using NewWpfDev . Models;
@@ -996,12 +996,12 @@ namespace NewWpfDev . UserControls
             int index = 0;
             SqlConnection con;
             SqlCommand cmd = null;
-            string ConString = "";
-            ConString = Flags . CurrentConnectionString;
+            
+            string ConString = GenericDbUtilities . CheckSetSqlDomain ( "" );
             if ( ConString == "" )
             {
                 GenericDbUtilities . CheckDbDomain ( "IAN1" );
-                ConString = Flags . CurrentConnectionString;
+                ConString = MainWindow. CurrentSqlTableDomain;
             }
 
             //List<Tuple<string , string , object>> fielddata = new List<Tuple<string , string , object>> ( );
@@ -2051,7 +2051,15 @@ namespace NewWpfDev . UserControls
                 "" ,
                 "" ,
                  ref errormsg );
-                dt = ProcessSqlCommand ( "spGetTableColumnWithSize  " + spName );
+
+                string ConString = GenericDbUtilities . CheckSetSqlDomain ( "");
+                if ( ConString == "" )
+                {
+                    // set to our local definition
+                    ConString = MainWindow . SqlCurrentConstring;                
+                }
+
+                dt = ProcessSqlCommand ( "spGetTableColumnWithSize  " + spName , ConString );
                 if ( dt . Rows . Count == 0 )
                     columncount = 0;
                 foreach ( var item in dt . Rows )
@@ -2189,7 +2197,7 @@ namespace NewWpfDev . UserControls
                 return "";
             }
         }
-        public static DataTable ProcessSqlCommand ( string SqlCommand )
+        public static DataTable ProcessSqlCommand ( string SqlCommand , string ConnectionString )
         {
             SqlConnection con;
             DataTable dt = new DataTable ( );

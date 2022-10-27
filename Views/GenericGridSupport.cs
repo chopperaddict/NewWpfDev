@@ -13,6 +13,7 @@ using Dapper;
 using DocumentFormat . OpenXml . Drawing;
 
 using NewWpfDev;
+using NewWpfDev . Models;
 using NewWpfDev . ViewModels;
 
 using UserControls;
@@ -68,6 +69,7 @@ namespace Views
             foreach ( DataRow row in dt . Rows )
             {
                 var txt = row . Field<string> ( 0 );
+
                 list . Add ( txt );
             }
             return list;
@@ -211,7 +213,7 @@ namespace Views
                 //{   2nd call
                 int recordcount = 0;
                 string Tablename = "";
-                int result = dgControl . ProcessUniversalStoredProcedure ( "CreateTableTest" , args , out err , out recordcount , out Tablename );
+                recordcount = dgControl . ExecuteStoredProcedure ( "CreateTableTest" , args , out err );
                 if ( err != "" && err . ToUpper ( ) . Contains ( "PROBLEM-FILE  EXISTS" ) == false )
                 {
                     Debug . WriteLine ( $"Table creation failed [{err}]" );
@@ -222,7 +224,7 @@ namespace Views
                         string [ ] args3 = { "" };
                         err = "";
                         args3 [ 0 ] = NewDbName;
-                        result = dgControl . ProcessUniversalStoredProcedure ( "spDropTable" , args3 , out err , out recordcount , out Tablename );
+                        recordcount = dgControl . ExecuteDapperCommand ( "Drop Table if exists " , args3 , out err );
                         if ( err != "" && err . ToUpper ( ) . Contains ( "PROBLEM-FILE  EXISTS" ) == false )
                         {
                             MessageBoxResult result3 = MessageBox . Show ( $"Failed to delete (Drop) the original table, so processing will now end\n Error message  ={err}" , "Deletion failed" ,
@@ -230,7 +232,7 @@ namespace Views
                         }
                         else
                         {
-                            result = dgControl . ProcessUniversalStoredProcedure ( "CreateTableTest" , args , out err , out recordcount , out Tablename );
+                            recordcount = dgControl . ExecuteStoredProcedure ( "CreateTableTest" , args , out err );
                             GenericControl . statusbar . Text = $"New table named [{NewDbName . ToUpper ( )}] was created succesfully...."; Debug . WriteLine ( $"{GenericControl . statusbar . Text}" );
                             success = true;
                         }
@@ -267,7 +269,13 @@ namespace Views
 
             Debug . WriteLine ( $"Inserting new record containing\n[{fldnames} + \n{DataString} ]\n" );
             SqlConnection sqlCon = null;
-            string Con = Genericgrid . DbConnectionString;
+            string ConString = GenericDbUtilities . CheckSetSqlDomain ( "" );
+            if ( ConString == "" )
+            {
+                GenericDbUtilities . CheckDbDomain ( "" );
+                ConString = MainWindow . CurrentSqlTableDomain;
+            }
+            string Con = ConString;
             string argument2 = "";
             argument2 += $" {fldnames . Trim ( )} values {DataString . Trim ( )}";
             try
@@ -313,7 +321,13 @@ namespace Views
 
         public bool PerformSingleRecInsert ( string processQuery , Dictionary<string , string> dict , out string err )
         {
-            string Con = Genericgrid . DbConnectionString;
+            string ConString = GenericDbUtilities . CheckSetSqlDomain ( "" );
+            if ( ConString == "" )
+            {
+                GenericDbUtilities . CheckDbDomain ( "" );
+                ConString = MainWindow . CurrentSqlTableDomain;
+            }
+            string Con = ConString;
             int index = 0;
             Mouse . OverrideCursor = Cursors . Wait;
             SqlConnection sqlCon = null;
@@ -349,7 +363,7 @@ namespace Views
 
         static public string CreateNewSqlTableStructure ( string CurrentTable , string NewDbName , ObservableCollection<DapperGenericsLib . GenericClass> collection , out string err )
         {
-            // Called iteratively by CreateNewTableStructure ( ) for eachh record selected
+            // Called iteratively by CreateNewTableStructure ( ) for each record selected
             // Creates && Returns the list of fields in SQL INSERT format
             // and  also creates the new table
             bool GetFullDetails = true;
@@ -363,7 +377,14 @@ namespace Views
                 //*****************************//
                 // Get full column info with sizes
                 //*****************************//
-                SqlDataString = dgControl . GetFullColumnInfo ( NewDbName , CurrentTable , Genericgrid . DbConnectionString , false , false );
+                string ConString = GenericDbUtilities . CheckSetSqlDomain ( "" );
+                if ( ConString == "" )
+                {
+                    GenericDbUtilities . CheckDbDomain ( "" );
+                    ConString = MainWindow . CurrentSqlTableDomain;
+                }
+
+                SqlDataString = dgControl . GetFullColumnInfo ( NewDbName , CurrentTable , ConString , false , false );
                 // SqlDataString  has column info delimited  by " \n"
                 SqlDataString = SqlDataString . Trim ( );
                 string [ ] args = SqlDataString . Split ( "\n" );
@@ -450,7 +471,7 @@ namespace Views
             // Ckeck if new table already exists - works well 26/9/2022
             //********************************************************************//
             int ret = DatagridControl . TestIfFileExists ( NewDbName , out err );
-            if ( ret > 0 && err == "" )
+            if ( ret > 0 && err != "successs" )
             {
                 Debug . WriteLine ( $"Table {NewDbName} already Exists." );
                 MessageBoxResult res3 = MessageBox . Show ( $"The table named [{NewDbName . ToUpper ( )}] already exists\n YES will overwrite it annd add selected data  to it\nNO will cancel processing to let you enter a new table name??" , "File already Exists" ,
@@ -610,7 +631,7 @@ namespace Views
             //args [ 1 ] = CurrentTable;
             int recordcount = 0;
             string Tablename = "";
-            int result = dgControl . ProcessUniversalStoredProcedure ( "spDropTable" , args , out err , out recordcount , out Tablename );
+            recordcount = dgControl . ExecuteStoredProcedure ( "spDropTable" , args , out err );
             if ( err != "" )
             {
                 err = $"Unable to Drop/Create the Table {args [ 0 ]} REASON = {err} ";
@@ -903,14 +924,14 @@ namespace Views
             // Go get next record
             return insertstring;
         }
-        static public int SaveAsNewTable ( string CurrentTable , string newtable , out  string err)
+        static public int SaveAsNewTable ( string CurrentTable , string newtable , out string err )
         {
-            err = ""; 
+            err = "";
             List<string> FldNames = new List<string> ( );
             ObservableCollection<DapperGenericsLib . GenericClass> collection = new ObservableCollection<DapperGenericsLib . GenericClass> ( );
             string NewDbName = GenericControl . NewTableName . Text . Trim ( );
-            //Ctrl.CurrentTable = NewDbName;
-            MessageBoxResult mbresult = MessageBox . Show ( $"Click YES to save entire table as a new table that will\nbe named [ {newtable . ToUpper ( )} ], \n\nTo save selected columns only to the new table click NO\n& use the Save Selected Records option" , "Table Duplication ?" ,
+            MessageBoxResult mbresult = MessageBox . Show ( $"Click YES to save entire table as a new table that will\nbe named [ {CurrentTable . ToUpper ( )} ], (or you can change that name in the field provided before continuing)."
+                + $"\n\nTo only save certain columns to the new table click the NO button & then choose the columns required from the popup that will follow... " , "Table Duplication ?" ,
                 MessageBoxButton . YesNoCancel ,
                 MessageBoxImage . Question ,
                 MessageBoxResult . No );
@@ -919,10 +940,19 @@ namespace Views
                 return -1;
             if ( mbresult == MessageBoxResult . No )
             {
-
+                if ( DatagridControl . CurrentTable == null )
+                    DatagridControl . CurrentTable = CurrentTable;
                 // Save a set with only user selected columns
+                string ConString = GenericDbUtilities . CheckSetSqlDomain ( "" );
+                if ( ConString == "" )
+                {
+                    GenericDbUtilities . CheckDbDomain ( "" );
+                    ConString = MainWindow . CurrentSqlTableDomain;
+                }
+                
+                string SqlDataString = dgControl . GetFullColumnInfo ( newtable,  CurrentTable , ConString , false );
+
                 string [ ] args = new string [ 20 ];
-                string SqlDataString = dgControl . GetFullColumnInfo ( CurrentTable , DatagridControl . CurrentTable , Genericgrid . DbConnectionString , false );
                 string buffer = "";
                 int index = 0;
 
@@ -932,40 +962,49 @@ namespace Views
                     return -1;
                 }
 
+                // Create data  for columns in donor table to populate selection dialog
                 args = SqlDataString . Split ( '\n' );
                 foreach ( var item in args )
+                {
+                    string [ ] flds = { "" , "" , "" , "" };
                     if ( item != null && item . Trim ( ) != "" )
                     {
-                        string [ ] RawFldNames = item . Split ( ' ' );
-                        string [ ] flds = { "" , "" , "" , "" };
-                        int y = 0;
-                        for ( int x = 0 ; x < RawFldNames . Length ; x++ )
-                            if ( RawFldNames [ x ] . Length > 0 )
-                                flds [ y++ ] = RawFldNames [ x ];
-                        buffer = flds [ 0 ];
-                        if ( buffer != null && buffer . Trim ( ) != "" )
+                        string [ ] RawFldNames = item .TrimStart(). Split ( ':' );
+                        DapperGenericsLib . GenericClass tem = new DapperGenericsLib . GenericClass ( );
+                        //int y = 0;
+                        if( RawFldNames [ 0 ] !=null)
+                        tem . field1 = RawFldNames [ 0 ];
+                        if ( RawFldNames . Length > 1 )
                         {
-                            FldNames . Add ( buffer . ToUpper ( ) );
-                            DapperGenericsLib . GenericClass tem = new DapperGenericsLib . GenericClass ( );
-                            tem . field1 = buffer . ToUpper ( );    // fname
-                            tem . field2 = flds [ 1 ];   //ftype
-                            tem . field4 = flds [ 3 ];   // decroot
-                            tem . field3 = flds [ 2 ];   // decpart
-                            collection . Add ( tem );
+                            if ( RawFldNames [ 1 ] != null )
+                                tem . field2 = RawFldNames [ 1 ];
                         }
+                        if ( RawFldNames . Length > 2 )
+                        {
+                            if ( RawFldNames [ 2 ] != null )
+                                tem . field3 = RawFldNames [ 2 ];
+                        }
+                        if ( RawFldNames . Length > 3 )
+                        {
+                            if ( RawFldNames [ 3 ] != null )
+                                tem . field4 = RawFldNames [ 3 ];
+                        }
+                        
+                        collection . Add ( tem );
                     }
-                //ALL WORKING  20/9/2022 - We now have a list of all Column names with
+                 }
+                //ALL WORKING  20/9/2022 - We now have a list of ALL Column names with
                 //column type & size data, so let user choose what to save to a new table!
-                GenericControl . SelectedRows . Clear ( );
-                // load selection dialog with available clumns
+                //Genericgrid. SelectedRows . Clear ( );
+                // load selection dialog with available columns
                 GenericControl . ColNames . ItemsSource = collection;
                 // Show dialog
-                //GenericControl . FieldSelectBorder . Visibility = Visibility . Visible;
                 GenericControl . FieldSelectionGrid . Visibility = Visibility . Visible;
             }
             else
             {
                 // just  do a direct copy
+                // Works just perfectly 21/10/22
                 if ( NewDbName == "" )  // Sanity check
                 {
                     MessageBox . Show ( "Please enter a suitable name for the table you want to create !" , "Naming Error" );
@@ -974,24 +1013,22 @@ namespace Views
                 string [ ] args = { $"{GenericControl . SqlTables . SelectedItem . ToString ( )}" , $"{NewDbName}" };
                 int recordcount = 0;
                 string Tablename = "";
-                if ( dgControl . ProcessUniversalStoredProcedure ( "spCopyDb" , args , out err, out recordcount , out Tablename) == -9 )
-                {
-                    //GenericControl . statusbar . Text = $"The Copy of {GenericControl . SqlTables . SelectedItem . ToString ( )} to {NewDbName} FAILED.  The reason was {err}";
-                    return -9;
+                recordcount = dgControl . ExecuteStoredProcedure ( "spCopyDb" , args , out err );
+                if ( recordcount == -9 )
+                     return -9;
 
-                }
                 // make deep copy of table else it gets cleared elsewhere
                 // Create a completely new instance via seriazable Clone method stored in NewWpfDev.Utils (in ObjectCopier class file)
                 string originalname = $"{GenericControl . SqlTables . SelectedItem . ToString ( )}";
                 ObservableCollection<NewWpfDev . GenericClass> deepcopy = new ObservableCollection<NewWpfDev . GenericClass> ( );
-                deepcopy = NewWpfDev . Utils . CopyCollection ( ( ObservableCollection<NewWpfDev . GenericClass> ) Genericgrid . GridData , ( ObservableCollection<NewWpfDev . GenericClass> ) deepcopy );
-                Genericgrid . GridData = deepcopy;
+                deepcopy = NewWpfDev . Utils . CopyCollection ( ( ObservableCollection<NewWpfDev . GenericClass> ) GenericControl . GridData , ( ObservableCollection<NewWpfDev . GenericClass> ) deepcopy );
+                GenericControl . GridData = deepcopy;
                 string [ ] args1 = { $"{NewDbName}" };
                 int colcount = dgControl . datagridControl . Columns . Count;
-                DatagridControl . LoadActiveRowsOnlyInGrid ( dgControl . datagridControl , Genericgrid . GridData , colcount );
+                DatagridControl . LoadActiveRowsOnlyInGrid ( dgControl . datagridControl , GenericControl . GridData , colcount );
                 GenericControl . ResetColumnHeaderToTrueNames ( NewDbName , dgControl . datagridControl );
                 GenericControl . LoadDbTables ( NewDbName );
-                GenericControl . statusbar . Text = $"The current table [{DatagridControl . CurrentTable . ToUpper ( )}] was saved as [{NewDbName . ToUpper ( )}] successfully ...";
+                GenericControl . statusbar . Text = $"The current table [{originalname . ToUpper ( )}] was saved as [{NewDbName . ToUpper ( )}] successfully ...";
             }
             Mouse . OverrideCursor = Cursors . Arrow;
             return 1;
@@ -1011,14 +1048,14 @@ namespace Views
                 index++;
             }
         }
-        static public int GetTableColumnsCount ( string tname , string [ ] args )
+        static public int GetTableColumnsCount ( string tname , string [ ] args, string CurrentTableDomain )
         {
             List<string> SqlQuerylist = new List<string> ( );
             string spCommand = "drop table if exists zz; drop table if exists zzz; " +
                 $"select column_name,upper(Table_name) as name into zz from information_schema.columns; " +
                  $"select column_name, name into zzz from zz where name='{tname}'; " +
                  $"select count(name) as cnt from zzz;";
-            SqlQuerylist = DatagridControl . ProcessUniversalQueryStoredProcedure ( spCommand , args , out string err2 );
+            SqlQuerylist = DatagridControl . ProcessUniversalQueryStoredProcedure ( spCommand , args , CurrentTableDomain, out string err2 );
             Debug . WriteLine ( $"Direct SQL query returned [ {SqlQuerylist [ 0 ]} ]" );
             if ( err2 != "" )
                 Debug . WriteLine ( $"SqlCommand [ {spCommand} ] failed : Reason [ {err2} ]" );

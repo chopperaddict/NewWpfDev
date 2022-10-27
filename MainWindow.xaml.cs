@@ -1,15 +1,14 @@
 ﻿using System;
 using System . Collections . Generic;
+using System . IO;
 using System . Net;
 using System . Windows;
 using System . Windows . Controls;
 using System . Windows . Input;
 using System . Windows . Media;
-
 using NewWpfDev . UserControls;
 using NewWpfDev . ViewModels;
 using NewWpfDev . Views;
-
 using Views;
 
 using Canvas = System . Windows . Controls . Canvas;
@@ -228,9 +227,16 @@ namespace NewWpfDev
         public static DetailsViewModel dvm = null;
         public static GenericSelectBoxControl glb = new GenericSelectBoxControl (null ,null);
         
+        // SQL data - Default domain, current Table, current conn string for this domain
+        public static string SqlCurrentConstring{ get; set; }
+        public static string CurrentSqlTableDomain { get; set; } = "IAN1";
+        public static string CurrentActiveTable { get; set; }
+
         static public bool USE_ID_IDENTITY = false;
         static public bool SQL_USE_DMY_DATES = false;
         static public bool LogCWOutput = false;
+        static public bool LOGTRACK = true;
+
         #region Dynamic variables
 
         //public static dynamic DgridDynamic;
@@ -260,6 +266,9 @@ namespace NewWpfDev
             Properties . Settings . Default . Save ( );
             Flags . UseMagnify = Properties . Settings . Default . UseMagnify;
             Properties . Settings . Default . Save ( );
+
+            // delete track() log
+            File . Delete ( $@"C:\users\ianch\Documents\NewWpfDev.Trace.log" );
 
             string startpath = Properties . Settings . Default . AppRootPath;
             if ( startpath == "" ) {
@@ -504,5 +513,17 @@ namespace NewWpfDev
             // This line creates24  FormatExceptions lines in output windw
             grid . Show ( );
         }
-    }
+
+        private void ShowTrackLog ( object sender , RoutedEventArgs e )
+        {
+            string buffer = "";
+            if ( MainWindow . LOGTRACK )
+            { 
+                TraceViewer  trv = new TraceViewer ( );
+                trv. Show( );
+             }
+            //buffer = File .ReadAllText( $@"C:\users\ianch\Documents\NewWpfDev.Trace.log" );
+
+        }
+        }
 }

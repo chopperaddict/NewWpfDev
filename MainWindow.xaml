@@ -64,8 +64,8 @@
         <Button x:Name="button14" Content="Inter Processing" HorizontalAlignment="Left" Margin="376,138,0,0" 
             VerticalAlignment="Top" Height="40" Width="100" 
             Foreground="{StaticResource White0}" Template="{StaticResource GradientButtonTemplateBlue}"/>
-        <Button x:Name="button15" Content="Dummy" HorizontalAlignment="Left" Margin="497,82,0,0" 
-            VerticalAlignment="Top" Height="40" Width="102" 
+        <Button x:Name="button15" Content="Tracking log" HorizontalAlignment="Left" Margin="497,82,0,0" 
+            VerticalAlignment="Top" Height="40" Width="102" Click="ShowTrackLog"
             Foreground="{StaticResource White0}" Template="{StaticResource GradientButtonTemplateBlue}" />
         <Button x:Name="button16" Content="Dark Mode Grids" HorizontalAlignment="Left" Margin="497,186,0,0" 
             VerticalAlignment="Top" Height="40" Width="102" Click="Button16_Click"

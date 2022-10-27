@@ -7,13 +7,11 @@ using System . Collections . Generic;
 using System . ComponentModel;
 using System . Diagnostics;
 using System . Linq;
-using System . Security . RightsManagement;
 using System . Text;
 using System . Threading . Tasks;
 using System . Windows;
 using System . Windows . Controls;
 using System . Windows . Input;
-using System . Windows . Media . Media3D;
 
 
 namespace NewWpfDev . Models
@@ -88,6 +86,8 @@ namespace NewWpfDev . Models
         public double FdLeft = 0;
         public double FdTop = 0;
         public double FdHeight = 0;
+        public double FdFullCanvasHeight = 0;
+        public double FdFullCanvasWidth= 0;
         public double FdWidth = 0;
         public double MLeft = 0;
         public double MTop = 0;
@@ -106,12 +106,12 @@ namespace NewWpfDev . Models
 
 
         #endregion Flowdoc Variables
-        public FlowdocLib (FlowDoc ctrl, Canvas Parentcanvas)
+        public FlowdocLib ( FlowDoc ctrl , Canvas Parentcanvas )
         {
             if ( ctrl != null )
                 flowdoc = ctrl;
             if ( Parentcanvas == null )
-                parentcanvas = Flowdoc. topcanvas;
+                parentcanvas = Flowdoc . topcanvas;
             else
                 parentcanvas = Parentcanvas;
         }
@@ -304,7 +304,7 @@ namespace NewWpfDev . Models
                 Flowdoc . ReleaseMouseCapture ( );
                 return;
             }
-
+            #region set up mouse cursor for Moving control around
             Border border = e . OriginalSource as Border;
             if ( border == null )
             {
@@ -314,7 +314,10 @@ namespace NewWpfDev . Models
                     Mouse . OverrideCursor = Cursors . Arrow;
                 //return;
             }
+            #endregion set up mouse cursor for sizing
+
             // We are Resizing the Flowdoc using the mouse on a corner of the border  (Border.Name=FdBorder)
+            #region set up border that is under mouse cursor 
             if ( Flowdoc . BorderSelected == 5 )  // Top Left corner
             {
                 if ( e . LeftButton == MouseButtonState . Pressed )
@@ -335,12 +338,15 @@ namespace NewWpfDev . Models
                 if ( e . LeftButton == MouseButtonState . Pressed )
                     DragBottomRight ( Flowdoc , canvas );
             }
+            #endregion set up border that is under mouse cursor 
 
             border = e . OriginalSource as Border;
+
+            #region Get border position info and set specific cursor to match border
+
             if ( border != null )
             {
                 string res = e . LeftButton == MouseButtonState . Pressed ? "Yes" : "No";
-                //				Debug. WriteLine ( $"In Mousemove, Button pressed = {res}" );
                 if ( e . LeftButton == MouseButtonState . Pressed )
                 {
                     IsCornerDragging = true;
@@ -386,17 +392,24 @@ namespace NewWpfDev . Models
                         Mouse . OverrideCursor = Cursors . SizeNS;
                 }
             }
-            //			Debug. WriteLine ( $"In Mousemove, at stage 2" );
+            #endregion Get border position info
 
             // Now handle resizing the top/bottom/left/right borders,but NOT corners
+            #region Get resize control from border dragging
+
             if ( ( Flowdoc . BorderSelected < 5 && Flowdoc . BorderSelected != -1 )
                 && ( FlowdocResizing || Flowdoc . BorderClicked && IsCornerDragging == false ) )
             {
-                // Get current sizes and position of Flowdoc windowo intilize our calculations
+
+                // Get current sizes and position of Flowdoc window to intialize our calculations
                 if ( FdLeft == 0 )
                     FdLeft = Canvas . GetLeft ( Flowdoc );
                 if ( FdTop == 0 )
                     FdTop = Canvas . GetTop ( Flowdoc );
+                FdBottom = canvas . ActualHeight;
+
+                FdFullCanvasHeight = FdBottom;
+                FdFullCanvasWidth = canvas . ActualWidth;
                 FdHeight = Flowdoc . ActualHeight;
                 FdWidth = Flowdoc . ActualWidth;
                 //Get mouse cursor position
@@ -407,6 +420,26 @@ namespace NewWpfDev . Models
                 th = Flowdoc . FdBorder . BorderThickness;
                 FdBorderWidth = th . Left * 2;
                 FdBottom = FdTop + FdHeight;
+
+                // Block stretching control beyond right side
+                if ( FdBottom > FdFullCanvasHeight )
+                {
+                   // Debug . WriteLine ( $"FDL Exc" +
+                   //$"Fdl bottom exeeds Canvas Height={FdFullCanvasHeight} by {FdFullCanvasHeight - ( FdTop + FdHeight )}" );
+                    Canvas . SetTop ( Flowdoc , FdTop - 1 );
+                    Flowdoc_MouseLeftButtonUp ( null , Flowdoc , MovingObject , null );
+                    return;
+                }
+
+                // Block stretching control below canvas bottom
+                if ( FdLeft + FdWidth > FdFullCanvasWidth - 10 )
+                {
+                   // Debug . WriteLine ( $"FDL Exc" +
+                   //$"Fdl bottom exeeds Canvas Height={FdFullCanvasWidth} by {FdFullCanvasWidth - ( FdTop + FdWidth )}" );
+                    Canvas . SetLeft( Flowdoc , FdLeft - 1 );
+                    Flowdoc_MouseLeftButtonUp ( null , Flowdoc , MovingObject , null );
+                    return;
+                }
                 ValidTop = FdBottom - ( FdBorderWidth / 2 );
                 ValidBottom = FdBottom + ( FdBorderWidth / 2 );
 
@@ -493,6 +526,10 @@ namespace NewWpfDev . Models
                 }
                 return;
             }
+            #endregion Get resize control from border dragging
+
+            #region Move control by dragging it
+
             else
             {
                 if ( MovingObject != null && e . LeftButton == MouseButtonState . Pressed && Flowdoc . BorderClicked == false )
@@ -514,6 +551,8 @@ namespace NewWpfDev . Models
                     }
                 }
             }
+            #endregion Move control by dragging it
+
         }
 
         // Called by Datagrids	&& Listviews
@@ -603,7 +642,7 @@ namespace NewWpfDev . Models
                 {
                     return null;
                 }
-                var str = sender as FlowDoc;
+                //               var str = sender as FlowDoc;
             }
             flowdocLeft = e . GetPosition ( Flowdoc ) . X;
             flowdocTop = e . GetPosition ( Flowdoc ) . Y;
@@ -616,6 +655,7 @@ namespace NewWpfDev . Models
             double FirstArrowXPos = e . GetPosition ( ( sender as Control ) . Parent as Control ) . X - CpFirstXPos;
             double FirstArrowYPos = e . GetPosition ( ( sender as Control ) . Parent as Control ) . Y - CpFirstYPos;
             Flowdoc . BorderClicked = false;
+            Debug . WriteLine ( "Mouse is DOWN" );
             return sender;
         }
         // Called by BOTH WINDOWS
@@ -630,9 +670,10 @@ namespace NewWpfDev . Models
             TvMouseCaptured = false;
             FdLeft = FdTop = th . Left = 0;
             Mouse . OverrideCursor = Cursors . Arrow;
-            //			Flowdoc.ReleaseMouseCapture ( );
+            //Flowdoc.ReleaseMouseCapture ( );
             Flowdoc . Focus ( );
             IsScrollbarActive = false;
+            Debug . WriteLine ( "Mouse is DOWN" );
             return MovingObject = null;
         }
 

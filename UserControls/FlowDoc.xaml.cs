@@ -20,7 +20,7 @@ namespace NewWpfDev . UserControls
     {
         public Control HostControl = new Control ( );
         public static event EventHandler<EventArgs> FlowDocClosed;
-        public static event EventHandler<SelectListboxArgs> ShowGenListBox;
+        //public static event EventHandler<SelectListboxArgs> ShowGenListBox;
 
         public static bool GenlistLoaded = false;
         #region Properties
@@ -154,7 +154,19 @@ namespace NewWpfDev . UserControls
             Thickness th = new Thickness ( );
             th . Left = th . Right = th . Top = th . Bottom = 10;
             FdBorder . BorderThickness = th;
+            // recieve new font from selection dialog
+            GenericSelectbox. ShowGenListBox += FlowDoc_ShowGenListBox;
         }
+
+        private void FlowDoc_ShowGenListBox ( object sender , SelectListboxArgs e )
+        {
+             fontFamily = new FontFamily ( $"{e.fontfamily}" );
+            flowdoc . FontFamily = fontFamily;
+            fdviewer. FontFamily = fontFamily;
+            UpdateFontDisplay ( );
+            CurrentFont . Text = e.fontfamily;
+        }
+
         public void ShowInfo (
             FlowDoc Flowdoc ,
             Canvas canvas ,
@@ -932,47 +944,38 @@ namespace NewWpfDev . UserControls
             //        kids . Remove ( ( UIElement ) childs [v-1] );
             //    }
             //}
-            GenericSelectbox newselbox = new GenericSelectbox ();
+            GenericSelectbox newselbox = new GenericSelectbox (this);
                 //            GenericSelectBoxControl newselbox = MainWindow . glb;
-                if ( newselbox == null )
-                {
- //                   newselbox . SetHost ( topcanvas );
-                    newselbox . Name = "LbSelector";
-                }//Create new Control to be added
-                //try
-                //{
-                //    fdlcanvas . Children . Add ( newselbox );
-                //}
-                //catch ( Exception ex ) {
-                //    MessageBox . Show ( $"Unable to add GenericSelectionBox to canvas.Children collection\n\n{ex.Message}" , "Canvas Error" );
-                //    return; }
-               // newselbox . Visibility = Visibility . Visible;
-                //FontFamily NewFamily = NewWpfDev . Utils . ResetFont ( "FlowDocFont" );
-                //if ( NewFamily != null )
-                //    newselbox . FontFamily = NewFamily;
-                // Load list of Windows Fonts
-                List<string> fonts = DapperGenericsLib . Utils . GetFontsList ( );
-                newselbox . listbox . ItemsSource = fonts;
-                string match = CurrentFont . Text . Trim ( );
-               int index = 0;
-                // Highlight current font in use
-                foreach ( string item in newselbox . listbox . Items )
-                {
-                    if ( item == match )
-                    {
-                        newselbox . listbox . SelectedIndex = index;
-                        newselbox . listbox . SelectedItem = item;
-                        Utils . ScrollLBRecordIntoView ( newselbox . listbox , index );
-                        break;
-                    }
-                    index++;
-                }
+//                if ( newselbox == null )
+//                {
+///                   newselbox . SetHost ( topcanvas );
+//                    newselbox . Name = "LbSelector";
+//                }
+//                // Load list of Windows Fonts
+//                List<string> fonts = DapperGenericsLib . Utils . GetFontsList ( );
+//                newselbox . listbox . ItemsSource = fonts;
+//                string match = CurrentFont . Text . Trim ( );
+//               int index = 0;
+//                // Highlight current font in use
+//                foreach ( string item in newselbox . listbox . Items )
+//                {
+//                    if ( item == match )
+//                    {
+//                        newselbox . listbox . SelectedIndex = index;
+//                        newselbox . listbox . SelectedItem = item;
+//                        Utils . ScrollLBRecordIntoView ( newselbox . listbox , index );
+//                        break;
+//                    }
+//                    index++;
+//                }
             }
             this . Focus ( );
         }
         private void listbox_Mouseleftdown ( object sender , MouseButtonEventArgs e )
         {
-            SelectFont_Click ( sender , null );
+            GenericSelectbox gs = new GenericSelectbox ( this );
+            gs . Show ( );
+///            SelectFont_Click ( sender , null );
         }
 
         /// <summary>

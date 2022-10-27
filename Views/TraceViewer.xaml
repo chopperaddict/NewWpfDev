@@ -1,0 +1,21 @@
+﻿<Window x:Class="Views.TraceViewer"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Views"
+        mc:Ignorable="d"
+	  WindowChrome.ResizeGripDirection="BottomRight"
+	  ResizeMode="CanResizeWithGrip"
+        Title="TraceViewer" Height="450" Width="800">
+    <Grid>
+        <ListBox x:Name="TraceView" HorizontalAlignment="Stretch" 
+                 VerticalAlignment="Stretch" Margin="10 10 10 10" 
+                 Foreground="Black"
+                 FontWeight="DemiBold"
+                 FontSize="18"
+                 Background="{StaticResource White3}">
+            
+        </ListBox>
+    </Grid>
+</Window>
