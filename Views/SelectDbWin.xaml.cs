@@ -26,17 +26,29 @@ namespace Views
     public partial class SelectDbWin : Window
     {
         public Genericgrid gencontrol { get; set; }
-        public SelectDbWin ( string CurrentTableDomain )
+        public string CurrentTableDomain { get; set; }
+        public ObservableCollection<GenericClass> temp { get; set; }
+        public ObservableCollection<GenericClass> output { get; set; }
+
+        public SelectDbWin ( string CurrentTabledomain )
         {
-            string err = "";
             int colcount = 0;
             InitializeComponent ( );
-            gencontrol = Genericgrid.GenControl;
+            gencontrol = Genericgrid . GenControl;
+            CurrentTableDomain = Genericgrid . CurrentTableDomain;
             DatagridControl dgctrl = new DatagridControl ( );
-            ObservableCollection<GenericClass> temp = gencontrol . LoadFullSqlTable ( "select * from sysdatabases where YEAR(crdate)>=2021" , out err , CurrentTableDomain );
-            ObservableCollection<GenericClass> output = new ObservableCollection<GenericClass> ( );
+        }
+        private void Window_Loaded ( object sender , RoutedEventArgs e )
+        {
+            string err = "";
+            CurrentTableDomain = Genericgrid . CurrentTableDomain;
+            temp = new ObservableCollection<GenericClass> ( );
+            string [ ] args = new string[ 0 ];
+            temp = gencontrol . LoadFullSqlTable ( "select * from sysdatabases where YEAR(crdate)>=2021" , args , out err , CurrentTableDomain );
+            output = new ObservableCollection<GenericClass> ( );
             if ( temp . Count > 0 )
             {
+                Dbgrid . Items . Clear ( );
                 foreach ( var item in temp )
                 {
                     GenericClass gc = new GenericClass ( );
@@ -48,6 +60,16 @@ namespace Views
                 {
                     Dbgrid . Items . Add ( item . field1 );
                 }
+                for ( int x = 0 ; x < Dbgrid . Items . Count ; x++ )
+                {
+                    ListBoxItem li = Dbgrid . Items [ x ] as ListBoxItem;
+                    string s = ( string ) Dbgrid . Items [ x ];
+                    if ( s . ToUpper ( ) == CurrentTableDomain . ToUpper ( ) )
+                    {
+                        Dbgrid . SelectedIndex = x;
+                        break;
+                    }
+                }
             }
         }
 
@@ -58,10 +80,28 @@ namespace Views
 
         private void SelectBtn_Click ( object sender , RoutedEventArgs e )
         {
-             int offset = Dbgrid . SelectedIndex;
+            int offset = Dbgrid . SelectedIndex;
             DatagridControl . CurrentTableDomain = Genericgrid . CurrentTableDomain = Dbgrid . Items [ offset ] . ToString ( );
             gencontrol . RemoteReloadTables ( );
-             this . Close ( );
+            this . Close ( );
+        }
+
+        private void Dbgrid_MouseDoubleClick ( object sender , MouseButtonEventArgs e )
+        {
+            Genericgrid . DomainChanged = true;
+            SelectBtn_Click ( sender , null );
+        }
+
+        private void CancelBtn_MouseEnter ( object sender , MouseEventArgs e )
+        {
+            Button btn = sender as Button;
+            // btn . Background = FindResource ( "Orange0" ) as SolidColorBrush;
+        }
+
+        private void OkBtn_MouseEnter ( object sender , MouseEventArgs e )
+        {
+            Button btn = sender as Button;
+            // btn . Background = FindResource ( "Orange0" ) as SolidColorBrush;
         }
     }
 }

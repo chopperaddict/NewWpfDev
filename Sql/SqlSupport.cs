@@ -52,12 +52,12 @@ namespace NewWpfDev . SQL
 		{
             string argument = "";
 			ObservableCollection<GenericClass> generics = new ObservableCollection<GenericClass>();
-            if(Sqlcommand.Contains(" "))
-            {
-                string [ ] args = Sqlcommand . Split ( " " );
-                argument = args [ 1 ];
-                Sqlcommand = args [ 0 ] . Trim ( );
-            }
+            //if(Sqlcommand.Contains(" "))
+            //{
+            //    string [ ] args = Sqlcommand . Split ( " " );
+            //    argument = args [ 1 ];
+            //    Sqlcommand = args [ 0 ] . Trim ( );
+            //}
 			ExecuteStoredProcedure ( Sqlcommand ,
 			generics ,
 			out ResultString ,
@@ -837,26 +837,13 @@ namespace NewWpfDev . SQL
 		{
 			ResultString = "";
 			string SavedValue = SqlCommand;
-#pragma warning disable CS0219 // The variable 'dbnametoopen' is assigned but its value is never used
-#pragma warning disable CS0219 // The variable 'command' is assigned but its value is never used
-			string command = "", dbnametoopen = "";
-#pragma warning restore CS0219 // The variable 'command' is assigned but its value is never used
-#pragma warning restore CS0219 // The variable 'dbnametoopen' is assigned but its value is never used
 			string errormsg="";
-#pragma warning disable CS0219 // The variable 'WhereClause' is assigned but its value is never used
-#pragma warning disable CS0219 // The variable 'OrderByClause' is assigned but its value is never used
 			string  WhereClause="", OrderByClause="";
-#pragma warning restore CS0219 // The variable 'OrderByClause' is assigned but its value is never used
-#pragma warning restore CS0219 // The variable 'WhereClause' is assigned but its value is never used
-#pragma warning disable CS0219 // The variable 'CheckingArgsOnly' is assigned but its value is never used
 			bool CheckingArgsOnly = false;
-#pragma warning restore CS0219 // The variable 'CheckingArgsOnly' is assigned but its value is never used
-			int totalcolumns = 0;
+        	int totalcolumns = 0;
 			ObservableCollection<BankAccountViewModel> bvmparam = new ObservableCollection<BankAccountViewModel>();
 			Dictionary <string, object>dict = new Dictionary<string, object>();
-#pragma warning disable CS0219 // The variable 'DbResult' is assigned but its value is never used
 			IEnumerable DbResult=null;
-#pragma warning restore CS0219 // The variable 'DbResult' is assigned but its value is never used
 			//============
 			// Sanity checks
 			//============
@@ -877,9 +864,7 @@ namespace NewWpfDev . SQL
 			{
 				List<string> genericlist = new List<string>();
 				bool usegeneric = false;
-#pragma warning disable CS0219 // The variable 'outbuffer' is assigned but its value is never used
 				string outbuffer="";
-#pragma warning restore CS0219 // The variable 'outbuffer' is assigned but its value is never used
 
 				if ( usegeneric )
 				{

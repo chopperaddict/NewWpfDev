@@ -248,6 +248,31 @@ namespace NewWpfDev
             }
             return;
         }
+        public static void DoSuccessBeep ( int repeat = 1 )
+        {
+            if ( Flags . UseBeeps )
+            {
+                for ( int i = 0 ; i < repeat ; i++ )
+                {
+                    Console . Beep ( 370 , 150 );
+                    Console . Beep ( 370 , 150 );
+                    Console . Beep ( 370 , 250 );
+                    Console . Beep ( 300 , 800  );
+                }
+                Thread . Sleep ( 100 );
+            }
+            return;
+        }
+        public static void PlayErrorBeep ( int freq = 280 , int count = 100 , int repeat = 1 )
+        {
+            for ( int i = 0 ; i < repeat ; i++ )
+            {
+                Console . Beep ( 320 , 300 );
+                Console . Beep ( 260 , 800 );
+            }
+            Thread . Sleep ( 100 );
+            return;
+        }
 
         #endregion play tunes / sounds
 
@@ -1162,7 +1187,7 @@ namespace NewWpfDev
             }
         }
 
-        public static string GetCheckCurrentConnectionString ( string CurrentTableDomain)
+        public static string GetCheckCurrentConnectionString ( string CurrentTableDomain )
         {
             string Con = "";
             if ( NewWpfDev . Utils . CheckResetDbConnection ( CurrentTableDomain , out string constring ) == false )
@@ -3297,5 +3322,6 @@ namespace NewWpfDev
             }
             return recordcount;
         }
+ 
     }
 }

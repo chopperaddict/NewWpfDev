@@ -5,9 +5,176 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Views"
         mc:Ignorable="d"
+        Loaded="Window_Loaded"
+        Topmost="True"
         Background="{StaticResource Cyan4}"
         WindowStyle="SingleBorderWindow" WindowStartupLocation="CenterOwner"
         Title="SelectDbWin" Height="351" Width="325">
+    <Window.Resources>
+
+        <Style x:Key="BtnStyle" TargetType="{x:Type Button}">
+                <!--Default layout-->
+                <Setter Property="OverridesDefaultStyle" Value="True" />
+                <!--These defaults can be overriden by the Button Code in the design-->
+                <Setter Property="Height" Value="50" />
+                <Setter Property="Width" Value="150" />
+                <!--<Setter Property="BorderBrush" Value="{TemplateBinding BorderBrush}" />-->
+            <!--<Setter Property="Foreground" Value="{TemplateBinding Foreground}" />-->
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+            <!--<Setter Property="Background" Value="{TemplateBinding Background}" />--> 
+                 <!--Lets change the Border as well but use the colors
+			defined in the Buttons declaration in the xaml code-->
+
+                <Setter Property="Control.Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type Button}">
+                            <Border  x:Name="border"
+						Background="{TemplateBinding Background}"
+						BorderBrush="{TemplateBinding BorderBrush}"
+						BorderThickness="{TemplateBinding BorderThickness}"
+						CornerRadius="0,0,0,0">
+                                <ContentPresenter
+							Margin="2"
+							HorizontalAlignment="Center"
+							VerticalAlignment="Center"
+							RecognizesAccessKey="True" />
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+
+                <!--Now to handle those pesky Triggers-->
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="TextElement.Foreground"  Value="{StaticResource Green6}"/>
+                        <Setter Property="BorderBrush"  Value="{StaticResource White2}"/>
+                        <Setter Property="BorderThickness"  Value="3"/>
+                        <Setter Property="FontSize"  Value="14"/>
+                        <Setter Property="Background" >
+                            <Setter.Value>
+                                <LinearGradientBrush 
+                                    StartPoint="0, 1" EndPoint="0.2, 0">
+                                    <GradientStop Offset="0" Color="#DF000000" />
+                                    <GradientStop Offset="4" Color="#69000000" />
+                                    <GradientStop Offset="0.5" Color="#69EB5E00" />
+                                    <GradientStop Offset="6" Color="#69000000" />
+                                    <GradientStop Offset="1" Color="#DF000000" />
+                                </LinearGradientBrush>
+                            </Setter.Value>
+                        </Setter>
+                    </Trigger>
+                    <Trigger Property="IsPressed" Value="True">
+                        <Setter Property="Background">
+                            <Setter.Value>
+                                <!--Makes gradient fill work horizontally-->
+                                <RadialGradientBrush Center="0.5, 1.0">
+                                    <GradientStop Offset="0" Color="Beige" />
+                                    <GradientStop Offset="1" Color="Green" />
+                                </RadialGradientBrush>
+                            </Setter.Value>
+                        </Setter>
+                        <Setter Property="Foreground" Value="Black"/>
+                    </Trigger>
+                    <MultiTrigger>
+                        <MultiTrigger.Conditions>
+                            <Condition Property="IsEnabled" Value="False"/>
+                        </MultiTrigger.Conditions>
+                        <MultiTrigger.Setters>
+                            <Setter Property="Background">
+                                <Setter.Value>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                        <GradientStop Color="LightGray" Offset="0.35" />
+                                        <GradientStop Color="DarkGray" Offset="1" />
+                                    </LinearGradientBrush>
+                                </Setter.Value>
+                            </Setter>
+                        </MultiTrigger.Setters>
+                    </MultiTrigger>
+                </Style.Triggers>
+        </Style>
+        
+        <Style x:Key="SpStringsStyle" TargetType="{x:Type ListBoxItem}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                        <Border x:Name="Bd" SnapsToDevicePixels="true">
+
+                            <ContentPresenter x:Name="Contentpresenter" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                                SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="False"/>
+                                    <Condition Property="IsSelected" Value="false"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource White0}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Contentpresenter" Value="{StaticResource Blue0}"/>
+                                <!--<Setter Property="FontWeight" TargetName="Contentpresenter" Value="DemiBold"/>-->
+                                <Setter Property="Padding" TargetName="Bd" Value="10,0,0,0"/>
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="False"/>
+                                    <Condition Property="IsSelected" Value="true"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Orange0}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Contentpresenter" Value="{StaticResource Black0}"/>
+                                <Setter Property="TextElement.FontWeight" TargetName="Contentpresenter" Value="DemiBold"/>
+                                <Setter Property="Padding" TargetName="Bd" Value="10,0,0,0"/>
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="true"/>
+                                    <Condition Property="IsSelected" Value="true"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Green5}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{StaticResource Red0}"/>
+                                <Setter Property="TextElement.FontWeight" TargetName="Contentpresenter" Value="Bold"/>
+                                <Setter Property="Padding" TargetName="Bd" Value="10,0,0,0"/>
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="true"/>
+                                    <Condition Property="IsSelected" Value="false"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Yellow0}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{StaticResource Red0}"/>
+                                <Setter Property="TextElement.FontWeight" TargetName="Contentpresenter" Value="DemiBold"/>
+                                <Setter Property="Padding" TargetName="Bd" Value="10,0,0,0"/>
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="False"/>
+                                    <Condition Property="IsSelected" Value="true"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Red5}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Contentpresenter" Value="{StaticResource White0}"/>
+                                <Setter Property="TextElement.FontWeight" TargetName="Contentpresenter" Value="DemiBold"/>
+                                <Setter Property="Padding" TargetName="Bd" Value="10,0,0,0"/>
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="true"/>
+                                    <Condition Property="IsSelected" Value="false"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Orange4}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Contentpresenter" Value="{StaticResource Black0}"/>
+                                <Setter Property="TextElement.FontWeight" TargetName="Contentpresenter" Value="Normal"/>
+                                <Setter Property="Padding" TargetName="Bd" Value="10,0,0,0"/>
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                        <!--more ....-->
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </Window.Resources>
     <Grid >
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
@@ -21,35 +188,43 @@
                    TextAlignment="Center"
                    Foreground="White"
                    Background="{StaticResource Red5}" />
+        <!--Background="{StaticResource Blue1}" 
+                 Foreground="White"-->
         <ListBox x:Name="Dbgrid" Grid.Row="1" 
-                  Background="{StaticResource Blue1}" 
-                 Foreground="White"
-                  FontSize="16" Margin="7,0,8,0"/>
+                    MouseDoubleClick="Dbgrid_MouseDoubleClick"
+                    FontSize="16" Margin="10,7,10,0"
+                    ItemContainerStyle="{StaticResource SpStringsStyle}">
+            <ListBoxItem/>
+
+        </ListBox>
         <Button x:Name="CancelBtn" Grid.Row="2 " 
                 Click="CancelBtn_Click"
-                Margin="65,5,0,4"
+                Margin="0,0,160,4"
                 Content="Cancel" 
                 Width="90"
                 Height="36"
-                HorizontalAlignment="Left"
+                HorizontalAlignment="Right"
                 BorderBrush="{StaticResource Orange3}"
                 BorderThickness="3"
+                MouseEnter="CancelBtn_MouseEnter"
+                Style="{StaticResource BtnStyle}"
                 FontSize="16"
                 Padding="0 0 0 0"
                 Background="{StaticResource Red3}" 
                 Foreground="White"/>
         <Button x:Name="OkBtn" Grid.Row="2 " 
                 Click="SelectBtn_Click"
-                Margin="167,5,0,4"
                 Content="Select Database" 
-                Width="149"
+                Width="144"
                 Height="36"
+                Style="{StaticResource BtnStyle}"
                 BorderBrush="{StaticResource Green0}"
+                Background="{StaticResource Green4}"
+                MouseEnter="OkBtn_MouseEnter"
                 BorderThickness="3"
-                HorizontalAlignment="Left"
+                HorizontalAlignment="Right"
                 FontSize="16"
-                Padding="0 0 0 0"
-                Background="{StaticResource Green5}" 
+                Margin="0 0 8 0"                
                 Foreground="Black"/>
     </Grid>
 </Window>

@@ -429,6 +429,7 @@ namespace NewWpfDev . Views {
             if ( cb . Items . Count == 0 )
                 return;
             CurrentType = cb . SelectedItem . ToString ( ) . ToUpper ( );
+            LoadData ( );
         }
         private void dbName_SelectionChanged_1 ( object sender , SelectionChangedEventArgs e ) {
 
@@ -1263,7 +1264,7 @@ namespace NewWpfDev . Views {
             List<string> list = new List<string> ( );
             List<string> fldnameslist = new List<string> ( );
             string output = "";
-            SqlCommand = $"spGetTableColumnWithSize {dbName . SelectedItem . ToString ( )}";
+            SqlCommand = $"spGetTableColumnWithSize2 {dbName . SelectedItem . ToString ( )}";
             //SqlCommand = SqlCommand = $"spGetTableColumns";
             fldnameslist = Datagrids . CallStoredProcedureWithSizes ( list , SqlCommand );
             output = Utils . ParseTableColumnData ( fldnameslist );
@@ -1455,7 +1456,7 @@ namespace NewWpfDev . Views {
 #pragma warning restore CS0219 // The variable 'count' is assigned but its value is never used
             List<string> list = new List<string> ( );
             List<string> fldnameslist = new List<string> ( );
-            SqlCommand = $"spGetTableColumnWithSize {dbName . SelectedItem . ToString ( )}";
+            SqlCommand = $"spGetTableColumnWithSize2 {dbName . SelectedItem . ToString ( )}";
             //SqlCommand = SqlCommand = $"spGetTableColumns";
             fldnameslist = Datagrids . CallStoredProcedureWithSizes ( list , SqlCommand );
             output = Utils . ParseTableColumnData ( fldnameslist );

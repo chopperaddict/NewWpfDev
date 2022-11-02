@@ -170,9 +170,7 @@ namespace NewWpfDev. Dapper
 							Params . Add ( "Arg4" , arg4 , DbType . String , ParameterDirection . Input , arg4 . Length );
 						// Call Dapper to get results using it's StoredProcedures method which returns
 						// a Dynamic IEnumerable that we then parse via a dictionary into collection of GenericClass  records
-#pragma warning disable CS0219 // The variable 'maxcols' is assigned but its value is never used
-						int colcount = 0, maxcols = 0;
-#pragma warning restore CS0219 // The variable 'maxcols' is assigned but its value is never used
+						int colcount = 0;
 
 						if ( SqlCommand . ToUpper ( ) . Contains ( "SELECT " ) )
 						{
@@ -275,6 +273,7 @@ namespace NewWpfDev. Dapper
 								//Although this is duplicated  with the one above we CANNOT make it a method()
 								int dictcount = 0;
 								dict . Clear ( );
+                                
 								long zero= reslt.LongCount ();
 								try
 								{
@@ -3925,6 +3924,7 @@ namespace NewWpfDev. Dapper
 
 		#endregion Generic Db load
 
+        // not used
 		#region Generic Db load
 		public static List<string> GetGenericCollection ( List<string> collection ,
 		string SqlCommand = "" ,

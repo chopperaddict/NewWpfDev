@@ -114,6 +114,7 @@ namespace NewWpfDev . Models
                 parentcanvas = Flowdoc . topcanvas;
             else
                 parentcanvas = Parentcanvas;
+            
         }
         #region Methods
         public void ShowInfo ( FlowDoc Flowdoc , Canvas canvas , string line1 = "" , string clr1 = "" , string line2 = "" , string clr2 = "" , string line3 = "" , string clr3 = "" , string header = "" , string clr4 = "" , bool beep = false )

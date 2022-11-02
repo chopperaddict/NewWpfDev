@@ -47,6 +47,7 @@
     <Compile Remove="UserControls\FlowDoc.xaml - Copy.cs" />
     <Compile Remove="ViewModels\DatagridUserControlViewModel.cs" />
     <Compile Remove="ViewModels\GenericClass.cs" />
+    <Compile Remove="Views\Datagrids_bad.xaml.cs" />
     <Compile Remove="Views\GenericSelectBoxControl.xaml - Copy.cs" />
     <Compile Remove="Views\NONBUILD-Genericgrid.xaml.cs" />
     <Compile Remove="Views\old-Genericgrid.xaml.cs" />

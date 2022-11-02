@@ -86,7 +86,7 @@ namespace UserControls
             set { domain = value; }
         }
 
-//        public static string staticDomain = domain;
+        //        public static string staticDomain = domain;
 
         //Flowdoc declarations
         private double XLeft = 0;
@@ -98,7 +98,7 @@ namespace UserControls
         }
 
         public static bool ConvertDateTimeToNvarchar { get; set; } = false;
-//        public static string DbConnectionString = "Data Source=DINO-PC;Initial Catalog=\"IAN1\";Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+        //        public static string DbConnectionString = "Data Source=DINO-PC;Initial Catalog=\"IAN1\";Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
         public static string DbConnectionString = "";
 
         // collection identical to ObservableCollection<GenericClass>
@@ -538,7 +538,7 @@ namespace UserControls
                  ref ObservableCollection<GenericClass> collection ,
                  string SqlCommand ,
                  string ConnectionString ,
-            string Arguments ,
+               string Arguments ,
                  string WhereClause ,
                  string OrderByClause ,
                  ref List<string> genericlist ,
@@ -555,7 +555,7 @@ namespace UserControls
             Dictionary<string , object> dict = new Dictionary<string , object> ( );
 
             string Con = NewWpfDev . Utils . GetCheckCurrentConnectionString ( CurrentTableDomain );
-            using ( IDbConnection db = new SqlConnection ( Con) )
+            using ( IDbConnection db = new SqlConnection ( Con ) )
             {
                 try
                 {
@@ -1625,7 +1625,7 @@ namespace UserControls
             // Ensure we have the correct connection string for the current Db Doman
             if ( DbDomain == null )
                 DbDomain = "IAN1";
-            ConString = GenericDbUtilities . CheckSetSqlDomain ( CurrentTableDomain);
+            ConString = GenericDbUtilities . CheckSetSqlDomain ( CurrentTableDomain );
             if ( ConString == "" )
             {
                 // set to our local definition
@@ -2426,7 +2426,7 @@ namespace UserControls
             ObservableCollection<GenericClass> collection = new ObservableCollection<GenericClass> ( );
 
             string Con = NewWpfDev . Utils . GetCheckCurrentConnectionString ( CurrentTableDomain );
-            using ( IDbConnection db = new SqlConnection ( Con) )
+            using ( IDbConnection db = new SqlConnection ( Con ) )
             {
                 try
                 {
@@ -2891,30 +2891,31 @@ namespace UserControls
                     using ( var tran = sqlCon . BeginTransaction ( ) )
                     {
                         var parameters = new DynamicParameters ( );
-                        if ( args . Length > 0 )
-                        {
-                            //Add the new table name as 1st argument parameter
-                            //                           string s = str [ 1 ];
-                            parameters . Add ( $"Arg1" , args [ 0 ] ,
-                                DbType . String ,
-                                ParameterDirection . Input ,
-                                args [ 0 ] . Length );
-                            parameters . Add ( $"Domain" , args [ 1 ] ,
-                                  DbType . String ,
-                                  ParameterDirection . Input ,
-                                  args [ 1 ] . Length );
-                            // add rest of arguments for fields in new table
-                            for ( int x = 2 ; x < args . Length ; x++ )
-                            {
-                                //string [ ] fields;
-                                //string fld = "", type = "";
-                                //fields = args [ x ] . Split ( ' ' );
-                                ////fld = fields [ 0 ];
-                                //for ( int y = 0 ; y < fields . Length - 1 ; y++ )
-                                //    type += fields [ y ] + " ";
-                                parameters . Add ( $"fld{x - 1}" , $"{args [ x ] . Trim ( )}" , DbType . String , ParameterDirection . Input , args [ x ] . Trim ( ) . Length );
-                            }
-                        }
+                        parameters = ParseSqlArgs ( parameters , args );
+                        //if ( args . Length > 0 )
+                        //{
+                        //    //Add the new table name as 1st argument parameter
+                        //    //                           string s = str [ 1 ];
+                        //    parameters . Add ( $"Arg1" , args [ 0 ] ,
+                        //        DbType . String ,
+                        //        ParameterDirection . Input ,
+                        //        args [ 0 ] . Length );
+                        //    parameters . Add ( $"Domain" , args [ 1 ] ,
+                        //          DbType . String ,
+                        //          ParameterDirection . Input ,
+                        //          args [ 1 ] . Length );
+                        //    // add rest of arguments for fields in new table
+                        //    for ( int x = 2 ; x < args . Length ; x++ )
+                        //    {
+                        //        //string [ ] fields;
+                        //        //string fld = "", type = "";
+                        //        //fields = args [ x ] . Split ( ' ' );
+                        //        ////fld = fields [ 0 ];
+                        //        //for ( int y = 0 ; y < fields . Length - 1 ; y++ )
+                        //        //    type += fields [ y ] + " ";
+                        //        parameters . Add ( $"fld{x - 1}" , $"{args [ x ] . Trim ( )}" , DbType . String , ParameterDirection . Input , args [ x ] . Trim ( ) . Length );
+                        //    }
+                        //}
                         //Create the new table as requested
                         //************************************************************************************************************************************************************//
                         gresult = sqlCon . Execute ( "spCreateTableFromSchema" , parameters , commandType: CommandType . StoredProcedure , transaction: tran );
@@ -3394,7 +3395,7 @@ namespace UserControls
                                 ParameterDirection . Input ,
                                 SqlInsertCommand . Length );
                             string cmd = $"spExecuteFullStoredProcedureCommand";
-                            
+
                             //****************************************************************************************************************//
                             gresult = sqlCon . Execute ( cmd , parameters , commandType: CommandType . StoredProcedure );
                             gresult = 1;
@@ -3414,7 +3415,7 @@ namespace UserControls
             Mouse . OverrideCursor = Cursors . Arrow;
             return gresult;
         }
-        public ObservableCollection<GenericClass> CreateLimitedTableAsync ( string NewTableName , List<GenericToRealStructure> TableStruct , out string SqlCommandstring ,out string [ ] Sqlargs , out int[] columnoffsets, out string error )
+        public ObservableCollection<GenericClass> CreateLimitedTableAsync ( string NewTableName , List<GenericToRealStructure> TableStruct , out string SqlCommandstring , out string [ ] Sqlargs , out int [ ] columnoffsets , out string error )
         {
             // We now have a full SQl Structure for the current table in TableStructure
             // Sort out  our  new table structure
@@ -3425,7 +3426,7 @@ namespace UserControls
             List<string> newlines = new List<string> ( );
 
             SqlCommandstring = "";
-            columnoffsets = new int [ TableStruct.Count ];
+            columnoffsets = new int [ TableStruct . Count ];
             error = "";
             "" . Track ( );
 
@@ -3444,16 +3445,16 @@ namespace UserControls
                     for ( int a = 2 ; a < Sqlargs . Length ; a++ )
                     {
                         string [ ] temp = Sqlargs [ a ] . Split ( ' ' );
-                        SqlOperationString += $"{temp[0]}, ";
+                        SqlOperationString += $"{temp [ 0 ]}, ";
                     }
                     SqlOperationString = SqlOperationString . Substring ( 0 , SqlOperationString . Length - 2 );
                     SqlOperationString += ") Values (";
-                    
+
                     // save to our out string parameter
                     SqlCommandstring = SqlOperationString;
                     // save column index  to int array out parameter
                     for ( int b = 0 ; b < TableStruct . Count ; b++ )
-                        columnoffsets [ b ] = TableStruct [ b ].colindex;
+                        columnoffsets [ b ] = TableStruct [ b ] . colindex;
 
                     ObservableCollection<GenericClass> LimitedColumnTable = new ObservableCollection<GenericClass> ( );
                     List<string> datavalues = new List<string> ( );
@@ -3477,11 +3478,11 @@ namespace UserControls
                             GenericClass row = new GenericClass ( );
                             outcoloffset = 0;
                             //for ( int y = 0 ; y < TableStruct . Count ; y++ )
-                            for ( int z = 0 ; z < columnoffsets . Length; z++ )
+                            for ( int z = 0 ; z < columnoffsets . Length ; z++ )
                             {
                                 int offset = 0;
                                 string tmp1 = TableStruct [ z ] . fname;
-                                outcoloffset = columnoffsets [ z ] ;
+                                outcoloffset = columnoffsets [ z ];
                                 string fld = GetFieldDatabyOffset ( item , outcoloffset );
                                 SaveDataToRow ( fld . Trim ( ) , z , ref row );
                                 //             string [ ] splitter = tmp1 . Split ( "," );
@@ -3676,7 +3677,7 @@ namespace UserControls
             currdb?.ToUpper ( );
             // This resets the current database connection to the one we re working with (currdb - in UPPER Case!)- should be used anywhere that We switch between databases in Sql Server
             // It also sets the Flags.CurrentConnectionString - Current Connectionstring  and local variable
-            if ( NewWpfDev.Utils.GetDictionaryEntry (Flags. ConnectionStringsDict , currdb , out string connstring ) != "" )
+            if ( NewWpfDev . Utils . GetDictionaryEntry ( Flags . ConnectionStringsDict , currdb , out string connstring ) != "" )
             {
                 if ( connstring != null )
                 {
@@ -3764,7 +3765,7 @@ namespace UserControls
             return dt;
         }
 
-        public int ExecuteDapperCommand ( string spCommand , string [ ] args , out string err )
+        public int ExecuteDapperCommand ( string spCommand , string [ ] args , out string err , int method = 0 )
         {
             int res = -1;
             err = "";
@@ -3869,6 +3870,65 @@ namespace UserControls
             }
             return res;
         }
+        public int ExecuteDapperScalar ( string spCommand , string [ ] args , out string err )
+        {
+            int res = -9;
+            err = "";
+            Tablename = "";
+            string Con = DbConnectionString;
+            string cmddebug = "";
+            SqlConnection sqlCon = null;
+
+            Mouse . OverrideCursor = Cursors . Wait;
+            try
+            {
+                using ( sqlCon = new SqlConnection ( Con ) )
+                {
+                    //sqlCon . Open ( );
+                    DynamicParameters parameters = new DynamicParameters ( );
+                    parameters . AddDynamicParams ( parameters );
+
+                    if ( args != null && args . Length > 0 && args [ 0 ] != "-" )
+                    {
+                        for ( int x = 0 ; x < args . Length ; x++ )
+                        {
+                            // breakout on first unused array element
+                            if ( args [ x ] == "" ) break;
+
+                            if ( args [ x ] != null )
+                            {
+                                parameters . Add ( $"@Arg{x + 1}" , args [ x ] , DbType . String , ParameterDirection . Input , args [ x ] . Length );
+                                cmddebug += $"Arg{x + 1} : [ {args [ x ]} ]\n";
+                            }
+                        }
+                    }
+                    Debug . WriteLine ( $"[ {spCommand . ToUpper ( )} ]\n{cmddebug}" );
+                    Debug . WriteLine ( $"ExecuteStoredProcedure() : [ {spCommand . ToUpper ( )} ]" );
+
+                    res = sqlCon . Execute ( spCommand , parameters , commandType: CommandType . StoredProcedure );
+
+                    //    spCommand = $"drop table if exists {args [ 2 ]}";
+                    //    ExecuteDapperCommand ( spCommand , null , out err );
+                    //    spCommand = $"Select * into {args [ 2 ]} from {args [ 0 ]} where {args [ 1 ]}";
+                    //    int result = ExecuteDapperCommand ( spCommand , null , out err );
+                    //    if ( result > 0 )
+                    //    {
+                    //        spCommand = $"Select * from {args [ 2 ]} ";
+                    //        GetDataViaDapper ( spCommand , args , out err , out result );
+                    //    }
+                    //    else
+                    //    {
+                    //        // failed or  no matches
+                    //    }
+                }
+            }
+            catch ( Exception ex )
+            {
+                Debug . WriteLine ( $"{ex . Message}" );
+                err = ex . Message;
+            }
+            return res;
+        }
         public ObservableCollection<GenericClass> GetDataFromStoredProcedure ( string spCommand , string [ ] args , string CurrentTableDomain , out string err , out int recordcount , int method = 0 )
         {
             IEnumerable result2 = null;
@@ -3891,7 +3951,7 @@ namespace UserControls
                     // set to our local definition
                     Con = MainWindow . CurrentSqlTableDomain;
                 }
-//                DatagridControl . CurrentTableDomain = CurrentTableDomain;
+                //                DatagridControl . CurrentTableDomain = CurrentTableDomain;
                 using ( sqlCon = new SqlConnection ( Con ) )
                 {
                     //sqlCon . Open ( );
@@ -4028,6 +4088,33 @@ namespace UserControls
             return GenClass;
         }
 
+        static public DynamicParameters ParseSqlArgs ( DynamicParameters parameters , string [ ] args )
+        {
+            if ( args != null && args . Length > 0 && args [ 0 ] != "-" )
+            {
+                for ( int x = 0 ; x < args . Length ; x++ )
+                {
+                    // breakout on first unused array element
+                    if ( args [ x ] == "" ) break;
+                    if ( args [ x ] . ToUpper ( ) . Contains ( "OUTPUT" ) )
+                    {
+                        string [ ] splitter = args [ x ] . Split ( " " );
+                        parameters . Add ( $"Retval" , splitter [ 0 ] ,
+                                           DbType . String ,
+                                           ParameterDirection . Output ,
+                                           args [ x ] . Length );
+                    }
+                    else
+                    {
+                        parameters . Add ( $"Arg{x + 1}" , args [ x ] ,
+                       DbType . String ,
+                       ParameterDirection . Input ,
+                       args [ x ] . Length );
+                    }
+                }
+            }
+            return parameters;
+        }
         static public List<string> ProcessUniversalQueryStoredProcedure ( string spCommand , string [ ] args , string CurrentTableDomain , out string err )
         {
             int result = -1;
@@ -4040,7 +4127,7 @@ namespace UserControls
             {
                 // set to our local definition
                 Con = MainWindow . CurrentSqlTableDomain;
-                MessageBox . Show ( $"It was not possible to Identify a valid Sql Connection string for \nthe Database [ {CurrentTableDomain.ToUpper()} ]\n\n Please report  this error to DB Technical Support","Connection Error");
+                MessageBox . Show ( $"It was not possible to Identify a valid Sql Connection string for \nthe Database [ {CurrentTableDomain . ToUpper ( )} ]\n\n Please report  this error to DB Technical Support" , "Connection Error" );
                 return null;
             }
 
@@ -4055,26 +4142,14 @@ namespace UserControls
                 sqlCon . Open ( );
                 // Now add record  to SQL table
                 var parameters = new DynamicParameters ( );
-                if ( args != null && args . Length > 0 && args [ 0 ] != "-" )
-                {
-                    for ( int x = 0 ; x < args . Length ; x++ )
-                    {
-                        // breakout on first unused array element
-                        if ( args [ x ] == "" ) break;
-                        parameters . Add ( $"Arg{x + 1}" , args [ x ] ,
-                           DbType . String ,
-                           ParameterDirection . Input ,
-                           args [ x ] . Length );
-                    }
-                    //Debug . WriteLine ( $"adding args [{x} ] for {spCommand} of {args [ x ]}" );
-                }
+                parameters = ParseSqlArgs ( parameters , args );
                 try
                 {
                     $" calling {spCommand} ()" . CW ( );
 
                     Debug . WriteLine ( $"ProocessUniversalQueryStoredProcedure() : [ {spCommand . ToUpper ( )} ]" );
 
-                    queryresults = sqlCon . Query<string> ( spCommand , parameters ) . ToList ( );
+                    queryresults = sqlCon . Query<string> ( spCommand , parameters , commandType: CommandType . StoredProcedure ) . ToList ( );
                     //result = sqlCon . Execute ( spCommand , parameters , commandType: CommandType . StoredProcedure );
                     Debug . WriteLine ( $"{spCommand} returned  RESULT = {queryresults . Count}" );
                 }
@@ -4106,12 +4181,7 @@ namespace UserControls
                 // sqlCon . Open ( );
 
                 var parameters = new DynamicParameters ( );
-                for ( int x = 0 ; x < args . Length ; x++ )
-                {
-                    if ( args [ x ] != null )
-                        parameters . Add ( $"Arg{x + 1}" , $"{args [ x ]}" , DbType . String , ParameterDirection . Input , args [ x ] . Length );
-                }
-
+                parameters = ParseSqlArgs ( parameters , args );
                 //Debug . WriteLine ( $"GetCountFromStoredProc() : [ {SqlCommand . ToUpper ( )} ]" );
                 $"{SqlCommand}" . DapperTrace ( );
 
@@ -4140,10 +4210,7 @@ namespace UserControls
                 sqlCon . Open ( );
 
                 var parameters = new DynamicParameters ( );
-                for ( int x = 0 ; x < args . Length ; x++ )
-                {
-                    parameters . Add ( $"Arg{x + 1}" , $"{args [ x ]}" , DbType . String , ParameterDirection . Input , args [ x ] . Length );
-                }
+                parameters = ParseSqlArgs ( parameters , args );
 
                 Debug . WriteLine ( $"GetCountFromStoredProc() : [ {SqlCommand . ToUpper ( )} ]" );
                 int outval = sqlCon . Execute ( SqlCommand , parameters , commandType: CommandType . StoredProcedure );
@@ -4206,6 +4273,26 @@ namespace UserControls
         {
             DapperGenericsLib . Utils . DoErrorBeep ( 400 , 100 , 1 );
             DapperGenericsLib . Utils . DoErrorBeep ( 300 , 400 , 1 );
+        }
+        public static DynamicParameters ParseSqlArguments ( string [ ] args , ref bool hasoutput , ref bool hasretval )
+        {
+            string cmddebug = "";
+            DynamicParameters parameters = new DynamicParameters ( );
+            if ( args . Length > 0 && args [ 0 ] != "-" )
+            {
+                for ( int x = 0 ; x < args . Length ; x++ )
+                {
+                    // breakout on first unused array element
+                    if ( args [ x ] == "" ) break;
+
+                    if ( args [ x ] != null )
+                    {
+                        parameters . Add ( $"@Arg{x + 1}" , args [ x ] , DbType . String , ParameterDirection . Input , args [ x ] . Length );
+                        cmddebug += $"Arg{x + 1} : [ {args [ x ]} ]\n";
+                    }
+                }
+            }
+            return parameters;
         }
     }
 }

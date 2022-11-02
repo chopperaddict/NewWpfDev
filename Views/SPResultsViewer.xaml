@@ -1,0 +1,595 @@
+﻿<Window x:Class="Views.SpResultsViewer"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Views"
+        xmlns:conv="clr-namespace:NewWpfDev.Converts"
+        mc:Ignorable="d"
+        Background="{StaticResource Cyan0}"
+        x:Name="Spresultsviewer"
+  	    WindowChrome.ResizeGripDirection="BottomRight"
+	    ResizeMode="CanResizeWithGrip"
+        Title="Stored Procedures Results Viewer" 
+        Height="510" Width="650"
+        MinHeight="400" MinWidth="450">
+
+    <Window.Resources>
+        <conv:IncreaseByParamValue x:Key="IncreaseByParamValue" />
+        <conv:ReduceByParamValue x:Key="ReduceByParamValue"/>
+
+        <Style TargetType="{x:Type Paragraph}">
+            <Setter Property="Margin" Value="0" />
+        </Style>
+
+        <Style x:Key="ButtonSlant" TargetType="Button">
+            <!--Default layout-->
+            <Setter Property="OverridesDefaultStyle" Value="True" />
+            <!--These defaults can be overriden by the Button Code in the design-->
+            <Setter Property="Height" Value="50" />
+            <Setter Property="Width" Value="150" />
+            <Setter Property="BorderBrush" Value="Black" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush 
+                                    StartPoint="0.2, 0" EndPoint="0, 1">
+                        <GradientStop Offset="0" Color="#DF000000" />
+                        <GradientStop Offset="4" Color="#69000000" />
+                        <GradientStop Offset="0.5" Color="#69EB5E00" />
+                        <GradientStop Offset="6" Color="#69000000" />
+                        <GradientStop Offset="1" Color="#DF000000" />
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <!--Lets change the Border as well but use the colors
+			defined in the Buttons declaration in the xaml code-->
+
+            <Setter Property="Control.Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border  x:Name="border"
+						Background="{TemplateBinding Background}"
+						BorderBrush="{TemplateBinding BorderBrush}"
+						BorderThickness="{TemplateBinding BorderThickness}"
+						CornerRadius="0,0,0,0">
+                            <ContentPresenter
+							Margin="2"
+							HorizontalAlignment="Center"
+							VerticalAlignment="Center"
+							RecognizesAccessKey="True" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+            <!--Now to handle those pesky Triggers-->
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="false">
+                    <Setter Property="TextElement.Foreground"  Value="{StaticResource Green6}"/>
+                    <Setter Property="BorderBrush"  Value="{StaticResource Black2}"/>
+                    <Setter Property="BorderThickness"  Value="1"/>
+                    <Setter Property="FontSize"  Value="14"/>
+                    <Setter Property="Background" >
+                        <Setter.Value>
+                            <LinearGradientBrush 
+                                    StartPoint="0, 1" EndPoint="0.2, 0">
+                                <GradientStop Offset="0" Color="#DF000000" />
+                                <GradientStop Offset="4" Color="#69000000" />
+                                <GradientStop Offset="0.5" Color="#69EB5E00" />
+                                <GradientStop Offset="6" Color="#69000000" />
+                                <GradientStop Offset="1" Color="#DF000000" />
+                            </LinearGradientBrush>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="TextElement.Foreground"  Value="{StaticResource Green6}"/>
+                    <Setter Property="BorderBrush"  Value="{StaticResource White2}"/>
+                    <Setter Property="BorderThickness"  Value="3"/>
+                    <Setter Property="FontSize"  Value="14"/>
+                    <Setter Property="Background" >
+                        <Setter.Value>
+                            <LinearGradientBrush 
+                                    StartPoint="0, 1" EndPoint="0.2, 0">
+                                <GradientStop Offset="0" Color="#DF000000" />
+                                <GradientStop Offset="4" Color="#69000000" />
+                                <GradientStop Offset="0.5" Color="#69EB5E00" />
+                                <GradientStop Offset="6" Color="#69000000" />
+                                <GradientStop Offset="1" Color="#DF000000" />
+                            </LinearGradientBrush>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background">
+                        <Setter.Value>
+                            <!--Makes gradient fill work horizontally-->
+                            <RadialGradientBrush Center="0.5, 1.0">
+                                <GradientStop Offset="0" Color="Beige" />
+                                <GradientStop Offset="1" Color="Green" />
+                            </RadialGradientBrush>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="Foreground" Value="Black"/>
+                </Trigger>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsEnabled" Value="False"/>
+                    </MultiTrigger.Conditions>
+                    <MultiTrigger.Setters>
+                        <Setter Property="Background">
+                            <Setter.Value>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                    <GradientStop Color="LightGray" Offset="0.35" />
+                                    <GradientStop Color="DarkGray" Offset="1" />
+                                </LinearGradientBrush>
+                            </Setter.Value>
+                        </Setter>
+                    </MultiTrigger.Setters>
+                </MultiTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="SpStringsStyle" TargetType="{x:Type ListBoxItem}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                        <Border x:Name="Bd" SnapsToDevicePixels="true">
+
+                            <ContentPresenter x:Name="Contentpresenter" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                                SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="False"/>
+                                    <Condition Property="IsSelected" Value="false"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Black3}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Contentpresenter" Value="{StaticResource White0}"/>
+                                <Setter Property="Padding" TargetName="Bd" Value="10,0,0,0"/>
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="true"/>
+                                    <Condition Property="IsSelected" Value="true"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Yellow0}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{StaticResource Red0}"/>
+                                <Setter Property="Padding" TargetName="Bd" Value="10,0,0,0"/>
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="False"/>
+                                    <Condition Property="IsSelected" Value="true"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Red5}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Contentpresenter" Value="{StaticResource White0}"/>
+                                <Setter Property="Padding" TargetName="Bd" Value="10,0,0,0"/>
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="true"/>
+                                    <Condition Property="IsSelected" Value="false"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Orange4}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Contentpresenter" Value="{StaticResource Black0}"/>
+                                <Setter Property="Padding" TargetName="Bd" Value="10,0,0,0"/>
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                        <!--more ....-->
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SpMethodsStyle" TargetType="{x:Type ListBoxItem}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                        <Border x:Name="Bd" SnapsToDevicePixels="true">
+
+                            <ContentPresenter x:Name="Contentpresenter" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                                SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="False"/>
+                                    <Condition Property="IsSelected" Value="false"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Black3}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Contentpresenter" Value="{StaticResource Yellow2}"/>
+                                <Setter Property="TextElement.FontWeight" TargetName="Contentpresenter" Value="Normal"/>
+                                <Setter Property="Padding" TargetName="Bd" Value="10,0,0,0"/>
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="true"/>
+                                    <Condition Property="IsSelected" Value="true"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Yellow0}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{StaticResource Red0}"/>
+                                <Setter Property="TextElement.FontWeight" TargetName="Contentpresenter" Value="Normal"/>
+                                <Setter Property="Padding" TargetName="Bd" Value="10,0,0,0"/>
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="False"/>
+                                    <Condition Property="IsSelected" Value="true"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Black7}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Contentpresenter" Value="{StaticResource Red5}"/>
+                                <Setter Property="TextElement.FontWeight" TargetName="Contentpresenter" Value="DemiBold"/>
+                                <Setter Property="Padding" TargetName="Bd" Value="10,0,0,0"/>
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="true"/>
+                                    <Condition Property="IsSelected" Value="false"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Orange4}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Contentpresenter" Value="{StaticResource Black0}"/>
+                                <Setter Property="TextElement.FontWeight" TargetName="Contentpresenter" Value="Normal"/>
+                                <Setter Property="Padding" TargetName="Bd" Value="10,0,0,0"/>
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                        <!--more ....-->
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid x:Name="SpViewerResults" 
+            KeyDown="SpStrings_KeyDown"                    
+              Width="{Binding ActualWidth, ElementName=Spresultsviewer,
+            Converter={StaticResource ReduceByParamValue},ConverterParameter=10}"
+            Background="{StaticResource Cyan0}"
+            Focusable="True"
+            HorizontalAlignment="Center" 
+            VerticalAlignment="Stretch"
+            Visibility="Visible">
+        <Grid.RowDefinitions>
+            <RowDefinition x:Name="vrow0" Height="35"/>
+            <RowDefinition x:Name="vrow1" Height="150"/>
+            <RowDefinition  x:Name="vrow2"  Height="*"/>
+            <RowDefinition  x:Name="vrow3" Height="95"/>
+        </Grid.RowDefinitions>
+
+       <TextBlock Grid.Row="0" x:Name="SrchTerm"  Visibility="Collapsed"/>
+
+        <Grid x:Name="BannerGrid" Grid.Row="0" VerticalAlignment="Top" 
+            Height="35"
+            HorizontalAlignment="Center" 
+            Width="{Binding ActualWidth, ElementName=SpViewerResults,
+                Converter={StaticResource ReduceByParamValue},ConverterParameter=-10}"
+            Background="{StaticResource Cyan0}">
+
+            <TextBlock x:Name="Bannerline" 
+                Grid.Row="0"
+                Width="{Binding ActualWidth, ElementName=InnerGrid,
+                Converter={StaticResource ReduceByParamValue},ConverterParameter=-20}"
+                Height="35"
+                Text="Execute Stored Procedures Helper"
+                TextAlignment="Center"
+                Padding="0 8 0  0"
+                Margin="0,0,0,0"
+                Background="Red"
+                Foreground="White" 
+                FontSize="18"
+                VerticalAlignment="Top"
+                UseLayoutRounding="True" />
+        </Grid>
+
+        <!--Height="{Binding ActualHeight, ElementName=vrow1,
+                    Converter={StaticResource ReduceByParamValue},ConverterParameter=0}"-->
+        <Grid  x:Name="Listboxesgrid" Grid.Row="1" VerticalAlignment="Top"
+               Height="150">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="280"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="25"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+              <ListBox x:Name="ListResults" Grid.Row="0" Grid.RowSpan="2" Grid.Column="0"
+                    Height="150"
+                    Width="{Binding ActualWidth, ElementName=Listboxesgrid,
+                        Converter={StaticResource ReduceByParamValue},ConverterParameter=300}"
+                    Background="{StaticResource Black7}"
+                    HorizontalAlignment="Stretch"
+                    SelectionMode="Single"
+                    FontSize="16"
+                    FontWeight="DemiBold"
+                    Margin="11,5,11,0"
+                    PreviewMouseRightButtonDown="ListResults_MouseRightButtonDown"
+                    SelectionChanged="ListResults_SelectionChanged"
+                    ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                    ScrollViewer.VerticalScrollBarVisibility="Visible"
+                    MinHeight="150"
+                    ToolTip="Right click will reload this list of Stored Procedures...."
+                    ToolTipService.InitialShowDelay="500"                  
+                    ToolTipService.ShowDuration="2500"
+                    ItemContainerStyle="{StaticResource SpStringsStyle}"/>
+
+            <TextBlock Grid.Row="0" Grid.Column="1"   
+                    Width="270"
+                    Height="25"
+                    Background="{StaticResource Green2}"
+                    Foreground="{StaticResource White0}"
+                    FontSize="16"
+                    TextAlignment="Center"
+                    Text="Select Execution method"/>
+            <ListBox x:Name="optype"  Grid.Row="1" Grid.Column="1"
+                    Height="130" 
+                    Width="270" 
+                    Margin="5 0 5 0" 
+                     Background="Black"
+                    VerticalAlignment="Top" 
+                    HorizontalContentAlignment="Left" 
+                     ToolTip="Double Click to Execute the S.P using the Method selected..."
+                     MouseDoubleClick="optype_MouseDoubleClick"
+                    ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                    ItemContainerStyle="{StaticResource SpMethodsStyle}"
+                    FontSize="14"/>
+        </Grid>
+
+        <!--Height="{Binding ActualHeight, ElementName=vrow2,
+                    Converter={StaticResource ReduceByParamValue},ConverterParameter=0}"-->
+        <Grid x:Name="Flowdocgrid" Grid.Row="2" VerticalAlignment="Stretch"
+                  Width="{Binding ActualWidth, ElementName=Listboxgrid,
+                    Converter={StaticResource ReduceByParamValue},ConverterParameter=20}">
+
+            <FlowDocumentScrollViewer x:Name="TextResult" 
+                    BorderBrush="White"
+                    HorizontalAlignment="Stretch"                                      
+                    VerticalAlignment="Stretch"
+                    Margin="5 10,2,5"
+                    HorizontalScrollBarVisibility="Auto"
+                    VerticalScrollBarVisibility="Visible"
+                    Background="{StaticResource Black7}"
+                    Foreground="{StaticResource Black0}"                                              
+                    PreviewKeyDown="Arguments_KeyDown"
+                    PreviewMouseRightButtonDown="TextResult_PreviewMouseRightButtonDown"
+                    TextOptions.TextFormattingMode="Ideal"
+                    TextOptions.TextRenderingMode="ClearType"/>
+        </Grid>
+
+        <!--Height="{Binding ActualHeight, ElementName=vrow3,
+                    Converter={StaticResource ReduceByParamValue},ConverterParameter=0}"-->
+        
+        <Grid  x:Name="buttonspanelgrid" Grid.Row="3" VerticalAlignment="Bottom"
+                 Width="{Binding ActualWidth, ElementName=SpViewerResults,
+                    Converter={StaticResource ReduceByParamValue},ConverterParameter=30}"
+               Height="100"
+                HorizontalAlignment="Stretch"
+               Visibility="Visible">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition  x:Name="vcol1" Width="*"/>
+                <ColumnDefinition  x:Name="vcol2" Width="100"/>
+            </Grid.ColumnDefinitions>
+    
+            <Grid x:Name="wrapper" Grid.Column="0" 
+                    Height="90"
+                    Background="Transparent"
+                    Opacity="0.9"
+                    HorizontalAlignment="Stretch"                    
+                    VerticalAlignment="Stretch">
+                
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="40"/>
+                </Grid.RowDefinitions>
+                <TextBlock x:Name="prompter" 
+                       Grid.Row="0"
+                       HorizontalAlignment="Stretch"                        
+                       TextAlignment="Center"    
+                       Height="40"
+                       Width="360"
+                       VerticalAlignment="Top"
+                       TextWrapping="Wrap"
+                       FontSize="16"
+                        Padding="10 0 10 0"
+                        Background="Transparent"
+                        Foreground="Red"
+                        FontWeight="DemiBold"
+                        Text="Select the S.P required, enter any Argument(s) required and then Press Enter or Click Execute Button"
+                        Margin="0 0 0 0"/>
+
+                <TextBox x:Name="SPArguments" 
+                       Grid.Row="1"
+                        Height="35"                         
+                        Text="Argument(s) required ?"
+                        TextAlignment="Center"
+                        HorizontalContentAlignment="Center"
+                        FontSize="18"
+                        Padding="0 4 0 0"
+                         KeyDown="Arguments_KeyDown"
+                        Background="{StaticResource White2}"
+                         FontWeight="DemiBold"
+                        Foreground="{StaticResource Blue1}"
+                         MouseEnter="SPArguments_MouseEnter"
+                         MouseLeftButtonDown="SPArguments_MouseLeftButtonDown"
+                         GotFocus="SPArguments_GotFocus"
+                        UseLayoutRounding="True"
+                        Visibility="Visible" 
+                         Width="Auto" 
+                        Margin="3 0 0 0"/>
+            </Grid>
+            
+            <Grid x:Name="ButtonsGrid"
+                HorizontalAlignment="Right" 
+                  VerticalAlignment="Bottom" 
+                  Grid.Column="2"
+                  Margin="0 0 -10 0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="35"/>
+                    <RowDefinition Height="30"/>
+                </Grid.RowDefinitions>
+
+                <Button x:Name="ExecuteBtn"  Grid.Column="2"
+                    Grid.Row="0"
+                    Height="32"
+                    Width="100" 
+                    HorizontalAlignment="Right"                                     
+                    Margin="0 -25 0 0"
+                    VerticalAlignment="Stretch"
+                    FontSize="14"
+                    Style="{StaticResource ButtonSlant}"
+                    Content="&lt;-- Execute"
+                    Click="DoExecute_Click"
+                    Foreground="Orange" />
+
+                <Button x:Name="closebtn"  Grid.Column="2"
+                    Grid.Row="1"
+                    Height="32"
+                    Width="100" 
+                    HorizontalAlignment="Right"                                     
+                    Margin="0 -10 0 0"
+                    VerticalAlignment="Stretch"
+                    FontSize="14"
+                    Style="{StaticResource ButtonSlant}"
+                    Content="Close Viewer"
+                    Click="closeresultsviewer_Click"
+                    Foreground="Orange" />
+            </Grid>
+        </Grid>
+
+        <Canvas x:Name="canvas" 
+                Width="{Binding ActualWidth, ElementName=SpViewerResults,
+                    Converter={StaticResource ReduceByParamValue},ConverterParameter=0}"
+                Height="{Binding ActualHeight, ElementName=SpViewerResults,
+                    Converter={StaticResource ReduceByParamValue},ConverterParameter=0}"
+                Visibility="Collapsed">
+
+            <!--#region  popup select processing method (int, collection, none)-->
+            <Grid x:Name="OperationSelection" 
+                  Height="200" 
+                  Width="300" 
+                  Background="Orange" 
+                  Canvas.Top="100" 
+                  Canvas.Left="200" 
+                  Visibility="Collapsed">
+                
+                <Border BorderBrush="Black" BorderThickness="3"/>
+                
+                <Grid x:Name="innercontainer">
+                    
+                    <ListBox x:Name="operationtype2" 
+                             Height="130" 
+                             Width="290" 
+                             Margin="5 10 5 0" 
+                             VerticalAlignment="Top" 
+                             HorizontalContentAlignment="Center" 
+                             ItemContainerStyle="{StaticResource SpMethodsStyle}"
+                             FontSize="16"/>
+
+                    <Button x:Name="GoExecute" 
+                            Click="DoExecute_Click"
+                            Height="35" 
+                            Width="100" 
+                            Background="{StaticResource Green4}"
+                            FontSize="18"
+                            FontWeight="Bold"
+                            Content="Execute" 
+                            VerticalAlignment="Bottom" 
+                            HorizontalAlignment="Right" 
+                            Margin="0 0 10 10"/>
+                    <Button x:Name="hidepanel" 
+                            Click="Hidepanel_Click"
+                            Height="35" 
+                            Width="100" 
+                            Background="{StaticResource Red9}"
+                            Foreground="Red"
+                            FontSize="18"
+                            FontWeight="Bold"
+                            Content="Cancel" 
+                            VerticalAlignment="Bottom" 
+                            HorizontalAlignment="Right" 
+                            Margin="0 0 120 10"/>
+                </Grid>
+                <!--#endregion  popup processing type selection-->
+            </Grid>
+
+            <!--#region  popup Info for error input-->
+            <Grid x:Name="DetailInfo" 
+                  Height="300" 
+                  Width="600" 
+                  Background="{StaticResource Blue5}" 
+                  Canvas.Top="50" 
+                  Canvas.Left="10" 
+                  Visibility="Collapsed">
+
+                <Border BorderBrush="Black" BorderThickness="3"/>
+
+                <Grid x:Name="innercontainer2">
+
+                    <TextBlock x:Name="operationtype3" 
+                            Height="230" 
+                            Width="580" 
+                            Background="{StaticResource White3}"
+                            Foreground="{StaticResource Red2}"
+                            Margin="5 10 5 0" 
+                            Padding="10 10 10 0"
+                           TextWrapping="Wrap"
+                            VerticalAlignment="Top" 
+                            ScrollViewer.VerticalScrollBarVisibility="Visible"
+                            FontSize="16"/>
+                    <TextBox x:Name="Parameters"
+                            Height="30" 
+                            Width="370" 
+                            Background="{StaticResource White3}"
+                            Foreground="{StaticResource Black1}"
+                            Margin="10 3 0 13" 
+                            Padding="10 3 10 0"
+                            HorizontalAlignment="Left"
+                            TextAlignment="Center"
+                            VerticalAlignment="Bottom" 
+                            FontSize="16"/>
+
+                            <!--Background="{StaticResource Green5}"-->
+                    <Button x:Name="Executer" 
+                            Click="Exec_Click"
+                             Foreground="{StaticResource White0}"
+                            Height="35" 
+                            Width="100" 
+                            FontSize="18"
+                            FontWeight="Bold"
+                            Content="Execute" 
+                            VerticalAlignment="Bottom" 
+                            HorizontalAlignment="Right" 
+                            Style="{StaticResource ButtonSlant}"
+                            Margin="0 0 115 10"/>
+                    
+                    <Button x:Name="closepanel" 
+                            Click="Closepanel_Click"
+                            Height="35" 
+                            Width="100" 
+                            Background="{StaticResource Green0}"
+                            Foreground="{StaticResource White0}"
+                            FontSize="18"
+                            FontWeight="Bold"
+                            Content="Close" 
+                            VerticalAlignment="Bottom" 
+                            HorizontalAlignment="Right" 
+                            Margin="0 0 10 10"/>
+                </Grid>
+                <!--#endregion  popup Info for error input-->
+                
+             </Grid>
+
+        </Canvas>
+    </Grid>
+</Window>

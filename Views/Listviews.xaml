@@ -7,7 +7,8 @@
         xmlns:conv="clr-namespace:NewWpfDev.Converts"
         xmlns:user="clr-namespace:NewWpfDev.UserControls"
         xmlns:local="clr-namespace:NewWpfDev.Views"
-        xmlns:model="clr-namespace:NewWpfDev.ViewModels"
+        xmlns:model="clr-namespace:NewWpfDev.Models"
+        xmlns:Viewmodels="clr-namespace:NewWpfDev.ViewModels"
         mc:Ignorable="d"
 	 Loaded="ListViewWindow_Loaded"
 	  Closed="ListViewWindow_Closed"
@@ -323,7 +324,7 @@
 						350,0"/>-->
 
         <!--<model:SqlDatabases x:Key="DbNames"/>-->
-        <model:SqlDatabases x:Key="DbNames"/>
+        <Viewmodels:Database x:Key="DbNames"/>
         <!--<model:Database x:Key="DbNames"/>-->
         <!--<DataTemplate DataType="{x:Type model:SqlTable}">-->
         <DataTemplate x:Key="Level2">
@@ -409,7 +410,7 @@
             <!--#region TreeViews-->
 
             <!--// Controlling Border for all TreeView stuff-->
-            <Border x:Name ="TreeviewBorder" 
+            <!--<Border x:Name ="TreeviewBorder" 
 				  Background="{StaticResource Red5}"
 				  Width="357" 
 				  Height="400" 
@@ -423,13 +424,13 @@
 				  Visibility="Visible">
 
                 <Grid>
-                    <!--// *** THESE WORK !!! *** //-->
+                    --><!--// *** THESE WORK !!! *** //--><!--
                     <Grid.RowDefinitions>
                         <RowDefinition Height="35" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
-                    <!--#region Db Tables Tree view-->
+                    --><!--#region Db Tables Tree view--><!--
                     <WrapPanel x:Name="TablesWrappanel"
 						Grid.Row="0"  
 						Orientation="Horizontal"
@@ -466,7 +467,7 @@
 						    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
 							Visibility="Hidden">
                         <TreeView.ItemTemplate>
-                            <HierarchicalDataTemplate DataType="{x:Type model:Database}" ItemsSource="{Binding Path=Tables}" >
+                            <HierarchicalDataTemplate DataType="{x:Type Viewmodels:Database}" ItemsSource="{Binding Path=Tables}" >
                                 <TextBlock 
 									     Text="{Binding Databasename}" 
 									     VerticalAlignment="Center" 
@@ -479,7 +480,7 @@
 										Width="{Binding Path=Width, ElementName=DbTablesTree}"></TextBlock>
                                 
                                 <HierarchicalDataTemplate.ItemTemplate>
-                                    <DataTemplate DataType="{x:Type model:SqlTable}">
+                                    <DataTemplate DataType="{Viewmodels.SqlTable}">
                                         <TextBlock 
 											FontSize="14"
 											Foreground="{StaticResource Black3}"
@@ -496,9 +497,9 @@
 
                     </TreeView>
 
-                    <!--#endregion Db Tables Tree view-->
+                    --><!--#endregion Db Tables Tree view-->
 
-                    <!--#region SP Tree view-->
+                    <!--#region SP Tree view--><!--
 
                     <WrapPanel  x:Name="SpWrappanel"
 						Grid.Row="0"  Orientation="Horizontal"
@@ -539,20 +540,20 @@
                         <TreeView.Resources>
                         </TreeView.Resources>
 
-                        <!--<Style TargetType="{x:Type TreeViewItem}">
+                        --><!--<Style TargetType="{x:Type TreeViewItem}">
 							<Setter Property="IsExpanded" Value="{Binding Path=IsNodeExpanded, ElementName=Listviews}"/>
-						</Style>-->
+						</Style>--><!--
                         <TreeView.ItemContainerStyle>
                             <Style TargetType="TreeViewItem">
                                 <Setter Property="IsSelected" Value="{Binding IsSelected}" />
                                 <Setter Property="IsExpanded" Value="{Binding IsExpanded}" />
-                                <!--<Setter Property="Height" Value="16" />-->
+                                --><!--<Setter Property="Height" Value="16" />--><!--
                             </Style>
                         </TreeView.ItemContainerStyle>
 
                         <TreeView.ItemTemplate >
-                            <HierarchicalDataTemplate DataType="{x:Type model:Database}" ItemsSource="{Binding Path=Procedures}" >
-                                <!--<Expander Header="{Binding Databasename}" IsExpanded="True">-->
+                            <HierarchicalDataTemplate DataType="{x:Type Viewmodels:Database}" ItemsSource="{Binding Path=Procedures}" >
+                                --><!--<Expander Header="{Binding Databasename}" IsExpanded="True">--><!--
                                 <TextBlock 
 									     Text="{Binding Databasename}" 
 									     VerticalAlignment="Center" 
@@ -562,7 +563,7 @@
 									     Foreground="{StaticResource Black0}"
 										Height="15"
 										Width="{Binding Path=Width, ElementName=DbTablesTree}"></TextBlock>
-                                <!--</Expander>-->
+                                --><!--</Expander>--><!--
                                 <HierarchicalDataTemplate.ItemTemplate>
                                     <DataTemplate DataType="{x:Type model:SqlProcedures}">
                                         <TextBlock 
@@ -582,7 +583,7 @@
 
                     </TreeView>
 
-                    <!--#endregion SP Tree view-->
+                    --><!--#endregion SP Tree view--><!--
 
                 </Grid>
             </Border>
@@ -601,14 +602,14 @@
 				  Visibility="Hidden">
 
                 <Grid>
-                    <!--// *** THESE WORK !!! *** //-->
+                    --><!--// *** THESE WORK !!! *** //--><!--
                     <Grid.RowDefinitions>
                         <RowDefinition Height="35" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
 
-                    <!--#region SP Tree view-->
+                    --><!--#region SP Tree view--><!--
 
                     <WrapPanel  x:Name="Sp2Wrappanel"
 						Grid.Row="0"  Orientation="Horizontal"
@@ -649,20 +650,20 @@
                         <TreeView.Resources>
                         </TreeView.Resources>
 
-                        <!--<Style TargetType="{x:Type TreeViewItem}">
+                        --><!--<Style TargetType="{x:Type TreeViewItem}">
 							<Setter Property="IsExpanded" Value="{Binding Path=IsNodeExpanded, ElementName=Listviews}"/>
-						</Style>-->
+						</Style>--><!--
                         <TreeView.ItemContainerStyle>
                             <Style TargetType="TreeViewItem">
                                 <Setter Property="IsSelected" Value="{Binding IsSelected}" />
                                 <Setter Property="IsExpanded" Value="{Binding IsExpanded}" />
-                                <!--<Setter Property="Height" Value="16" />-->
+                                --><!--<Setter Property="Height" Value="16" />--><!--
                             </Style>
                         </TreeView.ItemContainerStyle>
 
                         <TreeView.ItemTemplate >
-                            <HierarchicalDataTemplate DataType="{x:Type model:Database}" ItemsSource="{Binding Path=Procedures}" >
-                                <!--<Expander Header="{Binding Databasename}" IsExpanded="True">-->
+                            <HierarchicalDataTemplate DataType="{x:Type Viewmodels:Database}" ItemsSource="{Binding Path=Procedures}" >
+                                --><!--<Expander Header="{Binding Databasename}" IsExpanded="True">--><!--
                                 <TextBlock 
 									     Text="{Binding Databasename}" 
 									     VerticalAlignment="Center" 
@@ -672,7 +673,7 @@
 									     Foreground="{StaticResource Black0}"
 										Height="15"
 										Width="{Binding Path=Width, ElementName=DbTablesTree}"></TextBlock>
-                                <!--</Expander>-->
+                                --><!--</Expander>--><!--
                                 <HierarchicalDataTemplate.ItemTemplate>
                                     <DataTemplate DataType="{x:Type model:SqlProcedures}">
                                         <TextBlock 
@@ -692,10 +693,10 @@
 
                     </TreeView>
 
-                    <!--#endregion SP Tree view-->
+                    --><!--#endregion SP Tree view--><!--
 
                 </Grid>
-            </Border>
+            </Border>-->
             <!--#endregion TreeViews-->
 
         </Canvas>

@@ -50,8 +50,8 @@ namespace NewWpfDev . Models
             Utils . CheckResetDbConnection ( DbDomain , out string constring );
             ConnString = constring;
             Flags . CurrentConnectionString = constring;
-            MainWindow.SqlCurrentConstring = constring;
-            Debug . WriteLine ($"CheckDbDomain() for {DbDomain} returned {constring}");
+            MainWindow . SqlCurrentConstring = constring;
+            //Debug . WriteLine ( $"Current Domain confirmed as {DbDomain} ..." );
             return constring;
         }
 
@@ -335,7 +335,17 @@ namespace NewWpfDev . Models
                 else
                     MainWindow . SqlCurrentConstring = ConString;
             }
-            Debug . WriteLine ($"Sql Domain of {ConString}");
+            string [ ] tmp = ConString . Split ( ';' );
+            int offset = 0;
+            foreach ( var item in tmp )
+            {
+                if ( item . Contains ( "Catalog" ) )
+                {
+                    Debug . WriteLine ( $"Sql Domain of {item} confirmed..." );
+                    break;
+                }
+                offset++;
+            }
             return ConString;
         }
 

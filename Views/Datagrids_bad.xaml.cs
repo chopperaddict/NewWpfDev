@@ -1,3 +1,6 @@
+﻿
+using GenericSqlLib;
+
 using NewWpfDev. Dapper;
 using NewWpfDev. Models;
 using NewWpfDev. Sql;
@@ -20,6 +23,8 @@ using System . Windows . Input;
 using System . Windows . Media;
 using System . Windows . Threading;
 using System . Xml . Linq;
+
+using UserControls;
 
 using static System . Net . WebRequestMethods;
 
@@ -361,11 +366,7 @@ namespace NewWpfDev. Views
             CurrentType = cb . SelectedItem . ToString ( ) . ToUpper ( );
             LoadData ( );
         }
-        private void dbName_SelectionChanged_1 ( object sender , SelectionChangedEventArgs e )
-        {
-
-        }
-
+ 
         #endregion Checkbox/Combo handlers
 
         #region Data Handling
@@ -395,13 +396,8 @@ namespace NewWpfDev. Views
                     DataLoadControl . GetDataTable ( SqlCommand );
                 }
                 else
-                {     //process any other type of command
-                    
-                    // This is  the crucial SqlCommand selection that isfailing
-                    SqlCommand = GetSqlCommand ( 0 , dbName . SelectedIndex , "" , "" );
+                {     //process any other type of cmomand
                     SqlCommand = CheckLimits ( );
-                    
-                    // spawn worker thread
                     BackgroundWorkerLoad ( );
                 }
             }
@@ -801,11 +797,8 @@ namespace NewWpfDev. Views
         {
             int val = 0;
             string [ ] fields = { "" , "" , "" , "" , "" , "" , "" , "" , "" , "" };
-            
-            // load a delegate to pass to worker thread
             DataLoadControl dlc = new DataLoadControl ( );
             Delegates . LoadTableDelegate glc = dlc . LoadTableInBackground;
-
             fields [ 0 ] = "select";
             if ( LoadAll == false && RecCount . Text != "" && RecCount . Text != "*" )
             {
@@ -817,7 +810,7 @@ namespace NewWpfDev. Views
             else
                 fields [ 1 ] = $" *";
             if ( dbName . Text != "" )
-                fields [ 2 ] = $" from {dbName . SelectedItem} ";
+                fields [ 2 ] = $" from {dbName . Text} ";
             else
                 return "";      // no DbName to select from, so abort
             if ( LoadAll == false )
@@ -844,15 +837,15 @@ namespace NewWpfDev. Views
 
         #region Utility  support Methods
         // Create SQLCommand string from fields on UI
-        public string GetSqlCommand ( int count = 0 , int selectedtable = 0 , string condition = "" , string sortorder = "" )
+        public string GetSqlCommand ( int count = 0 , int table = 0 , string condition = "" , string sortorder = "" )
         {
             // Parse fields into a valid SQL Command string
             string output = "Select  ";
             output += count == 0 ? " * From " : $"top ({count}) * From ";
-            CurrentType = dbName . Items [ selectedtable ] . ToString ( ) . ToUpper ( );
             output += dbName . SelectedItem . ToString ( );
             output += condition . Trim ( ) != "" ? " Where " + condition + " " : "";
             output += sortorder . Trim ( ) != "" ? " Order by " + sortorder . Trim ( ) : "";
+            CurrentType = dbName . Items [ table ] . ToString ( ) . ToUpper ( );
             return output;
         }
 
@@ -930,7 +923,8 @@ namespace NewWpfDev. Views
                 Grid1 . Items . Clear ( );
                 Grid1 . Columns . Clear ( );
                 Grid1 . ItemsSource = genaccts;
-                SqlServerCommands . LoadActiveRowsOnlyInGrid ( Grid1 , genaccts , SqlServerCommands . GetGenericColumnCount ( genaccts ) );
+                GenericSqlLib.SqlServerCommands . LoadActiveRowsOnlyInGrid ( Grid1 , genaccts ,
+                     GetGenericColumnCount (   genaccts ) + " ]" );
                 if ( Flags . ReplaceFldNames )
                 {
                     GenericDbUtilities . ReplaceDataGridFldNames ( CurrentType , ref Grid1 );
@@ -1039,17 +1033,7 @@ namespace NewWpfDev. Views
             return list;
         }
         #endregion Trigger methods  for Stored Procedures
-
-        //private void sp_SelectionChanged ( object sender , SelectionChangedEventArgs e )
-        //{
-
-        //}
-
-        // Executes any SP successfully when it is right clicked in the Combo list
-        // If any rows are returned ,they are shown in Grid1 DataGrid
-        //otherwise a Message box appears
-
-
+             
         #region Mouse handlers
         private void dbName_PreviewMouseRightButtonUp ( object sender , MouseButtonEventArgs e )
         {
@@ -1083,7 +1067,8 @@ namespace NewWpfDev. Views
             DbCount = genaccts . Count;
             if ( DbCount > 0 )
             {
-                SqlServerCommands . LoadActiveRowsOnlyInGrid ( Grid1 , genaccts , SqlServerCommands . GetGenericColumnCount ( genaccts ) );
+                GenericSqlLib.SqlServerCommands . LoadActiveRowsOnlyInGrid ( Grid1 , genaccts ,
+                    GenericSqlLib . SqlServerCommands . GetGenericColumnCount ( SqlServerCommands . genaccts ) );
                 if ( Flags . ReplaceFldNames )
                 {
                     GenericDbUtilities . ReplaceDataGridFldNames ( CurrentType , ref Grid1 );
@@ -1266,7 +1251,7 @@ namespace NewWpfDev. Views
             List<string> list = new List<string> ( );
             List<string> fldnameslist = new List<string> ( );
             string output = "";
-            SqlCommand = $"spGetTableColumnWithSize {dbName . SelectedItem . ToString ( )}";
+            SqlCommand = $"spGetTableColumnWithSize2 {dbName . SelectedItem . ToString ( )}";
             //SqlCommand = SqlCommand = $"spGetTableColumns";
             fldnameslist = Datagrids . CallStoredProcedureWithSizes ( list , SqlCommand );
 

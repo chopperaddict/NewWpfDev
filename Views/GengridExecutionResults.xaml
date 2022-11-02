@@ -1,0 +1,109 @@
+﻿<Window x:Class="Views.GengridExecutionResults"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Views"
+        xmlns:conv="clr-namespace:NewWpfDev.Converts"
+        mc:Ignorable="d"
+        x:Name="ExecuteResults"
+        Title="Stored Procedure Execution Results" Height="387" Width="723"
+	    WindowChrome.ResizeGripDirection="BottomRight"
+	    ResizeMode="CanResizeWithGrip"
+        MinHeight="200" MinWidth="400">
+    <Window.Resources>
+        <conv:IncreaseByParamValue x:Key="IncreaseByParamValue" />
+        <conv:ReduceByParamValue x:Key="ReduceByParamValue"/>
+
+    </Window.Resources>
+    <!--Width="{Binding ActualWidth, ElementName=ExecuteResults,
+                Converter={StaticResource ReduceByParamValue},ConverterParameter=2}"
+                            Height="{Binding ActualHeight, ElementName=ExecuteResults,
+                                Converter={StaticResource ReduceByParamValue},ConverterParameter=0}"-->
+    <Grid x:Name="OperationResults" 
+                Background="{StaticResource Cyan4}" Margin="0,0,0,0" >
+
+        <Border BorderBrush="{StaticResource Orange1}" BorderThickness="2 2 2 15"/>
+
+        <Grid x:Name="innerresultscontainer">
+
+            <DataGrid x:Name="CollectionGridresults" 
+                    Width="{Binding ActualWidth, ElementName=OperationResults,
+                        Converter={StaticResource ReduceByParamValue},ConverterParameter=20}"
+                    Height="{Binding ActualHeight, ElementName=OperationResults,
+                        Converter={StaticResource ReduceByParamValue},ConverterParameter=90}"
+                    Margin="10 10 10 0" 
+                    VerticalAlignment="Top" 
+                    HorizontalContentAlignment="Center" 
+                    FontSize="16"
+                    Visibility="Collapsed"/>
+
+            <FlowDocumentScrollViewer x:Name="CollectionTextresults" 
+                    BorderBrush="White"
+                    HorizontalAlignment="Stretch"                                      
+                    VerticalAlignment="Top"
+                    Margin="10 0 10 0" 
+                    Width="{Binding ActualWidth, ElementName=OperationResults,
+                            Converter={StaticResource ReduceByParamValue},ConverterParameter=20}"
+                    Height="{Binding ActualHeight, ElementName=OperationResults,
+                            Converter={StaticResource ReduceByParamValue},ConverterParameter=75}"
+                   HorizontalScrollBarVisibility="Auto"
+                    VerticalScrollBarVisibility="Visible"
+                    Background="{StaticResource Black7}"
+                    Foreground="{StaticResource Black0}"                                              
+                    PreviewKeyDown="Arguments_KeyDown"
+                    PreviewMouseRightButtonDown="TextResult_PreviewMouseRightButtonDown"
+                    TextOptions.TextFormattingMode="Ideal"
+                    TextOptions.TextRenderingMode="ClearType"
+                    Visibility="Visible"/>
+            
+            <TextBlock x:Name="CollectionShortTextresults" 
+                    Width="{Binding ActualWidth, ElementName=OperationResults,
+                            Converter={StaticResource ReduceByParamValue},ConverterParameter=20}"
+                    Height="{Binding ActualHeight, ElementName=OperationResults,
+                            Converter={StaticResource ReduceByParamValue},ConverterParameter=90}"
+                    Background="{StaticResource White3}"
+                    Foreground="Black"
+                    FontSize="16"
+                    FontWeight="DemiBold"
+                    TextWrapping="Wrap"
+                    Margin="10 10 10 0" 
+                    Padding="10 0 10 0"
+                    ScrollViewer.VerticalScrollBarVisibility="Visible"
+                    VerticalAlignment="Top"                              
+                    Visibility="Visible"/>
+
+            <TextBlock x:Name="ExecutionInfo" 
+                       Height="52"  
+                       VerticalAlignment="Bottom"
+                       HorizontalAlignment="Left" 
+                       Margin="7,0,0,19"
+                       Background="{StaticResource Red2}"
+                       Foreground="White"
+                       Text="Information panel"
+                       TextAlignment="Center"
+                       ScrollViewer.VerticalScrollBarVisibility="Visible"
+                       FontSize="16"
+                       Padding="0 3 0 0 "
+                       TextWrapping="Wrap"
+                       Width="{Binding ActualWidth, ElementName=innerresultscontainer,
+                            Converter={StaticResource ReduceByParamValue},ConverterParameter=130}"
+/>
+
+            <Button x:Name="CloseViewer" 
+                            Click="showExecuteresults_Click"
+                            Height="35" 
+                            Width="100" 
+                            Background="{StaticResource Green4}"
+                            FontSize="18"
+                            FontWeight="Bold"
+                            Content="Close" 
+                            VerticalAlignment="Bottom" 
+                            HorizontalAlignment="Right" 
+                            Margin="0 0 15 27"/>
+
+        </Grid>
+        <!--#endregion  popup processing type selection-->
+    </Grid>
+
+</Window>

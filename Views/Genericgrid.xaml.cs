@@ -1,4 +1,7 @@
-﻿using System;
+﻿#define USESHOWDIALOG
+#undef USESHOWDIALOG
+#define SHOWSPS
+using System;
 using System . Collections;
 using System . Collections . Generic;
 using System . Collections . ObjectModel;
@@ -17,12 +20,9 @@ using Dapper;
 
 using DapperGenericsLib;
 
-using DocumentFormat . OpenXml . Office2010 . ExcelAc;
-
-using Microsoft . VisualBasic;
-
 using NewWpfDev;
 using NewWpfDev . Models;
+using NewWpfDev . UserControls;
 using NewWpfDev . ViewModels;
 using NewWpfDev . Views;
 
@@ -30,6 +30,7 @@ using UserControls;
 
 using File = System . IO . File;
 using GenericClass = NewWpfDev . GenericClass;
+using Point = System . Windows . Point;
 using SqlConnection = Microsoft . Data . SqlClient . SqlConnection;
 
 namespace Views
@@ -42,27 +43,108 @@ namespace Views
     /// </summary>
     public partial class Genericgrid : Window
     {
+        //public static string DbConnectionString = "Data Source=DINO-PC;Initial Catalog=\"IAN1\";Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+        #region OnPropertyChanged
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected void OnPropertyChanged ( string PropertyName )
+        {
+            if ( this . PropertyChanged != null )
+            {
+                var e = new PropertyChangedEventArgs ( PropertyName );
+                this . PropertyChanged ( this , e );
+            }
+        }
+
+        #endregion OnPropertyChanged
+
+        #region global object initialization 
+
         public ObservableCollection<GenericClass> GridData = new ObservableCollection<GenericClass> ( );
         public ObservableCollection<GenericClass> collection = new ObservableCollection<GenericClass> ( );
         public ObservableCollection<GenericClass> ColumnsData = new ObservableCollection<GenericClass> ( );
         static public DragCtrlHelper DragCtrl = new DragCtrlHelper ( );
-        static public DatagridControl dgControl;
-        static public Genericgrid GenControl;
-        public DataGrid Dgrid;
-        public int ColumnsCount = 0;
-        public bool bStartup = true;
-
-        public static MouseButtonState mbs { get; set; }
-
         public static FlowDocument myFlowDocument = new FlowDocument ( );
-        //        public static Paragraph para = new Paragraph ( );
+        public static DragCtrlHelper dch = new DragCtrlHelper ( );
         public static Paragraph para1 = new Paragraph ( );
+        public List<Dictionary<string , string>> ColumntypesList = new List<Dictionary<string , string>> ( );
+        List<DapperGenericsLib . DataGridLayout> dglayoutlist = new List<DapperGenericsLib . DataGridLayout> ( );
 
-        public bool ShowColumnHeaders { get; set; } = true;
-        public List<int> SelectedRows = new List<int> ( );
-        //This is Updated by my Grid Control whenever it loads a different table
+        public ObservableCollection<Database> DatabasesCollection = new ObservableCollection<Database> ( );
+
+        #endregion global object initialization 
+
+
+        #region static Domain variables        
+
         // NB : Must be declared as shown, including it's name;
         public static string CurrentTableDomain = "IAN1";
+        public static string DBprefix { get; set; } = "IAN1.DBO.";
+        // set by SelectDbWin when a domain switch occurs
+        public static bool DomainChanged { get; set; } = false;
+
+        #endregion static Domain variables        
+
+        #region  Properties 
+
+        public static MouseButtonState mbs { get; set; }
+        public static string SpSearchTerm { get; set; } = "";
+        public static string CurrentSpSelection { get; set; }
+        public static SpResultsViewer spviewer { get; set; }
+        public bool ShowColumnHeaders { get; set; } = true;
+        public List<int> SelectedRows = new List<int> ( );
+        public int FlowdocVerticalpos { get; set; } = 0;
+        public double Splitterleftpos { get; set; }
+        public double Splitterlastpos { get; set; }
+        public bool SPViewerOpen { get; set; } = false;
+        bool SplistRightclick { get; set; } = false;
+        string SpLastSelection { get; set; } = "";
+        public FrameworkElement ActiveDragControl { get; set; }
+        double RTwidth { get; set; }
+        #endregion Properties
+
+        #region treeview  properties
+        public static string TvSqlCommand { get; set; }
+        public static bool TvMouseCaptured { get; set; }
+        public static double TvFirstXPos { get; set; }
+        public static double TvFirstYPos { get; set; }
+        public static double CpFirstXPos { get; set; }
+        public static double CpFirstYPos { get; set; }
+        public static  string SqlSpCommand { get; set; }
+        public static string  CurrentSPDb { get; set; }
+        public static  bool UseFlowdoc { get; set; }
+        public static FlowdocLib fdl { get; set; }
+        public static FlowDoc Flowdoc { get; set; } 
+        private object movingobject;
+          public object MovingObject
+        {
+            get
+            {
+                return movingobject;
+            }
+            set
+            {
+                movingobject = value;
+            }
+        }
+        private object movingobject2;
+        public object MovingObject2
+        {
+            get
+            {
+                return movingobject2;
+            }
+            set
+            {
+                movingobject2 = value;
+            }
+        }
+
+        #endregion  TreeviewProperties 
+
+        //This is Updated by my Grid Control whenever it loads a different table
+        #region Flags initialization 
+
         public static string LastActiveFillter = "";
         public static string LastActiveTable = "";
         public static string NewTableSelection = "";
@@ -71,50 +153,50 @@ namespace Views
         public static string Currentpanel = "GRID";
         public bool TableIsEmpty = false;
 
-
-        public static DragCtrlHelper dch = new DragCtrlHelper ( );
-
-        public int FlowdocVerticalpos { get; set; } = 0;
-        public double Splitterleftpos { get; set; }
-        public double Splitterlastpos { get; set; }
-        public bool SPViewerOpen { get; set; } = false;
-
-        bool SplistRightclick { get; set; } = false;
-        string SpLastSelection { get; set; } = "";
-        double RTwidth { get; set; }
+        #endregion flags initialization 
 
         // HSPLITTER stuff
+        #region Splitter properties
+
         double hSplitterlastpos { get; set; }
         double hSplitterbottompos { get; set; }
         double ViewerHeight { get; set; }
         double RTHeight { get; set; }
 
-        public List<Dictionary<string , string>> ColumntypesList = new List<Dictionary<string , string>> ( );
-        List<DapperGenericsLib . DataGridLayout> dglayoutlist = new List<DapperGenericsLib . DataGridLayout> ( );
+        #endregion Splitter properties
 
+        #region variables initialization 
+
+        static public DatagridControl dgControl;
+        static public Genericgrid GenControl;
+        public DataGrid Dgrid;
+        public int ColumnsCount = 0;
+        public bool bStartup = true;
         public static string NewSelectedTableName = "";
         public bool InfoViewerShown = false;
         public static bool USERRTBOX = true;
         public static bool IsMoving = false;
-        public FrameworkElement ActiveDragControl { get; set; }
-        //public static string DbConnectionString = "Data Source=DINO-PC;Initial Catalog=\"IAN1\";Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
-
         public double MAXLISTWIDTH = 250;
-        public object MovingObject;
+        
+        #endregion variables initialization 
+
+        #region FULL Bindable  properties
 
         private bool dataLoaded;
         public bool DataLoaded
         {
             get { return dataLoaded; }
-            set { dataLoaded = value; }
+            set { dataLoaded = value; OnPropertyChanged ( "DataLoaded" ); }
         }
 
         private string currentTable;
         public string CurrentTable
         {
             get { return currentTable; }
-            set { currentTable = value; }
+            set { currentTable = value; OnPropertyChanged ( "CurrentTable" ); }
         }
+
+        #endregion FULL Bindable properties
 
         #region Attached properties
 
@@ -183,10 +265,14 @@ namespace Views
         #endregion Dependency properties
         //-----------------------------------------------------------//
 
+        #region COMMANDS
         public ICommand FilterStoredprocs;
         public ICommand CloseFilterStoredprocs;
+        #endregion COMMANDS
 
+        //========================================================================================//
         public Genericgrid ( )
+        //========================================================================================//
         {
             InitializeComponent ( );
             this . DataContext = this;
@@ -206,13 +292,14 @@ namespace Views
             ShowColumnHeaders = true;
             // Thiis call loads  the data and formats the Datagrid
             LoadDbTables ( MainWindow . CurrentActiveTable );
-            //            GenericGridSupport . SelectCurrentTable ( "BankAccount" );
             ToggleColumnHeaders . IsChecked = ShowColumnHeaders;
             ColumnsCount = Dgrid . Columns . Count;
             bStartup = false;
             DatagridControl . SetParent ( ( Control ) this );
             Flags . UseScrollView = false;
             Mouse . OverrideCursor = Cursors . Arrow;
+            fdl = new FlowdocLib ( Flowdoc , Filtercanvas );
+            //Flowdoc = fdl . Flowdoc;
             // TODO  TEMP ON:Y
             // Dummy entry in save field
             NewTableName . Text = "qwerty";
@@ -240,11 +327,21 @@ namespace Views
             Mouse . OverrideCursor = Cursors . Arrow;
         }
 
-
-
         private void Grid_Loaded ( object sender , RoutedEventArgs e )
         {
             int colcount = 0;
+            string ConString = GenericDbUtilities . CheckSetSqlDomain ( "" );
+            if ( ConString == "" )
+            {
+                // set to our local definition
+                ConString = MainWindow . SqlCurrentConstring;
+            }
+            string [ ] outputs;
+            string Resultstring = "";
+            GridData = dgControl . LoadGenericData ( CurrentTable , true , ConString );
+            Reccount . Text = GridData . Count . ToString ( );
+            colcount = DatagridControl . GetColumnsCount ( GridData );
+            DatagridControl . LoadActiveRowsOnlyInGrid ( dgControl . datagridControl , GridData , colcount );
             // Force column renaming on initial loading - Honestly !!
             DatagridControl . ReplaceDataGridFldNames ( GridData , ref dgControl . datagridControl , ref dglayoutlist , colcount );
 
@@ -261,7 +358,30 @@ namespace Views
             Gengrid_SizeChanged ( null , null );
             this . Refresh ( );
             Mouse . OverrideCursor = Cursors . Arrow;
+#if SHOWSPS
+            ShowInfo ( sender , e );
+#endif 
             return;
+        }
+        public static dynamic GetStringFromDynamic ( IEnumerable<dynamic> dynovalue )
+        {
+            dynamic newresults = null;
+            string output = "";
+            foreach ( IDictionary<string , object> kvp in dynovalue )
+            {
+                foreach ( var item in kvp )
+                {
+                    Debug . WriteLine ( item . Key + ": " + item . Value );
+                    if ( item . Value != null && item . ToString ( ) . Length > 0 )
+                    {
+                        output +=$"{ item . Value as dynamic}," ;
+
+                    }
+                }
+                output += "\r\n";
+            }
+            newresults = output;
+            return newresults;
         }
         public ObservableCollection<GenericClass> GetFullColumnData ( string table )
         {
@@ -279,6 +399,7 @@ namespace Views
 
         public List<DapperGenericsLib . DataGridLayout> GetNewColumnsLayout ( string tablename , ObservableCollection<GenericClass> griddata , out int recordcount )
         {
+            // All working as defined 1/11/22
             File . Delete ( @"c:\users\ianch\documents\CW.log" );
             //$"calling LoadDbAsGenericData" . CW ( );
             string error = "";
@@ -298,25 +419,30 @@ namespace Views
             string err = "";
             string command = "";
 
-            // Add domain to command
-            string Domain = $"{CurrentTableDomain}.dbo.";
-            command = $"drop table if exists {Domain}x_1";
-            int dapperresult = dgControl . ExecuteDapperCommand ( command , null , out err );
-            if ( dapperresult != -1 )
+            GetValidDomain ( );
+            command = $"drop table if exists {DBprefix}x_1";
+            var dapperresult = dgControl . ExecuteDapperCommand ( command , null , out err );
+            if ( err != "" )
             {
                 Debug . WriteLine ( $"MAJOR PROBLEM - Drop table failed.\nAborting load, Error = [{err}]" );
                 return null;
             }
-            command = $"select column_name, data_type, character_maximum_length, numeric_precision, numeric_scale into {Domain}x_1 from information_schema.columns where table_name='{tablename}'";
+            command = $"select column_name, data_type, character_maximum_length, numeric_precision, numeric_scale into {DBprefix}x_1 from information_schema.columns where table_name='{tablename}'";
             ObservableCollection<GenericClass> columnsinfo = new ObservableCollection<GenericClass> ( );
-            if ( dgControl . ExecuteDapperCommand ( command , null , out err ) == 0 )
+            dgControl . ExecuteDapperCommand ( command , null , out err );
+            if ( err == "" )
+            {
+                command = $"Select * from {DBprefix}x_1";
+                dgControl . ExecuteDapperCommand ( command , null , out err );
+            }
+            else
             {
                 Debug . WriteLine ( $"MAJOR PROBLEM - Data selection 1 failed \nAborting load, Error = [{err}]" );
                 return null;
             }
 
             // Finally Get columns info data
-            command = $"select column_name, data_type, character_maximum_length, numeric_precision, numeric_scale from {Domain}x_1";
+            command = $"select column_name, data_type, character_maximum_length, numeric_precision, numeric_scale from {DBprefix}x_1";
             columnsinfo = dgControl . GetDataFromStoredProcedure ( command , null , CurrentTableDomain , out err , out recordcount , 1 );
             if ( columnsinfo == null )
             {
@@ -327,14 +453,16 @@ namespace Views
             {
                 dglayoutlist = CreateColumnsLayout ( columnsinfo );
             }
-            command = $"drop table if exists {Domain}x_1";
-            if ( dgControl . ExecuteDapperCommand ( command , null , out err ) != -1 )
+            command = $"drop table if exists {DBprefix}x_1";
+            var res = dgControl . ExecuteDapperCommand ( command , null , out err );
+            if ( err != "" )
             {
                 Debug . WriteLine ( $"MAJOR PROBLEM - Drop table failed.\nAborting load, Error = [{err}]" );
                 return null;
             }
             return dglayoutlist;
         }
+
         public List<DapperGenericsLib . DataGridLayout> CreateColumnsLayout ( ObservableCollection<GenericClass> columnsinfo )
         {
             List<DapperGenericsLib . DataGridLayout> dglayoutlist = new List<DapperGenericsLib . DataGridLayout> ( );
@@ -393,9 +521,9 @@ namespace Views
                 {
                     string error = "";
                     // returned count > 0 , so it DOES exist, so go get data from table
-                    string domain = $"{CurrentTableDomain}.dbo.";
+                    GetValidDomain ( );
                     ObservableCollection<GenericClass> temp = new ObservableCollection<GenericClass> ( );
-                    LoadTableGeneric ( $"Select * from {domain}{selection}" , ref temp , out error );
+                    LoadTableGeneric ( $"Select * from {DBprefix}{selection}" , ref temp , out error );
                     if ( temp == null || temp . Count == 0 )
                     {
                         // StdError ( );
@@ -502,11 +630,12 @@ namespace Views
                     parameters . Add ( "Arg1" , name , dbType: DbType . String , direction: ParameterDirection . Input );
                     // get count of records in specified table
                     //*****************************************************************************************************************************//
-                    $"spCheckTableExists2" . DapperTrace ( );
-                    string Domain = $"{CurrentTableDomain}.dbo.";
-                    reslt = db . Query ( $"{Domain}spCheckTableExists2" , parameters , commandType: CommandType . StoredProcedure );
+                    GetValidDomain ( );
+                    //$"{DBprefix}spCheckTableExists2" . DapperTrace ( );
+                    reslt = db . Query ( $"{DBprefix}spCheckTableExists2" , parameters , commandType: CommandType . StoredProcedure );
                     //*****************************************************************************************************************************//
                     result = reslt . Count ( );
+                    $"{DBprefix}spCheckTableExists2 returned {result}" . DapperTrace ( );
                     // now get the result in the format we want to return (int)
                     //foreach ( var rows in reslt )
                     //{
@@ -527,26 +656,72 @@ namespace Views
             return result;
         }
 
-        public ObservableCollection<GenericClass> LoadFullSqlTable ( string SqlCommand , out string err , string domain = "IAN1" )
+        //        public ObservableCollection<GenericClass> LoadFullSqlTable ( string SqlCommand , string [ ] args , out string err , string domain = "IAN1" , int method = 0 )
+        public dynamic LoadFullSqlTable ( string SqlCommand , string [ ] args , out string err , string domain = "IAN1" , int method = 0 )
         {
+            //if(method == 0 ) Sqlcommand=TEXT, returns an int
+            //if(method == 1 ) Sqlcommand=S.P name, returns a text string
+            //if(method == 2 ) Sqlcommand=S.P name, returns a List
+
             bool exist = false;
             IEnumerable<dynamic> reslt = null;
+            IEnumerable<dynamic> str = null;
             ObservableCollection<GenericClass> tmp = new ObservableCollection<GenericClass> ( );
             err = "";
-
+            collection = new ObservableCollection<GenericClass> ( );
             string Con = NewWpfDev . Utils . GetCheckCurrentConnectionString ( CurrentTableDomain );
             try
             {
                 using ( IDbConnection db = new SqlConnection ( Con ) )
                 {
                     $"{SqlCommand}" . DapperTrace ( );
-                    reslt = db . Query ( SqlCommand , CommandType . Text );
+                    bool hasoutput = false;
+                    bool hasretval = false;
+                    DynamicParameters parameters = new DynamicParameters ( );
+                    parameters = DatagridControl . ParseSqlArguments ( args , ref hasoutput , ref hasretval );
+                    Dictionary<string , List<dynamic>> dict = new Dictionary<string , List<dynamic>> ( );
+
+                    if ( method == 0 )
+                        reslt = db . Query ( SqlCommand , CommandType . Text );
+                    else if ( method == 1 )
+                    {
+                        int colcount = 0;
+                        Dictionary<string , object> dict2 = new Dictionary<string , object> ( );
+
+                        SqlCommand = "Drop table if exists retvalues";
+                        var spr2 = db . Query<dynamic> ( SqlCommand , parameters , commandType: CommandType . Text );
+                        SqlCommand = "select ROUTINE_DEFINITION into retvalues from SpFullSchema where UPPER(ROUTINE_NAME)=UPPER(@Arg1) order by ROUTINE_NAME";
+                        var spr = db . Query<dynamic> ( SqlCommand , parameters , commandType: CommandType . Text );
+                        SqlCommand = "select * from retvalues";
+                        var spr3 = db . Query<dynamic> ( SqlCommand , parameters , commandType: CommandType . Text );
+
+                        dynamic newresults = GetStringFromDynamic ( spr3 );
+                        return newresults;
+                        // handled by call above now
+                        {
+                            //foreach ( IDictionary<string , object> kvp in spr3 )
+                            //{
+                            //    //foreach ( var item in kvp )
+                            //    //{
+                            //    //    Debug . WriteLine ( item . Key + ": " + item . Value );
+                            //    //    if ( item . Value != null && item . ToString ( ) . Length > 0 )
+                            //    //    {
+                            //    //        dynamic newresults = item . Value as dynamic;
+                            //    //        return newresults;
+                            //    //        break;
+                            //    //    }
+                            //}
+                        }
+                    }
+                    else
+                        reslt = db . Query ( SqlCommand , CommandType . StoredProcedure ) . ToList ( );
                 }
+
                 if ( reslt == null )
                     return null;
                 else
                 {
-                    string errormsg = "DYNAMIC";
+                    string errormsg = "";
                     int dictcount = 0;
                     int fldcount = 0;
                     int colcount = 0;
@@ -720,7 +895,7 @@ namespace Views
             {
 
             }
-            return tmp; ;
+            return tmp;
         }
 
         public void ResetColumnHeaderToTrueNames ( string CurrentTable , DataGrid Grid )
@@ -781,8 +956,8 @@ namespace Views
                 return TablesList;
             }
             //// All Db's have their own version of this SP.....
-            string Domain = $"{CurrentTableDomain}.dbo.";
-            SqlCommand = $"{Domain}spGetTablesList";
+            GetValidDomain ( );
+            SqlCommand = $"{DBprefix}spGetTablesList";
 
             TablesList = GenericGridSupport . CallStoredProcedure ( list , SqlCommand );
             if ( CurrentTableDomain . ToUpper ( ) == "ADVENTUREWORKS2019" )
@@ -790,10 +965,10 @@ namespace Views
             //// return list of all current SQL tables in current Db
             return TablesList;
         }
-        public List<string> CallStoredProcedure ( List<string> list , string sqlcommand )
+        public List<string> CallStoredProcedure ( List<string> list , string sqlcommand , string [ ] args = null )
         {
             List<string> splist = new List<string> ( );
-            splist = DatagridControl . ProcessUniversalQueryStoredProcedure ( "spGetStoredProcs" , null , CurrentTableDomain , out string err );
+            splist = DatagridControl . ProcessUniversalQueryStoredProcedure ( "spGetStoredProcs" , args , CurrentTableDomain , out string err );
             //This call returns us a DataTable
             return splist;
         }
@@ -992,7 +1167,9 @@ namespace Views
                 string [ ] args = { $"{SqlTables . SelectedItem . ToString ( )}" , $"{NewDbName}" , "" , "" };
                 int recordcount = 0;
                 string Tablename = "";
-                recordcount = dgControl . ExecuteStoredProcedure ( "spCopyDb" , args , out string err );
+                string err;
+                string [ ] outputs;
+                recordcount = dgControl . ExecuteStoredProcedure ( "spCopyDb" , args , out err );
                 // make deep copy of table else it gets cleared elsewhere
                 // Create a completely new instance via seriazable Clone method stored in NewWpfDev.Utils (in ObjectCopier class file)
                 ObservableCollection<GenericClass> deepcopy = new ObservableCollection<GenericClass> ( );
@@ -1265,32 +1442,35 @@ namespace Views
                 // Load the list of SP's for the InfoGriid viewer
                 if ( reload )
                 {
-                    SpList = CallStoredProcedure ( SpList , "spGetStoredProcs" );
-                    if ( SpList == null )
+                    int count = LoadStoredProcedures ( "spGetStoredProcs" , "" );
+                    if ( count == 0 )
                         return false;
-                    Splist . ItemsSource = null;
-                    Splist . ItemsSource = SpList;
-                    Splist . Items . SortDescriptions . Add ( new SortDescription ( "" , ListSortDirection . Ascending ) );
-                    SpInfo . Text = SpInfo . Text = $"All S.Procs ";
-                    SpInfo2 . Text = $"{Splist . Items . Count} available...";
-                    InfoHeaderPanel . Text = $"All ({Splist . Items . Count}) Stored Procedures are displayed";
-                    CurrentSpList = "ALL";
+                    //Splist . ItemsSource = null;
+                    //Splist . ItemsSource = SpList;
+                    //Splist . Items . SortDescriptions . Add ( new SortDescription ( "" , ListSortDirection . Ascending ) );
+                    //SpInfo . Text = SpInfo . Text = $"All S.Procs ";
+                    //SpInfo2 . Text = $"{Splist . Items . Count} available...";
+                    //InfoHeaderPanel . Text = $"All ({Splist . Items . Count}) Stored Procedures are displayed";
+                    //CurrentSpList = "ALL";
                     ViewerGrid . ColumnDefinitions [ 0 ] . Width = new GridLength ( 250 , GridUnitType . Pixel );
                 }
                 Splist . Visibility = Visibility . Visible;
             }
             else if ( Splist . Items . Count == 0 )
             {
-                // Load the list of SP's for the InfoGriid viewer
-                SpList = CallStoredProcedure ( SpList , "spGetStoredProcs" );
+                // Load the list of SP's for the InfoGrid viewer
+                int count = LoadStoredProcedures ( "spGetStoredProcs" , "" );
+                if ( count == 0 )
+                    return false;
+                //SpList = CallStoredProcedure ( SpList , "spGetStoredProcs" );
 
-                Splist . ItemsSource = null;
-                Splist . ItemsSource = SpList;
-                Splist . Items . SortDescriptions . Add ( new SortDescription ( "" , ListSortDirection . Ascending ) );
-                SpInfo . Text = SpInfo . Text = $"All S.Procs ";
-                SpInfo2 . Text = $"{Splist . Items . Count} available...";
-                InfoHeaderPanel . Text = $"All {Splist . Items . Count} Stored Procedures are displayed";
-                CurrentSpList = "ALL";
+                //Splist . ItemsSource = null;
+                //Splist . ItemsSource = SpList;
+                //Splist . Items . SortDescriptions . Add ( new SortDescription ( "" , ListSortDirection . Ascending ) );
+                //SpInfo . Text = SpInfo . Text = $"All S.Procs ";
+                //SpInfo2 . Text = $"{Splist . Items . Count} available...";
+                //InfoHeaderPanel . Text = $"All {Splist . Items . Count} Stored Procedures are displayed";
+                //CurrentSpList = "ALL";
                 //InfoVisible . IsEnabled = false;
                 ///ViewerVisible . IsEnabled = true;
             }
@@ -1305,14 +1485,47 @@ namespace Views
 
             // Show complete container
             InfoGrid . Visibility = Visibility . Visible;
-            // Hide main datagrid
-
-
-            //dgControl . datagridControl . Visibility = Visibility . Collapsed;
-
             Mouse . OverrideCursor = Cursors . Arrow;
             InfoViewerShown = true;
             return true;
+        }
+
+        public int LoadStoredProcedures ( string spCommand , string srchterm )
+        {
+            List<string> NewSplist = new List<string> ( );
+            string previousSelection = "";
+            if ( Splist . SelectedItem != null )
+                previousSelection = Splist . SelectedItem . ToString ( );
+            string [ ] args = new string [ 1 ];
+            if ( srchterm != "" )
+                args [ 0 ] = srchterm;
+            else
+                args = null;
+
+            NewSplist = CallStoredProcedure ( NewSplist , spCommand , args );
+            //NewSplist = CallStoredProcedure ( NewSplist , "spGetStoredProcs" , args );
+            Splist . ItemsSource = null;
+            Splist . UpdateLayout ( );
+            Splist . ItemsSource = NewSplist;
+            Splist . Items . SortDescriptions . Add ( new SortDescription ( "" , ListSortDirection . Ascending ) );
+            SpInfo . Text = SpInfo . Text = $"All S.Procs ";
+            SpInfo2 . Text = $"{Splist . Items . Count} available...";
+            InfoHeaderPanel . Text = $"All {Splist . Items . Count} Stored Procedures are displayed";
+            CurrentSpList = "ALL";
+            if ( previousSelection != "" )
+            {
+                int indx = 0;
+                foreach ( var item in Splist . Items )
+                {
+                    if ( item == previousSelection )
+                    {
+                        Splist . SelectedIndex = indx;
+                        break;
+                    }
+                }
+            }
+            Splist . UpdateLayout ( );
+            return NewSplist . Count;
         }
         private void InfoGrid_KeyDown ( object sender , KeyEventArgs e )
         {
@@ -1404,9 +1617,10 @@ namespace Views
             string curtbl = CurrentTable;
             string err = "";
             string donorTable = SqlTables . SelectedItem . ToString ( );
-            // Add domain to command
-            string Domain = $"{CurrentTableDomain}.dbo.";
-            int result = GenericGridSupport . SaveAsNewTable ( donorTable , Domain + NewTableName . Text , out err );
+            // Add DBprefix to command
+
+            GetValidDomain ( );
+            int result = GenericGridSupport . SaveAsNewTable ( donorTable , DBprefix + NewTableName . Text , out err );
             if ( result == -9 )
             {
                 StdError ( );
@@ -1444,7 +1658,11 @@ namespace Views
                 dgControl . datagridControl . Items . Clear ( );
                 dgControl . datagridControl . Refresh ( );
                 SqlTables . SelectedIndex = 0;
-                SetStatusbarText ( "List of Sql Tables has been refreshed successfully, but the previously displayed table no longer exists, \nso the 1st table in the list has been selected for you" , 1 );
+                if ( DomainChanged )
+                    SetStatusbarText ( "List of Sql Tables has been refreshed successfully, but the previously displayed table no longer exists, \nso the 1st table identified in the new Database  has been selected for you" , 1 );
+                else
+                    SetStatusbarText ( "List of Sql Tables has been refreshed successfully, but the previously displayed table no longer exists, \nso the 1st table in the new list of tables has been selected for you" , 1 );
+                DomainChanged = false;
                 dgControl . datagridControl . Refresh ( );
             }
             else
@@ -1453,7 +1671,7 @@ namespace Views
             if ( DisplayInformationViewer ( true , true ) == true )
             {
                 this . Title = $"Generic SQL Tables - Active Database = {CurrentTableDomain . ToUpper ( )}";
-                caption . Text = $"Current Table Status / Processing information : Current Database = {CurrentTableDomain.ToUpper()}";
+                caption . Text = $"Current Table Status / Processing information : Current Database = {CurrentTableDomain . ToUpper ( )}";
             }
             else
                 SetStatusbarText ( "An error occured when trying to reload data, so the Stored Procedures list may not  be populated ..." , 1 );
@@ -1722,21 +1940,22 @@ namespace Views
             string spCommand = $"drop table if exists {filterargs [ 2 ]}";
             dgControl . ExecuteDapperCommand ( spCommand , null , out err );
             spCommand = $"Select * into {filterargs [ 2 ]} from {filterargs [ 0 ]} where {filterargs [ 1 ]}";
-            int result = dgControl . ExecuteDapperCommand ( spCommand , null , out err );
-            if ( result > 0 )
+            var result = dgControl . ExecuteDapperCommand ( spCommand , null , out err );
+            if ( err != "" )
             {
                 spCommand = $"drop table if exists Temp";
                 dgControl . ExecuteDapperCommand ( spCommand , null , out err );
                 spCommand = $"Select * from {filterargs [ 2 ]}";
-                GridData = LoadFullSqlTable ( spCommand , out err , CurrentTableDomain );
+                string [ ] args = new string [ 0 ];
+                GridData = LoadFullSqlTable ( spCommand , args , out err , CurrentTableDomain );
             }
-            else if ( result == -9 )
-            {
-                SetStatusbarText ( $"The Filter did NOT complete successfully, so the original table remains shown above..\nError Mesage returned was {err}...." , 1 );
-                Debug . WriteLine ( err );
-                closeFilter ( sender , e );
-                Mouse . OverrideCursor = Cursors . Arrow;
-            }
+            //else if ( result == -9 )
+            //{
+            //    SetStatusbarText ( $"The Filter did NOT complete successfully, so the original table remains shown above..\nError Mesage returned was {err}...." , 1 );
+            //    Debug . WriteLine ( err );
+            //    closeFilter ( sender , e );
+            //    Mouse . OverrideCursor = Cursors . Arrow;
+            //}
             if ( GridData . Count ( ) == 0 )
             {
                 MsgBoxArgs msgargs = new MsgBoxArgs ( );
@@ -1754,8 +1973,9 @@ namespace Views
                     GenericDbUtilities . CheckDbDomain ( "" );
                     ConString = MainWindow . CurrentSqlTableDomain;
                 }
+                string Resultstring = "";
 
-                GridData = dgControl . LoadGenericData ( CurrentTable , true , ConString );
+                GridData = dgControl . LoadGenericData ( CurrentTable , true , ConString  );
                 Reccount . Text = GridData . Count . ToString ( );
                 cmb . Show ( msgargs );
                 Mouse . OverrideCursor = Cursors . Arrow;
@@ -1845,7 +2065,7 @@ namespace Views
                 // into left column of  our viewer panel of our Viewergrid
                 if ( Splist . Items . Count == 0 )
                 {
-                    list = LoadMatchingStoredProcs ( Searchtext );
+                    list = LoadMatchingStoredProcs ( Splist , Searchtext );
                     Splist . ItemsSource = null;
                     Splist . ItemsSource = list;
                     //                    ListCounter . Text = $"{Splist . Items . Count} Files available...";
@@ -1879,6 +2099,8 @@ namespace Views
             // Load a specified SP file
             DataTable dt = new ( );
             string output = "";
+            if ( spName == null )
+                return "";
             dt = DatagridControl . ProcessSqlCommand ( $"spGetSpecificSchema  '{spName}'" , Flags . CurrentConnectionString );
             List<string> list = new List<string> ( );
             List<string> headeronlylist = new List<string> ( );
@@ -2076,24 +2298,24 @@ namespace Views
             run2 . Background = FindResource ( "Black4" ) as SolidColorBrush;
             return run2;
         }
-        public List<string> LoadMatchingStoredProcs ( string Searchtext )
+        public List<string> LoadMatchingStoredProcs ( ListBox lbox , string Searchtext )
         {
             DataTable dt = new DataTable ( );
-            string SqlCommand = $"spFindTextInSProc";
+            string SqlCommand = $"spGetAllSprocsMatchingSearchterm";
             Mouse . OverrideCursor = Cursors . Wait;
             string [ ] args = new string [ 1 ];
             args [ 0 ] = Searchtext;
             dt = DatagridControl . ProcessSqlCommand ( SqlCommand , Flags . CurrentConnectionString , args );
             List<string> list = GetDataDridRowsAsListOfStrings ( dt );
-            ProcNames . ItemsSource = null;
-            ProcNames . Items . Clear ( );
+            lbox . ItemsSource = null;
+            lbox . Items . Clear ( );
             if ( list . Count > 0 )
             {
                 foreach ( var item in list )
                 {
-                    ProcNames . Items . Add ( item as string );
+                    lbox . Items . Add ( item as string );
                 }
-                ProcNames . SelectedIndex = 0;
+                lbox . SelectedIndex = 0;
                 // show sp listbox dialog
             }
             return list;
@@ -2103,7 +2325,7 @@ namespace Views
             // load all SP's that contain the specified search term
             // and add them to listbox in larger selection dialog
             Searchtext = selectedSp . Text;
-            List<string> list = LoadMatchingStoredProcs ( selectedSp . Text );
+            List<string> list = LoadMatchingStoredProcs ( Splist , selectedSp . Text );
             DragCtrl . InitializeMovement ( SpStringsSelector as FrameworkElement , this );
             if ( list . Count == 0 )
             {
@@ -2115,7 +2337,8 @@ namespace Views
                 //                var dgobj = DapperGenericsLib . Utils . FindVisualParent<Genericgrid> ( e . OriginalSource as DependencyObject );
                 cmb . Show ( msgargs );
             }
-            //SpStringsSelector . Visibility = Visibility . Visible;
+            Splist . ItemsSource = null;
+            Splist . Items . Clear ( );
             Splist . ItemsSource = list;
             SpInfo . Text = $"All  Matching S.P's";
             SpInfo2 . Text = $"{Splist . Items . Count} match [{Searchtext}]";
@@ -2242,79 +2465,79 @@ namespace Views
         #endregion Search SP's for specific text
         //-----------------------------------------------------------//
 
-        #region FlowDoc support
-        /// <summary>
-        ///  These are the only methods any window needs to provide support for my FlowDoc system.
+        //#region FlowDoc support
+        ///// <summary>
+        /////  These are the only methods any window needs to provide support for my FlowDoc system.
 
-        // This is triggered/Broadcast by FlowDoc so that the parent controller can Collapse the 
-        // Canvas so it  does not BLOCK other controls after being closed.
-        //private void Flowdoc_FlowDocClosed (object sender , EventArgs e)
+        //// This is triggered/Broadcast by FlowDoc so that the parent controller can Collapse the 
+        //// Canvas so it  does not BLOCK other controls after being closed.
+        //private void Flowdoc_FlowDocClosed ( object sender , EventArgs e )
         //{
         //    Filtercanvas . Visibility = Visibility . Collapsed;
         //}
 
-        //protected void MaximizeFlowDoc (object sender , EventArgs e)
+        //protected void MaximizeFlowDoc ( object sender , EventArgs e )
         //{
         //    // Clever "Hook" method that Allows the flowdoc to be resized to fill window
         //    // or return to its original size and position courtesy of the Event declard in FlowDoc
-        //    fdl . MaximizeFlowDoc(Flowdoc , Filtercanvas , e);
+        //    fdl . MaximizeFlowDoc ( this.Flowdoc, Filtercanvas , e );
         //}
 
-        //private void Flowdoc_MouseLeftButtonUp (object sender , MouseButtonEventArgs e)
+        //private void Flowdoc_MouseLeftButtonUp ( object sender , MouseButtonEventArgs e )
         //{
         //    // Window wide  !!
         //    // Called  when a Flowdoc MOVE has ended
-        //    MovingObject2 = fdl . Flowdoc_MouseLeftButtonUp(sender , Flowdoc , MovingObject2 , e);
+        //    MovingObject2 = fdl . Flowdoc_MouseLeftButtonUp ( sender , Flowdoc , MovingObject2 , e );
         //    // TODO ?????
         //    //MovingObject2 . ReleaseMouseCapture();
         //}
 
         //// CALLED WHEN  LEFT BUTTON PRESSED
-        //private void Flowdoc_PreviewMouseLeftButtonDown (object sender , MouseButtonEventArgs e)
+        //private void Flowdoc_PreviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
         //{
         //    //In this event, we get current mouse position on the control to use it in the MouseMove event.
-        //    MovingObject2 = fdl . Flowdoc_PreviewMouseLeftButtonDown(sender , Flowdoc , e);
-        //    Debug . WriteLine($"MvvmDataGrid Btn down {MovingObject2}");
+        //    MovingObject2 = fdl . Flowdoc_PreviewMouseLeftButtonDown ( sender , Flowdoc , e );
+        //    Debug . WriteLine ( $"MvvmDataGrid Btn down {MovingObject2}" );
         //}
 
-        //private void Flowdoc_MouseMove (object sender , MouseEventArgs e)
+        //private void Flowdoc_MouseMove ( object sender , MouseEventArgs e )
         //{
         //    // We are Resizing the Flowdoc using the mouse on the border  (Border.Name=FdBorder)
-        //    fdl . Flowdoc_MouseMove(Flowdoc , Filtercanvas , MovingObject , e);
+        //    fdl . Flowdoc_MouseMove ( Flowdoc , Filtercanvas , MovingObject , e );
         //}
 
         //// Shortened version proxy call		
-        //private void Flowdoc_LostFocus (object sender , RoutedEventArgs e)
+        //private void Flowdoc_LostFocus ( object sender , RoutedEventArgs e )
         //{
         //    Flowdoc . BorderClicked = false;
         //}
 
-        //public void FlowDoc_ExecuteFlowDocBorderMethod (object sender , EventArgs e)
+        //public void FlowDoc_ExecuteFlowDocBorderMethod ( object sender , EventArgs e )
         //{
         //    // EVENTHANDLER to Handle resizing
         //    FlowDoc fd = sender as FlowDoc;
-        //    Point pt = Mouse . GetPosition(Filtercanvas);
+        //    Point pt = Mouse . GetPosition ( Filtercanvas );
         //    double dLeft = pt . X;
         //    double dTop = pt . Y;
         //}
 
-        //private void LvFlowdoc_PreviewMouseLeftButtonDown (object sender , MouseButtonEventArgs e)
+        //private void LvFlowdoc_PreviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
         //{
         //    //In this event, we get current mouse position on the control to use it in the MouseMove event.
-        //    MovingObject2 = fdl . Flowdoc_PreviewMouseLeftButtonDown(sender , Flowdoc , e);
+        //    MovingObject2 = fdl . Flowdoc_PreviewMouseLeftButtonDown ( sender , Flowdoc , e );
         //}
 
-        //public void fdmsg (string line1 , string line2 = "" , string line3 = "")
+        //public void fdmsg ( string line1 , string line2 = "" , string line3 = "" )
         //{
         //    //We have to pass the Flowdoc.Name, and Canvas.Name as well as up   to 3 strings of message
         //    //  you can  just provie one if required
         //    // eg fdmsg("message text");
-        //    fdl . FdMsg(Flowdoc , Filtercanvas , line1 , line2 , line3);
+        //    fdl . FdMsg ( Flowdoc , Filtercanvas , line1 , line2 , line3 );
         //}
 
-        //-----------------------------------------------------------//
-        #endregion Flowdoc support via library
-        //-----------------------------------------------------------//
+        ////-----------------------------------------------------------//
+        //#endregion Flowdoc support via library
+        ////-----------------------------------------------------------//
         private void ShowMoveInfo ( object sender , RoutedEventArgs e )
         {
             infotext = File . ReadAllText ( @$"C:\users\ianch\documents\Universal Control Moving Info.Txt" );
@@ -2351,10 +2574,10 @@ namespace Views
             }
             SpLastSelection = spfilename;
 
-            if ( SplistRightclick == false )
-                sptext = FetchStoredProcedureCode ( Splist . SelectedItem . ToString ( ) );
-            else
-                sptext = FetchStoredProcedureCode ( null );
+            sptext = FetchStoredProcedureCode ( Splist . SelectedItem . ToString ( ) );
+            //else
+            //    sptext = FetchStoredProcedureCode ( null );
+            //            if ( SplistRightclick == false )
             SplistRightclick = false;
             if ( sptext == "" )
             {
@@ -2476,7 +2699,7 @@ namespace Views
             if ( Searchtext != "" )
             {
                 Mouse . OverrideCursor = Cursors . Wait;
-                List<string> list = LoadMatchingStoredProcs ( Searchtext );
+                List<string> list = LoadMatchingStoredProcs ( Splist , Searchtext );
                 Splist . ItemsSource = null;
                 Splist . ItemsSource = list;
                 SpInfo . Text = $"All  Matching S.P's";
@@ -2545,7 +2768,7 @@ namespace Views
                 return;
             if ( Searchtext != "" )
             {
-                List<string> list = LoadMatchingStoredProcs ( Searchtext );
+                List<string> list = LoadMatchingStoredProcs ( Splist , Searchtext );
                 Splist . ItemsSource = null;
                 Splist . Items . Clear ( );
                 Splist . ItemsSource = list;
@@ -2974,6 +3197,7 @@ namespace Views
                         {
                             bool [ ] argsarray = { false , false , false , false };
                             int argscount = 0;
+                            //  int adownrgscount = 0;
                             // we maybe have args in quotes
                             string [ ] args = Arguments . Trim ( ) . Split ( '\'' );
                             for ( int x = 0 ; x < args . Length ; x++ )
@@ -3634,7 +3858,7 @@ namespace Views
 
             if ( e . Key == Key . Add )
             {
-                  para1 . FontSize += 1;
+                para1 . FontSize += 1;
             }
             else if ( e . Key == Key . Subtract )
             {
@@ -3644,19 +3868,71 @@ namespace Views
             {
                 FlowDocumentScrollViewer fdsv = sender as FlowDocumentScrollViewer;
                 ScrollViewer sv = fdsv . Template . FindName ( "PART_ContentHost" , fdsv ) as ScrollViewer;
-                FlowdocVerticalpos += 10;
-                sv . ScrollToVerticalOffset( FlowdocVerticalpos );
+                FlowdocVerticalpos += 13;
+                if ( FlowdocVerticalpos > sv . ScrollableHeight )
+                    FlowdocVerticalpos = Convert . ToInt32 ( sv . ScrollableHeight );
+                sv . ScrollToVerticalOffset ( FlowdocVerticalpos );
+                Debug . WriteLine ( FlowdocVerticalpos );
             }
             else if ( e . Key == Key . Up )
             {
                 FlowDocumentScrollViewer fdsv = sender as FlowDocumentScrollViewer;
                 ScrollViewer sv = fdsv . Template . FindName ( "PART_ContentHost" , fdsv ) as ScrollViewer;
-                FlowdocVerticalpos -= 10;
+                if ( FlowdocVerticalpos > 13 )
+                    FlowdocVerticalpos -= 13;
+                else if ( FlowdocVerticalpos <= 13 )
+                    FlowdocVerticalpos -= 0;
+                sv . ScrollToVerticalOffset ( FlowdocVerticalpos );
+            }
+            else if ( e . Key == Key . Home )
+            {
+                FlowDocumentScrollViewer fdsv = sender as FlowDocumentScrollViewer;
+                ScrollViewer sv = fdsv . Template . FindName ( "PART_ContentHost" , fdsv ) as ScrollViewer;
+                sv . ScrollToHome ( );
+                FlowdocVerticalpos = 0;
+            }
+            else if ( e . Key == Key . End )
+            {
+                FlowDocumentScrollViewer fdsv = sender as FlowDocumentScrollViewer;
+                ScrollViewer sv = fdsv . Template . FindName ( "PART_ContentHost" , fdsv ) as ScrollViewer;
+                sv . ScrollToEnd ( );
+                double dbl = sv . ActualHeight;
+                //FlowdocVerticalpos =Convert.ToInt32( sv . ViewportHeight);
+                //FlowdocVerticalpos = Convert . ToInt32 ( sv . ScrollToEnd));
+                //sv . ScrollToVerticalOffset ( FlowdocVerticalpos );
+            }
+            else if ( e . Key == Key . PageUp )
+            {
+                FlowDocumentScrollViewer fdsv = sender as FlowDocumentScrollViewer;
+                ScrollViewer sv = fdsv . Template . FindName ( "PART_ContentHost" , fdsv ) as ScrollViewer;
+                FlowdocVerticalpos -= Convert . ToInt32 ( sv . ViewportHeight );
+                if ( FlowdocVerticalpos < 0 )
+                    FlowdocVerticalpos = 0;
+                //else
+                //{
+                //        FlowdocVerticalpos = Convert . ToInt32 ( sv . ViewportHeight );
+                //}
+                sv . ScrollToVerticalOffset ( FlowdocVerticalpos );
+            }
+            else if ( e . Key == Key . PageDown )
+            {
+                FlowDocumentScrollViewer fdsv = sender as FlowDocumentScrollViewer;
+                ScrollViewer sv = fdsv . Template . FindName ( "PART_ContentHost" , fdsv ) as ScrollViewer;
+                if ( FlowdocVerticalpos >= Convert . ToInt32 ( sv . ExtentHeight ) )
+                    FlowdocVerticalpos += Convert . ToInt32 ( sv . ViewportHeight );
+                else
+                    FlowdocVerticalpos += Convert . ToInt32 ( sv . ViewportHeight );
                 sv . ScrollToVerticalOffset ( FlowdocVerticalpos );
             }
             fdv . UpdateLayout ( );
         }
+        private void RTBox_Scroll ( object sender , ScrollEventArgs e )
+        {
+            Type type = sender . GetType ( );
+            FlowDocumentScrollViewer sb = sender as FlowDocumentScrollViewer;
+            //var height = sb .m;
 
+        }
         /// <summary>
         /// Collapses 1 or more Context menu entries and returns a ContextMenu pointer
         /// </summary>
@@ -3885,7 +4161,7 @@ namespace Views
                     string newdataitem = "";
                     string [ ] parts;
 
-                    sqlCon . Open ( );
+                    //sqlCon . Open ( );
 
                     foreach ( GenericClass item in GridData )
                     {
@@ -3933,13 +4209,13 @@ namespace Views
                 Debug . WriteLine ( $"Error {ex . Message}, {ex . Data}" );
                 $" {SqlInsertCommand}" . dcwerror ( );
                 StdError ( );
-                //sqlCon . Close ( );
+                ////sqlCon . close ( );
                 gresult = -3;
                 retval = false;
             }
             finally
             {
-                sqlCon . Close ( );
+                //sqlCon . close ( );
             }
             return retval;
         }
@@ -3996,7 +4272,7 @@ namespace Views
         { return true; }
         #endregion ICOMMANDS
 
-        public Grid FindOuterParent ( object sender , RoutedEventArgs e )
+        public Grid FindOuterParent ( object sender , RoutedEventArgs e , string target = "" )
         {
             UIElement returnval = null;
             Grid dgobj = null;
@@ -4006,19 +4282,35 @@ namespace Views
             UIElement fe = sender as UIElement;
             Type type = sender . GetType ( );
 
+            if ( target != "" && type == typeof ( Grid ) )
+            {
+                dgobj = sender as Grid;
+                if ( dgobj . Name == target )
+                    return dgobj;
+            }
             dgobj = DapperGenericsLib . Utils . FindVisualParent<Grid> ( e . OriginalSource as DependencyObject );
 
             if ( dgobj != null )
             {
+                if ( target != "" )
+                {
+                    if ( dgobj . Name == target )
+                        return dgobj;
+                }
                 while ( true )
                 {
                     if ( dgobj . GetType ( ) == typeof ( Grid ) && currgrid == "" )
+                    {
                         currgrid = dgobj . Name;
-                    if ( dgobj2 != null ) dgobj = DapperGenericsLib . Utils . FindVisualParent<Grid> ( dgobj2 as DependencyObject );
-                    else dgobj = DapperGenericsLib . Utils . FindVisualParent<Grid> ( e . OriginalSource as DependencyObject );
+                        return dgobj;
+                    }
+                    if ( dgobj == null )
+                        dgobj = DapperGenericsLib . Utils . FindVisualParent<Grid> ( dgobj2 as DependencyObject );
+                    //else 
+                    //    dgobj = DapperGenericsLib . Utils . FindVisualParent<Grid> ( e . OriginalSource as DependencyObject );
 
                     if ( dgobj == null ) break;
-                    if ( dgobj . Name == "Execsp" )
+                    if ( target != "" && dgobj . Name == target )
                     {
                         dgobj . Visibility = Visibility . Collapsed;
                         break;
@@ -4091,14 +4383,44 @@ namespace Views
 
         private void ExecuteSP_Click ( object sender , RoutedEventArgs e )
         {
+            // user selected to Execute the selected Sp, so show the Sp Execution popup dialog 
+            // to let user enter arguments etc
             if ( Splist . SelectedItem != null )
             {
+                SpName . Text = Splist . SelectedItem . ToString ( );
+                SpResultsViewer spviewer = new SpResultsViewer ( this , SpName . Text , Searchtext );
+                Mouse . OverrideCursor = Cursors . Arrow;
+                spviewer . ListResults . ItemsSource = null;
+                // Load Sp list
+                foreach ( var item in Splist . Items )
+                {
+                    spviewer . ListResults . Items . Add ( item );
+                }
+                spviewer . ListResults . SelectedItem = Splist . SelectedItem;
+                spviewer . ListResults . ScrollIntoView ( spviewer . ListResults . SelectedItem );
+                //Load method selection listbox
+                spviewer . createoptypes ( );
+                spviewer . optype . UpdateLayout ( );
+#if USESHOWDIALOG
+                spviewer . ShowDialog  ();
+#else
+                spviewer . Show ( );
+#endif
+                return;
+
                 SPExecPrompt = $"Enter whatever parameters (if any) are required for the S.P (Header block showing arguments required below) and then click 'Execute'";
                 Execsp . Visibility = Visibility . Visible;
                 Headtext . Text = $"Active S.P is : {Splist . SelectedItem . ToString ( )}";
                 string str = FetchStoredProcedureCode ( Splist . SelectedItem . ToString ( ) , true );
                 SPText . Items . Add ( str );
                 selectSp . Focus ( );
+                if ( SpSearchTerm != "" )
+                    selectSp . Text = SpSearchTerm;
+                else
+                {
+                    selectSp . Text = "Enter Arguments here ...";
+                    selectSp . SelectionLength = selectSp . Text . Length;
+                }
             }
             else
                 MessageBox . Show ( "Once you have a Stored Procedure selected, this menu option \nwill allow you to access the Execution process !!" , "Stored Procedure support" );
@@ -4106,11 +4428,77 @@ namespace Views
 
         private void Execsp_Click ( object sender , RoutedEventArgs e )
         {
-            Debug . WriteLine ( "Go ahead and execute S.P" );
-            MessageBox . Show ( "The selected Stored Procedure is being Executed for you !!" , "Stored Procedures Test Utility" );
-            Execsp . Visibility = Visibility . Collapsed;
-        }
+            // We are trying to load the SP viewer ( SpResultsViewer ) so need a list of all currently listed SP's
+            // plus the content oof the current SP
+            string spname = "spGetFullScript";  // SpName . Text;
+            string [ ] args = new string [ 1 ];
+            //Store search term for use  by later dialogs
+            spname = "spGetAllMatchingsprocs";
+            //= selectSp . Text . ToUpper ( );
+            args [ 0 ] = $"'{SpSearchTerm}'";
 
+            spviewer = new SpResultsViewer ( this , spname , SpSearchTerm );
+            e . Handled = true;
+            spviewer . Show ( );
+            // load listbox is secondary viewer
+            //            spviewer . LoadSpList ( );
+            //spviewer . ListResults . Items = Splist . Items;
+            Execsp . Visibility = Visibility . Collapsed;
+            Execsp . UpdateLayout ( );
+            Debug . WriteLine ( $"Executing S.P {spname}" );
+            List<string> contents = DatagridControl . ProcessUniversalQueryStoredProcedure ( spname , args , CurrentTableDomain , out string err );
+
+            List<string> processResults = new List<string> ( );
+            //return;
+            if ( contents . Count > 0 )
+            {
+                string line = "";
+                string sptext = "";
+
+                ///how to load  the contents of any sproc - works well
+                //foreach ( string item in contents )
+                //{
+                //    line = item . ToString ( );
+                //    sptext = FetchStoredProcedureCode ( line );
+                //    processResults . Add ( sptext );
+                //}
+                //List<string> reslt = processResults . Where (
+                //matchtext => sptext . ToUpper ( ) . Contains ( selectSp . Text . ToUpper ( ) )
+                //) . ToList ( );
+
+                // Store search term in our dialog for easier access
+                SpSearchTerm = selectSp . Text . ToUpper ( );
+
+                spviewer . ListResults . ItemsSource = null;
+                spviewer . ListResults . Items . Clear ( );
+                int selindex = 0, indx = 0;
+                if ( contents . Count > 0 )
+                {
+                    ListBox lb = spviewer . ListResults;
+                    // load all sprocs into lstbox in our full viewer window
+                    foreach ( string item in contents )
+                    {
+                        lb . Items . Add ( item );
+                        if ( item . ToUpper ( ) == CurrentSpSelection?.ToUpper ( ) )
+                            selindex = indx;
+                        indx++;
+                    }
+                    lb . SelectedIndex = selindex;
+                    lb . Refresh ( );
+                    lb . ScrollIntoView ( lb . SelectedItem );
+                    FlowDocument fd = new FlowDocument ( );
+                    fd . Blocks . Clear ( );
+                    // Get content of 1st sproc (selected above)
+                    sptext = FetchStoredProcedureCode ( lb . SelectedItem . ToString ( ) );
+                    fd = CreateBoldString ( fd , sptext , SpSearchTerm . ToUpper ( ) );
+                    fd . Background = FindResource ( "Black3" ) as SolidColorBrush;
+                    spviewer . TextResult . Document = fd;
+                    //spviewer . SPArguments . Text = SpSearchTerm . ToUpper ( );
+                }
+                e . Handled = true;
+                //ReturnProcedureHeader ( );
+            }
+        }
 
         private void ExecDragDialog_LButtonDn ( object sender , MouseButtonEventArgs e )
         {
@@ -4232,7 +4620,8 @@ namespace Views
             //Execsp . Visibility = Visibility . Collapsed;
             if ( e . Key == Key . Enter )
             {
-                Execsp_Click ( sender , null );
+                CurrentSpSelection = Splist . SelectedItem . ToString ( );
+                ExecBtn . RaiseEvent ( new RoutedEventArgs ( System . Windows . Controls . Primitives . ButtonBase . ClickEvent ) );
                 e . Handled = true;
             }
             else if ( e . Key == Key . Escape )
@@ -4243,33 +4632,34 @@ namespace Views
             e . Handled = false;
         }
 
-        private void selectSp_MouseEnter ( object sender , MouseEventArgs e )
-        {
-            if ( selectSp . SelectionLength == 0 )
-                selectSp . SelectAll ( );
-            else
-                selectSp . SelectAll ( );
-            //else
-            //    selectSp . Select ( 0 , 0 );
-            selectSp . UpdateLayout ( );
-
-        }
 
         private void selectSp_MouseLeave ( object sender , MouseEventArgs e )
         {
-            selectSp . SelectAll ( );
-            // hide selection
-            //           selectSp . Select ( 0 , 0 );
-            //if ( selectSp . Text == "Enter Arguments here .." )
-            //    selectSp . Text = "Enter Arguments here ...";
+            if ( selectSp . Text == "" )
+                selectSp . Text = "Enter Arguments here ...";
+            selectSp . SelectionLength = 0;
+        }
+        private void selectSp_MouseEnter ( object sender , MouseEventArgs e )
+        {
+            if ( selectSp . Text == "Enter Arguments here ..." )
+            {
+                selectSp . SelectAll ( );
+                selectSp . Focus ( );
+            }
+            selectSp . UpdateLayout ( );
         }
 
         private void selectSp_MouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
         {
             if ( selectSp . SelectionLength > 0 && selectSp . Text == "Enter Arguments here ..." )
             {
-                // selectSp . Text = "Enter Arguments here ..";
+                // selectSp . SelectionLength = 0;
+                //selectSp . Text = "Enter Arguments here ..";
                 selectSp . SelectAll ( );
+                selectSp . Focus ( );
+                selectSp . SelectionStart = 0;
+                selectSp . CaretIndex = 0;
+                e . Handled = false;
             }
             else
                 selectSp . Select ( 0 , 0 );
@@ -4310,6 +4700,374 @@ namespace Views
             return newNamesList = ValidTableNames . ConvertTableName ( TablesList );
             //}
         }
+        public static void GetValidDomain ( )
+        {
+            if ( Genericgrid . CurrentTableDomain == "AdventureWorks2019" )
+                DBprefix = $"{CurrentTableDomain . ToUpper ( )}.";
+            else
+                DBprefix = $"{CurrentTableDomain . ToUpper ( )}.DBO.";
+        }
 
+        private void Splist_PreviewMouseDoubleClick ( object sender , MouseButtonEventArgs e )
+        {
+            ExecuteSP_Click ( sender , null );
+
+        }
+        private string ReturnProcedureHeader ( )
+        {
+            string output = "";
+            int recordcount = 0;
+            string err = "";
+            string [ ] args = new string [ 0 ];
+            string [ ] outputs = new string [ 0 ];
+            List<string> list = new List<string> ( );
+            string arguments = "";
+            DatagridControl . CreateGenericCollection ( ref GridData , $"Select * from {Splist . SelectedItem}" , "","","","",ref list , ref err );
+            //            dgControl . GetDataFromStoredProcedure ( $"Select * from {Splist. SelectedItem}", args, CurrentTableDomain,out err, out outputs, out recordcount);
+            return output;
+        }
+        
+        //#region TREEVIEW code
+        
+        //private void LoadSpView ( object sender , RoutedEventArgs e )
+        //{
+        //    // Load Stored procedures Tree viewer
+
+        //    if ( TreeviewBorder . Visibility == Visibility . Visible )
+        //    {
+        //        TreeviewBorder . Visibility = Visibility . Hidden;
+        //        if ( DbTablesTree . Visibility == Visibility . Visible )
+        //        {
+        //            LoadTreeData ( );
+        //            SpLabel . Visibility = Visibility . Visible;
+        //            DbProcsTree . Visibility = Visibility . Visible;
+        //            SpWrappanel . Visibility = Visibility . Visible;
+        //            TablesWrappanel . Visibility = Visibility . Hidden;
+        //            TablesLabel . Visibility = Visibility . Hidden;
+        //            DbTablesTree . Visibility = Visibility . Hidden;
+        //            TreeviewBorder . Visibility = Visibility . Visible;
+        //        }
+        //    }
+        //    else
+        //    {
+        //        LoadTreeData ( );
+        //        SpLabel . Visibility = Visibility . Visible;
+        //        DbProcsTree . Visibility = Visibility . Visible;
+        //        SpWrappanel . Visibility = Visibility . Visible;
+        //        TablesWrappanel . Visibility = Visibility . Hidden;
+        //        TablesLabel . Visibility = Visibility . Hidden;
+        //        DbTablesTree . Visibility = Visibility . Hidden;
+        //        TreeviewBorder . Visibility = Visibility . Visible;
+        //    }
+        //}
+        //private void LoadTreeData ( )
+        //{
+        //    //SqlDatabases sqldb = new SqlDatabases();
+        //    DatabasesCollection . Clear ( );
+        //    DbTablesTree . ItemsSource = null;
+        //    DbProcsTree . ItemsSource = null;
+        //    DbTablesTree . Items . Clear ( );
+        //    DbProcsTree . Items . Clear ( );
+        //    TvSqlCommand  = "spGetAllDatabaseNames";
+        //    List<string> dblist = new List<string> ( );
+        //    Datagrids . CallStoredProcedure ( dblist , TvSqlCommand  );
+        //    //This call returns us a DataTable
+        //    DataTable dt = DapperGenericsLib . DataLoadControl . GetDataTable ( TvSqlCommand  );
+        //    // This how to access  Row data from  a grid the easiest way.... parsed into a List <xxxxx>
+        //    dblist = WpfLib1 . Utils . GetDataDridRowsAsListOfStrings ( dt );
+
+        //    var collection = DatabasesCollection;
+
+        //    foreach ( string row in dblist )
+        //    {
+        //        //List<SqlTable> sqltable = new List<SqlTable>();
+        //        // Now Handle list of tablenames
+        //        if ( NewWpfDev . Utils . CheckResetDbConnection ( row , out string constr ) == false )
+        //        {
+        //            Debug . WriteLine ( $"Failed to set connection string for {row . ToUpper ( )} Db" );
+        //            continue;
+        //        }
+        //        // All Db's have their own version of this SP.....
+        //        TvSqlCommand  = "spGetTablesList";
+
+        //        List<string> tableslist = new List<string> ( );
+        //        Datagrids . CallStoredProcedure ( tableslist , TvSqlCommand  );
+        //        //This call returns us a DataTable
+        //        dt = DapperGenericsLib.DataLoadControl . GetDataTable ( TvSqlCommand  );
+
+        //        Database db = new Database ( );
+        //        // This how to access Row data from  a grid the easiest way.... parsed into a List <xxxxx>
+        //        if ( dt != null )
+        //        {
+        //            db . Tables = new List<SqlTable> ( );
+        //            tableslist = WpfLib1 . Utils . GetDataDridRowsAsListOfStrings ( dt );
+        //            foreach ( string item in tableslist )
+        //            {
+        //                SqlTable sqlt = new SqlTable ( item );
+        //                sqlt . Tablename = item;
+        //                db . Tables . Add ( sqlt );
+        //                db . Databasename = row;
+        //            }
+        //            DatabasesCollection . Add ( db );
+        //        }
+
+        //        // All Db's have their own version of this SP.....
+        //        TvSqlCommand  = "spGetStoredProcs";
+
+        //        List<string> procslist = new List<string> ( );
+        //        Datagrids . CallStoredProcedure ( procslist , TvSqlCommand  );
+        //        //This call returns us a DataTable
+        //        dt = DapperGenericsLib.DataLoadControl . GetDataTable ( TvSqlCommand  );
+        //        // This how to access Row data from  a grid the easiest way.... parsed into a List <xxxxx>
+        //        if ( dt != null )
+        //        {
+        //            //Database db = new Database();
+        //            SqlProcedures sp = new SqlProcedures ( ); 
+        //            sp. Procedures = new List<SqlProcedures> ( );
+        //            procslist = WpfLib1 . Utils . GetDataDridRowsAsListOfStrings ( dt );
+        //            foreach ( string item in procslist )
+        //            {
+        //                SqlProcedures sqlprocs = new SqlProcedures ( item );
+        //                sqlprocs . Procname = item;
+        //                sp . Procedures . Add ( sqlprocs );
+        //            }
+        //            // Duplicates all entries !!!
+        //            //DatabasesCollection . Add ( db );
+        //        }
+
+        //    }
+        //    DbTablesTree . ItemsSource = DatabasesCollection;
+        //    DbProcsTree . ItemsSource = DatabasesCollection;
+
+        //}
+
+        //private void TreeviewBorder_LostFocus ( object sender , RoutedEventArgs e )
+        //{
+        //    ReleaseMouseCapture ( );
+        //    //Debug. WriteLine ( "Mouse released 5" );
+        //    TvMouseCaptured = false;
+        //}
+
+        //private void TreeviewBorder_PreviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
+        //{
+        //    /// treeviewer item selected with mouse
+        //    if ( e . LeftButton == MouseButtonState . Pressed )
+        //    {
+        //        Label tv = sender as Label;
+        //        if ( tv == null )
+        //        {
+        //            ReleaseMouseCapture ( );
+        //            return;
+        //        }
+        //        TvFirstXPos = e . GetPosition ( tv ) . X;
+        //        TvFirstYPos = e . GetPosition ( tv ) . Y;
+        //        TvMouseCaptured = true;
+        //    }
+        //    else
+        //    {
+        //        ReleaseMouseCapture ( );
+        //        TvMouseCaptured = false;
+        //    }
+        //}
+
+        //private void TreeviewBorder_PreviewMouseLeftButtonUp ( object sender , MouseButtonEventArgs e )
+        //{
+        //    /// stop treeviewer Move 
+        //    ReleaseMouseCapture ( );
+        //    //Debug. WriteLine ( "Mouse released 4" );
+        //    TvMouseCaptured = false;
+        //}
+        //private void TreeviewBorder_MouseMove ( object sender , MouseEventArgs e )
+        //{
+        //    if ( TvMouseCaptured )
+        //    {
+        //        //Label  tv = sender  as Label ;
+        //        //if ( tv == null )
+        //        //	return;
+        //        double left = e . GetPosition ( ( TreeviewBorder as FrameworkElement ) . Parent as FrameworkElement ) . X - TvFirstXPos;
+        //        double top = e . GetPosition ( ( TreeviewBorder as FrameworkElement ) . Parent as FrameworkElement ) . Y - TvFirstYPos;
+        //        double trueleft = left - CpFirstXPos;
+        //        double truetop = left - CpFirstYPos;
+        //        if ( left >= 0 ) // && left <= canvas.ActualWidth - Flowdoc.ActualWidth)
+        //            ( TreeviewBorder as FrameworkElement ) . SetValue ( Canvas . LeftProperty , left );
+        //        if ( top >= 0 ) //&& top <= canvas . ActualHeight- Flowdoc. ActualHeight)
+        //            ( TreeviewBorder as FrameworkElement ) . SetValue ( Canvas . TopProperty , top );
+        //        ReleaseMouseCapture ( );
+        //    }
+        //    else
+        //        ReleaseMouseCapture ( );
+        //}
+        //private void SpImage_PreviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
+        //{
+        //}
+
+        //private void Image_PreviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
+        //{
+        //}
+        //#endregion Treeview  handlers
+
+        //private void DbTablesTree_SelectedItemChanged ( object sender , RoutedPropertyChangedEventArgs<object> e )
+        //{
+
+        //}
+
+        private void TextBlock_PreviewMouseLeftButtonUp ( object sender , MouseButtonEventArgs e )
+        {
+
+        }
+
+        private void TablesLabel_PreviewMouseRightButtonUp ( object sender , MouseButtonEventArgs e )
+        {
+
+        }
+
+//        private void DbProcsTree_Collapsed ( object sender , RoutedEventArgs e )
+//        {
+//#pragma warning disable CS0219 // The variable 'x' is assigned but its value is never used
+//            int x = 0;
+//#pragma warning restore CS0219 // The variable 'x' is assigned but its value is never used
+//        }
+
+//        private void TextBlock_PreviewMouseRightButtonUp ( object sender , MouseButtonEventArgs e )
+//        {
+//            // right click for S.P script
+//            TextBlock tb = sender as TextBlock;
+//            string selection = tb . Text;
+//#pragma warning disable CS0219 // The variable 'index' is assigned but its value is never used
+//            int index = 0;
+//#pragma warning restore CS0219 // The variable 'index' is assigned but its value is never used
+//            foreach ( var item in ProcsCollection )
+//            {
+//                if ( item . Procname == selection )
+//                {
+//                    item . IsSelected = true;
+//                    break;
+//                }
+//            }
+//        }
+
+//        private void DbProcsTree_PreviewMouseRightButtonUp ( object sender , MouseButtonEventArgs e )
+//        {
+//            // process right click to show the  full script in a FlowDoc viewer 
+//            if ( SqlSpCommand != "" && SqlSpCommand != null )
+//            {
+//                DataTable dt = new DataTable ( );
+//                string [ ] args = { "" , "" , "" , "" };
+//#pragma warning disable CS0219 // The variable 'err' is assigned but its value is never used
+//                string err = "", errormsg = "";
+//#pragma warning restore CS0219 // The variable 'err' is assigned but its value is never used
+//                List<string> list = new List<string> ( );
+//                ObservableCollection<GenericClass> Generics = new ObservableCollection<GenericClass> ( );
+//                foreach ( var item in DatabasesCollection )
+//                {
+//                    CurrentSPDb = item . Databasename;
+//                    if ( NewWpfDev.Utils . CheckResetDbConnection ( CurrentSPDb , out string constring ) == false )
+//                        return;
+
+//                    List<string> procslist = new List<string> ( );
+//                    ObservableCollection<BankAccountViewModel> bvmparam = new ObservableCollection<BankAccountViewModel> ( );
+//                    List<string> genericlist = new List<string> ( );
+//#pragma warning disable CS0168 // The variable 'ex' is declared but never used
+//                    try
+//                    {
+//                        DapperSupport . CreateGenericCollection (
+//                            ref Generics ,
+//                            "spGetSpecificSchema  " ,
+//                            SqlSpCommand ,
+//                            "" ,
+//                            "" ,
+//                            ref genericlist ,
+//                            ref errormsg );
+//                        if ( Generics . Count > 0 )
+//                        {
+//                            break;
+//                        }
+//                    }
+//                    catch ( Exception ex )
+//                    {
+//                    }
+//#pragma warning restore CS0168 // The variable 'ex' is declared but never used
+
+//                }
+//                if ( Generics . Count == 0 )
+//                {
+//                    if ( errormsg != "" )
+//                        MessageBox . Show ( $"No Argument information is available. \nError message = [{errormsg}]" , $"[{SqlSpCommand}] SP Script Information" , MessageBoxButton . OK , MessageBoxImage . Warning );
+//                    return;
+//                }
+//                string output = "NB: You can select a different S.P & right click it WITHOUT closing this viewer window...\nThe new Script will replace the current contents of the viewer\n\n";
+//                foreach ( var item in Generics )
+//                {
+//                    string store = "";
+//                    store = item . field1 + ",";
+//                    output += store;
+//                }
+//                // Display the script in whatever chsen container is relevant
+//                bool resetUse = false;
+//                if ( UseFlowdoc == false )
+//                {
+//                    UseFlowdoc = true;
+//                    resetUse = true;
+//                }
+//                if ( output != "" && UseFlowdoc )
+//                {
+//                    string fdinput = $"Procedure Name : {SqlSpCommand . ToUpper ( )}\n\n";
+//                    fdinput += output;
+//                    fdinput += $"\n\nPress ESCAPE to close this window...\n";
+//                    fdl.ShowInfo ( Flowdoc, Filtercanvas , line1: fdinput , clr1: "Black0" , line2: "" , clr2: "Black0" , line3: "" , clr3: "Black0" , header: "" , clr4: "Black0" );
+//                }
+//                else
+//                {
+//                    Mouse . OverrideCursor = Cursors . Arrow;
+//                    if ( UseFlowdoc )
+//                        fdl . ShowInfo ( Flowdoc , Filtercanvas , line1: $"Procedure [{SqlSpCommand . ToUpper ( )}] \ndoes not Support / Require any arguments" , clr1: "Black0" , line2: "" , clr2: "Black0" , line3: "" , clr3: "Black0" , header: "" , clr4: "Black0" );
+//                }
+//                if ( resetUse )
+//                    UseFlowdoc = false;
+//            }
+//        }
+
+//        private void DbProcsTree_SelectedItemChanged ( object sender , RoutedPropertyChangedEventArgs<object> e )
+//        {
+//            if ( e . NewValue == null )
+//                return;
+//            //var  v = SqlProcedures . IsSelected as Procname;
+//            var tablename = e . NewValue as Database;
+//            if ( tablename == null )
+//            {
+//                if ( e . NewValue == null )
+//                    return;
+//                var tvi = e . NewValue as SqlProcedures;
+//                SqlSpCommand = tvi . Procname;
+//                // Noow get  nmme  of the Db we are in 
+//                var items = DbProcsTree . Items;
+//                if ( items . CurrentItem != null )
+//                {
+//                    var db = items . CurrentItem as Database;
+//                    CurrentSPDb = db . Databasename;
+//                }
+//                else
+//                {
+//                    var v = sender as ItemsControl;
+//                    //foreach ( var item in v . Items )
+//                    //{
+//                    //	Debug. WriteLine ( item . ToString ( ) );
+//                    //}
+//                    var treeItems = WpfLib1 . Utils . FindVisualParent<TextBlock> ( this );
+//                    //treeItems . ForEach ( I => i . IsExpanded = false );
+//                }
+//            }
+//            else
+//            {
+//                var tvi = e . NewValue as Database;
+//                CurrentSPDb = tvi . Databasename;
+//            }
+
+//        }
+
+//        private void DbProcsTree_Expanded ( object sender , RoutedEventArgs e )
+//        {
+
+//        }
     }
 }

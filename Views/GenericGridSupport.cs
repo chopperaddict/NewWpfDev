@@ -10,7 +10,7 @@ using System . Windows . Input;
 
 using Dapper;
 
-using DocumentFormat . OpenXml . Drawing;
+using Microsoft . Xaml . Behaviors . Media;
 
 using NewWpfDev;
 using NewWpfDev . Models;
@@ -213,6 +213,7 @@ namespace Views
                 //{   2nd call
                 int recordcount = 0;
                 string Tablename = "";
+                string [ ] outputs;
                 recordcount = dgControl . ExecuteStoredProcedure ( "CreateTableTest" , args , out err );
                 if ( err != "" && err . ToUpper ( ) . Contains ( "PROBLEM-FILE  EXISTS" ) == false )
                 {
@@ -224,7 +225,8 @@ namespace Views
                         string [ ] args3 = { "" };
                         err = "";
                         args3 [ 0 ] = NewDbName;
-                        recordcount = dgControl . ExecuteDapperCommand ( "Drop Table if exists " , args3 , out err );
+                        string [ ] output;
+                        var reccount = dgControl . ExecuteDapperCommand ( "Drop Table if exists " , args3 , out err );
                         if ( err != "" && err . ToUpper ( ) . Contains ( "PROBLEM-FILE  EXISTS" ) == false )
                         {
                             MessageBoxResult result3 = MessageBox . Show ( $"Failed to delete (Drop) the original table, so processing will now end\n Error message  ={err}" , "Deletion failed" ,
@@ -232,7 +234,11 @@ namespace Views
                         }
                         else
                         {
-                            recordcount = dgControl . ExecuteStoredProcedure ( "CreateTableTest" , args , out err );
+                            string [ ] outputs2;
+                            string [ ] arg2 = new string[ 0];
+                            string err2 = "";
+                            string [ ] outputs3;
+                            recordcount = dgControl . ExecuteStoredProcedure ( "CreateTableTest" , arg2 ,out  err2);
                             GenericControl . statusbar . Text = $"New table named [{NewDbName . ToUpper ( )}] was created succesfully...."; Debug . WriteLine ( $"{GenericControl . statusbar . Text}" );
                             success = true;
                         }
@@ -631,7 +637,9 @@ namespace Views
             //args [ 1 ] = CurrentTable;
             int recordcount = 0;
             string Tablename = "";
-            recordcount = dgControl . ExecuteStoredProcedure ( "spDropTable" , args , out err );
+            string [ ] outputs;
+            err = "";
+            recordcount = dgControl . ExecuteStoredProcedure ( "spDropTable" , args , out err);
             if ( err != "" )
             {
                 err = $"Unable to Drop/Create the Table {args [ 0 ]} REASON = {err} ";
@@ -1013,7 +1021,8 @@ namespace Views
                 string [ ] args = { $"{GenericControl . SqlTables . SelectedItem . ToString ( )}" , $"{NewDbName}" };
                 int recordcount = 0;
                 string Tablename = "";
-                recordcount = dgControl . ExecuteStoredProcedure ( "spCopyDb" , args , out err );
+                string[ ] outputs;
+                recordcount = dgControl . ExecuteStoredProcedure ( "spCopyDb" , args , out err);
                 if ( recordcount == -9 )
                      return -9;
 
@@ -1051,16 +1060,26 @@ namespace Views
         static public int GetTableColumnsCount ( string tname , string [ ] args, string CurrentTableDomain )
         {
             List<string> SqlQuerylist = new List<string> ( );
-            string spCommand = "drop table if exists zz; drop table if exists zzz; " +
-                $"select column_name,upper(Table_name) as name into zz from information_schema.columns; " +
-                 $"select column_name, name into zzz from zz where name='{tname}'; " +
-                 $"select count(name) as cnt from zzz;";
-            SqlQuerylist = DatagridControl . ProcessUniversalQueryStoredProcedure ( spCommand , args , CurrentTableDomain, out string err2 );
-            Debug . WriteLine ( $"Direct SQL query returned [ {SqlQuerylist [ 0 ]} ]" );
-            if ( err2 != "" )
-                Debug . WriteLine ( $"SqlCommand [ {spCommand} ] failed : Reason [ {err2} ]" );
+            //string err2 = "";
+            string spCommand = "drop table if exists zz";
+            SqlQuerylist = DatagridControl . ProcessUniversalQueryStoredProcedure ( spCommand , args , CurrentTableDomain , out string err21 );
+            spCommand = $"drop table if exists zzz";
+            SqlQuerylist = DatagridControl . ProcessUniversalQueryStoredProcedure ( spCommand , args , CurrentTableDomain , out string err3 );
+            spCommand = $"select column_name,upper(Table_name) as name into zz from information_schema.columns; ";
+            SqlQuerylist = DatagridControl . ProcessUniversalQueryStoredProcedure ( spCommand , args , CurrentTableDomain , out string err31 );
+            spCommand = $"select column_name, name into zzz from zz where name='{tname}'; "; 
+            SqlQuerylist = DatagridControl . ProcessUniversalQueryStoredProcedure ( spCommand , args , CurrentTableDomain , out string err4 );
+            
+            // proven way to get a count value  back from dapper
+            spCommand = $"select count(name) as cnt from zzz;";
+            var colcount = dgControl . ExecuteDapperScalar( spCommand , args , out string err );
+            //SqlQuerylist = DatagridControl . ProcessUniversalQueryStoredProcedure ( spCommand , args , CurrentTableDomain, out string err25);
+            Debug . WriteLine ( $"Columns count returned [ {colcount} ]" );
+            if ( err21 != "" )
+                Debug . WriteLine ( $"SqlCommand [ {spCommand} ] failed : Reason [ {err21} ]" );
             // result is returned in List<strng with just one row.
-            int colcount = Convert . ToInt32 ( SqlQuerylist [ 0 ] );
+            //res3 . Get<int> ( "@arg1" );
+           // int colcount = Convert . ToInt32 ( SqlQuerylist [ 0 ] );
             return colcount;
         }
         // EOF EOF EOF EOF EOF EOF EOF EOF EOF EOF EOF EOF EOF EOF EOF EOF EOF EOF EOF EOF EOF EOF 

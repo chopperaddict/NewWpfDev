@@ -266,7 +266,7 @@ namespace NewWpfDev . Views
             UseDirectLoad = true;
             SqlCommand = DefaultSqlCommand;
             canvas . Visibility = Visibility . Visible;
-            TreeviewBorder . Visibility = Visibility . Hidden;
+//            TreeviewBorder . Visibility = Visibility . Hidden;
             IsExpanded . SetIsExpand ( this , false );
 
             // Handle the magnify sytem to handle global flag
@@ -517,7 +517,8 @@ namespace NewWpfDev . Views
                 SqlCommand = GetDefaultSqlCommand ( CurrentTableName );
                 if ( SqlCommand == "" )
                     SqlCommand = $"Select * from {tablename}";
-                // need to do this cos the SQL command is changed to load the tables list....
+                else
+                    SqlCommand = $"Select * from {tablename}";
                 if ( Startup )
                     SqlCommand = DefaultSqlCommand;
                 string ResultString = "";
@@ -1770,6 +1771,7 @@ namespace NewWpfDev . Views
             string tablename = dbNameLb . SelectedItem . ToString ( );
             SqlCommand = $"Select *from {tablename}";
             CurrentTableName = tablename . ToUpper ( );
+            ReloadListbox ( sender , null );
         }
         private void dbNameLv_SelectionChanged ( object sender , SelectionChangedEventArgs e )
         {
@@ -1783,6 +1785,7 @@ namespace NewWpfDev . Views
             string tablename = dbNameLv . SelectedItem . ToString ( );
             SqlCommand = $"Select *from {tablename}";
             CurrentTableName = tablename . ToUpper ( );
+            ReloadListview ( sender , null );
         }
 
         #endregion ALL Combo box handlers
@@ -2249,6 +2252,62 @@ namespace NewWpfDev . Views
         #endregion Databse switching
 
         #region  Reload Data viewers
+        private void ReloadListbox ( object sender , RoutedEventArgs e )
+        {
+            ResetViewers ( "BOX" );
+            listBox . ItemsSource = null;
+            listBox . Refresh ( );
+            DbCountlb = 0;
+            // Set flag  to ignore limits check
+            LoadAll = true;
+            string currdb = GetCurrentDatabase ( );
+            CurrentTableName = dbNameLb . SelectedItem . ToString ( ) . ToUpper ( );
+            if ( Utils . CheckResetDbConnection ( DbMain . SelectedItem . ToString ( ) , out string constr ) == false )
+            {
+                Debug . WriteLine ( $"Failed to set connection string for {CurrentTableName . ToUpper ( )} Db" );
+                return;
+            }
+
+            if ( currdb == "IAN1" )
+            {
+                LoadData_Ian1 ( "BOX" );
+                LoadGrid_IAN1 ( "BOX" );
+            }
+            else if ( currdb == "NORTHWIND" )
+            {
+                LoadData_NorthWind ( "BOX" );
+                LoadGrid_NORTHWIND ( "BOX" );
+            }
+            else if ( currdb == "PUBS" )
+            {
+                genaccts = null;
+                LoadData_Publishers ( "BOX" , out genaccts );
+                if ( genaccts != null )
+                {
+                    listBox . ItemsSource = genaccts;
+                    SqlServerCommands . LoadActiveRowsOnlyInGrid ( dGrid , genaccts , SqlServerCommands . GetGenericColumnCount ( genaccts ) );
+                    if ( Flags . ReplaceFldNames )
+                    {
+                        GenericDbUtilities . ReplaceDataGridFldNames ( CurrentTableName , ref dGrid );
+                    }
+                    dGrid . SelectedItem = dGrid . SelectedIndex = 0;
+                    DbCountlb = genaccts . Count;
+                }
+                else
+                {
+                    pubauthors = PubAuthors . LoadPubAuthors ( pubauthors , false );
+                    listBox . ItemsSource = pubauthors;
+                    dGrid . ItemsSource = pubauthors;
+                    dGrid . SelectedItem = dGrid . SelectedIndex = 0;
+                    DbCountlb = pubauthors . Count;
+                }
+                LoadGrid_PUBS ( "BOX" );
+            }
+            listBox . SelectedIndex = 0;
+            listBox . SelectedItem = 0;
+            LoadAll = false;
+        }
+
         private void ReloadListview ( object sender , RoutedEventArgs e )
         {
             ResetViewers ( "VIEW" );
@@ -2306,61 +2365,6 @@ namespace NewWpfDev . Views
             LoadAll = false;
         }
 
-        private void ReloadListbox ( object sender , RoutedEventArgs e )
-        {
-            ResetViewers ( "BOX" );
-            listBox . ItemsSource = null;
-            listBox . Refresh ( );
-            DbCountlb = 0;
-            // Set flag  to ignore limits check
-            LoadAll = true;
-            string currdb = GetCurrentDatabase ( );
-            CurrentTableName = dbNameLb . SelectedItem . ToString ( ) . ToUpper ( );
-            if ( Utils . CheckResetDbConnection ( DbMain . SelectedItem . ToString ( ) , out string constr ) == false )
-            {
-                Debug . WriteLine ( $"Failed to set connection string for {CurrentTableName . ToUpper ( )} Db" );
-                return;
-            }
-
-            if ( currdb == "IAN1" )
-            {
-                LoadData_Ian1 ( "BOX" );
-                LoadGrid_IAN1 ( "BOX" );
-            }
-            else if ( currdb == "NORTHWIND" )
-            {
-                LoadData_NorthWind ( "BOX" );
-                LoadGrid_NORTHWIND ( "BOX" );
-            }
-            else if ( currdb == "PUBS" )
-            {
-                genaccts = null;
-                LoadData_Publishers ( "BOX" , out genaccts );
-                if ( genaccts != null )
-                {
-                    listBox . ItemsSource = genaccts;
-                    SqlServerCommands . LoadActiveRowsOnlyInGrid ( dGrid , genaccts , SqlServerCommands . GetGenericColumnCount ( genaccts ) );
-                    if ( Flags . ReplaceFldNames )
-                    {
-                        GenericDbUtilities . ReplaceDataGridFldNames ( CurrentTableName , ref dGrid );
-                    }
-                    dGrid . SelectedItem = dGrid . SelectedIndex = 0;
-                    DbCountlb = genaccts . Count;
-                }
-                else
-                {
-                    pubauthors = PubAuthors . LoadPubAuthors ( pubauthors , false );
-                    listBox . ItemsSource = pubauthors;
-                    dGrid . ItemsSource = pubauthors;
-                    dGrid . SelectedItem = dGrid . SelectedIndex = 0;
-                    DbCountlb = pubauthors . Count;
-                }
-                LoadGrid_PUBS ( "BOX" );
-            }
-            listBox . SelectedIndex = 0;
-            listBox . SelectedItem = 0;
-            LoadAll = false;
-        }
         #endregion  Reload Data viewers
         private string GetDefaultSqlCommand ( string CurrentType )
         {
@@ -2374,7 +2378,10 @@ namespace NewWpfDev . Views
                     break;
                 }
             }
-            return result;
+            if ( result == "" )
+                return CurrentType;
+            else
+                return result;
         }
 
         #region Checkboxes
@@ -2399,7 +2406,7 @@ namespace NewWpfDev . Views
             List<string> list = new List<string> ( );
             List<string> fldnameslist = new List<string> ( );
             string output = "";
-            SqlCommand = $"spGetTableColumnWithSize {dbNameLb . SelectedItem . ToString ( )}";
+            SqlCommand = $"spGetTableColumnWithSize2 {dbNameLb . SelectedItem . ToString ( )}";
             //SqlCommand = SqlCommand = $"spGetTableColumns";
             fldnameslist = Datagrids . CallStoredProcedureWithSizes ( list , SqlCommand );
 
@@ -2432,7 +2439,7 @@ namespace NewWpfDev . Views
 #pragma warning restore CS0219 // The variable 'count' is assigned but its value is never used
             List<string> list = new List<string> ( );
             string output = "";
-            SqlCommand = $"spGetTableColumnWithSize {dbNameLv . SelectedItem . ToString ( )}";
+            SqlCommand = $"spGetTableColumnWithSize2 {dbNameLv . SelectedItem . ToString ( )}";
             list = Datagrids . CallStoredProcedureWithSizes ( list , SqlCommand );
             output = WpfLib1 . Utils . ParseTableColumnData ( list );
 
@@ -2557,85 +2564,85 @@ namespace NewWpfDev . Views
             Flowdoc . ExecuteFlowDocBorderMethod -= FlowDoc_ExecuteFlowDocBorderMethod;
             MainWindow.RemoveGenericlistboxcontrol (canvas );
         }
-         private void LoadTreeData ( )
-        {
-            //SqlDatabases sqldb = new SqlDatabases();
-            DatabasesCollection . Clear ( );
-            DbTablesTree . ItemsSource = null;
-            DbProcsTree . ItemsSource = null;
-            DbTablesTree . Items . Clear ( );
-            DbProcsTree . Items . Clear ( );
-            SqlCommand = "spGetAllDatabaseNames";
-            List<string> dblist = new List<string> ( );
-            Datagrids . CallStoredProcedure ( dblist , SqlCommand );
-            //This call returns us a DataTable
-            DataTable dt = DataLoadControl . GetDataTable ( SqlCommand );
-            // This how to access  Row data from  a grid the easiest way.... parsed into a List <xxxxx>
-            dblist = WpfLib1 . Utils . GetDataDridRowsAsListOfStrings ( dt );
+        // private void LoadTreeData ( )
+        //{
+        //    //SqlDatabases sqldb = new SqlDatabases();
+        //    DatabasesCollection . Clear ( );
+        //    DbTablesTree . ItemsSource = null;
+        //    DbProcsTree . ItemsSource = null;
+        //    DbTablesTree . Items . Clear ( );
+        //    DbProcsTree . Items . Clear ( );
+        //    SqlCommand = "spGetAllDatabaseNames";
+        //    List<string> dblist = new List<string> ( );
+        //    Datagrids . CallStoredProcedure ( dblist , SqlCommand );
+        //    //This call returns us a DataTable
+        //    DataTable dt = DataLoadControl . GetDataTable ( SqlCommand );
+        //    // This how to access  Row data from  a grid the easiest way.... parsed into a List <xxxxx>
+        //    dblist = WpfLib1 . Utils . GetDataDridRowsAsListOfStrings ( dt );
 
-            var collection = DatabasesCollection;
+        //    var collection = DatabasesCollection;
 
-            foreach ( string row in dblist )
-            {
-                //List<SqlTable> sqltable = new List<SqlTable>();
-                // Now Handle list of tablenames
-                if ( Utils . CheckResetDbConnection ( row , out string constr ) == false )
-                {
-                    Debug . WriteLine ( $"Failed to set connection string for {row . ToUpper ( )} Db" );
-                    continue;
-                }
-                // All Db's have their own version of this SP.....
-                SqlCommand = "spGetTablesList";
+        //    foreach ( string row in dblist )
+        //    {
+        //        //List<SqlTable> sqltable = new List<SqlTable>();
+        //        // Now Handle list of tablenames
+        //        if ( Utils . CheckResetDbConnection ( row , out string constr ) == false )
+        //        {
+        //            Debug . WriteLine ( $"Failed to set connection string for {row . ToUpper ( )} Db" );
+        //            continue;
+        //        }
+        //        // All Db's have their own version of this SP.....
+        //        SqlCommand = "spGetTablesList";
 
-                List<string> tableslist = new List<string> ( );
-                Datagrids . CallStoredProcedure ( tableslist , SqlCommand );
-                //This call returns us a DataTable
-                dt = DataLoadControl . GetDataTable ( SqlCommand );
+        //        List<string> tableslist = new List<string> ( );
+        //        Datagrids . CallStoredProcedure ( tableslist , SqlCommand );
+        //        //This call returns us a DataTable
+        //        dt = DataLoadControl . GetDataTable ( SqlCommand );
 
-                Database db = new Database ( );
-                // This how to access Row data from  a grid the easiest way.... parsed into a List <xxxxx>
-                if ( dt != null )
-                {
-                    db . Tables = new List<SqlTable> ( );
-                    tableslist = WpfLib1 . Utils . GetDataDridRowsAsListOfStrings ( dt );
-                    foreach ( string item in tableslist )
-                    {
-                        SqlTable sqlt = new SqlTable ( item );
-                        sqlt . Tablename = item;
-                        db . Tables . Add ( sqlt );
-                        db . Databasename = row;
-                    }
-                    DatabasesCollection . Add ( db );
-                }
+        //        Database db = new Database ( );
+        //        // This how to access Row data from  a grid the easiest way.... parsed into a List <xxxxx>
+        //        if ( dt != null )
+        //        {
+        //            db . Tables = new List<SqlTable> ( );
+        //            tableslist = WpfLib1 . Utils . GetDataDridRowsAsListOfStrings ( dt );
+        //            foreach ( string item in tableslist )
+        //            {
+        //                SqlTable sqlt = new SqlTable ( item );
+        //                sqlt . Tablename = item;
+        //                db . Tables . Add ( sqlt );
+        //                db . Databasename = row;
+        //            }
+        //            DatabasesCollection . Add ( db );
+        //        }
 
-                // All Db's have their own version of this SP.....
-                SqlCommand = "spGetStoredProcs";
+        //        // All Db's have their own version of this SP.....
+        //        SqlCommand = "spGetStoredProcs";
 
-                List<string> procslist = new List<string> ( );
-                Datagrids . CallStoredProcedure ( procslist , SqlCommand );
-                //This call returns us a DataTable
-                dt = DataLoadControl . GetDataTable ( SqlCommand );
-                // This how to access Row data from  a grid the easiest way.... parsed into a List <xxxxx>
-                if ( dt != null )
-                {
-                    //Database db = new Database();
-                    db . Procedures = new List<SqlProcedures> ( );
-                    procslist = WpfLib1 . Utils . GetDataDridRowsAsListOfStrings ( dt );
-                    foreach ( string item in procslist )
-                    {
-                        SqlProcedures sqlprocs = new SqlProcedures ( item );
-                        sqlprocs . Procname = item;
-                        db . Procedures . Add ( sqlprocs );
-                    }
-                    // Duplicates all entries !!!
-                    //DatabasesCollection . Add ( db );
-                }
+        //        List<string> procslist = new List<string> ( );
+        //        Datagrids . CallStoredProcedure ( procslist , SqlCommand );
+        //        //This call returns us a DataTable
+        //        dt = DataLoadControl . GetDataTable ( SqlCommand );
+        //        // This how to access Row data from  a grid the easiest way.... parsed into a List <xxxxx>
+        //        if ( dt != null )
+        //        {
+        //            SqlProcedures sp = new SqlProcedures ( );
+        //            sp. Procedures = new List<SqlProcedures> ( );
+        //            procslist = WpfLib1 . Utils . GetDataDridRowsAsListOfStrings ( dt );
+        //            foreach ( string item in procslist )
+        //            {
+        //                SqlProcedures sqlprocs = new SqlProcedures ( item );
+        //                sqlprocs . Procname = item;
+        //                sp . Procedures . Add ( sqlprocs );
+        //            }
+        //            // Duplicates all entries !!!
+        //            //DatabasesCollection . Add ( db );
+        //        }
 
-            }
-            DbTablesTree . ItemsSource = DatabasesCollection;
-            DbProcsTree . ItemsSource = DatabasesCollection;
+        //    }
+        //    DbTablesTree . ItemsSource = DatabasesCollection;
+        //    DbProcsTree . ItemsSource = DatabasesCollection;
 
-        }
+        //}
 
         #region  Dependency properties for listbox
 
@@ -2806,401 +2813,401 @@ namespace NewWpfDev . Views
             }
         }
 
-        private void DbProcsTree_PreviewMouseRightButtonUp ( object sender , MouseButtonEventArgs e )
-        {
-            // process right click to show the  full script in a FlowDoc viewer 
-            if ( SqlSpCommand != "" && SqlSpCommand != null )
-            {
-                DataTable dt = new DataTable ( );
-                string [ ] args = { "" , "" , "" , "" };
-#pragma warning disable CS0219 // The variable 'err' is assigned but its value is never used
-                string err = "", errormsg = "";
-#pragma warning restore CS0219 // The variable 'err' is assigned but its value is never used
-                List<string> list = new List<string> ( );
-                ObservableCollection<GenericClass> Generics = new ObservableCollection<GenericClass> ( );
-                foreach ( var item in DatabasesCollection )
-                {
-                    CurrentSPDb = item . Databasename;
-                    if ( Utils . CheckResetDbConnection ( CurrentSPDb , out string constring ) == false )
-                        return;
+//        private void DbProcsTree_PreviewMouseRightButtonUp ( object sender , MouseButtonEventArgs e )
+//        {
+//            // process right click to show the  full script in a FlowDoc viewer 
+//            if ( SqlSpCommand != "" && SqlSpCommand != null )
+//            {
+//                DataTable dt = new DataTable ( );
+//                string [ ] args = { "" , "" , "" , "" };
+//#pragma warning disable CS0219 // The variable 'err' is assigned but its value is never used
+//                string err = "", errormsg = "";
+//#pragma warning restore CS0219 // The variable 'err' is assigned but its value is never used
+//                List<string> list = new List<string> ( );
+//                ObservableCollection<GenericClass> Generics = new ObservableCollection<GenericClass> ( );
+//                foreach ( var item in DatabasesCollection )
+//                {
+//                    CurrentSPDb = item . Databasename;
+//                    if ( Utils . CheckResetDbConnection ( CurrentSPDb , out string constring ) == false )
+//                        return;
 
-                    List<string> procslist = new List<string> ( );
-                    ObservableCollection<BankAccountViewModel> bvmparam = new ObservableCollection<BankAccountViewModel> ( );
-                    List<string> genericlist = new List<string> ( );
-#pragma warning disable CS0168 // The variable 'ex' is declared but never used
-                    try
-                    {
-                        DapperSupport . CreateGenericCollection (
-                            ref Generics ,
-                            "spGetSpecificSchema  " ,
-                            SqlSpCommand ,
-                            "" ,
-                            "" ,
-                            ref genericlist ,
-                            ref errormsg );
-                        if ( Generics . Count > 0 )
-                        {
-                            break;
-                        }
-                    }
-                    catch ( Exception ex )
-                    {
-                    }
-#pragma warning restore CS0168 // The variable 'ex' is declared but never used
+//                    List<string> procslist = new List<string> ( );
+//                    ObservableCollection<BankAccountViewModel> bvmparam = new ObservableCollection<BankAccountViewModel> ( );
+//                    List<string> genericlist = new List<string> ( );
+//#pragma warning disable CS0168 // The variable 'ex' is declared but never used
+//                    try
+//                    {
+//                        DapperSupport . CreateGenericCollection (
+//                            ref Generics ,
+//                            "spGetSpecificSchema  " ,
+//                            SqlSpCommand ,
+//                            "" ,
+//                            "" ,
+//                            ref genericlist ,
+//                            ref errormsg );
+//                        if ( Generics . Count > 0 )
+//                        {
+//                            break;
+//                        }
+//                    }
+//                    catch ( Exception ex )
+//                    {
+//                    }
+//#pragma warning restore CS0168 // The variable 'ex' is declared but never used
 
-                }
-                if ( Generics . Count == 0 )
-                {
-                    if ( errormsg != "" )
-                        MessageBox . Show ( $"No Argument information is available. \nError message = [{errormsg}]" , $"[{SqlSpCommand}] SP Script Information" , MessageBoxButton . OK , MessageBoxImage . Warning );
-                    return;
-                }
-                string output = "NB: You can select a different S.P & right click it WITHOUT closing this viewer window...\nThe new Script will replace the current contents of the viewer\n\n";
-                foreach ( var item in Generics )
-                {
-                    string store = "";
-                    store = item . field1 + ",";
-                    output += store;
-                }
-                // Display the script in whatever chsen container is relevant
-                bool resetUse = false;
-                if ( UseFlowdoc == false )
-                {
-                    UseFlowdoc = true;
-                    resetUse = true;
-                }
-                if ( output != "" && UseFlowdoc )
-                {
-                    string fdinput = $"Procedure Name : {SqlSpCommand . ToUpper ( )}\n\n";
-                    fdinput += output;
-                    fdinput += $"\n\nPress ESCAPE to close this window...\n";
-                    ShowInfo ( Flowdoc , canvas , line1: fdinput , clr1: "Black0" , line2: "" , clr2: "Black0" , line3: "" , clr3: "Black0" , header: "" , clr4: "Black0" );
-                }
-                else
-                {
-                    Mouse . OverrideCursor = Cursors . Arrow;
-                    if ( UseFlowdoc )
-                        ShowInfo ( Flowdoc , canvas , line1: $"Procedure [{SqlSpCommand . ToUpper ( )}] \ndoes not Support / Require any arguments" , clr1: "Black0" , line2: "" , clr2: "Black0" , line3: "" , clr3: "Black0" , header: "" , clr4: "Black0" );
-                }
-                if ( resetUse )
-                    UseFlowdoc = false;
+//                }
+//                if ( Generics . Count == 0 )
+//                {
+//                    if ( errormsg != "" )
+//                        MessageBox . Show ( $"No Argument information is available. \nError message = [{errormsg}]" , $"[{SqlSpCommand}] SP Script Information" , MessageBoxButton . OK , MessageBoxImage . Warning );
+//                    return;
+//                }
+//                string output = "NB: You can select a different S.P & right click it WITHOUT closing this viewer window...\nThe new Script will replace the current contents of the viewer\n\n";
+//                foreach ( var item in Generics )
+//                {
+//                    string store = "";
+//                    store = item . field1 + ",";
+//                    output += store;
+//                }
+//                // Display the script in whatever chsen container is relevant
+//                bool resetUse = false;
+//                if ( UseFlowdoc == false )
+//                {
+//                    UseFlowdoc = true;
+//                    resetUse = true;
+//                }
+//                if ( output != "" && UseFlowdoc )
+//                {
+//                    string fdinput = $"Procedure Name : {SqlSpCommand . ToUpper ( )}\n\n";
+//                    fdinput += output;
+//                    fdinput += $"\n\nPress ESCAPE to close this window...\n";
+//                    ShowInfo ( Flowdoc , canvas , line1: fdinput , clr1: "Black0" , line2: "" , clr2: "Black0" , line3: "" , clr3: "Black0" , header: "" , clr4: "Black0" );
+//                }
+//                else
+//                {
+//                    Mouse . OverrideCursor = Cursors . Arrow;
+//                    if ( UseFlowdoc )
+//                        ShowInfo ( Flowdoc , canvas , line1: $"Procedure [{SqlSpCommand . ToUpper ( )}] \ndoes not Support / Require any arguments" , clr1: "Black0" , line2: "" , clr2: "Black0" , line3: "" , clr3: "Black0" , header: "" , clr4: "Black0" );
+//                }
+//                if ( resetUse )
+//                    UseFlowdoc = false;
 
-            }
-        }
+//            }
+//        }
 
-        private void DbProcsTree_SelectedItemChanged ( object sender , RoutedPropertyChangedEventArgs<object> e )
-        {
-            if ( e . NewValue == null )
-                return;
-            //var  v = SqlProcedures . IsSelected as Procname;
-            var tablename = e . NewValue as Database;
-            if ( tablename == null )
-            {
-                if ( e . NewValue == null )
-                    return;
-                var tvi = e . NewValue as SqlProcedures;
-                SqlSpCommand = tvi . Procname;
-                // Noow get  nmme  of the Db we are in 
-                var items = DbProcsTree . Items;
-                if ( items . CurrentItem != null )
-                {
-                    var db = items . CurrentItem as Database;
-                    CurrentSPDb = db . Databasename;
-                }
-                else
-                {
-                    var v = sender as ItemsControl;
-                    //foreach ( var item in v . Items )
-                    //{
-                    //	Debug. WriteLine ( item . ToString ( ) );
-                    //}
-                    var treeItems = WpfLib1 . Utils . FindVisualParent<TextBlock> ( this );
-                    //treeItems . ForEach ( I => i . IsExpanded = false );
-                }
-            }
-            else
-            {
-                var tvi = e . NewValue as Database;
-                CurrentSPDb = tvi . Databasename;
-            }
+//        private void DbProcsTree_SelectedItemChanged ( object sender , RoutedPropertyChangedEventArgs<object> e )
+//        {
+//            if ( e . NewValue == null )
+//                return;
+//            //var  v = SqlProcedures . IsSelected as Procname;
+//            var tablename = e . NewValue as Database;
+//            if ( tablename == null )
+//            {
+//                if ( e . NewValue == null )
+//                    return;
+//                var tvi = e . NewValue as SqlProcedures;
+//                SqlSpCommand = tvi . Procname;
+//                // Noow get  nmme  of the Db we are in 
+//                var items = DbProcsTree . Items;
+//                if ( items . CurrentItem != null )
+//                {
+//                    var db = items . CurrentItem as Database;
+//                    CurrentSPDb = db . Databasename;
+//                }
+//                else
+//                {
+//                    var v = sender as ItemsControl;
+//                    //foreach ( var item in v . Items )
+//                    //{
+//                    //	Debug. WriteLine ( item . ToString ( ) );
+//                    //}
+//                    var treeItems = WpfLib1 . Utils . FindVisualParent<TextBlock> ( this );
+//                    //treeItems . ForEach ( I => i . IsExpanded = false );
+//                }
+//            }
+//            else
+//            {
+//                var tvi = e . NewValue as Database;
+//                CurrentSPDb = tvi . Databasename;
+//            }
 
-        }
+//        }
 
-        #region Table/SP Tree Handlers
+//        #region Table/SP Tree Handlers
 
-        private void DbProcsTree_Expanded ( object sender , RoutedEventArgs e )
-        {
-#pragma warning disable CS0219 // The variable 'x' is assigned but its value is never used
-            int x = 0;
-#pragma warning restore CS0219 // The variable 'x' is assigned but its value is never used
-        }
-        private void LoadTreeView ( object sender , RoutedEventArgs e )
-        {
-            // Load Db Tables Tree viewer
-            if ( TreeviewBorder . Visibility == Visibility . Visible )
-            {
-                TreeviewBorder . Visibility = Visibility . Hidden;
-                if ( DbProcsTree . Visibility == Visibility . Visible )
-                {
-                    LoadTreeData ( );
-                    SpLabel . Visibility = Visibility . Hidden;
-                    DbProcsTree . Visibility = Visibility . Hidden;
-                    SpWrappanel . Visibility = Visibility . Hidden;
-                    TablesWrappanel . Visibility = Visibility . Visible;
-                    TablesLabel . Visibility = Visibility . Visible;
-                    DbTablesTree . Visibility = Visibility . Visible;
-                    TreeviewBorder . Visibility = Visibility . Visible;
-                }
-            }
-            else
-            {
-                LoadTreeData ( );
-                SpLabel . Visibility = Visibility . Hidden;
-                DbProcsTree . Visibility = Visibility . Hidden;
-                SpWrappanel . Visibility = Visibility . Hidden;
-                TablesWrappanel . Visibility = Visibility . Visible;
-                TablesLabel . Visibility = Visibility . Visible;
-                DbTablesTree . Visibility = Visibility . Visible;
-                TreeviewBorder . Visibility = Visibility . Visible;
-            }
-        }
-        private void LoadSpView ( object sender , RoutedEventArgs e )
-        {
-            // Load Stored procedures Tree viewer
+//        private void DbProcsTree_Expanded ( object sender , RoutedEventArgs e )
+//        {
+//#pragma warning disable CS0219 // The variable 'x' is assigned but its value is never used
+//            int x = 0;
+//#pragma warning restore CS0219 // The variable 'x' is assigned but its value is never used
+//        }
+//        private void LoadTreeView ( object sender , RoutedEventArgs e )
+//        {
+//            // Load Db Tables Tree viewer
+//            if ( TreeviewBorder . Visibility == Visibility . Visible )
+//            {
+//                TreeviewBorder . Visibility = Visibility . Hidden;
+//                if ( DbProcsTree . Visibility == Visibility . Visible )
+//                {
+//                    LoadTreeData ( );
+//                    SpLabel . Visibility = Visibility . Hidden;
+//                    DbProcsTree . Visibility = Visibility . Hidden;
+//                    SpWrappanel . Visibility = Visibility . Hidden;
+//                    TablesWrappanel . Visibility = Visibility . Visible;
+//                    TablesLabel . Visibility = Visibility . Visible;
+//                    DbTablesTree . Visibility = Visibility . Visible;
+//                    TreeviewBorder . Visibility = Visibility . Visible;
+//                }
+//            }
+//            else
+//            {
+//                LoadTreeData ( );
+//                SpLabel . Visibility = Visibility . Hidden;
+//                DbProcsTree . Visibility = Visibility . Hidden;
+//                SpWrappanel . Visibility = Visibility . Hidden;
+//                TablesWrappanel . Visibility = Visibility . Visible;
+//                TablesLabel . Visibility = Visibility . Visible;
+//                DbTablesTree . Visibility = Visibility . Visible;
+//                TreeviewBorder . Visibility = Visibility . Visible;
+//            }
+//        }
+//        private void LoadSpView ( object sender , RoutedEventArgs e )
+//        {
+//            // Load Stored procedures Tree viewer
 
-            if ( TreeviewBorder . Visibility == Visibility . Visible )
-            {
-                TreeviewBorder . Visibility = Visibility . Hidden;
-                if ( DbTablesTree . Visibility == Visibility . Visible )
-                {
-                    LoadTreeData ( );
-                    SpLabel . Visibility = Visibility . Visible;
-                    DbProcsTree . Visibility = Visibility . Visible;
-                    SpWrappanel . Visibility = Visibility . Visible;
-                    TablesWrappanel . Visibility = Visibility . Hidden;
-                    TablesLabel . Visibility = Visibility . Hidden;
-                    DbTablesTree . Visibility = Visibility . Hidden;
-                    TreeviewBorder . Visibility = Visibility . Visible;
-                }
-            }
-            else
-            {
-                LoadTreeData ( );
-                SpLabel . Visibility = Visibility . Visible;
-                DbProcsTree . Visibility = Visibility . Visible;
-                SpWrappanel . Visibility = Visibility . Visible;
-                TablesWrappanel . Visibility = Visibility . Hidden;
-                TablesLabel . Visibility = Visibility . Hidden;
-                DbTablesTree . Visibility = Visibility . Hidden;
-                TreeviewBorder . Visibility = Visibility . Visible;
-            }
-        }
+//            if ( TreeviewBorder . Visibility == Visibility . Visible )
+//            {
+//                TreeviewBorder . Visibility = Visibility . Hidden;
+//                if ( DbTablesTree . Visibility == Visibility . Visible )
+//                {
+//                    LoadTreeData ( );
+//                    SpLabel . Visibility = Visibility . Visible;
+//                    DbProcsTree . Visibility = Visibility . Visible;
+//                    SpWrappanel . Visibility = Visibility . Visible;
+//                    TablesWrappanel . Visibility = Visibility . Hidden;
+//                    TablesLabel . Visibility = Visibility . Hidden;
+//                    DbTablesTree . Visibility = Visibility . Hidden;
+//                    TreeviewBorder . Visibility = Visibility . Visible;
+//                }
+//            }
+//            else
+//            {
+//                LoadTreeData ( );
+//                SpLabel . Visibility = Visibility . Visible;
+//                DbProcsTree . Visibility = Visibility . Visible;
+//                SpWrappanel . Visibility = Visibility . Visible;
+//                TablesWrappanel . Visibility = Visibility . Hidden;
+//                TablesLabel . Visibility = Visibility . Hidden;
+//                DbTablesTree . Visibility = Visibility . Hidden;
+//                TreeviewBorder . Visibility = Visibility . Visible;
+//            }
+//        }
 
-        private void Image_PreviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
-        {
-            TreeviewBorder . Visibility = Visibility . Hidden;
-        }
+//        private void Image_PreviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
+//        {
+//            TreeviewBorder . Visibility = Visibility . Hidden;
+//        }
 
-        private void DbProcsTree_Expanded_1 ( object sender , RoutedEventArgs e )
-        {
+//        private void DbProcsTree_Expanded_1 ( object sender , RoutedEventArgs e )
+//        {
 
-        }
+//        }
 
-        private void DbProcsTree_Collapsed ( object sender , RoutedEventArgs e )
-        {
-#pragma warning disable CS0219 // The variable 'x' is assigned but its value is never used
-            int x = 0;
-#pragma warning restore CS0219 // The variable 'x' is assigned but its value is never used
-        }
+//        private void DbProcsTree_Collapsed ( object sender , RoutedEventArgs e )
+//        {
+//#pragma warning disable CS0219 // The variable 'x' is assigned but its value is never used
+//            int x = 0;
+//#pragma warning restore CS0219 // The variable 'x' is assigned but its value is never used
+//        }
 
-        private void TablesLabel_PreviewMouseRightButtonUp ( object sender , MouseButtonEventArgs e )
-        {
-            bool flowdocswitch = false;
-            int count = 0;
-            List<string> list = new List<string> ( );
-            string output = "";
+//        private void TablesLabel_PreviewMouseRightButtonUp ( object sender , MouseButtonEventArgs e )
+//        {
+//            bool flowdocswitch = false;
+//            int count = 0;
+//            List<string> list = new List<string> ( );
+//            string output = "";
 
-            foreach ( var item in DatabasesCollection )
-            {
-                CurrentSPDb = item . Databasename;
-                if ( Utils . CheckResetDbConnection ( CurrentSPDb , out string constring ) == false )
-                    return;
-                SqlCommand = $"spGetTableColumns {SqlSpCommand}";
-                Datagrids . CallStoredProcedure ( list , SqlCommand );
-                //This call returns us a DataTable
-                DataTable dt = DataLoadControl . GetDataTable ( SqlCommand );
-                // This how to access  Row data from  a grid the easiest way.... parsed into a List <xxxxx>
-                list = WpfLib1 . Utils . GetTableColumnsList ( dt );
-                if ( dt . Rows . Count > 0 )
-                    break;
-            }
-            if ( list . Count > 0 )
-            {
-                foreach ( string row in list )
-                {
-                    string entry = row . ToUpper ( );
-                    output += row + "\n";
-                    count++;
-                }
-                // Fiddle  to allow Flowdoc  to show Field info even though Flowdoc use is disabled
-                if ( UseFlowdoc == false )
-                {
-                    flowdocswitch = true;
-                    UseFlowdoc = true;
-                }
-                Debug . WriteLine ( $"loaded {count} records for table columns" );
-                if ( UseFlowdoc )
-                    ShowInfo ( Flowdoc , canvas , header: "Table Columns informaton accessed successfully" , clr4: "Red5" ,
-                    line1: $"Request made was completed succesfully!" , clr1: "Red3" ,
-                    line2: $"the structure of the table [{SqlSpCommand}] is listed below : \n{output}" ,
-                    line3: $"Results created by Stored Procedure : \n({SqlCommand . ToUpper ( )})" , clr3: "Blue4"
-                    );
-                if ( flowdocswitch == true )
-                {
-                    flowdocswitch = false;
-                    UseFlowdoc = false;
-                }
-            }
-            else
-            {
-                if ( UseFlowdoc )
-                    ShowInfo ( Flowdoc , canvas , header: "Table Columns informaton accessed successfully" , clr4: "Red5" ,
-                    line1: $"The request was made succesfully, but no Table Fields were returned..." , clr1: "Red3" ,
-                    line2: $"The table queried was [{SqlSpCommand}]" ,
-                    line3: $"Results created by Stored Procedure : \n({SqlCommand . ToUpper ( )})" , clr3: "Blue4"
-                    );
-            }
-        }
-        #endregion Table/SP Tree Handlers
+//            foreach ( var item in DatabasesCollection )
+//            {
+//                CurrentSPDb = item . Databasename;
+//                if ( Utils . CheckResetDbConnection ( CurrentSPDb , out string constring ) == false )
+//                    return;
+//                SqlCommand = $"spGetTableColumns {SqlSpCommand}";
+//                Datagrids . CallStoredProcedure ( list , SqlCommand );
+//                //This call returns us a DataTable
+//                DataTable dt = DataLoadControl . GetDataTable ( SqlCommand );
+//                // This how to access  Row data from  a grid the easiest way.... parsed into a List <xxxxx>
+//                list = WpfLib1 . Utils . GetTableColumnsList ( dt );
+//                if ( dt . Rows . Count > 0 )
+//                    break;
+//            }
+//            if ( list . Count > 0 )
+//            {
+//                foreach ( string row in list )
+//                {
+//                    string entry = row . ToUpper ( );
+//                    output += row + "\n";
+//                    count++;
+//                }
+//                // Fiddle  to allow Flowdoc  to show Field info even though Flowdoc use is disabled
+//                if ( UseFlowdoc == false )
+//                {
+//                    flowdocswitch = true;
+//                    UseFlowdoc = true;
+//                }
+//                Debug . WriteLine ( $"loaded {count} records for table columns" );
+//                if ( UseFlowdoc )
+//                    ShowInfo ( Flowdoc , canvas , header: "Table Columns informaton accessed successfully" , clr4: "Red5" ,
+//                    line1: $"Request made was completed succesfully!" , clr1: "Red3" ,
+//                    line2: $"the structure of the table [{SqlSpCommand}] is listed below : \n{output}" ,
+//                    line3: $"Results created by Stored Procedure : \n({SqlCommand . ToUpper ( )})" , clr3: "Blue4"
+//                    );
+//                if ( flowdocswitch == true )
+//                {
+//                    flowdocswitch = false;
+//                    UseFlowdoc = false;
+//                }
+//            }
+//            else
+//            {
+//                if ( UseFlowdoc )
+//                    ShowInfo ( Flowdoc , canvas , header: "Table Columns informaton accessed successfully" , clr4: "Red5" ,
+//                    line1: $"The request was made succesfully, but no Table Fields were returned..." , clr1: "Red3" ,
+//                    line2: $"The table queried was [{SqlSpCommand}]" ,
+//                    line3: $"Results created by Stored Procedure : \n({SqlCommand . ToUpper ( )})" , clr3: "Blue4"
+//                    );
+//            }
+//        }
+//        #endregion Table/SP Tree Handlers
 
-        private void DbTablesTree_SelectedItemChanged ( object sender , RoutedPropertyChangedEventArgs<object> e )
-        {
-            if ( e . NewValue == null )
-                return;
-            //var  v = SqlProcedures . IsSelected as Procname;
-            var tablename = e . NewValue as Database;
-            if ( tablename == null )
-            {
-                if ( e . NewValue == null )
-                    return;
-                var tvi = e . NewValue as SqlTable;
-                SqlSpCommand = tvi . Tablename;
-                // Now get  nmme  of the Db we are in 
-                var parentitem = WpfLib1 . Utils . FindVisualParent<TextBlock> ( sender as UIElement );
-                var items = DbProcsTree . Items;
-                if ( items . CurrentItem != null )
-                {
-                    var db = items . CurrentItem as Database;
-                    CurrentSPDb = db . Databasename;
-                }
-                else
-                {
-                    var v = sender as ItemsControl;
-                    //foreach ( var item in v . Items )
-                    //{
-                    //	Debug. WriteLine ( item . ToString ( ) );
-                    //}
-                    var treeItems = WpfLib1 . Utils . FindVisualParent<TextBlock> ( this );
-                    //treeItems . ForEach ( I => i . IsExpanded = false );
-                }
-            }
-            else
-            {
-                var tvi = e . NewValue as Database;
-                CurrentSPDb = tvi . Databasename;
-            }
+//        private void DbTablesTree_SelectedItemChanged ( object sender , RoutedPropertyChangedEventArgs<object> e )
+//        {
+//            if ( e . NewValue == null )
+//                return;
+//            //var  v = SqlProcedures . IsSelected as Procname;
+//            var tablename = e . NewValue as Database;
+//            if ( tablename == null )
+//            {
+//                if ( e . NewValue == null )
+//                    return;
+//                var tvi = e . NewValue as SqlTable;
+//                SqlSpCommand = tvi . Tablename;
+//                // Now get  nmme  of the Db we are in 
+//                var parentitem = WpfLib1 . Utils . FindVisualParent<TextBlock> ( sender as UIElement );
+//                var items = DbProcsTree . Items;
+//                if ( items . CurrentItem != null )
+//                {
+//                    var db = items . CurrentItem as Database;
+//                    CurrentSPDb = db . Databasename;
+//                }
+//                else
+//                {
+//                    var v = sender as ItemsControl;
+//                    //foreach ( var item in v . Items )
+//                    //{
+//                    //	Debug. WriteLine ( item . ToString ( ) );
+//                    //}
+//                    var treeItems = WpfLib1 . Utils . FindVisualParent<TextBlock> ( this );
+//                    //treeItems . ForEach ( I => i . IsExpanded = false );
+//                }
+//            }
+//            else
+//            {
+//                var tvi = e . NewValue as Database;
+//                CurrentSPDb = tvi . Databasename;
+//            }
 
-        }
+//        }
 
 
-        //private void ListViewWindow_PreviewMouseLeftButtonUp ( object sender , MouseButtonEventArgs e )
-        //{
-        //	MovingObject = null;
-        //	fdl.FlowdocResizing = false;
-        //	Flowdoc . BorderClicked = false;
-        //	ReleaseMouseCapture ( );
-        //	TvMouseCaptured = false;
+//        //private void ListViewWindow_PreviewMouseLeftButtonUp ( object sender , MouseButtonEventArgs e )
+//        //{
+//        //	MovingObject = null;
+//        //	fdl.FlowdocResizing = false;
+//        //	Flowdoc . BorderClicked = false;
+//        //	ReleaseMouseCapture ( );
+//        //	TvMouseCaptured = false;
 
-        //}
+//        //}
 
-        private void TreeviewBorder_PreviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
-        {
-            /// treeviewer item selected with mouse
-            if ( e . LeftButton == MouseButtonState . Pressed )
-            {
-                Label tv = sender as Label;
-                if ( tv == null )
-                {
-                    ReleaseMouseCapture ( );
-                    return;
-                }
-                TvFirstXPos = e . GetPosition ( tv ) . X;
-                TvFirstYPos = e . GetPosition ( tv ) . Y;
-                TvMouseCaptured = true;
-            }
-            else
-            {
-                ReleaseMouseCapture ( );
-                TvMouseCaptured = false;
-            }
-        }
+//        private void TreeviewBorder_PreviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
+//        {
+//            /// treeviewer item selected with mouse
+//            if ( e . LeftButton == MouseButtonState . Pressed )
+//            {
+//                Label tv = sender as Label;
+//                if ( tv == null )
+//                {
+//                    ReleaseMouseCapture ( );
+//                    return;
+//                }
+//                TvFirstXPos = e . GetPosition ( tv ) . X;
+//                TvFirstYPos = e . GetPosition ( tv ) . Y;
+//                TvMouseCaptured = true;
+//            }
+//            else
+//            {
+//                ReleaseMouseCapture ( );
+//                TvMouseCaptured = false;
+//            }
+//        }
 
-        #region Treeview  handlers
-        private void TreeviewBorder_PreviewMouseLeftButtonUp ( object sender , MouseButtonEventArgs e )
-        {
-            /// stop treeviewer Move 
-            ReleaseMouseCapture ( );
-            //Debug. WriteLine ( "Mouse released 4" );
-            TvMouseCaptured = false;
-        }
-        private void TreeviewBorder_MouseMove ( object sender , MouseEventArgs e )
-        {
-            if ( TvMouseCaptured )
-            {
-                //Label  tv = sender  as Label ;
-                //if ( tv == null )
-                //	return;
-                double left = e . GetPosition ( ( TreeviewBorder as FrameworkElement ) . Parent as FrameworkElement ) . X - TvFirstXPos;
-                double top = e . GetPosition ( ( TreeviewBorder as FrameworkElement ) . Parent as FrameworkElement ) . Y - TvFirstYPos;
-                double trueleft = left - CpFirstXPos;
-                double truetop = left - CpFirstYPos;
-                if ( left >= 0 ) // && left <= canvas.ActualWidth - Flowdoc.ActualWidth)
-                    ( TreeviewBorder as FrameworkElement ) . SetValue ( Canvas . LeftProperty , left );
-                if ( top >= 0 ) //&& top <= canvas . ActualHeight- Flowdoc. ActualHeight)
-                    ( TreeviewBorder as FrameworkElement ) . SetValue ( Canvas . TopProperty , top );
-                ReleaseMouseCapture ( );
-            }
-            else
-                ReleaseMouseCapture ( );
-        }
-        private void TreeviewBorder_LostFocus ( object sender , RoutedEventArgs e )
-        {
-            ReleaseMouseCapture ( );
-            //Debug. WriteLine ( "Mouse released 5" );
-            TvMouseCaptured = false;
-        }
-        private void TextBlock_PreviewMouseLeftButtonUp ( object sender , MouseButtonEventArgs e )
-        {
-        }
-        private void SpTreeviewBorder_PreviewMouseLeftButtonUp ( object sender , MouseButtonEventArgs e )
-        {
-        }
-        private void SpTreeviewBorder_PreviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
-        {
-        }
-        private void SpImage_PreviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
-        {
-        }
-        private void SpTextBlock_PreviewMouseRightButtonUp ( object sender , MouseButtonEventArgs e )
-        {
-        }
-        private void SpTreeviewBorder_LostFocus ( object sender , RoutedEventArgs e )
-        {
-        }
-        private void SpTreeviewBorder_MouseMove ( object sender , MouseEventArgs e )
-        {
-        }
-        #endregion Treeview  handlers
+//        #region Treeview  handlers
+//        private void TreeviewBorder_PreviewMouseLeftButtonUp ( object sender , MouseButtonEventArgs e )
+//        {
+//            /// stop treeviewer Move 
+//            ReleaseMouseCapture ( );
+//            //Debug. WriteLine ( "Mouse released 4" );
+//            TvMouseCaptured = false;
+//        }
+//        private void TreeviewBorder_MouseMove ( object sender , MouseEventArgs e )
+//        {
+//            if ( TvMouseCaptured )
+//            {
+//                //Label  tv = sender  as Label ;
+//                //if ( tv == null )
+//                //	return;
+//                double left = e . GetPosition ( ( TreeviewBorder as FrameworkElement ) . Parent as FrameworkElement ) . X - TvFirstXPos;
+//                double top = e . GetPosition ( ( TreeviewBorder as FrameworkElement ) . Parent as FrameworkElement ) . Y - TvFirstYPos;
+//                double trueleft = left - CpFirstXPos;
+//                double truetop = left - CpFirstYPos;
+//                if ( left >= 0 ) // && left <= canvas.ActualWidth - Flowdoc.ActualWidth)
+//                    ( TreeviewBorder as FrameworkElement ) . SetValue ( Canvas . LeftProperty , left );
+//                if ( top >= 0 ) //&& top <= canvas . ActualHeight- Flowdoc. ActualHeight)
+//                    ( TreeviewBorder as FrameworkElement ) . SetValue ( Canvas . TopProperty , top );
+//                ReleaseMouseCapture ( );
+//            }
+//            else
+//                ReleaseMouseCapture ( );
+//        }
+//        private void TreeviewBorder_LostFocus ( object sender , RoutedEventArgs e )
+//        {
+//            ReleaseMouseCapture ( );
+//            //Debug. WriteLine ( "Mouse released 5" );
+//            TvMouseCaptured = false;
+//        }
+//        private void TextBlock_PreviewMouseLeftButtonUp ( object sender , MouseButtonEventArgs e )
+//        {
+//        }
+//        private void SpTreeviewBorder_PreviewMouseLeftButtonUp ( object sender , MouseButtonEventArgs e )
+//        {
+//        }
+//        private void SpTreeviewBorder_PreviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
+//        {
+//        }
+//        private void SpImage_PreviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
+//        {
+//        }
+//        private void SpTextBlock_PreviewMouseRightButtonUp ( object sender , MouseButtonEventArgs e )
+//        {
+//        }
+//        private void SpTreeviewBorder_LostFocus ( object sender , RoutedEventArgs e )
+//        {
+//        }
+//        private void SpTreeviewBorder_MouseMove ( object sender , MouseEventArgs e )
+//        {
+//        }
+//        #endregion Treeview  handlers
 
         #region Flowdoc support via library
         private void MaximizeFlowDoc ( object sender , EventArgs e )
@@ -3213,18 +3220,18 @@ namespace NewWpfDev . Views
         {
             // Window wide  !!
             // Called  when a Flowdoc MOVE has ended
-            MovingObject = fdl . Flowdoc_MouseLeftButtonUp ( sender , Flowdoc , MovingObject , e );
+            MovingObject = fdl? . Flowdoc_MouseLeftButtonUp ( sender , Flowdoc , MovingObject , e );
             ReleaseMouseCapture ( );
         }
         private void Flowdoc_PreviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
         {
             //In this event, we get current mouse position on the control to use it in the MouseMove event.
-            MovingObject = fdl . Flowdoc_PreviewMouseLeftButtonDown ( sender , Flowdoc , e );
+            MovingObject = fdl? . Flowdoc_PreviewMouseLeftButtonDown ( sender , Flowdoc , e );
         }
         private void Flowdoc_MouseMove ( object sender , MouseEventArgs e )
         {
             // We are Resizing the Flowdoc using the mouse on the border  (Border.Name=FdBorder)
-            fdl . Flowdoc_MouseMove ( Flowdoc , canvas , MovingObject , e );
+            fdl? . Flowdoc_MouseMove ( Flowdoc , canvas , MovingObject , e );
         }
         // Shortened version proxy call		
         private void Flowdoc_LostFocus ( object sender , RoutedEventArgs e )
@@ -3334,6 +3341,16 @@ namespace NewWpfDev . Views
             fontSize . UpdateLayout ( );
             rowheight . UpdateLayout ( );
 
+
+        }
+
+        private void LoadTreeView ( object sender , RoutedEventArgs e )
+        {
+
+        }
+
+        private void LoadSpView ( object sender , RoutedEventArgs e )
+        {
 
         }
     }

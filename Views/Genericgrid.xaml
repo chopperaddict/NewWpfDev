@@ -5,17 +5,19 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Views"
         xmlns:users="clr-namespace:UserControls"
+        xmlns:user="clr-namespace:NewWpfDev.UserControls"
         xmlns:conv="clr-namespace:NewWpfDev.Converts"
+        xmlns:model="clr-namespace:NewWpfDev.Models"
+        xmlns:Viewmodels="clr-namespace:NewWpfDev.ViewModels"
         xmlns:att="clr-namespace:NewWpfDev.AttachedProperties"
         mc:Ignorable="d"
         WindowChrome.ResizeGripDirection="BottomRight"
 	    ResizeMode="CanResizeWithGrip"        
         Title="Generic SQL Tables - Right Click for more information..."
         FontSize="20"
-        FontWeight="Bold"
         TextElement.Foreground="White"
         SizeChanged="Gengrid_SizeChanged"
-        Height="550" Width="800"
+        Height="750" Width="900"
         MinHeight="550" MinWidth="880"
         Loaded="Grid_Loaded"
         LostFocus="FieldSelectionGrid_LostFocus"
@@ -27,6 +29,24 @@
         <conv:IncreaseByParamValue x:Key="IncreaseByParamValue" />
         <conv:ReduceByParamValue x:Key="ReduceByParamValue"/>
 
+        <!--#treeview stuff-->
+        <!--<model:SqlDatabases x:Key="DbNames"/>--><!--
+        <Viewmodels:Databases x:Key="DbNames"/>
+        --><!--<model:Database x:Key="DbNames"/>-->
+        <!--<DataTemplate DataType="{x:Type models:SqlTable}">--><!--
+        <DataTemplate x:Key="Level2">
+            <TextBlock Text="{Binding Path=Tablename}" />
+        </DataTemplate>
+
+        --><!--<HierarchicalDataTemplate  DataType="{x:Type models:Database}" >--><!--
+        <HierarchicalDataTemplate  x:Key="Level1" 
+						   ItemsSource="{Binding DbNames}"
+						   ItemTemplate="{StaticResource Level2}">
+            <TextBlock Text="{Binding Path=Databasename}" />
+        </HierarchicalDataTemplate>-->
+
+        <!--#endtreeview stuff-->
+        
         <!--#region magic color brushes-->
 
         <LinearGradientBrush x:Key="VerticalRainbow" StartPoint="0,1" EndPoint="0,0">
@@ -1592,8 +1612,8 @@
                                 FontSize="16"
                                 FontWeight="DemiBold"
                                  MouseDoubleClick="ProcNames_MouseDoubleClick"
-                                ItemContainerStyle="{StaticResource SpStringsStyle}"
                                 Margin="10, 40,10,15">
+                            ItemContainerStyle="{StaticResource SpStringsStyle}"
                             <ListBoxItem/>
                         </ListBox>
 
@@ -1646,8 +1666,8 @@
 
             <!--#region SP Execute dialog-->
             <Grid x:Name="Execsp"
-                Height="411" 
-                Width="634"
+                Height="384" 
+                Width="563"
                 Canvas.Top="38" 
                 Canvas.Left="85"    
                 Panel.ZIndex="255"  
@@ -1660,6 +1680,8 @@
                 VerticalAlignment="Center" 
                 Visibility="Collapsed" >
 
+                <TextBlock x:Name="SpName" Visibility="Collapsed"/>
+
                 <Border x:Name="innerborder"
                         BorderThickness="5" 
                         BorderBrush="Black"
@@ -1669,7 +1691,7 @@
                         PreviewMouseMove="ExecDragDialog_Moving"
                         PreviewMouseLeftButtonUp="ExecDragDialog_Ending"
                         HorizontalAlignment="Center"
-                        VerticalAlignment="Center" Height="412" Width="629">
+                        VerticalAlignment="Center" Height="373" Width="630">
 
                     <Grid x:Name="innergrid"
                             Grid.Row="1" 
@@ -1690,7 +1712,9 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
-                        <StackPanel Orientation="Vertical" Background="Transparent" Margin="0,7,0,143">
+                        <StackPanel Orientation="Vertical" Background="Transparent" 
+                                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+
                             <TextBlock x:Name="Headtext"
                                        Height="33"
                                        Text="Active S.P is : "
@@ -1699,7 +1723,7 @@
                                        FontSize="18"
                                        Padding="0 0 0 0"
                                        Background="Red" 
-                                       Foreground="White" Margin="0,-7,0,0"/>
+                                       Foreground="White" Margin="0,0,0,0"/>
 
                             <TextBlock x:Name="textprompt1"
                                 Text="{Binding SPExecPrompt}"
@@ -1731,7 +1755,7 @@
                            Margin="16,104,15,152"/>
 
                 <TextBox x:Name="selectSp"
-                            Margin="12,268,13,67"
+                            Margin="12,240,13,82"
                             Text="Enter Arguments here ..."
                             TextAlignment="Center"
                             Panel.ZIndex="12"
@@ -1752,7 +1776,7 @@
                         Width="100" 
                         Height="41" 
                         HorizontalAlignment="Right" 
-                        Margin="0,357,16,0"
+                        Margin="0,319,16,0"
                         VerticalAlignment="Top"
                         KeyDown="Execsp_KeyDown"
                         Content="Execute"
@@ -1765,7 +1789,7 @@
                         Width="100" 
                         Height="43" 
                         HorizontalAlignment="Right" 
-                        Margin="0,357,124,0"
+                        Margin="0,319,124,0"
                         VerticalAlignment="Top"
                         Content="Cancel"
                         KeyDown="Execsp_KeyDown"
@@ -1779,6 +1803,460 @@
 
 
             <!--#endregion popup controls-->
+
+            <!--#region SPResultsdialog-->
+            <!--************************************-->
+
+            <!--// This is the larger dialog that allow selection from any SP's that 
+            //have returned after the SQL search has been completd-->
+            <!--<Grid x:Name="SpResultsViewer" 
+                Height="432" 
+                Width="621"
+                KeyDown="SpStrings_KeyDown"                    
+                Canvas.Top="52" 
+                Canvas.Left="105"
+                MouseLeftButtonDown="Results_LButtonDn"
+                MouseLeftButtonUp="Results_Ending"
+                Background="{StaticResource Cyan0}"
+                MouseMove="Results_Moving"
+                Focusable="True"
+                Panel.ZIndex="20"  
+                LostFocus="FieldSelectionGrid_LostFocus"
+                  HorizontalAlignment="Center" 
+                  VerticalAlignment="Top"
+                Visibility="Visible" >
+
+                <Border x:Name="innerresultsborder"
+                    BorderThickness="5" BorderBrush="Red"
+                      Panel.ZIndex="22"
+                    Visibility="Visible">
+
+                    <Grid x:Name="InnerGrid"
+                            Height="{Binding ActualHeight, ElementName=innerresultsborder}" 
+                            Width="{Binding ActualWidth, ElementName=innerresultsborder,
+                                Converter={StaticResource ReduceByParamValue},ConverterParameter=10}"
+                            Panel.ZIndex="23"
+                            MouseLeftButtonDown="Results_LButtonDn"
+                            MouseMove="Results_Moving"
+                            HorizontalAlignment="Center" 
+                            Background="{StaticResource Cyan0}"
+                            VerticalAlignment="Center"
+                          Visibility="Visible">
+
+                        -->
+            <!--<Grid.RowDefinitions>
+                            <RowDefinition x:Name="row10" Height="35"/>
+                            <RowDefinition x:Name="row12" Height="*"/>
+                            -->
+            <!--<RowDefinition x:Name="row12" Height="200"/>
+                            <RowDefinition  x:Name="row13" Height="100"/>-->
+            <!--
+                            <RowDefinition Height="85"/>
+                        </Grid.RowDefinitions>-->
+            <!--
+
+                        <WrapPanel Orientation="Vertical"                                   
+                               Width="{Binding ActualWidth, ElementName=InnerGrid,
+                                Converter={StaticResource ReduceByParamValue},ConverterParameter=10}">
+                            
+                            <TextBlock x:Name="SrchTerm"  Visibility="Collapsed"/>
+
+                            <TextBlock x:Name="Bannerline" 
+                                Width="{Binding ActualWidth, ElementName=InnerGrid,
+                                    Converter={StaticResource ReduceByParamValue},ConverterParameter=10}"
+                                Height="35"
+                                Text="Results of Stored procedure Execution"
+                                TextAlignment="Center"
+                                Panel.ZIndex="294"
+                                Padding="0 4 0 0"
+                                Margin="0,0,0,0"
+                                Background="Red"
+                                Foreground="White" 
+                                UseLayoutRounding="True" />
+
+                            <ListBox x:Name="ListResults"
+                                    Height="100"
+                                    Width="{Binding ActualWidth, ElementName=InnerGrid,
+                                    Converter={StaticResource ReduceByParamValue},ConverterParameter=10}"
+                                    Background="{StaticResource Black7}"
+                                    SelectionMode="Single"
+                                    FontSize="14"
+                                    FontWeight="DemiBold"
+                                    Margin="11,10,11,0"
+                                     SelectionChanged="ListResults_SelectionChanged"
+                                     ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                    Panel.ZIndex="294"
+                                    ItemContainerStyle="{StaticResource SpStringsStyle}"
+                                     Visibility="Visible" />
+
+                            <FlowDocumentScrollViewer x:Name="TextResult" 
+                                            BorderBrush="White"
+                                            Height="200"                         
+                                            Width="{Binding ActualWidth, ElementName=InnerGrid,
+                                                Converter={StaticResource ReduceByParamValue},ConverterParameter=30}"
+                                            Panel.ZIndex="302"                                           
+                                            HorizontalAlignment="Left"
+                                            Margin="11 10,11,5"
+                                            HorizontalScrollBarVisibility="Auto"
+                                            VerticalScrollBarVisibility="Visible"
+                                            Background="{StaticResource Black0}"
+                                            Foreground="{StaticResource White0}"                                              
+                                            PreviewKeyDown="TextResult_PreviewKeyDown"
+                                            ScrollBar.Scroll="RTBox_Scroll"
+                                            PreviewMouseRightButtonDown="TextResult_PreviewMouseRightButtonDown"
+                                            TextOptions.TextFormattingMode="Ideal"
+                                            TextOptions.TextRenderingMode="ClearType"
+                                            Visibility="Visible"/>
+
+
+                            -->
+            <!--<TextBlock x:Name="TextResult"
+                                    Height="200"                         
+                                    Width="{Binding ActualWidth, ElementName=InnerGrid,
+                                    Converter={StaticResource ReduceByParamValue},ConverterParameter=10}"
+                                    Text="Stored Procedure text results......"
+                                    TextAlignment="Center"
+                                    FontSize="14"
+                                    Padding="0 2 0 0"
+                                    Margin="11,5,11,0"
+                                    Panel.ZIndex="294"
+                                    Background="{StaticResource White6}"
+                                    Foreground="Black"
+                                    UseLayoutRounding="True"
+                                    Visibility="Visible" />-->
+            <!--
+
+                            <Button x:Name="closebtn"                                 
+                                   Width="151" Height="50" 
+                                    HorizontalAlignment="Right"                                     
+                                    Margin="0,15,10, 0"
+                                    VerticalAlignment="Bottom"
+                                    FontSize="14"
+                                    Style="{StaticResource ButtonSlant}"
+                                    Panel.ZIndex="24"
+                                    Content="Close Results Viewer"
+                                    Click="closeresultsviewer_Click"
+                                    Visibility="Visible"
+                                    Foreground="Orange" />
+                        </WrapPanel>
+                    </Grid>
+                </Border>
+            </Grid>-->
+            <!--************************************-->
+            <!--#endregion SPselectiondialog-->
+
+            <!--#region TreeViews-->
+
+            <!--// Controlling Border for all TreeView stuff-->
+            <!--<Border x:Name ="TreeviewBorder" 
+				  Background="{StaticResource Red5}"
+				  Width="357" 
+				  Height="400" 
+				  BorderThickness="1"
+				  BorderBrush="{StaticResource Black0}"
+				  Canvas.Top="53"
+				  Canvas.Left="280"
+				  LostFocus="TreeviewBorder_LostFocus"
+				  MouseMove="TreeviewBorder_MouseMove"
+				  PreviewMouseLeftButtonUp="TreeviewBorder_PreviewMouseLeftButtonUp"
+				  Visibility="Collapsed">
+
+                <Grid>
+                    --><!--// *** THESE WORK !!! *** //--><!--
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    --><!--#region Db Tables Tree view--><!--
+                    <WrapPanel x:Name="TablesWrappanel"
+						Grid.Row="0"  
+						Orientation="Horizontal"
+						Visibility="Visible">
+
+                        <Label  x:Name="TablesLabel"
+								Background="{StaticResource Red3}"
+								Content="All Db Tables"
+								FontWeight="DemiBold"
+								Foreground="{StaticResource White0}"
+								HorizontalAlignment="Left"
+								HorizontalContentAlignment="Center"
+								Height="30"
+								Margin="0 5 0 0 "
+								  PreviewMouseLeftButtonDown="TreeviewBorder_PreviewMouseLeftButtonDown"
+								  PreviewMouseLeftButtonUp="TreeviewBorder_PreviewMouseLeftButtonUp"
+								Visibility="Visible"
+								Width="315"/>
+
+                        <Image  Source="/icons/Whitecross.png" 
+							  Height="20"
+							  Margin="0 2 0 0"
+							  PreviewMouseLeftButtonDown="Image_PreviewMouseLeftButtonDown"
+							  HorizontalAlignment="Right"
+							  Visibility="Visible"/>
+                    </WrapPanel>
+
+                    <TreeView x:Name="DbTablesTree"  
+							Grid.Row="1"
+							HorizontalAlignment="Left" 
+							Width="{Binding Path=Width, ElementName=TreeviewBorder}" 
+							Background="{StaticResource Cyan2}"
+							SelectedItemChanged="DbTablesTree_SelectedItemChanged"
+						    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+							Visibility="Hidden">
+                        <TreeView.ItemTemplate>
+                            <HierarchicalDataTemplate DataType="{x:Type Viewmodels:Database}" ItemsSource="{Binding Path=Tables}" >
+                                <TextBlock 
+									     Text="{Binding Databasename}" 
+									     VerticalAlignment="Center" 
+									     Margin="5"
+										FontSize="14"
+										FontWeight="DemiBold"
+									     Foreground="{StaticResource Black0}"
+										Height="20"
+										PreviewMouseLeftButtonUp="TextBlock_PreviewMouseLeftButtonUp"									
+										Width="{Binding Path=Width, ElementName=DbTablesTree}"></TextBlock>
+
+                                <HierarchicalDataTemplate.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type Viewmodels:SqlTable}">
+                                        <TextBlock 
+											FontSize="14"
+											Foreground="{StaticResource Black3}"
+											Height="20"												
+											Margin="5"
+											PreviewMouseRightButtonUp="TablesLabel_PreviewMouseRightButtonUp"
+											Text="{Binding Tablename}" 
+											VerticalAlignment="Center" 
+											Width="{Binding Path=Width, ElementName=DbTablesTree}"></TextBlock>
+                                    </DataTemplate>
+                                </HierarchicalDataTemplate.ItemTemplate>
+                            </HierarchicalDataTemplate>
+                        </TreeView.ItemTemplate>
+
+                    </TreeView>
+
+                    --><!--#endregion Db Tables Tree view-->
+
+                    <!--#region SP Tree view--><!--
+
+                    <WrapPanel  x:Name="SpWrappanel"
+						Grid.Row="0"  Orientation="Horizontal"
+						     Visibility="Visible"
+                               >
+
+                        <Label  x:Name="SpLabel"
+								Background="{StaticResource Red3}"
+								Content="Stored Procedures"
+								Foreground="{StaticResource White0}"
+								HorizontalContentAlignment="Center"
+								  PreviewMouseLeftButtonDown="TreeviewBorder_PreviewMouseLeftButtonDown"
+								  PreviewMouseLeftButtonUp="TreeviewBorder_PreviewMouseLeftButtonUp"
+								Height="30"
+								Margin="0 5 0 0 "
+								Visibility="Visible"
+								Width="316"/>
+
+                        <Image  Source="/Icons/Whitecross.png" 
+							  Height="20"
+							  PreviewMouseLeftButtonDown="Image_PreviewMouseLeftButtonDown"
+							  HorizontalAlignment="Right"
+							  Margin="0 2 0 0"
+							  Visibility="Visible"/>
+                    </WrapPanel>
+
+                    <TreeView x:Name="DbProcsTree"  
+							Background="{StaticResource Orange7}"
+							Expander.Expanded="DbProcsTree_Expanded"
+						    Expander.Collapsed="DbProcsTree_Collapsed"
+							Grid.Row="1"
+							HorizontalAlignment="Center" 
+							PreviewMouseRightButtonUp="DbProcsTree_PreviewMouseRightButtonUp"
+							ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+							SelectedItemChanged="DbProcsTree_SelectedItemChanged"	 						    
+							Visibility="Visible"
+							Width="355">
+
+                        <TreeView.Resources>
+                        </TreeView.Resources>
+
+                        --><!--<Style TargetType="{x:Type TreeViewItem}">
+							<Setter Property="IsExpanded" Value="{Binding Path=IsNodeExpanded, ElementName=Listviews}"/>
+						</Style>--><!--
+                        <TreeView.ItemContainerStyle>
+                            <Style TargetType="TreeViewItem">
+                                <Setter Property="IsSelected" Value="{Binding IsSelected}" />
+                                <Setter Property="IsExpanded" Value="{Binding IsExpanded}" />
+                                --><!--<Setter Property="Height" Value="16" />--><!--
+                            </Style>
+                        </TreeView.ItemContainerStyle>
+
+                        <TreeView.ItemTemplate >
+                            <HierarchicalDataTemplate DataType="{x:Type Viewmodels:Database}" ItemsSource="{Binding Path=Procedures}" >
+                                --><!--<Expander Header="{Binding Databasename}" IsExpanded="True">--><!--
+                                <TextBlock 
+									     Text="{Binding Databasename}" 
+									     VerticalAlignment="Center" 
+									     Margin="5"
+										FontSize="12"
+										FontWeight="DemiBold"
+									     Foreground="{StaticResource Black0}"
+										Height="15"
+										Width="{Binding Path=Width, ElementName=DbTablesTree}"></TextBlock>
+                                --><!--</Expander>--><!--
+                                <HierarchicalDataTemplate.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type Viewmodels.SqlProcedures}">
+                                        <TextBlock 
+											FontSize="11"
+											Foreground="{StaticResource Black3}"
+											Height="14"
+											Margin="5"
+											PreviewMouseRightButtonUp="TextBlock_PreviewMouseRightButtonUp"
+											Text="{Binding Procname}" 
+											VerticalAlignment="Center" 
+											Width="{Binding Path=Width, ElementName=DbProcsTree}">
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </HierarchicalDataTemplate.ItemTemplate>
+                            </HierarchicalDataTemplate>
+                        </TreeView.ItemTemplate>
+
+                    </TreeView>
+
+                    --><!--#endregion SP Tree view--><!--
+
+                </Grid>
+            </Border>
+
+            <Border x:Name ="SpTreeviewBorder" 
+				  Background="{StaticResource Red5}"
+				  Width="357" 
+				  Height="400" 
+				  BorderThickness="1"
+				  BorderBrush="{StaticResource Black0}"
+				  Canvas.Top="53"
+				  Canvas.Left="280"
+				  LostFocus="TreeviewBorder_LostFocus"
+				  MouseMove="TreeviewBorder_MouseMove"
+				  PreviewMouseLeftButtonUp="TreeviewBorder_PreviewMouseLeftButtonUp"
+				  Visibility="Collapsed">
+
+                <Grid>
+                    --><!--// *** THESE WORK !!! *** //--><!--
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+
+                    --><!--#region SP Tree view--><!--
+
+                    <WrapPanel  x:Name="Sp2Wrappanel"
+						Grid.Row="0"  Orientation="Horizontal"
+						     Visibility="Visible">
+
+                        <Label  x:Name="Sp2Label"
+								Background="{StaticResource Red3}"
+								Content="Stored Procedures"
+								Foreground="{StaticResource White0}"
+								HorizontalContentAlignment="Center"
+								  PreviewMouseLeftButtonDown="TreeviewBorder_PreviewMouseLeftButtonDown"
+								  PreviewMouseLeftButtonUp="TreeviewBorder_PreviewMouseLeftButtonUp"
+								Height="30"
+								Margin="0 5 0 0 "
+								Visibility="Visible"
+								Width="316"/>
+
+                        <Image  Source="/icons/Whitecross.png" 
+							  Height="20"
+							  PreviewMouseLeftButtonDown="Image_PreviewMouseLeftButtonDown"
+							  HorizontalAlignment="Right"
+							  Margin="0 2 0 0"
+							  Visibility="Visible"/>
+                    </WrapPanel>
+
+                    <TreeView x:Name="Db2ProcsTree"  
+							Background="{StaticResource Cyan3}"
+							Expander.Expanded="DbProcsTree_Expanded"
+						    Expander.Collapsed="DbProcsTree_Collapsed"
+							Grid.Row="1"
+							HorizontalAlignment="Center" 
+							PreviewMouseRightButtonUp="DbProcsTree_PreviewMouseRightButtonUp"
+							ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+							SelectedItemChanged="DbProcsTree_SelectedItemChanged"	 						    
+							Visibility="Visible"
+							Width="355">
+
+                        <TreeView.Resources>
+                        </TreeView.Resources>
+
+                        --><!--<Style TargetType="{x:Type TreeViewItem}">
+							<Setter Property="IsExpanded" Value="{Binding Path=IsNodeExpanded, ElementName=Listviews}"/>
+						</Style>--><!--
+                        <TreeView.ItemContainerStyle>
+                            <Style TargetType="TreeViewItem">
+                                <Setter Property="IsSelected" Value="{Binding IsSelected}" />
+                                <Setter Property="IsExpanded" Value="{Binding IsExpanded}" />
+                                --><!--<Setter Property="Height" Value="16" />--><!--
+                            </Style>
+                        </TreeView.ItemContainerStyle>
+
+                        <TreeView.ItemTemplate >
+                            <HierarchicalDataTemplate DataType="{x:Type Viewmodels:Database}" ItemsSource="{Binding Path=Procedures}" >
+                                --><!--<Expander Header="{Binding Databasename}" IsExpanded="True">--><!--
+                                <TextBlock 
+									     Text="{Binding Databasename}" 
+									     VerticalAlignment="Center" 
+									     Margin="5"
+										FontSize="12"
+										FontWeight="DemiBold"
+									     Foreground="{StaticResource Black0}"
+										Height="15"
+										Width="{Binding Path=Width, ElementName=DbTablesTree}"></TextBlock>
+                                --><!--</Expander>--><!--
+                                <HierarchicalDataTemplate.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type Viewmodels:SqlProcedures}">
+                                        <TextBlock 
+											FontSize="11"
+											Foreground="{StaticResource Black3}"
+											Height="14"
+											Margin="5"
+											PreviewMouseRightButtonUp="TextBlock_PreviewMouseRightButtonUp"
+											Text="{Binding Procname}" 
+											VerticalAlignment="Center" 
+											Width="{Binding Path=Width, ElementName=DbProcsTree}">
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </HierarchicalDataTemplate.ItemTemplate>
+                            </HierarchicalDataTemplate>
+                        </TreeView.ItemTemplate>
+
+                    </TreeView>
+
+                    --><!--#endregion SP Tree view--><!--
+
+                </Grid>
+            </Border>-->
+            <!--#endregion TreeViews-->
+
+            <!--<user:FlowDoc x:Name="Flowdoc"
+				backGround="{StaticResource Gray5}"
+				borderColor="{StaticResource Orange1}"
+				Canvas.Left="45"
+				Canvas.Top="64"
+				Height="300"
+				Margin="0 0 0 0"
+				
+				LostFocus="Flowdoc_LostFocus"
+				MouseLeftButtonUp="Flowdoc_MouseLeftButtonUp"	
+				MouseMove="Flowdoc_MouseMove"
+				PreviewMouseLeftButtonDown="Flowdoc_PreviewMouseLeftButtonDown"
+
+				Opacity="1"
+				Panel.ZIndex="22"
+				Visibility="Hidden"
+				Width="520" />-->
+
 
         </Canvas>
 
@@ -2030,6 +2508,7 @@
                                                 SelectionChanged="Splist_SelectionChanged"
                                                 PreviewMouseRightButtonDown="Splist_PreviewMouseRightButtonDown"
                                                 PreviewMouseRightButtonUp="Splist_PreviewMouseRightButtonUp"
+                                                PreviewMouseDoubleClick="Splist_PreviewMouseDoubleClick"
                                                 FontWeight="DemiBold"                                 
                                                 Foreground="Black"
                                                 ToolTipService.ShowDuration="3000"
@@ -2071,6 +2550,7 @@
                                             Background="{StaticResource Black0}"
                                             Foreground="{StaticResource White0}"                                              
                                             PreviewKeyDown="RTBox_PreviewKeyDown"
+                                            ScrollBar.Scroll="RTBox_Scroll"
                                             PreviewMouseRightButtonDown="RTBox_PreviewMouseRightButtonDown"
                                             TextOptions.TextFormattingMode="Ideal"
                                             TextOptions.TextRenderingMode="ClearType"

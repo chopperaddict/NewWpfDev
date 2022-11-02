@@ -57,8 +57,8 @@ namespace NewWpfDev
             [CallerMemberName] string name = null )
         {
             string output = "";
-            output = path == null ? "No file path" : $"\t{path}  : ";
-            output += line < 0 ? "No line  : " : "Line " + $"{line} : ";
+            output = line < 0 ? "No line  : " : "Line " + $"{line} : ";
+            output += path == null ? "No file path" : $"\t{path}  : ";
             output += name == null ? " No member name" : $"( {name} )";
             Debug . WriteLine ( $"{output}\n{message}" );
         }
@@ -70,7 +70,14 @@ namespace NewWpfDev
             [CallerMemberName] string name = null ,
             [CallerLineNumber] int line = -1 )
         {
-            Debug . WriteLine ( $"\nExecuting : [ {message . ToUpper ( )} ]\n{path}\\{name} : {line}\n" );
+            string newpath = "";
+            string [ ] parts = path . Split ( '\\' );
+            int partslength = parts . Length;
+            for ( int x = partslength - 2 ; x < partslength  ; x++ )
+                newpath += $"{parts [ x ]}\\";
+            newpath=newpath.Substring(0, newpath.Length- 1);
+             if ( message == "" ) message = $"Default processing trace...";
+            Debug . WriteLine ( $"\nTRACE : {line} : {newpath}\\{name} \nExecuting : [ {message . ToUpper ( )} ]" );
         }
 
         public static void CW (
@@ -79,163 +86,163 @@ namespace NewWpfDev
             [CallerFilePath] string path = null ,
             [CallerMemberName] string name = null ,
             [CallerLineNumber] int line = -1 )
-        {
-            if ( level == 0 ) return;
-            string [ ] tmp = path . Split ( '\\' );
-            string errmsg = $"\n{name} : {line} ";
-            errmsg += $"in {tmp [ tmp . Length - 2 ]}";
-            errmsg += $"\\{tmp [ tmp . Length - 1 ]}\n**INFO** = [  {message} ]";
-            Debug . WriteLine ( $"\n{errmsg}" );
-            if ( MainWindow . LogCWOutput )
-                File . AppendAllText ( @"C:\users\ianch\documents\CW.log" , errmsg );
-        }
-        //-------------------------------------------------------------------------------------------------------//
-        //Snippet = cwe
-        //[Conditional ( "USECW" )]
-        public static void cwerror (
-            this string message ,
-            int level = 1 ,
-            [CallerFilePath] string path = null ,
-            [CallerMemberName] string name = null ,
-            [CallerLineNumber] int line = -1 )
-        {
-            if ( level == 0 ) return;
-            string [ ] tmp = path . Split ( '\\' );
-            Debug . WriteLine ( $"** ERROR ** : {line} ** {message} ** : : {name} (.) in {tmp [ 5 ] + "\\" + tmp [ 6 ]}" );
-        }
-        //-------------------------------------------------------------------------------------------------------//
-        //Snippet = cww
-        //[Conditional ( "USECW" )]
-        public static void cwwarn (
-            this string message ,
-            int level = 1 ,
-            [CallerFilePath] string path = null ,
-            [CallerMemberName] string name = null ,
-            [CallerLineNumber] int line = -1 )
-        {
-            if ( level == 0 ) return;
-            string [ ] tmp = path . Split ( '\\' );
-            Debug . WriteLine ( $"WARN : {line} ** {message} ** : : {name} (.) in {tmp [ 5 ] + "\\" + tmp [ 6 ]}" );
-        }
-        //-------------------------------------------------------------------------------------------------------//
-        //Snippet = cwi
-        //[Conditional ( "USECW" )]
-        public static void cwinfo (
-            this string message ,
-            int level = 1 ,
-            [CallerFilePath] string path = null ,
-            [CallerMemberName] string name = null ,
-            [CallerLineNumber] int line = -1 )
-        {
-            if ( level == 0 ) return;
-            string [ ] tmp = path . Split ( '\\' );
-            string namestr = $"{name + " ()" . PadRight ( 25 )}";
-            Debug . WriteLine ( $"INFO : {line . ToString ( ) . PadRight ( 6 )} : {namestr} ::** {message . PadRight ( 20 )}  : : File= {tmp [ 5 ] + "\\" + tmp [ 6 ]}" );
-        }
-        //-------------------------------------------------------------------------------------------------------//
-
-        public static void Refresh ( this UIElement uiElement )
-        {
-            try
             {
-                uiElement . Dispatcher . Invoke ( DispatcherPriority . Render , EmptyDelegate );
+                if ( level == 0 ) return;
+                string [ ] tmp = path . Split ( '\\' );
+                string errmsg = $"\n{name} : {line} ";
+                errmsg += $"in {tmp [ tmp . Length - 2 ]}";
+                errmsg += $"\\{tmp [ tmp . Length - 1 ]}\n**INFO** = [  {message} ]";
+                Debug . WriteLine ( $"\n{errmsg}" );
+                if ( MainWindow . LogCWOutput )
+                    File . AppendAllText ( @"C:\users\ianch\documents\CW.log" , errmsg );
             }
-            catch ( Exception ex ) { Debug . WriteLine ( $"REFRESH FAILEd !!  {ex . Message}" ); }
-        }
-
-        public static void RefreshGrid ( this Control uiElement )
-        {
-            try
+            //-------------------------------------------------------------------------------------------------------//
+            //Snippet = cwe
+            //[Conditional ( "USECW" )]
+            public static void cwerror (
+                this string message ,
+                int level = 1 ,
+                [CallerFilePath] string path = null ,
+                [CallerMemberName] string name = null ,
+                [CallerLineNumber] int line = -1 )
             {
-                uiElement . Dispatcher . Invoke ( DispatcherPriority . Render , EmptyDelegate );
+                if ( level == 0 ) return;
+                string [ ] tmp = path . Split ( '\\' );
+                Debug . WriteLine ( $"** ERROR ** : {line} ** {message} ** : : {name} (.) in {tmp [ 5 ] + "\\" + tmp [ 6 ]}" );
             }
-            catch ( Exception ex ) { Debug . WriteLine ( $"REFRESH FAILEd !!  {ex . Message}" ); }
-        }
-
-
-        public static Brush ToSolidColorBrush ( this string HexColorString )
-        {
-            if ( HexColorString . Length != 9 )
+            //-------------------------------------------------------------------------------------------------------//
+            //Snippet = cww
+            //[Conditional ( "USECW" )]
+            public static void cwwarn (
+                this string message ,
+                int level = 1 ,
+                [CallerFilePath] string path = null ,
+                [CallerMemberName] string name = null ,
+                [CallerLineNumber] int line = -1 )
             {
-                MessageBox . Show ( "The Hex value entered is invalid. It needs to be # + 4 hex pairs\n\neg: [#FF0000FF] = BLUE " );
-                return null;
+                if ( level == 0 ) return;
+                string [ ] tmp = path . Split ( '\\' );
+                Debug . WriteLine ( $"WARN : {line} ** {message} ** : : {name} (.) in {tmp [ 5 ] + "\\" + tmp [ 6 ]}" );
             }
-            try
+            //-------------------------------------------------------------------------------------------------------//
+            //Snippet = cwi
+            //[Conditional ( "USECW" )]
+            public static void cwinfo (
+                this string message ,
+                int level = 1 ,
+                [CallerFilePath] string path = null ,
+                [CallerMemberName] string name = null ,
+                [CallerLineNumber] int line = -1 )
             {
-                if ( HexColorString != null && HexColorString != "" )
-                    return ( SolidColorBrush ) System . Windows . Application . Current . FindResource ( HexColorString );
-                else
+                if ( level == 0 ) return;
+                string [ ] tmp = path . Split ( '\\' );
+                string namestr = $"{name + " ()" . PadRight ( 25 )}";
+                Debug . WriteLine ( $"INFO : {line . ToString ( ) . PadRight ( 6 )} : {namestr} ::** {message . PadRight ( 20 )}  : : File= {tmp [ 5 ] + "\\" + tmp [ 6 ]}" );
+            }
+            //-------------------------------------------------------------------------------------------------------//
+
+            public static void Refresh ( this UIElement uiElement )
+            {
+                try
+                {
+                    uiElement . Dispatcher . Invoke ( DispatcherPriority . Render , EmptyDelegate );
+                }
+                catch ( Exception ex ) { Debug . WriteLine ( $"REFRESH FAILEd !!  {ex . Message}" ); }
+            }
+
+            public static void RefreshGrid ( this Control uiElement )
+            {
+                try
+                {
+                    uiElement . Dispatcher . Invoke ( DispatcherPriority . Render , EmptyDelegate );
+                }
+                catch ( Exception ex ) { Debug . WriteLine ( $"REFRESH FAILEd !!  {ex . Message}" ); }
+            }
+
+
+            public static Brush ToSolidColorBrush ( this string HexColorString )
+            {
+                if ( HexColorString . Length != 9 )
+                {
+                    MessageBox . Show ( "The Hex value entered is invalid. It needs to be # + 4 hex pairs\n\neg: [#FF0000FF] = BLUE " );
                     return null;
+                }
+                try
+                {
+                    if ( HexColorString != null && HexColorString != "" )
+                        return ( SolidColorBrush ) System . Windows . Application . Current . FindResource ( HexColorString );
+                    else
+                        return null;
+                }
+                catch ( Exception ex )
+                {
+                    Debug . WriteLine ( $"ToSolidColorBrush failed - input = {HexColorString}" );
+                    return null;
+                }
             }
-            catch ( Exception ex )
+
+            public static Brush ToSolidBrush ( this string HexColorString )
             {
-                Debug . WriteLine ( $"ToSolidColorBrush failed - input = {HexColorString}" );
-                return null;
+                if ( HexColorString . Length < 9 )
+                {
+                    //				MessageBox.Show( "The Hex value entered is invalid. It needs to be # + 4 hex pairs\n\neg: [#FF0000FF] = BLUE ");
+                    return null;
+                }
+                try
+                {
+                    if ( HexColorString != null && HexColorString != "" )
+                        return ( Brush ) ( new BrushConverter ( ) . ConvertFrom ( HexColorString ) );
+                    else
+                        return null;
+                }
+                catch ( Exception ex )
+                {
+                    Debug . WriteLine ( $"ToSolidbrush failed - input = {HexColorString}" );
+                    return null;
+                }
+            }
+            public static LinearGradientBrush ToLinearGradientBrush ( this string Colorstring )
+            {
+                try
+                {
+                    return Application . Current . FindResource ( Colorstring ) as LinearGradientBrush;
+                }
+                catch ( Exception ex )
+                {
+                    Debug . WriteLine ( $"ToLinearGradientbrush failed - input = {Colorstring}" );
+                    return null;
+                }
+                //return ( LinearGradientBrush ) ( new BrushConverter ( ) . ConvertFrom ( color ) );
+            }
+            public static string BrushtoText ( this Brush brush )
+            {
+                try
+                {
+                    if ( brush != null )
+                        return ( string ) brush . ToString ( );
+                    else
+                        return null;
+                }
+                catch ( Exception ex )
+                {
+                    Debug . WriteLine ( $"BrushtoText failed - input = {brush}" );
+                    return null;
+                }
+            }
+            public static string ToBankRecordCommaDelimited ( this BankAccountViewModel record )
+            {
+                BankAccountViewModel bvm = new BankAccountViewModel ( );
+                string [ ] fields = { "" , "" , "" , "" , "" , "" , "" , "" , "" };
+                fields [ 0 ] = record . Id . ToString ( );
+                fields [ 1 ] = record . BankNo . ToString ( );
+                fields [ 2 ] = record . CustNo . ToString ( );
+                fields [ 3 ] = record . Balance . ToString ( );
+                fields [ 4 ] = record . IntRate . ToString ( );
+                fields [ 5 ] = record . AcType . ToString ( );
+                fields [ 6 ] = record . ODate . ToString ( );
+                fields [ 7 ] = record . CDate . ToString ( );
+                return fields [ 0 ] + "," + fields [ 1 ] + "," + fields [ 2 ] + "," + fields [ 3 ] + "," + fields [ 4 ] + "," + fields [ 5 ] + "," + fields [ 6 ] + "," + fields [ 7 ] + "\n";
             }
         }
 
-        public static Brush ToSolidBrush ( this string HexColorString )
-        {
-            if ( HexColorString . Length < 9 )
-            {
-                //				MessageBox.Show( "The Hex value entered is invalid. It needs to be # + 4 hex pairs\n\neg: [#FF0000FF] = BLUE ");
-                return null;
-            }
-            try
-            {
-                if ( HexColorString != null && HexColorString != "" )
-                    return ( Brush ) ( new BrushConverter ( ) . ConvertFrom ( HexColorString ) );
-                else
-                    return null;
-            }
-            catch ( Exception ex )
-            {
-                Debug . WriteLine ( $"ToSolidbrush failed - input = {HexColorString}" );
-                return null;
-            }
-        }
-        public static LinearGradientBrush ToLinearGradientBrush ( this string Colorstring )
-        {
-            try
-            {
-                return Application . Current . FindResource ( Colorstring ) as LinearGradientBrush;
-            }
-            catch ( Exception ex )
-            {
-                Debug . WriteLine ( $"ToLinearGradientbrush failed - input = {Colorstring}" );
-                return null;
-            }
-            //return ( LinearGradientBrush ) ( new BrushConverter ( ) . ConvertFrom ( color ) );
-        }
-        public static string BrushtoText ( this Brush brush )
-        {
-            try
-            {
-                if ( brush != null )
-                    return ( string ) brush . ToString ( );
-                else
-                    return null;
-            }
-            catch ( Exception ex )
-            {
-                Debug . WriteLine ( $"BrushtoText failed - input = {brush}" );
-                return null;
-            }
-        }
-        public static string ToBankRecordCommaDelimited ( this BankAccountViewModel record )
-        {
-            BankAccountViewModel bvm = new BankAccountViewModel ( );
-            string [ ] fields = { "" , "" , "" , "" , "" , "" , "" , "" , "" };
-            fields [ 0 ] = record . Id . ToString ( );
-            fields [ 1 ] = record . BankNo . ToString ( );
-            fields [ 2 ] = record . CustNo . ToString ( );
-            fields [ 3 ] = record . Balance . ToString ( );
-            fields [ 4 ] = record . IntRate . ToString ( );
-            fields [ 5 ] = record . AcType . ToString ( );
-            fields [ 6 ] = record . ODate . ToString ( );
-            fields [ 7 ] = record . CDate . ToString ( );
-            return fields [ 0 ] + "," + fields [ 1 ] + "," + fields [ 2 ] + "," + fields [ 3 ] + "," + fields [ 4 ] + "," + fields [ 5 ] + "," + fields [ 6 ] + "," + fields [ 7 ] + "\n";
-        }
     }
-
-}
