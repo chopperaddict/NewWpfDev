@@ -237,7 +237,7 @@ namespace NewWpfDev . ViewModels {
             if ( e . CallerType != "DgUserControl" ) return;
             Application . Current . Dispatcher . Invoke ( async ( ) => {
                 await DispatcherExtns . SwitchToUi ( Application . Current . Dispatcher );
-                Debug . WriteLine ( $"\nInside Dispatcher" );
+ //               Debug . WriteLine ( $"\nInside Dispatcher" );
                 $"Dispatcher on UI thread =  {Application . Current . Dispatcher . CheckAccess ( )}" . CW ( );
                 Tabview . Tabcntrl . dgUserctrl . grid1 . ItemsSource = null;
                 CurrentType = "BANK";
@@ -285,7 +285,7 @@ namespace NewWpfDev . ViewModels {
 
             Application . Current . Dispatcher . Invoke ( async ( ) => {
                 await DispatcherExtns . SwitchToUi ( Application . Current . Dispatcher );
-                Debug . WriteLine ( $"\nInside Dispatcher" );
+   //             Debug . WriteLine ( $"\nInside Dispatcher" );
                 $"Dispatcher on UI thread =  {Application . Current . Dispatcher . CheckAccess ( )}" . CW ( );
                 CurrentType = "CUSTOMER";
                 TabWinViewModel . TriggerDbType ( CurrentType );

@@ -510,7 +510,6 @@ namespace NewWpfDev
         private void Button5_Cick ( object sender , RoutedEventArgs e )
         {
             Genericgrid grid = new Genericgrid ( );
-            // This line creates24  FormatExceptions lines in output windw
             grid . Show ( );
         }
 

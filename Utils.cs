@@ -259,8 +259,7 @@ namespace NewWpfDev
                     Console . Beep ( 370 , 250 );
                     Console . Beep ( 300 , 800  );
                 }
-                Thread . Sleep ( 100 );
-            }
+              }
             return;
         }
         public static void PlayErrorBeep ( int freq = 280 , int count = 100 , int repeat = 1 )

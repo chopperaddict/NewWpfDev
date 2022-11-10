@@ -18,7 +18,6 @@ using NewWpfDev . DataTemplates;
 using NewWpfDev . UserControls;
 using NewWpfDev . Views;
 
-using ServiceStack . Messaging;
 
 //using static NewWpfDev . Views . Tabview;
 

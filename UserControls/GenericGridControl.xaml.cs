@@ -27,7 +27,7 @@ using NewWpfDev . Models;
 using NewWpfDev . ViewModels;
 using NewWpfDev . Views;
 
-///using DapperGenericsLib . GenericClass = DapperGenericsLib . DapperGenericsLib . GenericClass;
+///using GenericClass = DapperGenericsLib . GenericClass;
 
 namespace NewWpfDev . UserControls
 {
@@ -112,18 +112,17 @@ namespace NewWpfDev . UserControls
         #region Data Models
 
         //Data Collections
-        public static ObservableCollection<DapperGenericsLib . GenericClass>? Gencollection1 = new ( );
-        public static ObservableCollection<DapperGenericsLib . GenericClass>? Gencollection2 = new ( );
-        public static List<DapperGenericsLib . GenericClass>? Listcollection1 { get; set; } = new ( );
-        public static List<DapperGenericsLib . GenericClass>? Listcollection2 { get; set; } = new ( );
+        public static ObservableCollection<DapperGenericsLib . GenericClass> Gencollection1 = new ObservableCollection<DapperGenericsLib . GenericClass> ( );
+        public static ObservableCollection<DapperGenericsLib . GenericClass> Gencollection2 = new ObservableCollection<DapperGenericsLib . GenericClass> ( );
+        public static List<DapperGenericsLib . GenericClass> Listcollection1 { get; set; } = new List<DapperGenericsLib .GenericClass >( );
+        public static List<DapperGenericsLib . GenericClass> Listcollection2 { get; set; } = new List<DapperGenericsLib .GenericClass >( );
 
-        public static DapperGenericsLib . DataGridLayout? dglayout { get; set; } = new ( );
-        public static List<DapperGenericsLib . DataGridLayout>? dglayoutlist1 = new ( );
-        public static List<DapperGenericsLib . DataGridLayout>? dglayoutlist2 = new ( );
+        public static DapperGenericsLib . DataGridLayout? dglayout { get; set; } = new DapperGenericsLib . DataGridLayout ( );
+        public static List<DapperGenericsLib . DataGridLayout> dglayoutlist1 = new List<DapperGenericsLib . DataGridLayout> ( );
+        public static List<DapperGenericsLib . DataGridLayout> dglayoutlist2 = new List<DapperGenericsLib . DataGridLayout> ( );
 
         // Current Generic selection in use record
-        public static DapperGenericsLib . GenericClass? GenClass = DapperGenLib . GenClass;
-
+        public static new DapperGenericsLib . GenericClass GenClass = new DapperGenericsLib . GenericClass ( );
         #endregion Data Models
 
         #region Full Properties
@@ -749,11 +748,11 @@ namespace NewWpfDev . UserControls
                     //datagrid1 . Items . Clear ( );
                     //datagrid1 . UpdateLayout ( );
                     //datagrid1 . Refresh ( );
-                    Gencollection1 . Add ( new DapperGenericsLib . GenericClass ( ) );
+                    Gencollection1 . Add ( new DapperGenericsLib. GenericClass ( ) );
                     datagrid1 . AutoGenerateColumns = true;
                     DapperLibSupport . LoadActiveRowsOnlyInGrid ( datagrid1 , Gencollection1 , DapperLibSupport . GetGenericColumnCount ( Gencollection1 ) );
                     colcount = DapperLibSupport . GetGenericColumnCount ( Gencollection1 );
-                    DapperLibSupport . LoadActiveRowsOnlyInGrid ( datagrid1 , Gencollection1 , colcount );
+   //                 DapperLibSupport . LoadActiveRowsOnlyInGrid ( datagrid1 , Gencollection1 , colcount );
                     if ( ShowColumnNames )
                         DapperLibSupport . ReplaceDataGridFldNames ( CurrentTable1 , ref datagrid1 , ref dglayoutlist1 , colcount );
                     datagrid1 . SelectedIndex = datagrid1 . Items . Count - 1;
@@ -770,7 +769,7 @@ namespace NewWpfDev . UserControls
                     Gencollection2 . Add ( new DapperGenericsLib . GenericClass ( ) );
                     DapperLibSupport . LoadActiveRowsOnlyInGrid ( datagrid2 , Gencollection1 , DapperLibSupport . GetGenericColumnCount ( Gencollection2 ) );
                     colcount = DapperLibSupport . GetGenericColumnCount ( Gencollection2 );
-                    DapperLibSupport . LoadActiveRowsOnlyInGrid ( datagrid2 , Gencollection2 , colcount );
+  //                  DapperLibSupport . LoadActiveRowsOnlyInGrid ( datagrid2 , Gencollection2 , colcount );
                     if ( ShowColumnNames )
                         DapperLibSupport . ReplaceDataGridFldNames ( CurrentTable2 , ref datagrid2 , ref dglayoutlist2 , colcount );
                     datagrid2 . SelectedIndex = datagrid2 . Items . Count - 1;
@@ -814,7 +813,7 @@ namespace NewWpfDev . UserControls
                 for ( int x = 0 ; x < MaxCols ; x++ )
                 { fieldnames [ x ] = ""; }
                 DapperGenericsLib . GenericClass GenClass1 = new DapperGenericsLib . GenericClass ( );
-                //var GenClass1 = datagrid1 . SelectedItem as DapperGenericsLib . GenericClass;
+                //var GenClass1 = datagrid1 . SelectedItem as GenericClass;
                 GenClass1 = datagrid1 . SelectedItem as DapperGenericsLib . GenericClass;
                 //GenClass = GenClass1;
                 foreach ( DataGridColumn dgc in datagrid1 . Columns )
@@ -828,7 +827,7 @@ namespace NewWpfDev . UserControls
             {
                 for ( int x = 0 ; x < MaxCols ; x++ )
                 { fieldnames [ x ] = ""; }
-                GenClass = datagrid2 . SelectedItem as DapperGenericsLib . GenericClass;
+                GenClass = datagrid2 . SelectedItem as DapperGenericsLib . GenericClass ;
                 foreach ( DataGridColumn dgc in datagrid2 . Columns )
                 {
                     if ( dgc . Header . ToString ( ) . Contains ( "Field" ) == true )

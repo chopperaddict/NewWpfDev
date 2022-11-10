@@ -41,13 +41,13 @@ namespace NewWpfDev . Models
             SqlServerCommands . LoadActiveRowsOnlyInGrid ( Grid , genaccts , SqlServerCommands . GetGenericColumnCount ( genaccts ) );
             Grid . Columns [ 0 ] . Header = "Query result Information";
         }
-        public static string CheckDbDomain ( string DbDomain )
+       public static string CheckDbDomain ( string DbDomain )
         {
             if ( Flags . ConnectionStringsDict == null || Flags . ConnectionStringsDict . Count == 0 )
                 Utils . LoadConnectionStrings ( );
             if ( DbDomain == "" )
                 DbDomain = MainWindow . CurrentSqlTableDomain;
-            Utils . CheckResetDbConnection ( DbDomain , out string constring );
+             Utils . CheckResetDbConnection ( DbDomain , out string constring );
             ConnString = constring;
             Flags . CurrentConnectionString = constring;
             MainWindow . SqlCurrentConstring = constring;

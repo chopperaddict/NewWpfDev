@@ -1,7 +1,6 @@
-﻿#define USESHOWDIALOG
-#undef USESHOWDIALOG
-#define SHOWSPS
+﻿#define SHOWSPS
 using System;
+using System . CodeDom;
 using System . Collections;
 using System . Collections . Generic;
 using System . Collections . ObjectModel;
@@ -9,6 +8,8 @@ using System . ComponentModel;
 using System . Data;
 using System . Diagnostics;
 using System . Linq;
+using System . Threading;
+using System . Threading . Tasks;
 using System . Windows;
 using System . Windows . Controls;
 using System . Windows . Controls . Primitives;
@@ -16,9 +17,12 @@ using System . Windows . Documents;
 using System . Windows . Input;
 using System . Windows . Media;
 
+
 using Dapper;
 
-using DapperGenericsLib;
+//using DapperGenericsLib;
+
+//using GenericSqlLib;
 
 using NewWpfDev;
 using NewWpfDev . Models;
@@ -29,6 +33,7 @@ using NewWpfDev . Views;
 using UserControls;
 
 using File = System . IO . File;
+using Flags = NewWpfDev . Views . Flags;
 using GenericClass = NewWpfDev . GenericClass;
 using Point = System . Windows . Point;
 using SqlConnection = Microsoft . Data . SqlClient . SqlConnection;
@@ -60,6 +65,7 @@ namespace Views
 
         #region global object initialization 
 
+        //public ObservableCollection<GenericClass> GridData = new ObservableCollection< GenericClass> ( );
         public ObservableCollection<GenericClass> GridData = new ObservableCollection<GenericClass> ( );
         public ObservableCollection<GenericClass> collection = new ObservableCollection<GenericClass> ( );
         public ObservableCollection<GenericClass> ColumnsData = new ObservableCollection<GenericClass> ( );
@@ -69,11 +75,9 @@ namespace Views
         public static Paragraph para1 = new Paragraph ( );
         public List<Dictionary<string , string>> ColumntypesList = new List<Dictionary<string , string>> ( );
         List<DapperGenericsLib . DataGridLayout> dglayoutlist = new List<DapperGenericsLib . DataGridLayout> ( );
-
         public ObservableCollection<Database> DatabasesCollection = new ObservableCollection<Database> ( );
 
         #endregion global object initialization 
-
 
         #region static Domain variables        
 
@@ -91,6 +95,7 @@ namespace Views
         public static string SpSearchTerm { get; set; } = "";
         public static string CurrentSpSelection { get; set; }
         public static SpResultsViewer spviewer { get; set; }
+        public static Genericgrid GenGrid { get; set; }
         public bool ShowColumnHeaders { get; set; } = true;
         public List<int> SelectedRows = new List<int> ( );
         public int FlowdocVerticalpos { get; set; } = 0;
@@ -100,23 +105,46 @@ namespace Views
         bool SplistRightclick { get; set; } = false;
         string SpLastSelection { get; set; } = "";
         public FrameworkElement ActiveDragControl { get; set; }
+        static public SpResultsViewer Resultsviewer { get; set; }
+        static public bool UsingMatches { get; set; }
+        static public string ResultsListLoadType { get; set; }
         double RTwidth { get; set; }
         #endregion Properties
 
-        #region treeview  properties
-        public static string TvSqlCommand { get; set; }
-        public static bool TvMouseCaptured { get; set; }
-        public static double TvFirstXPos { get; set; }
-        public static double TvFirstYPos { get; set; }
-        public static double CpFirstXPos { get; set; }
-        public static double CpFirstYPos { get; set; }
-        public static  string SqlSpCommand { get; set; }
-        public static string  CurrentSPDb { get; set; }
-        public static  bool UseFlowdoc { get; set; }
+        //This is Updated by my Grid Control whenever it loads a different table
+        #region Flags initialization 
+
+        public static string LastActiveFillter = "";
+        public static string LastActiveTable = "";
+        public static string NewTableSelection = "";
+
+        public static string CurrentSpList = "ALL";
+        public static string Currentpanel = "GRID";
+        public bool TableIsEmpty = false;
+
+        #endregion flags initialization 
+
+        public static bool UseFlowdoc { get; set; }
         public static FlowdocLib fdl { get; set; }
-        public static FlowDoc Flowdoc { get; set; } 
+        
+        //store for the full SP text
+        private string spTextBuffer;
+        public string SpTextBuffer
+        {
+            get { return spTextBuffer; }
+            set { spTextBuffer = value; }
+        }
+
+        // store  for SP arguments alone
+        private string spArgstext;
+        public string SpArgsText
+        {
+            get { return spArgstext; }
+            set { spArgstext = value; }
+        }
+
         private object movingobject;
-          public object MovingObject
+        public object MovingObject
         {
             get
             {
@@ -140,21 +168,6 @@ namespace Views
             }
         }
 
-        #endregion  TreeviewProperties 
-
-        //This is Updated by my Grid Control whenever it loads a different table
-        #region Flags initialization 
-
-        public static string LastActiveFillter = "";
-        public static string LastActiveTable = "";
-        public static string NewTableSelection = "";
-
-        public static string CurrentSpList = "ALL";
-        public static string Currentpanel = "GRID";
-        public bool TableIsEmpty = false;
-
-        #endregion flags initialization 
-
         // HSPLITTER stuff
         #region Splitter properties
 
@@ -177,7 +190,7 @@ namespace Views
         public static bool USERRTBOX = true;
         public static bool IsMoving = false;
         public double MAXLISTWIDTH = 250;
-        
+
         #endregion variables initialization 
 
         #region FULL Bindable  properties
@@ -260,6 +273,13 @@ namespace Views
         }
         public static readonly DependencyProperty SearchtextProperty =
             DependencyProperty . Register ( "Searchtext" , typeof ( string ) , typeof ( Genericgrid ) , new PropertyMetadata ( "@Arg" ) );
+        public bool ExecuteLoaded
+        {
+            get { return ( bool ) GetValue ( ExecuteLoadedProperty ); }
+            set { SetValue ( ExecuteLoadedProperty , value ); }
+        }
+        public static readonly DependencyProperty ExecuteLoadedProperty =
+            DependencyProperty . Register ( "ExecuteLoaded" , typeof ( bool ) , typeof ( Genericgrid ) , new PropertyMetadata ( ( bool ) false ) );
 
         //-----------------------------------------------------------//
         #endregion Dependency properties
@@ -290,82 +310,88 @@ namespace Views
             LastActiveTable = "";
             Dgrid = dgControl . datagridControl;
             ShowColumnHeaders = true;
-            // Thiis call loads  the data and formats the Datagrid
+            // This call only loads the list of database Tables 
             LoadDbTables ( MainWindow . CurrentActiveTable );
             ToggleColumnHeaders . IsChecked = ShowColumnHeaders;
             ColumnsCount = Dgrid . Columns . Count;
             bStartup = false;
             DatagridControl . SetParent ( ( Control ) this );
             Flags . UseScrollView = false;
-            Mouse . OverrideCursor = Cursors . Arrow;
-            fdl = new FlowdocLib ( Flowdoc , Filtercanvas );
-            //Flowdoc = fdl . Flowdoc;
-            // TODO  TEMP ON:Y
-            // Dummy entry in save field
+            //Mouse . OverrideCursor = Cursors . Arrow;
+//            fdl = new FlowdocLib ( Flowdoc , Filtercanvas );
             NewTableName . Text = "qwerty";
             OptionsList . SelectedIndex = 0;
             ViewerGrid . ColumnDefinitions [ 0 ] . Width = new GridLength ( 1 , GridUnitType . Pixel );
             ViewerGrid . ColumnDefinitions [ 2 ] . Width = new GridLength ( 1 , GridUnitType . Star );
+
             // Ensure GridViewer panel is hidden on startup
-
-            //InfoGrid . Visibility = Visibility . Collapsed;
-
             dgControl . datagridControl . Visibility = Visibility . Visible;
             ToolTipService . SetBetweenShowDelay ( Vsplitter , 5000 );
             int myInt = ToolTipService . GetBetweenShowDelay ( ( DependencyObject ) FindName ( "Vsplitter" ) );
             Vsplitter . SetValue ( ToolTipDelayBetweenShow , myInt );
             MovingObject = Filtering;
 
+            //string ConString = GenericDbUtilities . CheckSetSqlDomain ( "" );
+            //if ( ConString == "" )
+            //{
+            //    // set to our local definition
+            //    ConString = MainWindow . SqlCurrentConstring;
+            //}
+            //string [ ] args = new string [ 0 ];
+            // load datagrid with data
+            // GridData = dgControl . LoadGenericData ( CurrentTable , args , true , ConString );
+            Mouse . OverrideCursor = Cursors . Wait;
+            Reccount . Text = GridData . Count . ToString ( );
+            int colcount = 0;
+            colcount = DatagridControl . GetColumnsCount ( GridData );
+            DatagridControl . LoadActiveRowsOnlyInGrid ( dgControl . datagridControl , GridData , colcount );
+            // Force column renaming on initial loading - Honestly !!
+            DatagridControl . ReplaceDataGridFldNames ( GridData , ref dgControl . datagridControl , ref dglayoutlist , colcount );
+            GenGrid = this;
+            dgControl . datagridControl . UpdateLayout ( );
+
             // setup various controls  visibility
             Filtercanvas . Visibility = Visibility . Visible;
+            this . Show ( );
 
             FilterStoredprocs = new RelayCommand ( ExecuteFilterStoredprocs , CanExecuteFilterStoredprocs );
             CloseFilterStoredprocs = new RelayCommand ( ExecuteCloseFilterStoredprocs , CanExecuteCloseFilterStoredprocs );
             this . Title = $"Generic SQL Tables - Active Database = {CurrentTableDomain . ToUpper ( )}";
             caption . Text = $"Current Table Status / Processing information : Current Database = {CurrentTableDomain . ToUpper ( )}";
+            ///Setup default SP match term
+            Searchtext = "@Arg";
+            //Mouse . OverrideCursor = Cursors . Arrow;
 
-            Mouse . OverrideCursor = Cursors . Arrow;
         }
 
         private void Grid_Loaded ( object sender , RoutedEventArgs e )
         {
-            int colcount = 0;
-            string ConString = GenericDbUtilities . CheckSetSqlDomain ( "" );
-            if ( ConString == "" )
-            {
-                // set to our local definition
-                ConString = MainWindow . SqlCurrentConstring;
-            }
-            string [ ] outputs;
-            string Resultstring = "";
-            GridData = dgControl . LoadGenericData ( CurrentTable , true , ConString );
-            Reccount . Text = GridData . Count . ToString ( );
-            colcount = DatagridControl . GetColumnsCount ( GridData );
-            DatagridControl . LoadActiveRowsOnlyInGrid ( dgControl . datagridControl , GridData , colcount );
-            // Force column renaming on initial loading - Honestly !!
-            DatagridControl . ReplaceDataGridFldNames ( GridData , ref dgControl . datagridControl , ref dglayoutlist , colcount );
-
             // Show main datagrid and info viewer
+            Mouse . OverrideCursor = Cursors . Wait;
             InfoGrid . Visibility = Visibility . Visible;
             InfoBorder . Visibility = Visibility . Visible;
             RTBox . Visibility = Visibility . Visible;
             dgControl . datagridControl . Visibility = Visibility . Visible;
-            DisplayInformationViewer ( true , true );
             majorgrid . RowDefinitions [ 0 ] . Height = new GridLength ( 2 , GridUnitType . Star );
             majorgrid . RowDefinitions [ 2 ] . Height = new GridLength ( 0 , GridUnitType . Star );
             GenGridCtrl . Height = majorgrid . ActualHeight;
-            dgControl . datagridControl . UpdateLayout ( );
             Gengrid_SizeChanged ( null , null );
             this . Refresh ( );
-            Mouse . OverrideCursor = Cursors . Arrow;
 #if SHOWSPS
             ShowInfo ( sender , e );
 #endif 
+            if ( Splist . SelectedIndex == -1 )
+                Splist . SelectedIndex = 0;
+
+             fdl = new FlowdocLib ( Flowdoc , Filtercanvas );
+
+            Mouse . OverrideCursor = Cursors . Arrow;
             return;
         }
+
         public static dynamic GetStringFromDynamic ( IEnumerable<dynamic> dynovalue )
         {
-            dynamic newresults = null;
+            dynamic newresults = "";
             string output = "";
             foreach ( IDictionary<string , object> kvp in dynovalue )
             {
@@ -374,7 +400,7 @@ namespace Views
                     Debug . WriteLine ( item . Key + ": " + item . Value );
                     if ( item . Value != null && item . ToString ( ) . Length > 0 )
                     {
-                        output +=$"{ item . Value as dynamic}," ;
+                        output += $"{item . Value as dynamic},";
 
                     }
                 }
@@ -382,19 +408,6 @@ namespace Views
             }
             newresults = output;
             return newresults;
-        }
-        public ObservableCollection<GenericClass> GetFullColumnData ( string table )
-        {
-            ObservableCollection<GenericClass> returndata = new ObservableCollection<GenericClass> ( );
-            string [ ] args = new string [ 1 ];
-            string err = "";
-            int recordcount = 0;
-            args [ 0 ] = $"'{table}'";
-            string command = "drop table if exists x_1";
-            dgControl . ExecuteDapperCommand ( command , args , out err );
-            command = $"select table_name column_name, data_type, character_maximum_length, numeric_precision, numeric_scale into x_1 from information_schema.columns where table_name='{args [ 0 ]}'";
-            returndata = dgControl . GetDataFromStoredProcedure ( command , args , CurrentTableDomain , out err , out recordcount );
-            return returndata;
         }
 
         public List<DapperGenericsLib . DataGridLayout> GetNewColumnsLayout ( string tablename , ObservableCollection<GenericClass> griddata , out int recordcount )
@@ -421,7 +434,8 @@ namespace Views
 
             GetValidDomain ( );
             command = $"drop table if exists {DBprefix}x_1";
-            var dapperresult = dgControl . ExecuteDapperCommand ( command , null , out err );
+            dgControl . ExecuteDapperCommand ( command , null , out err );
+            //            var dapperresult = dgControl . ExecuteDapperTextCommand ( command , null , out err );
             if ( err != "" )
             {
                 Debug . WriteLine ( $"MAJOR PROBLEM - Drop table failed.\nAborting load, Error = [{err}]" );
@@ -430,10 +444,15 @@ namespace Views
             command = $"select column_name, data_type, character_maximum_length, numeric_precision, numeric_scale into {DBprefix}x_1 from information_schema.columns where table_name='{tablename}'";
             ObservableCollection<GenericClass> columnsinfo = new ObservableCollection<GenericClass> ( );
             dgControl . ExecuteDapperCommand ( command , null , out err );
+            //dgControl . ExecuteDapperTextCommand ( command , null , out err );
             if ( err == "" )
             {
-                command = $"Select * from {DBprefix}x_1";
-                dgControl . ExecuteDapperCommand ( command , null , out err );
+                command = $"Select * from {DBprefix}{tablename}";
+                //command = $"spLoadTableAsGeneric {tablename}";
+                string [ ] args = new string [ 1 ];
+                args [ 0 ] = tablename;
+                dynamic dynresult = dgControl . ExecuteDapperCommand ( command , args , out err );
+                //                dynamic dynresult = dgControl . ExecuteDapperTextCommand ( command , args , out err );
             }
             else
             {
@@ -454,7 +473,8 @@ namespace Views
                 dglayoutlist = CreateColumnsLayout ( columnsinfo );
             }
             command = $"drop table if exists {DBprefix}x_1";
-            var res = dgControl . ExecuteDapperCommand ( command , null , out err );
+            dgControl . ExecuteDapperCommand ( command , null , out err );
+            //            var res = dgControl . ExecuteDapperTextCommand ( command , null , out err );
             if ( err != "" )
             {
                 Debug . WriteLine ( $"MAJOR PROBLEM - Drop table failed.\nAborting load, Error = [{err}]" );
@@ -474,9 +494,12 @@ namespace Views
                 gc = item;
                 dglayout . Fieldname = item . field1 . Trim ( );
                 dglayout . Fieldtype = item . field2 . Trim ( );
-                dglayout . Fieldlength = Convert . ToInt32 ( item . field3 . Trim ( ) );
-                dglayout . Fielddec = item . field4 != null ? Convert . ToInt32 ( item . field4 . Trim ( ) ) : 0;
-                dglayout . Fieldpart = item . field5 != null ? Convert . ToInt32 ( item . field5 . Trim ( ) ) : 0;
+                if( item . field3  != null)
+                    dglayout . Fieldlength = Convert . ToInt32 ( item . field3 . Trim ( ) );
+                if ( item . field4 != null )
+                    dglayout . Fielddec = item . field4 != null ? Convert . ToInt32 ( item . field4 . Trim ( ) ) : 0;
+                if ( item . field5 != null )
+                    dglayout . Fieldpart = item . field5 != null ? Convert . ToInt32 ( item . field5 . Trim ( ) ) : 0;
                 dglayoutlist . Add ( dglayout );
             }
             return dglayoutlist;
@@ -487,46 +510,63 @@ namespace Views
         //**********************************//
         private void SqlTables_SelectionChanged ( object sender , SelectionChangedEventArgs e )
         {
+            //ProcessTableChanged ( e);
+
             string selection = "", prevselection = "";
+            int itemscount = 0;
             if ( SqlTables . Items . Count == 0 )
                 return;
             "" . Track ( );
-            //Type test = sender . GetType ( );
-            //if ( test != typeof ( ComboBox ) )
-            //    return;
-
-            //ResetColumnHeaderToTrueNames ( selection , dgControl . datagridControl ); );
+            Mouse . OverrideCursor = Cursors . Wait;
 
             string previousSelection = LastActiveTable;
-            if ( ListReloading == false && e . AddedItems . Count > 0 )
+            if ( e == null )
             {
-                selection = e . AddedItems [ 0 ] . ToString ( );
+                selection = SqlTables . SelectedItem . ToString ( );
+                itemscount = SqlTables . Items . Count;
+                selection = $"{DBprefix}{SqlTables . SelectedItem . ToString ( )}";
+            }
+            else
+            {
+                itemscount = e . AddedItems . Count;
+                selection = $"{e . AddedItems [ 0 ] . ToString ( )}";
+            }
+            if ( ListReloading == false && itemscount > 0 )
+            {
                 NewTableSelection = selection;
                 if ( selection == LastActiveTable )
                 {
                     "" . Track ( 1 );
+                    e . Handled = true;
                     return;
                 }
                 LastActiveTable = CurrentTable;
-                string [ ] args = { "" };
-                args [ 0 ] = $"'{CurrentTableDomain}.dbo.{selection}'";
                 // This value is necessary for an SQL Output value to be accessed
                 int colcount = 0;
-                string Tablename = "";
-                // Returns count of COLUMNS in table specified
 
+                // Returns count of COLUMNS in table specified
                 int existval = CheckTableExists ( selection , CurrentTableDomain );
-                //Debug . WriteLine ( $"New format SQL S.P CheckTableExist2() returned {existval}" );
                 if ( existval > 0 )
                 {
                     string error = "";
                     // returned count > 0 , so it DOES exist, so go get data from table
                     GetValidDomain ( );
                     ObservableCollection<GenericClass> temp = new ObservableCollection<GenericClass> ( );
-                    LoadTableGeneric ( $"Select * from {DBprefix}{selection}" , ref temp , out error );
+
+                    //returns the same record time over time 
+                    $"Calling LoadGenericDb() {selection}" . Track ( );
+                    string [ ] args = new string [ 1 ];
+                    args [ 0 ] = selection;
+                    temp = dgControl . LoadGenericData ( $"spLoadTableAsGeneric", args , true , MainWindow . SqlCurrentConstring );
+
+                    // TEMP ONLY
+                    Debug . WriteLine ( $"TEMP ONLY : {args [0]} loaded {temp.Count} records....");
+                    "Leaving LoadGenericDb()" . Track ( 1 );
+                    //                   int columnscount = 0;
+                    //temp = dgControl . LoadData ( selection , true , MainWindow . SqlCurrentConstring , out int columnscount );
+                    //                    LoadTableGeneric ( $"Select * from {DBprefix}{selection}" , ref temp , out error );
                     if ( temp == null || temp . Count == 0 )
                     {
-                        // StdError ( );
                         TableIsEmpty = true;
                         DataLoaded = true;
                         SqlTables . SelectedItem = LastActiveTable;
@@ -542,6 +582,9 @@ namespace Views
                         }
                         CurrentTable = LastActiveTable;
                         Mouse . OverrideCursor = Cursors . Arrow;
+                        if ( e != null )
+                            e . Handled = true;
+                        "" . Track ( 1 );
                         return;
                     }
                     else
@@ -553,10 +596,11 @@ namespace Views
 
                     //*****************************************************************************************************************************************//
                     // Processes a hard coded enquiry using table (selection in this case))and returns ObsColl into GridData
-                    // and also returns  a (global var) of type [List<DapperGenericsLib . DataGridLayout>] containing the full table columns specification
+                    // and also returns  a (global var) of type [List<DataTableLayout>] containing the full table columns specification
                     // These data  items are specific  to currentTable, and can there be used anywhere else without needing to update them
                     //*****************************************************************************************************************************************//
-                    dglayoutlist = GetNewColumnsLayout ( selection , GridData , out colcount );
+
+                    dglayoutlist = GetNewColumnsLayout ( selection , this.GridData , out colcount );
                     if ( dglayoutlist . Count > 20 )
                     {
                         StdError ( );
@@ -577,9 +621,12 @@ namespace Views
                         }
                         CurrentTable = previousSelection;
                         Mouse . OverrideCursor = Cursors . Arrow;
+                        e . Handled = true;
+                        "" . Track ( 1 );
                         return;
                     }
-                    DatagridControl . LoadActiveRowsOnlyInGrid ( dgControl . datagridControl , GridData , colcount );
+                    // TODO URGENT These are  SLOW SLOW SLOW
+                    DatagridControl.LoadActiveRowsOnlyInGrid ( dgControl . datagridControl ,  GridData , colcount );
                     DatagridControl . ReplaceDataGridFldNames ( GridData , ref dgControl . datagridControl , ref dglayoutlist , colcount );
                     Reccount . Text = GridData . Count . ToString ( );
                     if ( GridData . Count > 0 )
@@ -609,10 +656,169 @@ namespace Views
                 }
             }
             Mouse . OverrideCursor = Cursors . Arrow;
-
+            e . Handled = true;
             "" . Track ( 1 );
         }
 
+
+        //      public int ProcessTableChanged ( SelectionChangedEventArgs e )
+        //      {
+        //          Dispatcher . BeginInvoke ( new Action ( ( ) =>
+        //          {
+        //              Task . Factory . StartNew ( async ( ) => await ProcessNewTableSelection ( e) );
+        //          } ) );
+        //          return 0;
+        //      }
+
+        //      public  Task<int> ProcessNewTableSelection ( SelectionChangedEventArgs e )
+        //      {
+        //          int result = 0;
+        //          Debug . WriteLine ( $"{Thread . CurrentThread . ManagedThreadId}" );
+        //          Debug . WriteLine ( "Sleeping 5000" );
+        //          // Thread . Sleep ( 5000 );
+        //          Debug . WriteLine ( "Finished Sleeping " );
+        //          Debug . WriteLine ( $"{Thread . CurrentThread . ThreadState}" );
+
+        //          string selection = "", prevselection = "";
+        //          int itemscount = 0;
+        //          if ( SqlTables . Items . Count == 0 )
+        //              return Task.FromResult(result);
+
+        //          "" . Track ( );
+        ////          Mouse . OverrideCursor = Cursors . Wait;
+
+        //          string previousSelection = LastActiveTable;
+        //          if ( e == null )
+        //          {
+        //              selection = SqlTables . SelectedItem . ToString ( );
+        //              itemscount = SqlTables . Items . Count;
+        //              selection = $"{DBprefix}{SqlTables . SelectedItem . ToString ( )}";
+        //          }
+        //          else
+        //          {
+        //              itemscount = e . AddedItems . Count;
+        //              selection = $"{e . AddedItems [ 0 ] . ToString ( )}";
+        //          }
+        //          if (itemscount > 0 )
+        //          {
+        //              NewTableSelection = selection;
+        //              if ( selection == LastActiveTable )
+        //              {
+        //                  "" . Track ( 1 );
+        //                  e . Handled = true;
+        //                  return Task . FromResult ( result );
+        //              }
+        //              LastActiveTable = CurrentTable;
+        //              // This value is necessary for an SQL Output value to be accessed
+        //              int colcount = 0;
+
+        //              // Returns count of COLUMNS in table specified
+        //              int existval = CheckTableExists ( selection , CurrentTableDomain );
+        //              if ( existval > 0 )
+        //              {
+        //                  string error = "";
+        //                  // returned count > 0 , so it DOES exist, so go get data from table
+        //                  GetValidDomain ( );
+        //                  ObservableCollection<GenericClass> temp = new ObservableCollection<GenericClass> ( );
+
+        //                  //returns the same record time over time 
+        //                  $"Calling LoadGenericDb() {selection}" . Track ( );
+        //                  temp = dgControl . LoadGenericData ( selection , true , MainWindow . SqlCurrentConstring );
+        //                  "Leaving LoadGenericDb()" . Track ( 1 );
+        //                  //                   int columnscount = 0;
+        //                  //temp = dgControl . LoadData ( selection , true , MainWindow . SqlCurrentConstring , out int columnscount );
+        //                  //                    LoadTableGeneric ( $"Select * from {DBprefix}{selection}" , ref temp , out error );
+        //                  if ( temp == null || temp . Count == 0 )
+        //                  {
+        //                      TableIsEmpty = true;
+        //                      DataLoaded = true;
+        //                      SqlTables . SelectedItem = LastActiveTable;
+        //                      DataLoaded = false;
+        //                      SetStatusbarText ( $"Although the requested table [ {selection} ] is in the  current Database, it does NOT contain any records \nand therefore it has NOT been loaded, and the table {previousSelection} is still displayed" , 1 );
+        //                      for ( int x = 0 ; x < Splist . Items . Count ; x++ )
+        //                      {
+        //                          if ( Splist . Items [ x ] == previousSelection )
+        //                          {
+        //                              Splist . SelectedIndex = x;
+        //                              break;
+        //                          }
+        //                      }
+        //                      CurrentTable = LastActiveTable;
+        //                      Mouse . OverrideCursor = Cursors . Arrow;
+        //                      if ( e != null )
+        //                          e . Handled = true;
+        //                      "" . Track ( 1 );
+        //                      return Task . FromResult ( result );
+        //                  }
+        //                  else
+        //                      GridData = temp;
+        //                  LastActiveTable = selection;
+        //                  DataLoaded = true;
+        //                  SqlTables . SelectedItem = LastActiveTable;
+        //                  CurrentTable = selection;
+
+        //                  //*****************************************************************************************************************************************//
+        //                  // Processes a hard coded enquiry using table (selection in this case))and returns ObsColl into GridData
+        //                  // and also returns  a (global var) of type [List<DataTableLayout>] containing the full table columns specification
+        //                  // These data  items are specific  to currentTable, and can there be used anywhere else without needing to update them
+        //                  //*****************************************************************************************************************************************//
+
+        //                  dglayoutlist = GetNewColumnsLayout ( selection , GridData , out colcount );
+        //                  if ( dglayoutlist . Count > 20 )
+        //                  {
+        //                      StdError ( );
+        //                      TableIsEmpty = true;
+        //                      DataLoaded = true;
+        //                      DataLoaded = false;
+        //                      SetStatusbarText ( $"The requested table [ {selection} ] structure has {dglayoutlist . Count} columns, which exceeds the Total Colums supported \nf 20 columns,and therefore cannot be loaded, so the original table [ {previousSelection . ToUpper ( )}]is still displayed" , 1 );
+        //                      for ( int x = 0 ; x < SqlTables . Items . Count ; x++ )
+        //                      {
+        //                          string upperstring = SqlTables . Items [ x ] . ToString ( ) . ToUpper ( );
+        //                          if ( upperstring == previousSelection . ToUpper ( ) )
+        //                          {
+        //                              ListReloading = true;
+        //                              SqlTables . SelectedIndex = x;
+        //                              ListReloading = false;
+        //                              break;
+        //                          }
+        //                      }
+        //                      CurrentTable = previousSelection;
+        //                      Mouse . OverrideCursor = Cursors . Arrow;
+        //                      e . Handled = true;
+        //                      "" . Track ( 1 );
+        //                      return Task . FromResult ( result );
+        //                  }
+        //                  DatagridControl . LoadActiveRowsOnlyInGrid ( dgControl . datagridControl , GridData , colcount );
+        //                  DatagridControl . ReplaceDataGridFldNames ( GridData , ref dgControl . datagridControl , ref dglayoutlist , colcount );
+        //                  Reccount . Text = GridData . Count . ToString ( );
+        //                  if ( GridData . Count > 0 )
+        //                      SetStatusbarText ( $"The data for {selection . ToUpper ( )} was loaded successfully and is shown in the viewer above..." );
+        //                  LastActiveTable = selection;
+        //                  CurrentTable = selection;
+        //              }
+        //              else if ( existval == 0 )
+        //              {
+        //                  StdError ( );
+        //                  TableIsEmpty = true;
+        //                  DataLoaded = true;
+        //                  SqlTables . SelectedItem = LastActiveTable;
+        //                  DataLoaded = false;
+        //                  CurrentTable = LastActiveTable;
+        //                  SetStatusbarText ( $"A check made for the requested table [ {selection} ]showed that although it does exist, \nit does NOT contain any records and therefore it has NOT been loaded" , 1 );
+        //              }
+        //              else if ( existval == -1 )
+        //              {
+        //                  StdError ( );
+        //                  TableIsEmpty = true;
+        //                  DataLoaded = true;
+        //                  SqlTables . SelectedItem = LastActiveTable;
+        //                  DataLoaded = false;
+        //                  CurrentTable = LastActiveTable;
+        //                  SetStatusbarText ( $"FATAL ERROR : The requested table [ {selection} ] does NOT exist" , 1 );
+        //              }
+        //          }
+        //          return Task . FromResult ( result );
+        //      }
         public int CheckTableExists ( string name , string domain = "IAN1" )
         {
             bool exist = false;
@@ -656,16 +862,17 @@ namespace Views
             return result;
         }
 
-        //        public ObservableCollection<GenericClass> LoadFullSqlTable ( string SqlCommand , string [ ] args , out string err , string domain = "IAN1" , int method = 0 )
         public dynamic LoadFullSqlTable ( string SqlCommand , string [ ] args , out string err , string domain = "IAN1" , int method = 0 )
         {
+            // USAGE :
             //if(method == 0 ) Sqlcommand=TEXT, returns an int
             //if(method == 1 ) Sqlcommand=S.P name, returns a text string
             //if(method == 2 ) Sqlcommand=S.P name, returns a List
-
-            bool exist = false;
+            // We use dynamic  types for return value in here
             IEnumerable<dynamic> reslt = null;
             IEnumerable<dynamic> str = null;
+            string countstr = "";
+
             ObservableCollection<GenericClass> tmp = new ObservableCollection<GenericClass> ( );
             err = "";
             collection = new ObservableCollection<GenericClass> ( );
@@ -678,7 +885,7 @@ namespace Views
                     bool hasoutput = false;
                     bool hasretval = false;
                     DynamicParameters parameters = new DynamicParameters ( );
-                    parameters = DatagridControl . ParseSqlArguments ( args , ref hasoutput , ref hasretval );
+                    parameters = DatagridControl . ParseSqlArguments ( parameters , args , ref hasoutput , ref hasretval );
                     Dictionary<string , List<dynamic>> dict = new Dictionary<string , List<dynamic>> ( );
 
                     if ( method == 0 )
@@ -695,28 +902,26 @@ namespace Views
                         SqlCommand = "select * from retvalues";
                         var spr3 = db . Query<dynamic> ( SqlCommand , parameters , commandType: CommandType . Text );
 
-                        dynamic newresults = GetStringFromDynamic ( spr3 );
+                        string newresults = GetStringFromDynamic ( spr3 );
                         return newresults;
-                        // handled by call above now
+                    }
+                    else if ( method == 2 )
+                    {
+                        str = db . Query<dynamic> ( SqlCommand , param: parameters , commandType: CommandType . StoredProcedure );
+                        dynamic newcount = null;
+                        foreach ( var item in str )
                         {
-                            //foreach ( IDictionary<string , object> kvp in spr3 )
-                            //{
-                            //    //foreach ( var item in kvp )
-                            //    //{
-                            //    //    Debug . WriteLine ( item . Key + ": " + item . Value );
-                            //    //    if ( item . Value != null && item . ToString ( ) . Length > 0 )
-                            //    //    {
-                            //    //        dynamic newresults = item . Value as dynamic;
-                            //    //        return newresults;
-                            //    //        break;
-                            //    //    }
-                            //}
+                            newcount = item . count;
+
+                            // set (outint count) parameter
+                            countstr = newcount . ToString ( );
                         }
+                        // return it as a string
+                        return newcount;
                     }
                     else
-                        reslt = db . Query ( SqlCommand , CommandType . StoredProcedure ) . ToList ( );
+                    { }
                 }
-
                 if ( reslt == null )
                     return null;
                 else
@@ -726,7 +931,7 @@ namespace Views
                     int fldcount = 0;
                     int colcount = 0;
                     GenericClass gc = new GenericClass ( );
-
+                    // int  cnt = Convert.ToInt32(reslt);
                     List<int> VarcharList = new List<int> ( );
                     Dictionary<string , string> outdict = new Dictionary<string , string> ( );
                     Dictionary<string , object> dict = new Dictionary<string , object> ( );
@@ -893,18 +1098,17 @@ namespace Views
             }
             catch ( Exception ex )
             {
-
+                Debug . WriteLine ( $"Error : {ex . Message}" );
             }
             return tmp;
         }
 
-        public void ResetColumnHeaderToTrueNames ( string CurrentTable , DataGrid Grid )
+        public void ResetColumnHeaderToTrueNames (ObservableCollection<GenericClass> collection,  string CurrentTable , DataGrid Grid )
         {
             //Update Column headers to original column names, so we need to create dummy list just to call Replace headers method
             int colcount = dgControl . datagridControl . Columns . Count;
             List<DapperGenericsLib . DataGridLayout> dglayoutlist = new List<DapperGenericsLib . DataGridLayout> ( );
-            //            ReplaceDataGridFldNames ( CurrentTable , ref Grid , ref dglayoutlist , colcount );
-            DapperLibSupport . ReplaceDataGridFldNames ( CurrentTable , ref Grid , ref dglayoutlist , colcount );
+            ReplaceDataGridFldNames ( collection, ref Grid , ref dglayoutlist , colcount );
         }
 
         public bool LoadDbTables ( string currentTable )
@@ -931,7 +1135,7 @@ namespace Views
                         if ( SqlTables . SelectedIndex != -1 )
                             SqlTables . SelectedItem = SqlTables . Items [ SqlTables . SelectedIndex ];
                         else
-                            SqlTables . SelectedIndex = index;
+                            SqlTables . SelectedIndex = index;  // Triggers  a Database read
                         DataLoaded = false;
                         break;
                     }
@@ -969,7 +1173,7 @@ namespace Views
         {
             List<string> splist = new List<string> ( );
             splist = DatagridControl . ProcessUniversalQueryStoredProcedure ( "spGetStoredProcs" , args , CurrentTableDomain , out string err );
-            //This call returns us a DataTable
+            //This call returns us a List<string>
             return splist;
         }
         public static List<string> GetDataDridRowsAsListOfStrings ( DataTable dt )
@@ -1041,9 +1245,11 @@ namespace Views
         }
 
         #endregion local control support
+
         //-----------------------------------------------------------//flags .conn
         public void UpdateSqlTableList ( string seltext )
         {
+            "" . Track ( );
             int index = 0;
             string srchname = seltext . ToUpper ( );
             if ( SqlTables . Items . Count == 0 )
@@ -1062,23 +1268,7 @@ namespace Views
             }
             "" . Track ( 1 );
         }
-        //**********************************//
-        #region local control support
-        //**********************************//
-        private async void asyncSqlTables_SelectionChanged ( object sender , SelectionChangedEventArgs e )
-        {
-            string selection = e . AddedItems [ 0 ] . ToString ( );
-            // call User Control to load the selected table from the current Sql Db
-            // TODO   NOT WORKING 3/10/2022
-            var result = await dgControl . LoadData ( $"{selection}" , ShowColumnHeaders , Flags . CurrentConnectionString );
-        }
-        private void IsLoaded ( object sender , RoutedEventArgs e )
-        {
-            ToggleColumnHeaders . IsChecked = true;
-        }
-        //-----------------------------------------------------------//
-        #endregion local control support
-        //-----------------------------------------------------------//
+
 
         //**********************************************//
         #region Select columns for new table support
@@ -1179,7 +1369,6 @@ namespace Views
                 string [ ] args1 = { $"{NewDbName}" };
                 int colcount = dgControl . datagridControl . Columns . Count;
                 DatagridControl . LoadActiveRowsOnlyInGrid ( dgControl . datagridControl , GridData , colcount );
-                //List<DapperGenericsLib . DataGridLayout> dglayoutlist = new List<DapperGenericsLib . DataGridLayout> ( );
 
                 ReplaceDataGridFldNames ( GridData , ref dgControl . datagridControl , ref dglayoutlist , colcount );
 
@@ -1250,7 +1439,7 @@ namespace Views
             "" . Track ( );
             // Creating new table based on selected columns
             DapperGenericsLib . GenericClass selColumns = new DapperGenericsLib . GenericClass ( );
-            ObservableCollection<DapperGenericsLib . GenericClass> collection = new ObservableCollection<DapperGenericsLib . GenericClass> ( );
+            ObservableCollection<GenericClass> collection = new ObservableCollection<GenericClass> ( );
             List<GenericToRealStructure> grsList = new List<GenericToRealStructure> ( );
             string [ ] cols = new string [ ColNames . SelectedItems . Count ];
 
@@ -1308,10 +1497,10 @@ namespace Views
             int colcount = DatagridControl . GetColumnsCount ( ColumnsData );
             DatagridControl . LoadActiveRowsOnlyInGrid ( dgControl . datagridControl , ColumnsData , colcount );
             if ( ShowColumnHeaders == true )
-                ResetColumnHeaderToTrueNames ( NewTableName . Text , dgControl . datagridControl );
+                ResetColumnHeaderToTrueNames (collection, NewTableName . Text , dgControl . datagridControl );
             else
             {
-                //List<DapperGenericsLib . DataGridLayout> dapperdglayoutlist = new List<DapperGenericsLib . DataGridLayout> ( );
+                //List<DataTableLayout> dapperdglayoutlist = new List<DataTableLayout> ( );
                 DatagridControl . ReplaceDataGridFldNames ( GridData , ref dgControl . datagridControl , ref dglayoutlist , colcount );
             }
             Reccount . Text = GridData . Count . ToString ( );
@@ -1370,49 +1559,6 @@ namespace Views
         #endregion Select columns for new table support
         //-----------------------------------------------------------//
 
-        public List<string> GetDataTableAsList ( )
-        {
-            List<string> TablesList = new List<string> ( );
-            List<string> list = new List<string> ( );
-            string SqlCommand = "spGetTablesList";
-            //// All Db's have their own version of this SP.....
-            GenericGridSupport . CallStoredProcedure ( list , SqlCommand );
-            //This call returns us a DataTable
-            DataTable dt = dgControl . GetDataTable ( SqlCommand );
-            // This how to access Row data from  a grid the easiest way.... parsed into a List <xxxxx>
-            if ( dt != null )
-            {
-                TablesList = GenericGridSupport . GetDataDridRowsAsListOfStrings ( dt );
-            }
-            return TablesList;
-        }
-
-        private void statusbar_KeyDown ( object sender , KeyEventArgs e )
-        {
-            if ( e . Key == Key . Enter )
-                CreateNewTableAsync ( sender , e );
-        }
-        private void Button_MouseEnter ( object sender , MouseEventArgs e )
-        {
-            Button btn = sender as Button;
-            LinearGradientBrush brsh = FindResource ( "Black2OrangeSlant" ) as LinearGradientBrush;
-            btn . Background = brsh;
-            btn . UpdateLayout ( );
-        }
-        private void CloseBtn_GotFocus ( object sender , RoutedEventArgs e )
-        {
-            Button btn = sender as Button;
-            LinearGradientBrush brsh = FindResource ( "Black2OrangeSlant" ) as LinearGradientBrush;
-            btn . Background = brsh;
-            btn . UpdateLayout ( );
-        }
-        private void CloseBtn_IsMouseDirectlyOverChanged ( object sender , DependencyPropertyChangedEventArgs e )
-        {
-            Button btn = sender as Button;
-            LinearGradientBrush brsh = FindResource ( "Black2OrangeSlant" ) as LinearGradientBrush;
-            btn . Background = brsh;
-            btn . UpdateLayout ( );
-        }
         private void stopBtn_Click ( object sender , RoutedEventArgs e )
         {
             // Aborting creation of new table based on selected columns
@@ -1422,7 +1568,10 @@ namespace Views
         {
             // Load boilerplate text describing ths control
             infotext = File . ReadAllText ( @$"C:\users\ianch\Documents\GenericGridInfo.Txt" );
-            DisplayInformationViewer ( true );
+            if ( Splist . Items . Count > 0 )
+                DisplayInformationViewer ( false ); // dont reload list of SPs
+            else
+                DisplayInformationViewer ( true );  // we DO need to reload list of SPs
 
             majorgrid . RowDefinitions [ 0 ] . Height = new GridLength ( 1 , GridUnitType . Pixel );
             majorgrid . RowDefinitions [ 2 ] . Height = new GridLength ( majorgrid . ActualHeight - 10 , GridUnitType . Star );
@@ -1431,101 +1580,6 @@ namespace Views
             majorgrid . UpdateLayout ( );
             majorgrid . Refresh ( );
             Gengrid_SizeChanged ( null , null );
-        }
-        public bool DisplayInformationViewer ( bool showSPlist = false , bool reload = true )
-        {
-
-            List<string> SpList = new List<string> ( );
-
-            if ( showSPlist && ( InfoGrid . Visibility == Visibility . Visible ) )
-            {
-                // Load the list of SP's for the InfoGriid viewer
-                if ( reload )
-                {
-                    int count = LoadStoredProcedures ( "spGetStoredProcs" , "" );
-                    if ( count == 0 )
-                        return false;
-                    //Splist . ItemsSource = null;
-                    //Splist . ItemsSource = SpList;
-                    //Splist . Items . SortDescriptions . Add ( new SortDescription ( "" , ListSortDirection . Ascending ) );
-                    //SpInfo . Text = SpInfo . Text = $"All S.Procs ";
-                    //SpInfo2 . Text = $"{Splist . Items . Count} available...";
-                    //InfoHeaderPanel . Text = $"All ({Splist . Items . Count}) Stored Procedures are displayed";
-                    //CurrentSpList = "ALL";
-                    ViewerGrid . ColumnDefinitions [ 0 ] . Width = new GridLength ( 250 , GridUnitType . Pixel );
-                }
-                Splist . Visibility = Visibility . Visible;
-            }
-            else if ( Splist . Items . Count == 0 )
-            {
-                // Load the list of SP's for the InfoGrid viewer
-                int count = LoadStoredProcedures ( "spGetStoredProcs" , "" );
-                if ( count == 0 )
-                    return false;
-                //SpList = CallStoredProcedure ( SpList , "spGetStoredProcs" );
-
-                //Splist . ItemsSource = null;
-                //Splist . ItemsSource = SpList;
-                //Splist . Items . SortDescriptions . Add ( new SortDescription ( "" , ListSortDirection . Ascending ) );
-                //SpInfo . Text = SpInfo . Text = $"All S.Procs ";
-                //SpInfo2 . Text = $"{Splist . Items . Count} available...";
-                //InfoHeaderPanel . Text = $"All {Splist . Items . Count} Stored Procedures are displayed";
-                //CurrentSpList = "ALL";
-                //InfoVisible . IsEnabled = false;
-                ///ViewerVisible . IsEnabled = true;
-            }
-            // load text from previosly specified file
-            if ( myFlowDocument . Blocks . Count == 0 )
-            {
-                if ( infotext . Contains ( "Information text goes here ...." ) )
-                    infotext = File . ReadAllText ( @$"C:\users\ianch\Documents\GenericGridInfo.Txt" );
-                myFlowDocument = LoadFlowDoc ( RTBox , FindResource ( "Black3" ) as SolidColorBrush , infotext );
-            }
-            RTBox . Visibility = Visibility . Visible;
-
-            // Show complete container
-            InfoGrid . Visibility = Visibility . Visible;
-            Mouse . OverrideCursor = Cursors . Arrow;
-            InfoViewerShown = true;
-            return true;
-        }
-
-        public int LoadStoredProcedures ( string spCommand , string srchterm )
-        {
-            List<string> NewSplist = new List<string> ( );
-            string previousSelection = "";
-            if ( Splist . SelectedItem != null )
-                previousSelection = Splist . SelectedItem . ToString ( );
-            string [ ] args = new string [ 1 ];
-            if ( srchterm != "" )
-                args [ 0 ] = srchterm;
-            else
-                args = null;
-
-            NewSplist = CallStoredProcedure ( NewSplist , spCommand , args );
-            //NewSplist = CallStoredProcedure ( NewSplist , "spGetStoredProcs" , args );
-            Splist . ItemsSource = null;
-            Splist . UpdateLayout ( );
-            Splist . ItemsSource = NewSplist;
-            Splist . Items . SortDescriptions . Add ( new SortDescription ( "" , ListSortDirection . Ascending ) );
-            SpInfo . Text = SpInfo . Text = $"All S.Procs ";
-            SpInfo2 . Text = $"{Splist . Items . Count} available...";
-            InfoHeaderPanel . Text = $"All {Splist . Items . Count} Stored Procedures are displayed";
-            CurrentSpList = "ALL";
-            if ( previousSelection != "" )
-            {
-                int indx = 0;
-                foreach ( var item in Splist . Items )
-                {
-                    if ( item == previousSelection )
-                    {
-                        Splist . SelectedIndex = indx;
-                        break;
-                    }
-                }
-            }
-            Splist . UpdateLayout ( );
-            return NewSplist . Count;
         }
         private void InfoGrid_KeyDown ( object sender , KeyEventArgs e )
         {
@@ -1541,9 +1595,10 @@ namespace Views
                 // Splist . ItemsSource = null;
             }
         }
-        private void RTBox_MouseRightButtonDown ( object sender , MouseButtonEventArgs e )
+        private void statusbar_KeyDown ( object sender , KeyEventArgs e )
         {
-
+            if ( e . Key == Key . Enter )
+                CreateNewTableAsync ( sender , e );
         }
         private void SaveSelectedOnly ( object sender , RoutedEventArgs e )
         {
@@ -1572,16 +1627,6 @@ namespace Views
             else if ( retval >= -2 )
                 SetStatusbarText ( $"A total of {recsinserted} items have been used to create a new table {NewSelectedTableName . ToUpper ( )} in the \'.IAN1\' Database successfully" );
         }
-        static public string RemoveTrailingChars ( string processQuery )
-        {
-            if ( processQuery . Trim ( ) . Contains ( "}," ) )
-            {
-                processQuery = NewWpfDev . Utils . ReverseString ( processQuery );
-                processQuery = processQuery . Substring ( 2 );
-                processQuery = NewWpfDev . Utils . ReverseString ( processQuery );
-            }
-            return processQuery;
-        }
         private void OptionsList_DropDownOpened ( object sender , EventArgs e )
         {
             // Lower Options combo(below) is being opened, so perform selective setup
@@ -1592,7 +1637,6 @@ namespace Views
             // Lower Options combo(below) is being closed, so perform selective setup
             comboText1 . Text = "Processing Options";
         }
-
         private void OptionsList_Selected ( object sender , SelectionChangedEventArgs e )
         {
             ComboBox cb = sender as ComboBox;
@@ -1609,7 +1653,7 @@ namespace Views
                 SaveSelectedOnly ( sender , e );            //Save only selected rows of table  to new table
             else if ( cb . SelectedIndex == 6 )
                 SearchStoredProc ( sender , e );            // Open Search text Dialog
-            //Reset it to top (non active option so we can select any valid option next time
+                                                            //Reset it to top (non active option so we can select any valid option next time
             cb . SelectedIndex = 0;
         }
         private void SaveAsNewTable ( object sender , RoutedEventArgs e )
@@ -1657,9 +1701,20 @@ namespace Views
                 dgControl . datagridControl . ItemsSource = null;
                 dgControl . datagridControl . Items . Clear ( );
                 dgControl . datagridControl . Refresh ( );
-                SqlTables . SelectedIndex = 0;
+                //SqlTables . SelectedIndex = 0;
+                //SqlTables . SelectedIndex = 0;
+                //SqlTables . UpdateLayout ( );
                 if ( DomainChanged )
-                    SetStatusbarText ( "List of Sql Tables has been refreshed successfully, but the previously displayed table no longer exists, \nso the 1st table identified in the new Database  has been selected for you" , 1 );
+                {
+                    if ( SqlTables . SelectedItem != null )
+                        SqlTables_SelectionChanged ( sender , null );
+                    else
+                    {
+                        SqlTables . SelectedIndex = 0;
+                        SqlTables . SelectedItem = 0;
+                        SqlTables_SelectionChanged ( sender , null );
+                    }
+                }
                 else
                     SetStatusbarText ( "List of Sql Tables has been refreshed successfully, but the previously displayed table no longer exists, \nso the 1st table in the new list of tables has been selected for you" , 1 );
                 DomainChanged = false;
@@ -1739,8 +1794,9 @@ namespace Views
             if ( LastActiveFillter != "" )
                 filtertext . Text = LastActiveFillter;
         }
+
         //**********************************//
-        #region Control Drag/Movement  support
+        #region Control Drag/Movement  support        
         //**********************************//
 
         // Finds the parent immediately above the Canvas,
@@ -1938,13 +1994,13 @@ namespace Views
             }
 
             string spCommand = $"drop table if exists {filterargs [ 2 ]}";
-            dgControl . ExecuteDapperCommand ( spCommand , null , out err );
+            dgControl . ExecuteDapperTextCommand ( spCommand , null , out err );
             spCommand = $"Select * into {filterargs [ 2 ]} from {filterargs [ 0 ]} where {filterargs [ 1 ]}";
-            var result = dgControl . ExecuteDapperCommand ( spCommand , null , out err );
+            var result = dgControl . ExecuteDapperTextCommand ( spCommand , null , out err );
             if ( err != "" )
             {
                 spCommand = $"drop table if exists Temp";
-                dgControl . ExecuteDapperCommand ( spCommand , null , out err );
+                dgControl . ExecuteDapperTextCommand ( spCommand , null , out err );
                 spCommand = $"Select * from {filterargs [ 2 ]}";
                 string [ ] args = new string [ 0 ];
                 GridData = LoadFullSqlTable ( spCommand , args , out err , CurrentTableDomain );
@@ -1975,7 +2031,8 @@ namespace Views
                 }
                 string Resultstring = "";
 
-                GridData = dgControl . LoadGenericData ( CurrentTable , true , ConString  );
+                string [ ] args = new string [ 0 ];
+                GridData = dgControl . LoadGenericData ( CurrentTable , args , true , ConString );
                 Reccount . Text = GridData . Count . ToString ( );
                 cmb . Show ( msgargs );
                 Mouse . OverrideCursor = Cursors . Arrow;
@@ -1985,10 +2042,10 @@ namespace Views
                 int colcount = DatagridControl . GetColumnsCount ( GridData );
                 DatagridControl . LoadActiveRowsOnlyInGrid ( dgControl . datagridControl , GridData , colcount );
                 if ( ShowColumnHeaders == true )
-                    ResetColumnHeaderToTrueNames ( CurrentTable , dgControl . datagridControl );
+                    ResetColumnHeaderToTrueNames (GridData,CurrentTable , dgControl . datagridControl );
                 else
                 {
-                    //List<DapperGenericsLib . DataGridLayout> dapperdglayoutlist = new List<DapperGenericsLib . DataGridLayout> ( );
+                    //List<DataTableLayout> dapperdglayoutlist = new List<DataTableLayout> ( );
                     DatagridControl . ReplaceDataGridFldNames ( GridData , ref dgControl . datagridControl , ref dglayoutlist , colcount );
                 }
                 Reccount . Text = GridData . Count . ToString ( );
@@ -2011,12 +2068,10 @@ namespace Views
         }
 
         #endregion FILTERING SUPPORT incl moving it around
-        //-----------------------------------------------------------//
 
         //****************************************************//
         #region Search SP's for specific text
         //****************************************************//
-
 
         private void stopBtn2_Click ( object sender , RoutedEventArgs e )
         {
@@ -2038,7 +2093,14 @@ namespace Views
             "" . Track ( );
             if ( Searchtext != "" )
             {
-                string sptext = FetchStoredProcedureCode ( ProcNames . SelectedItem . ToString ( ) );
+                string sptext = "";
+                //Task . Run ( async ( ) =>
+                //{
+                string stringresult = "";
+                Gengrid . FetchStoredProcedureCode ( Splist . SelectedItem . ToString ( ) , ref sptext );
+                //} );
+                //string stringresult = "";
+                //string sptext = FetchStoredProcedureCode ( ProcNames . SelectedItem . ToString ( ) , ref stringresult );
                 if ( sptext == "" )
                 {
                     Debug . WriteLine ( $"ERROR - no SP file   was returned ????" );
@@ -2066,24 +2128,19 @@ namespace Views
                 if ( Splist . Items . Count == 0 )
                 {
                     list = LoadMatchingStoredProcs ( Splist , Searchtext );
-                    Splist . ItemsSource = null;
-                    Splist . ItemsSource = list;
-                    //                    ListCounter . Text = $"{Splist . Items . Count} Files available...";
-                    // default to 1st  entry in list
-                    Splist . SelectedIndex = 0;
-                    InfoHeaderPanel . Text = SpInfo . Text;
-                    SpInfo . Text = $"All  Matching S.P's";
-                    SpInfo2 . Text = $"{Splist . Items . Count} match [{Searchtext}]";
-                    InfoHeaderPanel . Text = $"All ({Splist . Items . Count}) Stored Procedures matching Search Term [ {Searchtext} ] are displayed";
+                    //Splist . ItemsSource = null;
+                    //Splist . ItemsSource = list;
+                    // // default to 1st  entry in list
+                    //Splist . SelectedIndex = 0;
+                    //InfoHeaderPanel . Text = SpInfo . Text;
+                    //SpInfo . Text = $"All  Matching S.P's";
+                    //SpInfo2 . Text = $"{Splist . Items . Count} match [{Searchtext}]";
+                    //InfoHeaderPanel . Text = $"All ({Splist . Items . Count}) Stored Procedures matching Search Term [ {Searchtext} ] are displayed";
                     CurrentSpList = "MATCH";
 
                     // open splitter
                     ViewerGrid . ColumnDefinitions [ 0 ] . Width = new GridLength ( 200 , GridUnitType . Pixel );
-
-                    //                    PromptLine . Text = $"Listbox in left Column contains ALL Stored Procedures matching current search term [ {Searchtext}.]";
                 }
-                //                else
-                //                    PromptLine . Text = $"Listbox in left Column contains ALL Stored Procedures matching current search term [ {Searchtext}.]";
             }
             else
             {
@@ -2094,13 +2151,17 @@ namespace Views
             Mouse . OverrideCursor = Cursors . Arrow;
             "" . Track ( 1 );
         }
-        public string FetchStoredProcedureCode ( string spName , bool HeaderOnly = false )
+        public string FetchStoredProcedureCode ( string spName , ref string stringresult , bool HeaderOnly = false )
         {
-            // Load a specified SP file
+            // Load a specified SP file annd show in Scrollviewer
+            stringresult = "";
             DataTable dt = new ( );
             string output = "";
             if ( spName == null )
-                return "";
+            {
+                stringresult = output;
+                return stringresult;
+            }
             dt = DatagridControl . ProcessSqlCommand ( $"spGetSpecificSchema  '{spName}'" , Flags . CurrentConnectionString );
             List<string> list = new List<string> ( );
             List<string> headeronlylist = new List<string> ( );
@@ -2115,13 +2176,15 @@ namespace Views
                 if ( list . Count > 0 )
                     output = list [ 0 ];
                 // infotext = output;
-                return output;
+                stringresult = output;
+                return stringresult;
+                //return output;
             }
             // now display the full content of the seleted S.P
             if ( list . Count > 0 )
                 output = list [ 0 ];
-            // infotext = output;
-            return output;
+            stringresult = output;
+            return stringresult;
         }
         public string GetSpHeaderTextOnly ( string spText )
         {
@@ -2161,37 +2224,33 @@ namespace Views
             }
             return spText;
         }
-        public List<string> LoadSPList ( )
-        {
-            // Load ALL S.Procedures into List<string>
-            DataTable dt = new ( );
-            // Load list of SP's for viewer panel'
-            List<string> list = new List<string> ( );
-            dt = DatagridControl . ProcessSqlCommand ( $"spGetStoredProcs" , Flags . CurrentConnectionString );
-            foreach ( DataRow row in dt . Rows )
-            {
-                list . Add ( row . Field<string> ( 0 ) );
-            }
-            return list;
-        }
         private void LoadRTbox ( )
         {
             //FlowDocument myFlowDocument = new FlowDocument ( );
             infotext = File . ReadAllText ( @$"C:\users\ianch\documents\GenericGridInfo.Txt" );
             myFlowDocument = LoadFlowDoc ( RTBox , FindResource ( "Black3" ) as SolidColorBrush , infotext );
         }
-        private FlowDocument CreateFlowDocumentScroll ( string line1 , string clr1 , string line2 = "" , string clr2 = "" , string line3 = "" , string clr3 = "" , string header = "" , string clr4 = "" )
+        public FlowDocument CreateFlowDocumentScroll ( string line1 , string clr1 = "" , string line2 = "" , string clr2 = "" , string line3 = "" , string clr3 = "" , string header = "" , string clr4 = "" ,
+            int fontsize = 0 , string fground = "" , string bground = "" )
         {
             FlowDocument myFlowDocument = new FlowDocument ( );
             Paragraph para1 = new Paragraph ( );
             //NORMAL
             // This is  the only paragraph that uses the user defined Font Size....
-            para1 . FontSize = 14;
+            if ( fontsize == 0 )
+                para1 . FontSize = 14;
+            else
+                para1 . FontSize = fontsize;
             para1 . FontFamily = new FontFamily ( "Arial" );
             if ( USERRTBOX )
                 para1 . Foreground = FindResource ( "White0" ) as SolidColorBrush;
             else
                 para1 . Foreground = FindResource ( "Black0" ) as SolidColorBrush;
+            // handle user defined optional parameters
+            if ( fground != "" )
+                para1 . Foreground = FindResource ( fground ) as SolidColorBrush;
+            if ( bground != "" )
+                para1 . Background = FindResource ( bground ) as SolidColorBrush;
             Thickness th = new Thickness ( );
             th . Top = 10;
             th . Left = 10;
@@ -2248,34 +2307,6 @@ namespace Views
             myFlowDocument . Blocks . Add ( para1 );
             return myFlowDocument;
         }
-        // NOT USED
-        public static FlowDocument ProcessRTBParagraph ( FlowDocument document , string SearchTerm )
-        {
-            //Paragraph p = ( Paragraph )document . Blocks . FirstBlock;
-            //string originalRunText = ( ( Run )p . Inlines . FirstInline ) . Text;
-            //String word = SearchTerm;
-
-            //var textSearchRange = new TextRange(p . ContentStart , p . ContentEnd);
-            //Int32 position = textSearchRange . Text . IndexOf(word , StringComparison . OrdinalIgnoreCase);
-            //if ( position < 0 ) return document;
-
-            //TextPointer start;
-            //start = textSearchRange . Start . GetPositionAtOffset(position);
-            //var end = textSearchRange . Start . GetPositionAtOffset(position + word . Length);
-
-            //var textR = new TextRange(start , end);
-            //textR . Text = "";
-
-            //ToolTip tt = new ToolTip();
-
-            //tt . Background = Brushes . LightYellow;
-            //tt . Content = new Label() { Content = "Tooltip of HighLighted word" };
-
-            //Run newRun = new Run(word , start);
-            //newRun . FontSize = 30;
-            //newRun . ToolTip = tt;
-            return document;
-        }
 
         public Run AddStdNewDocumentParagraph ( string textstring , string SearchText )
         {
@@ -2300,12 +2331,15 @@ namespace Views
         }
         public List<string> LoadMatchingStoredProcs ( ListBox lbox , string Searchtext )
         {
+            // This  takes a while
             DataTable dt = new DataTable ( );
             string SqlCommand = $"spGetAllSprocsMatchingSearchterm";
+            string currselection = "";
             Mouse . OverrideCursor = Cursors . Wait;
             string [ ] args = new string [ 1 ];
             args [ 0 ] = Searchtext;
             dt = DatagridControl . ProcessSqlCommand ( SqlCommand , Flags . CurrentConnectionString , args );
+            // parse Datatablle into list<string>
             List<string> list = GetDataDridRowsAsListOfStrings ( dt );
             lbox . ItemsSource = null;
             lbox . Items . Clear ( );
@@ -2318,6 +2352,8 @@ namespace Views
                 lbox . SelectedIndex = 0;
                 // show sp listbox dialog
             }
+            Mouse . OverrideCursor = Cursors . Arrow;
+            // return the list in case we need it later on
             return list;
         }
         private void GoBtn1_Click ( object sender , RoutedEventArgs e )
@@ -2326,23 +2362,23 @@ namespace Views
             // and add them to listbox in larger selection dialog
             Searchtext = selectedSp . Text;
             List<string> list = LoadMatchingStoredProcs ( Splist , selectedSp . Text );
-            DragCtrl . InitializeMovement ( SpStringsSelector as FrameworkElement , this );
             if ( list . Count == 0 )
             {
                 MsgBoxArgs msgargs = new MsgBoxArgs ( );
                 msgargs . title = "Stored Procedure Search System";
-                msgargs . msg1 = $"Sorry, it does not appear that the search term [ '{Searchtext . ToUpper ( )}' ]\nhas been found in any of the Stored Procedures in the current SQL Server";
+                msgargs . msg1 = $"Sorry, it does not appear that the search term [ '{Searchtext . ToUpper ( )}' ]\nhas been found in any of the Stored Procedures in the current SQL Server\n\nTherefore the list still shows ALL SP's....";
                 msgargs . msg2 = $"Please enter a search item likely to be found in a Stored Procedure . ";
                 CustomMsgBox cmb = new CustomMsgBox ( );
-                //                var dgobj = DapperGenericsLib . Utils . FindVisualParent<Genericgrid> ( e . OriginalSource as DependencyObject );
                 cmb . Show ( msgargs );
+                return;
             }
+            DragCtrl . InitializeMovement ( SpStringsSelector as FrameworkElement , this );
             Splist . ItemsSource = null;
             Splist . Items . Clear ( );
             Splist . ItemsSource = list;
-            SpInfo . Text = $"All  Matching S.P's";
-            SpInfo2 . Text = $"{Splist . Items . Count} match [{Searchtext}]";
-            InfoHeaderPanel . Text = $"All ({Splist . Items . Count}) Stored Procedures matching Search Term [ {Searchtext} ] are displayed";
+            if ( Resultsviewer != null )
+                SetSpWindowInfoText ( this , this , Searchtext );
+
             CurrentSpList = "MATCH";
 
             ViewerGrid . ColumnDefinitions [ 0 ] . Width = new GridLength ( 200 , GridUnitType . Pixel );
@@ -2356,7 +2392,7 @@ namespace Views
 
         private void ProcNames_MouseDoubleClick ( object sender , MouseButtonEventArgs e )
         {
-            //Load Listbox in larger SP selection dialog with matching files
+            //Load Execution window
             GoBtn2_Click ( null , null );
             e . Handled = true;
         }
@@ -2440,7 +2476,6 @@ namespace Views
             selectedSp . SelectAll ( );
         }
 
-
         private void Button_KeyDown ( object sender , KeyEventArgs e )
         {
             if ( e . Key == Key . Escape )
@@ -2462,96 +2497,8 @@ namespace Views
             if ( SpStringsSelector . Visibility == Visibility . Visible )
                 SpStringsSelector . Visibility = Visibility . Collapsed;
         }
-        #endregion Search SP's for specific text
-        //-----------------------------------------------------------//
 
-        //#region FlowDoc support
-        ///// <summary>
-        /////  These are the only methods any window needs to provide support for my FlowDoc system.
-
-        //// This is triggered/Broadcast by FlowDoc so that the parent controller can Collapse the 
-        //// Canvas so it  does not BLOCK other controls after being closed.
-        //private void Flowdoc_FlowDocClosed ( object sender , EventArgs e )
-        //{
-        //    Filtercanvas . Visibility = Visibility . Collapsed;
-        //}
-
-        //protected void MaximizeFlowDoc ( object sender , EventArgs e )
-        //{
-        //    // Clever "Hook" method that Allows the flowdoc to be resized to fill window
-        //    // or return to its original size and position courtesy of the Event declard in FlowDoc
-        //    fdl . MaximizeFlowDoc ( this.Flowdoc, Filtercanvas , e );
-        //}
-
-        //private void Flowdoc_MouseLeftButtonUp ( object sender , MouseButtonEventArgs e )
-        //{
-        //    // Window wide  !!
-        //    // Called  when a Flowdoc MOVE has ended
-        //    MovingObject2 = fdl . Flowdoc_MouseLeftButtonUp ( sender , Flowdoc , MovingObject2 , e );
-        //    // TODO ?????
-        //    //MovingObject2 . ReleaseMouseCapture();
-        //}
-
-        //// CALLED WHEN  LEFT BUTTON PRESSED
-        //private void Flowdoc_PreviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
-        //{
-        //    //In this event, we get current mouse position on the control to use it in the MouseMove event.
-        //    MovingObject2 = fdl . Flowdoc_PreviewMouseLeftButtonDown ( sender , Flowdoc , e );
-        //    Debug . WriteLine ( $"MvvmDataGrid Btn down {MovingObject2}" );
-        //}
-
-        //private void Flowdoc_MouseMove ( object sender , MouseEventArgs e )
-        //{
-        //    // We are Resizing the Flowdoc using the mouse on the border  (Border.Name=FdBorder)
-        //    fdl . Flowdoc_MouseMove ( Flowdoc , Filtercanvas , MovingObject , e );
-        //}
-
-        //// Shortened version proxy call		
-        //private void Flowdoc_LostFocus ( object sender , RoutedEventArgs e )
-        //{
-        //    Flowdoc . BorderClicked = false;
-        //}
-
-        //public void FlowDoc_ExecuteFlowDocBorderMethod ( object sender , EventArgs e )
-        //{
-        //    // EVENTHANDLER to Handle resizing
-        //    FlowDoc fd = sender as FlowDoc;
-        //    Point pt = Mouse . GetPosition ( Filtercanvas );
-        //    double dLeft = pt . X;
-        //    double dTop = pt . Y;
-        //}
-
-        //private void LvFlowdoc_PreviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
-        //{
-        //    //In this event, we get current mouse position on the control to use it in the MouseMove event.
-        //    MovingObject2 = fdl . Flowdoc_PreviewMouseLeftButtonDown ( sender , Flowdoc , e );
-        //}
-
-        //public void fdmsg ( string line1 , string line2 = "" , string line3 = "" )
-        //{
-        //    //We have to pass the Flowdoc.Name, and Canvas.Name as well as up   to 3 strings of message
-        //    //  you can  just provie one if required
-        //    // eg fdmsg("message text");
-        //    fdl . FdMsg ( Flowdoc , Filtercanvas , line1 , line2 , line3 );
-        //}
-
-        ////-----------------------------------------------------------//
-        //#endregion Flowdoc support via library
-        ////-----------------------------------------------------------//
-        private void ShowMoveInfo ( object sender , RoutedEventArgs e )
-        {
-            infotext = File . ReadAllText ( @$"C:\users\ianch\documents\Universal Control Moving Info.Txt" );
-            DisplayInformationViewer ( );
-        }
-        private void Lostfocus ( object sender , RoutedEventArgs e )
-        {
-            //DragCtrl . MovementEnd(sender , e , this);
-        }
-
-        private void CloseAll_Click ( object sender , RoutedEventArgs e )
-        {
-            Application . Current . Shutdown ( );
-        }
+        #endregion Search SP's for specific text                
 
         #region SpList handlers
         private void Splist_SelectionChanged ( object sender , SelectionChangedEventArgs e )
@@ -2565,7 +2512,11 @@ namespace Views
             if ( Splist . Items . Count > 0 && Splist . SelectedItem == null )
                 Splist . SelectedIndex = 0;
             if ( Splist . SelectedItem != null )
+            {
                 spfilename = Splist . SelectedItem . ToString ( );
+                // set global pointer to Genericgrid's selecteditem
+                CurrentSpSelection = Splist . SelectedItem . ToString ( );
+            }
             else
             {
                 Splist . SelectedIndex = 0;
@@ -2573,27 +2524,30 @@ namespace Views
                 spfilename = Splist . SelectedItem . ToString ( );
             }
             SpLastSelection = spfilename;
-
-            sptext = FetchStoredProcedureCode ( Splist . SelectedItem . ToString ( ) );
-            //else
-            //    sptext = FetchStoredProcedureCode ( null );
-            //            if ( SplistRightclick == false )
+            //string stringresult = "";
             SplistRightclick = false;
-            if ( sptext == "" )
-            {
-                StdError ( );
-                SetStatusbarText ( $"Failed to read the Stored Procedure {Splist . SelectedItem . ToString ( )}" , 1 );
-                return;
-            }
-            infotext = sptext;
-            RTBox . Document = null;
-            myFlowDocument = new FlowDocument ( );
-            myFlowDocument . Blocks . Clear ( );
-            myFlowDocument = CreateBoldString ( myFlowDocument , sptext , Searchtext );
-            myFlowDocument . Background = FindResource ( "Black3" ) as SolidColorBrush;
-            RTBox . Document = myFlowDocument;
 
-            // open list cos we are opening SP viewer panel
+
+            // load a matching SP and show it in ScrolFlowDocument
+            bool result = LoadShowMatchingSproc ( this , RTBox , spfilename , ref sptext );
+            {
+                //Gengrid . FetchStoredProcedureCode ( spfilename , ref sptext );
+                //if ( sptext == "" )
+                //{
+                //    StdError ( );
+                //    SetStatusbarText ( $"Failed to read the Stored Procedure {Splist . SelectedItem . ToString ( )}" , 1 );
+                //    return;
+                //}
+                //infotext = sptext;
+                //RTBox . Document = null;
+                //myFlowDocument = new FlowDocument ( );
+                //myFlowDocument . Blocks . Clear ( );
+                //myFlowDocument = CreateBoldString ( myFlowDocument , sptext , Searchtext );
+                //myFlowDocument . Background = FindResource ( "Black3" ) as SolidColorBrush;
+                //RTBox . Document = myFlowDocument;
+            }
+
+            // open list cos we are opening SP viewer panel   annnd set splitter   up as needed
             GridLength gl = new GridLength ( );
             gl = ViewerGrid . ColumnDefinitions [ 0 ] . Width;
             if ( gl . Value < 5 )
@@ -2601,16 +2555,6 @@ namespace Views
 
             ViewerGrid . Visibility = Visibility . Visible;
             RTBox . UpdateLayout ( );
-
-            //all correct
-            //ViewerVisible . IsEnabled = false;
-            //GridVisible . IsEnabled = true;
-            //InfoVisible . IsEnabled = true;
-
-            //// Context menu list loading options - all correct  
-            //LoadAllItems . IsEnabled = false;
-            //LoadMatchingItems . IsEnabled = true;
-
             SetStatusbarText ( $"Stored Procedure [ {Splist . SelectedItem . ToString ( ) . ToUpper ( )}] matches Search Term {Searchtext} now shown in Right hand panel of the viewer ]" );
             Mouse . OverrideCursor = Cursors . Arrow;
         }
@@ -2631,33 +2575,6 @@ namespace Views
             e . Handled = true;
         }
 
-        public bool LoadRtDocument ( string spfilename )
-        {
-            string sptext = "";
-            if ( SplistRightclick == false )
-                sptext = FetchStoredProcedureCode ( Splist . SelectedItem . ToString ( ) );
-            else
-                sptext = FetchStoredProcedureCode ( null );
-            SplistRightclick = false;
-            if ( sptext == "" )
-            {
-                StdError ( );
-                SetStatusbarText ( $"Failed to read the Stored Procedure {Splist . SelectedItem . ToString ( )}" , 1 );
-                return false;
-            }
-            infotext = sptext;
-            RTBox . Document = null;
-            myFlowDocument . Blocks . Clear ( );
-            myFlowDocument = CreateBoldString ( myFlowDocument , sptext , Searchtext );
-            myFlowDocument . Background = FindResource ( "Black3" ) as SolidColorBrush;
-            RTBox . Document = myFlowDocument;
-
-            //myFlowDocument = CreateBoldString ( myFlowDocument , sptext , Searchtext );
-            //RTBox . Document = myFlowDocument;
-            //myFlowDocument . Background = FindResource ( "Black3" ) as SolidColorBrush;
-            return true;
-        }
-
         private void Splist_PreviewMouseRightButtonUp ( object sender , MouseButtonEventArgs e )
         {
             SplistRightclick = false;
@@ -2665,138 +2582,168 @@ namespace Views
 
         #endregion SpList handlers
 
-        private void SrchtextKeyDown ( object sender , KeyEventArgs e )
-        {
-            //if ( e . Key == Key . Enter )
-            //    SPTextset_Click ( sender , null );
-            //else if ( e . Key == Key . Escape )
-            //    SPtextbox . Visibility = Visibility . Collapsed;
-        }
-
-        private void ShowAllSPsClick ( object sender , RoutedEventArgs e )
-        {
-            // load full list of SP.s
-            List<string> SpList = new List<string> ( );
-            SpList = CallStoredProcedure ( SpList , "spGetStoredProcs" );
-            Splist . ItemsSource = null;
-            Splist . Items . Clear ( );
-            Splist . ItemsSource = SpList;
-            SpInfo . Text = SpInfo . Text = $"All S.Procs ";
-            SpInfo2 . Text = $"{Splist . Items . Count} available...";
-            InfoHeaderPanel . Text = $"All ({Splist . Items . Count}) Stored Procedures are displayed";
-            CurrentSpList = "ALL";
-
-            //ListCounter . Text = $"{Splist . Items . Count} Files available...";
-            //Splist . Items . SortDescriptions . Add ( new SortDescription ( "" , ListSortDirection . Ascending ) );
-            //PromptLine . Text = $"Listbox in left Column loaded wiith ALL {SpList . Count} user owned Stored Procedures.";
-            Mouse . OverrideCursor = Cursors . Arrow;
-        }
-
-        private void ShowMatchingSPsClick ( object sender , RoutedEventArgs e )
-        {
-            if ( Splist . SelectedItem == null ) return;
-            string currentselection = Splist . SelectedItem . ToString ( );
-            if ( Searchtext != "" )
-            {
-                Mouse . OverrideCursor = Cursors . Wait;
-                List<string> list = LoadMatchingStoredProcs ( Splist , Searchtext );
-                Splist . ItemsSource = null;
-                Splist . ItemsSource = list;
-                SpInfo . Text = $"All  Matching S.P's";
-                SpInfo2 . Text = $"{Splist . Items . Count} match [{Searchtext}]";
-                InfoHeaderPanel . Text = $"All ({Splist . Items . Count}) Stored Procedures matching Search Term [ {Searchtext} ] are displayed";
-                CurrentSpList = "MATCH";
-
-                bool success = false;
-                if ( currentselection != null )
-                {
-                    foreach ( string item in Splist . Items )
-                    {
-                        if ( item == currentselection )
-                        {
-                            success = true;
-                            break;
-                        }
-                    }
-                    string sptext = "";
-                    if ( success )
-                        sptext = FetchStoredProcedureCode ( currentselection );
-                    else
-                    {
-                        sptext = "";
-                        SetStatusbarText ( $"({Splist . Items . Count}) S.P's matching [{Searchtext}] loaded successfully.\nSorry, but the previous S.P is not in \nthe new (filtered) list which is why the viewer is empty" , 1 );
-                        RTBox . Document = null;
-                        myFlowDocument . Blocks . Clear ( );
-                        StdError ( );
-
-                    }
-                }
-                //if ( list . Count > 0 )
-                //    PromptLine . Text = $"Listbox in left Column loaded wiith ALL {list . Count} user owned Stored Procedures matching Search Term [ {Searchtext}]";
-                //else
-                //    PromptLine . Text = $"No user owned Stored Procedures matching Search Term [ {Searchtext} ]can be found ???.";
-                //ListCounter . Text = $"{Splist . Items . Count} Files available...";
-                Mouse . OverrideCursor = Cursors . Arrow;
-            }
-            //else
-            //{
-            //    SPtextbox . Visibility = Visibility . Visible;
-            //}
-        }
-
-        private void RTBox_Loaded ( object sender , RoutedEventArgs e )
-        {
-            this . Width += 1;
-        }
-
         private void CloseApp_Click ( object sender , RoutedEventArgs e )
         {
             Application . Current . Shutdown ( );
         }
 
+        /// <summary>
+        /// A clever method that loads/reloads the list of SP's in the left hand listboxes
+        /// of Genericgrid and SpResultsViewer windows that loads ONLY those SP's that
+        /// contain the current search term.
+        /// 
+        /// It has to do some clever stuff because Genericgrid calls it from a Context menu, so we have to 
+        /// discover who the caller is and GENERECISE it.  See Below how I did that !!!!!!!!
+        /// </summary>
+        /// <param name="sender">Calling window</param>
+        /// <param name="e">Std arguments</param>
         private void LoadMatchingSPs_Click ( object sender , RoutedEventArgs e )
         {
-            string currItem = "";
-            if ( Splist . Items . Count > 0 )
+            // Careful = calls from Context Menu will NOT find a window, so check it here 1st
+            ListBox lbox = null;
+            string callertype = "";
+            Window dgobj = null;
+            dgobj = DapperGenericsLib . Utils . FindVisualParent<Window> ( e . OriginalSource as DependencyObject );
+            if ( dgobj == null )
             {
-                if ( Splist . SelectedItem == null )
-                    currItem = Splist . Items [ 0 ] . ToString ( );
-                else
-                    currItem = Splist . SelectedItem . ToString ( );
+                ContextMenu cmenu = null;
+                cmenu = DapperGenericsLib . Utils . FindVisualParent<ContextMenu> ( e . OriginalSource as DependencyObject );
+                if ( cmenu . GetType ( ) == typeof ( ContextMenu ) )
+                    callertype = "GENGRID";
+                Debug . WriteLine ( "Context Menu is the caller" );
             }
-            else
-                return;
-            if ( Searchtext != "" )
+            if ( dgobj != null )
             {
-                List<string> list = LoadMatchingStoredProcs ( Splist , Searchtext );
-                Splist . ItemsSource = null;
-                Splist . Items . Clear ( );
-                Splist . ItemsSource = list;
-                Splist . SelectedItem = currItem;
-                if ( Splist . SelectedItem == null )
+                if ( dgobj . GetType ( ) == typeof ( Genericgrid ) )
+                    callertype = "GENGRID";
+                else if ( dgobj . GetType ( ) == typeof ( SpResultsViewer ) )
+                    callertype = "RESVIEW";
+            }
+            // Dbl click or context mnu click in SP list, so load only matching SP's
+            string currItem = "";
+            string srchterm = Searchtext;
+            if ( callertype == "GENGRID" || dgobj == null )
+            {
+                lbox = Splist;
+                // must be Generigrid if dgobk == null
+                if ( Splist . Items . Count > 0 )
                 {
-                    RTBox . Document = null;
-                    myFlowDocument . Blocks . Clear ( );
-                    Splist . ScrollIntoView ( Splist . Items [ 0 ] . ToString ( ) );
-                    SetStatusbarText ( $"({Splist . Items . Count}) S.P's matching [{Searchtext}] loaded successfully, but the previous S.P [ {currItem} ] is not in\nthe new (filtered) list which is why the viewer is empty" , 1 );
-                    StdError ( );
+                    if ( Splist . SelectedItem == null )
+                        currItem = Splist . Items [ 0 ] . ToString ( );
+                    else
+                        currItem = Splist . SelectedItem . ToString ( );
                 }
                 else
-                    SetStatusbarText ( $"({Splist . Items . Count}) S.P's matching [{Searchtext}] loaded successfully..." );
+                    return;
+            }
+            else if ( callertype == "RESVIEW" )
+            {
+                lbox = spviewer . ListResults;
 
-                SpInfo . Text = $"All  Matching S.P's";
-                SpInfo2 . Text = $"{Splist . Items . Count} match [{Searchtext}]";
-                InfoHeaderPanel . Text = $"All ({Splist . Items . Count}) Stored Procedures matching Search Term [ {Searchtext} ] are displayed";
+                if ( lbox . Items . Count > 0 )
+                {
+                    if ( lbox . SelectedItem == null )
+                        currItem = lbox . Items [ 0 ] . ToString ( );
+                    else
+                        currItem = lbox . SelectedItem . ToString ( );
+                }
+                else
+                    return;
+            }
+            if ( Searchtext != "" )
+            {
+                string srchtext = Searchtext;
+                // call sql to get SP list and load it into listbox
+                List<string> list = null;
+                if ( callertype == "RESVIEW" )
+                    list = LoadMatchingStoredProcs ( spviewer . ListResults , srchterm );
+                else
+                    list = LoadMatchingStoredProcs ( GenGrid . Splist , srchterm );
+                if ( currItem != null && currItem != "" )
+                    lbox . SelectedItem = currItem;
+
+                // Update the resultsviewer as well (if open)
+                lbox . ItemsSource = null;
+                lbox . Items . Clear ( );
+                lbox . ItemsSource = list;
+                if ( currItem != null && currItem != "" )
+                {
+                    lbox . SelectedItem = currItem;
+                    lbox . ScrollIntoView ( currItem );
+                }
+                if ( callertype == "RESVIEW" )
+                    spviewer . Bannerline . Text = $"Stored Procedures Helper ({list . Count}) SP's Matching  [{srchterm}] shown)";
+                // not  used
+                if ( Resultsviewer != null )
+                {
+                    //    Genericgrid . Resultsviewer . ListResults . ItemsSource = null;
+                    //    Genericgrid . Resultsviewer . ListResults . Items . Clear ( );
+                    //    Genericgrid . Resultsviewer . ListResults . ItemsSource = list;
+                    //    if ( currItem != null && currItem != "" )
+                    //    {
+                    //        Genericgrid . Resultsviewer . ListResults . SelectedItem = currItem;
+                    //        Genericgrid . Resultsviewer . ListResults . ScrollIntoView ( currItem );
+                    //    }
+                    //    Resultsviewer . Bannerline . Text = $"Stored Procedures Helper ({list . Count}) SP's Matching  [{srchterm}] shown)";
+                }
+                if ( lbox . SelectedItem == null )
+                {
+                    // No selection in listbox, so tidy up scroll viewer
+                    if ( callertype == "GENGRID" )
+                    {
+                        RTBox . Document = null;
+                        myFlowDocument . Blocks . Clear ( );
+                        if ( Splist . Items . Count > 0 )
+                        {
+                            lbox . ScrollIntoView ( lbox . Items [ 0 ] . ToString ( ) );
+                            SetStatusbarText ( $"({lbox . Items . Count}) S.P's matching [{Searchtext}] loaded successfully, but the previous S.P [ {currItem} ] is not in\nthe new (filtered) list which is why the viewer is empty" , 1 );
+                            StdError ( );
+                        }
+                        else
+                        {
+                            SetStatusbarText ( $"(The system did not return ANY S.P's matching [{Searchtext}] which is why the List and viewer are empty" , 1 );
+                            StdError ( );
+                        }
+                    }
+                    else if ( callertype == "RESVIEW" )
+                    {
+                        spviewer . TextResult . Document = null;
+                        myFlowDocument . Blocks . Clear ( );
+                        if ( lbox . Items . Count > 0 )
+                        {
+                            lbox . ScrollIntoView ( lbox . Items [ 0 ] . ToString ( ) );
+                            //SetStatusbarText ( $"({lbox . Items . Count}) S.P's matching [{Searchtext}] loaded successfully, but the previous S.P [ {currItem} ] is not in\nthe new (filtered) list which is why the viewer is empty" , 1 );
+                            StdError ( );
+                        }
+                        else
+                        {
+                            SetStatusbarText ( $"(The system did not return ANY S.P's matching [{Searchtext}] which is why the List and viewer are empty" , 1 );
+                            StdError ( );
+                        }
+                        SetStatusbarText ( $"({lbox . Items . Count}) S.P's matching [{Searchtext}] loaded successfully..." );
+                    }
+                }
+
+                // udate cosmetics
+                if ( callertype == "GENGRID" )
+                {
+                    Genericgrid . UsingMatches = true;
+                    SetSpWindowInfoText ( Gengrid , Gengrid , Searchtext );
+                    // update Genericgrid's Scroll viewer panel and headers with SP contents
+                    bool success = LoadShowMatchingSproc ( GenGrid , RTBox , lbox . SelectedItem . ToString ( ) , ref srchterm );
+                }
+                else
+                {
+                    spviewer . UsingMatches = true;
+                    SetSpWindowInfoText ( spviewer , spviewer , Searchtext );
+                    // update Genericgrid's Scroll viewer panel and headers with SP contents
+                    bool success = LoadShowMatchingSproc ( spviewer , spviewer . TextResult , lbox . SelectedItem . ToString ( ) , ref srchterm );
+                }
                 CurrentSpList = "MATCH";
             }
             else
                 SpStringsSelection . Visibility = Visibility . Visible;
 
-            // Context menu options - all correct  
-            //LoadAllItems . IsEnabled = true;
-            //LoadMatchingItems . IsEnabled = false;
-
-            // Force list to show()
             GridLength gl = new GridLength ( );
             gl = ViewerGrid . ColumnDefinitions [ 0 ] . Width;
             if ( gl . Value < 5 )
@@ -2822,7 +2769,7 @@ namespace Views
             Splist . SelectedItem = currItem;
             Splist . ScrollIntoView ( currItem );
             Mouse . OverrideCursor = Cursors . Arrow;
-            SetStatusbarText ( $"All S.P's ({Splist . Items . Count}) loaded successfully..." );
+            SetStatusbarText ( $"All ({Splist . Items . Count}) S.P's loaded successfully..." );
             SpInfo . Text = SpInfo . Text = $"All S.Procs ";
             SpInfo2 . Text = $"{Splist . Items . Count} available...";
             InfoHeaderPanel . Text = $"All ({Splist . Items . Count}) Stored Procedures are listed";
@@ -2839,39 +2786,6 @@ namespace Views
                 ViewerGrid . ColumnDefinitions [ 0 ] . Width = new GridLength ( 200 , GridUnitType . Pixel );
         }
 
-
-        private void ReloadCurrentSP ( object sender , RoutedEventArgs e )
-        {
-            // all working, but no longer needed 23/10/22
-            //if ( Splist . SelectedItem == null )
-            //{
-            //    Splist . SelectedIndex = 0;
-            //}
-            // string sptext = FetchStoredProcedureCode ( Splist . SelectedItem . ToString ( ) );
-            //infotext = sptext;
-            //myFlowDocument = CreateBoldString ( myFlowDocument , sptext , Searchtext );
-            //myFlowDocument . Background = FindResource ( "Black3" ) as SolidColorBrush;
-            //RTBox . Document = myFlowDocument;
-            //RTBox . UpdateLayout ( );
-            //if ( CurrentSpList == "ALL" )
-            //    LoadMatchingItems . IsEnabled = false;
-            //GridVisible . IsEnabled = true;
-            //// open list cos we are opening SP viewer panel
-            //GridLength gl = new GridLength ( );
-            //gl = ViewerGrid . ColumnDefinitions [ 0 ] . Width;
-            //if ( gl . Value < 5 )
-            //    ViewerGrid . ColumnDefinitions [ 0 ] . Width = new GridLength ( 200 , GridUnitType . Pixel );
-            //Currentpanel = "DATA";
-            //if ( Splist . SelectedItem != null )
-            //    Splist . SelectedIndex = 0;
-            ////all correct
-            //LoadAllItems . IsEnabled = false;
-            //LoadMatchingItems . IsEnabled = true;
-            //InfoVisible . IsEnabled = true;
-
-            //RTBox . Visibility = Visibility . Visible;
-            //RTBox . Document . BringIntoView ( );
-        }
         private void Fontsizeup_Click ( object sender , RoutedEventArgs e )
         {
             para1 . FontSize += 1;
@@ -2946,7 +2860,6 @@ namespace Views
             }
         }
 
-
         private void ColSelect_DragDialog_Moving ( object sender , MouseEventArgs e )
         {
             Type type = e . OriginalSource . GetType ( );
@@ -3008,24 +2921,6 @@ namespace Views
             //}
         }
 
-        private void Search1__DragDialog_LButtonDn ( object sender , MouseButtonEventArgs e )
-        {
-            ActiveDragControl = SpStringsSelection;
-            DragDialog_LButtonDn ( sender , e );
-        }
-
-        private void Search1_Filtering_DragDialog_Ending ( object sender , MouseButtonEventArgs e )
-        {
-            ActiveDragControl = SpStringsSelection;
-            DragDialog_Ending ( sender , e );
-        }
-
-        private void Search1_Filtering_DragDialog_Moving ( object sender , MouseEventArgs e )
-        {
-            ActiveDragControl = SpStringsSelection;
-            DragDialog_Moving ( sender , e );
-        }
-
         private void Search2_DragDialog_LButtonDn ( object sender , MouseButtonEventArgs e )
         {
             ActiveDragControl = SpStringsSelector;
@@ -3059,17 +2954,6 @@ namespace Views
             CurrentSpList = "MATCH";
         }
 
-        private void Search1_BlockFiltering_Moving ( object sender , MouseButtonEventArgs e )
-        {
-            e . Handled = true;
-            selectedSp . Focus ( );
-        }
-
-        private void Search1_BlockFiltering_Moving ( object sender , MouseEventArgs e )
-        {
-            e . Handled = true;
-            selectedSp . Focus ( );
-        }
 
         private void selectedSp_TextChanged ( object sender , TextChangedEventArgs e )
         {
@@ -3085,29 +2969,6 @@ namespace Views
         #endregion ActiiveDrag helpers
         //--------------------//
 
-        private void TestLinq ( )
-        {
-            string sentence = "the quick brown fox jumps over the lazy dog";
-            // Split the string into individual words to create a collection.  
-            string [ ] words = sentence . Split ( ' ' );
-
-            List<GenericClass> list = GridData . Where ( row => Convert . ToInt16 ( row . field1 ) < 25 ) . ToList ( );
-            foreach ( GenericClass item in list )
-                Debug . WriteLine ( $"{item . field1} = {item . field3}" );
-
-            //    redisClient . SetAdd<string> ( "Qualification:" + setName , list . Select ( x => x . ProductID ) . ToString ( ) );
-            /////          }
-            //list = from GridData where  field1 != "25"select
-            // Using query expression syntax.  
-            Debug . WriteLine ( $"\n" );
-            // WORKS
-            IEnumerable<GenericClass> data = from x in GridData
-                                             where Convert . ToInt16 ( x . field1 ) < 10
-                                             select x;
-            foreach ( GenericClass item in data )
-                Debug . WriteLine ( $"{item . field1} = {item . field3}" );
-            return;
-        }
         public void SetStatusbarText ( string text , int isError = 0 )
         {
             Thickness th = new Thickness ( );
@@ -3135,38 +2996,14 @@ namespace Views
                 statusbar . Background = FindResource ( "White7" ) as SolidColorBrush;
         }
 
-        public static ObservableCollection<GenericClass> LoadTableGeneric (
-              string SqlCommand , ref ObservableCollection<GenericClass> GenCollection , out string error )
-        {
-            GenCollection = null;
-            string errormsg = "";
-            error = "";
-            int DbCount = 0;
-
-            //            $"Entering " . dcwinfo();
-            // Set dapperlib scope flag to convert datetime to date string only for displqay usage inj datagrids etc.
-            // ConvertDateTimeToNvarchar = true;
-
-            GenCollection = CreateGenericCollection (
-            SqlCommand ,
-            "" ,
-            "" ,
-            "" ,
-             ref errormsg ,
-             CurrentTableDomain );
-
-            //            $"Exiting " . dcwinfo();
-            error = errormsg;
-            return GenCollection;
-        }
         public static ObservableCollection<GenericClass> CreateGenericCollection (
-              //ref ObservableCollection<DapperGenLib.GenericClass> collection,
-              string SqlCommand ,
-              string Arguments ,
-              string WhereClause ,
-              string OrderByClause ,
-              ref string errormsg ,
-              string domain = "IAN1" )
+            //ref ObservableCollection<DapperGenLib.GenericClass> collection,
+            string SqlCommand ,
+            string Arguments ,
+            string WhereClause ,
+            string OrderByClause ,
+            ref string errormsg ,
+            string domain = "IAN1" )
         {
             //====================================
             // Use DAPPER to run a Stored Procedure
@@ -3351,7 +3188,7 @@ namespace Views
                                             }
                                             catch ( Exception ex )
                                             {
-                                                $"Dictionary ERROR : {ex . Message}" . dcwerror ( );
+                                                $"Dictionary ERROR : {ex . Message}" . cwerror ( );
                                                 result = ex . Message;
                                             }
                                         }
@@ -3434,7 +3271,7 @@ namespace Views
                                     {
                                         result = $"SQLERROR : {ex . Message}";
                                         errormsg = result;
-                                        result . dcwerror ( );
+                                        result . cwerror ( );
                                     }
                                     dict . Clear ( );
                                     outdict . Clear ( );
@@ -3443,7 +3280,7 @@ namespace Views
                                 //}
                                 //catch ( Exception ex )
                                 //{
-                                //    $"OUTER DICT/PROCEDURE ERROR : {ex . Message}" . dcwerror ( );
+                                //    $"OUTER DICT/PROCEDURE ERROR : {ex . Message}" . cwerror ( );
                                 //    result = ex . Message;
                                 //    errormsg = result;
                                 //}
@@ -3500,19 +3337,19 @@ namespace Views
                                                 }
                                                 catch ( Exception ex )
                                                 {
-                                                    $"Dictionary ERROR : {ex . Message}" . dcwerror ( );
+                                                    $"Dictionary ERROR : {ex . Message}" . cwerror ( );
                                                     result = ex . Message;
                                                 }
                                             }
                                             IsSuccess = true;
                                             string s = buffer . Substring ( 0 , buffer . Length - 1 );
-                                            $"buffer = {s}" . DCW ( );
+                                            $"buffer = {s}" . cwerror ( );
                                             buffer = s;
                                         }
                                         catch ( Exception ex )
                                         {
-                                            $"SQLERROR : {ex . Message}" . dcwerror ( );
-                                            $"Exiting with null" . dcwwarn ( );
+                                            $"SQLERROR : {ex . Message}" . cwerror ( );
+                                            $"Exiting with null" . cwwarn ( );
                                             return null;
                                         }
                                         collection . Add ( gc );
@@ -3527,7 +3364,7 @@ namespace Views
                                     {
                                         result = $"SQL PARSE ERROR - [{ex . Message}]";
                                         errormsg = $"{result}";
-                                        $"Exiting with null" . dcwwarn ( );
+                                        $"Exiting with null" . cwwarn ( );
                                         return null;
                                     }
                                     else
@@ -3537,7 +3374,7 @@ namespace Views
                                         {
                                             result = $"ERROR : [{SqlCommand}] returned ZERO records... ";
                                             errormsg = $"DYNAMIC:0";
-                                            $"Exiting with null" . dcwwarn ( );
+                                            $"Exiting with null" . cwwarn ( );
                                             return null;
                                         }
                                         else
@@ -3545,7 +3382,7 @@ namespace Views
                                             result = ex . Message;
                                             errormsg = $"UNKNOWN :{ex . Message}";
                                         }
-                                        $"Exiting with null" . dcwwarn ( );
+                                        $"Exiting with null" . cwwarn ( );
                                         return null;
                                     }
                                 }
@@ -3557,29 +3394,28 @@ namespace Views
                             }
                             else
                             {
-                                $"Exiting with null" . dcwwarn ( );
+                                $"Exiting with null" . cwwarn ( );
                             }
                         }
                     }
                     catch ( Exception ex )
                     {
                         Debug . WriteLine ( $"STORED PROCEDURE ERROR : {ex . Message}" );
-                        $"STORED PROCEDURE ERROR : {ex . Message}" . dcwerror ( );
+                        $"STORED PROCEDURE ERROR : {ex . Message}" . cwerror ( );
                         result = ex . Message;
                         errormsg = $"SQLERROR : {result}";
                     }
                 }
                 catch ( Exception ex )
                 {
-                    $"Sql Error, {ex . Message}, {ex . Data}" . dcwerror ( );
+                    $"Sql Error, {ex . Message}, {ex . Data}" . cwerror ( );
                     result = ex . Message;
-                    $"STORED PROCEDURE ERROR : {ex . Message}" . dcwerror ( );
+                    $"STORED PROCEDURE ERROR : {ex . Message}" . cwerror ( );
                 }
             } // end using {} - MUST get here  to close connection correctly
-            $"Exiting with null" . dcwwarn ( );
+            $"Exiting with null" . cwwarn ( );
             return null;
         }
-
 
         private void LoadAllDatabases ( object sender , RoutedEventArgs e )
         {
@@ -3641,9 +3477,9 @@ namespace Views
         }
         private void hGridSplitter_MouseEnter ( object sender , MouseEventArgs e )
         {
+            Mouse . OverrideCursor = Cursors . SizeNS;
             if ( this . Cursor != Cursors . Wait )
-                Mouse . OverrideCursor = Cursors . SizeNS;
-            mbs = e . LeftButton;
+                mbs = e . LeftButton;
             if ( mbs == MouseButtonState . Pressed )
             {
                 hSplitterlastpos = 0;
@@ -3667,8 +3503,8 @@ namespace Views
         }
         private void hGridSplitter_MouseLeave ( object sender , MouseEventArgs e )
         {
-            if ( this . Cursor != Cursors . Wait )
-                Mouse . OverrideCursor = Cursors . Arrow;
+            //            if ( this . Cursor != Cursors . Wait )
+            Mouse . OverrideCursor = Cursors . Arrow;
             mbs = e . LeftButton;
             if ( mbs == MouseButtonState . Pressed )
             {
@@ -3766,31 +3602,9 @@ namespace Views
         }
 
         //-------------------------//
-        #endregion resizing (all types)
+        #endregion Splitter cursor handlers
         //-------------------------//
 
-        private void Magnifier_PreviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
-        {
-            //if ( InfoGrid . Visibility == Visibility . Visible )
-            //{
-            //    // Hide complete info viewer container
-            //    InfoGrid . Visibility = Visibility . Visible;
-            //    RTBox . Visibility = Visibility . Visible;
-            //    // Show main datagrid
-            //    InfoGrid . Visibility = Visibility . Collapsed;
-            //    maingrid . RowDefinitions [ 0 ] . Height = new GridLength ( InfoGrid . ActualHeight + 10 , GridUnitType . Pixel );
-            //}
-            //else
-            //{
-            //    // Show info viewer panel
-            //    DisplayInformationViewer ( reload: false );
-            //    InfoGrid . Visibility = Visibility . Visible;
-            //    //GridLength gl = new GridLength ( );
-            //    //gl = ViewerGrid . ColumnDefinitions [ 0 ] . Width;
-            //    //if ( gl . Value <= 4 )
-            //    maingrid . RowDefinitions [ 0 ] . Height = new GridLength ( InfoGrid . Height , GridUnitType . Pixel );
-            //}
-        }
         public void StdError ( )
         {
             DapperGenericsLib . Utils . DoErrorBeep ( 400 , 100 , 1 );
@@ -3803,7 +3617,6 @@ namespace Views
             DapperGenericsLib . Utils . DoErrorBeep ( 470 , 150 , 1 );
             DapperGenericsLib . Utils . DoErrorBeep ( 410 , 200 , 1 );
         }
-
         public static void ReplaceDataGridFldNames ( ObservableCollection<GenericClass> datagrid , ref DataGrid Grid1 , ref List<DapperGenericsLib . DataGridLayout> dglayoutlist , int colcount )
         {
             List<string> list = new List<string> ( );
@@ -3848,7 +3661,6 @@ namespace Views
             // TODO not filled correctly
             return;
         }
-
         private void RTBox_PreviewKeyDown ( object sender , KeyEventArgs e )
         {
             Type type = sender . GetType ( );
@@ -3933,6 +3745,7 @@ namespace Views
             //var height = sb .m;
 
         }
+
         /// <summary>
         /// Collapses 1 or more Context menu entries and returns a ContextMenu pointer
         /// </summary>
@@ -3996,12 +3809,16 @@ namespace Views
                 {
                     //PopupMenu.cm15
                     mi = item;
-                    if ( Splist . SelectedItem != null && Splist . SelectedItem != "" )
-                        SPExecuteText = $"Execute the S.P [ {Splist . SelectedItem . ToString ( )} ]";
+                    if ( Splist . SelectedItem != null && Splist . SelectedItem . ToString ( ) != "" )
+                        SPExecuteText = $"Show the S.P Execute Window with [ {Splist . SelectedItem . ToString ( )} ]";
                     else
-                        SPExecuteText = $"No Stored Procedure selected for execution ?";
+                    {
+                        Splist . SelectedIndex = 0;
+                        SPExecuteText = $"Show the S.P Execute Window with [ {Splist . SelectedItem . ToString ( )} ]";
+                    }
                     mi . Header = SPExecuteText;
                     mi . Height = 25;
+                    mi . Tag = Splist . SelectedItem . ToString ( );
                     break;
                 }
             }
@@ -4080,25 +3897,6 @@ namespace Views
         {
             LoadRTbox ( );
             RTBox . Refresh ( );
-        }
-
-        private void GenGridCtrl_PreviewMouseRightButtonDown ( object sender , MouseButtonEventArgs e )
-        {
-            ContextMenu cm = FindResource ( "GenGridContextMenu" ) as ContextMenu;
-            // Hide relevant entries
-            List<string> hideitems = new List<string> ( );
-            hideitems . Add ( "gm1" );
-            hideitems . Add ( "gm2" );
-            hideitems . Add ( "gm3" );
-            hideitems . Add ( "gm4" );
-
-            ContextMenu menu = RemoveMenuItems ( "GenGridContextMenu" , "" , hideitems );
-            //forces menu to show immeduiately to right and below mouse pointer
-            menu . PlacementTarget = sender as FrameworkElement;
-            Point pt = e . GetPosition ( sender as UIElement );
-            menu . PlacementRectangle = new Rect ( pt . X , pt . Y , 350 , 300 );
-            menu . IsOpen = true;
-            e . Handled = true;
         }
 
         private void ContextMenu_Closed ( object sender , RoutedEventArgs e )
@@ -4207,7 +4005,7 @@ namespace Views
             catch ( Exception ex )
             {
                 Debug . WriteLine ( $"Error {ex . Message}, {ex . Data}" );
-                $" {SqlInsertCommand}" . dcwerror ( );
+                $" {SqlInsertCommand}" . cwerror ( );
                 StdError ( );
                 ////sqlCon . close ( );
                 gresult = -3;
@@ -4381,124 +4179,6 @@ namespace Views
             SpStringsSelection . Visibility = Visibility . Collapsed;
         }
 
-        private void ExecuteSP_Click ( object sender , RoutedEventArgs e )
-        {
-            // user selected to Execute the selected Sp, so show the Sp Execution popup dialog 
-            // to let user enter arguments etc
-            if ( Splist . SelectedItem != null )
-            {
-                SpName . Text = Splist . SelectedItem . ToString ( );
-                SpResultsViewer spviewer = new SpResultsViewer ( this , SpName . Text , Searchtext );
-                Mouse . OverrideCursor = Cursors . Arrow;
-                spviewer . ListResults . ItemsSource = null;
-                // Load Sp list
-                foreach ( var item in Splist . Items )
-                {
-                    spviewer . ListResults . Items . Add ( item );
-                }
-                spviewer . ListResults . SelectedItem = Splist . SelectedItem;
-                spviewer . ListResults . ScrollIntoView ( spviewer . ListResults . SelectedItem );
-                //Load method selection listbox
-                spviewer . createoptypes ( );
-                spviewer . optype . UpdateLayout ( );
-#if USESHOWDIALOG
-                spviewer . ShowDialog  ();
-#else
-                spviewer . Show ( );
-#endif
-                return;
-
-                SPExecPrompt = $"Enter whatever parameters (if any) are required for the S.P (Header block showing arguments required below) and then click 'Execute'";
-                Execsp . Visibility = Visibility . Visible;
-                Headtext . Text = $"Active S.P is : {Splist . SelectedItem . ToString ( )}";
-                string str = FetchStoredProcedureCode ( Splist . SelectedItem . ToString ( ) , true );
-                SPText . Items . Add ( str );
-                selectSp . Focus ( );
-                if ( SpSearchTerm != "" )
-                    selectSp . Text = SpSearchTerm;
-                else
-                {
-                    selectSp . Text = "Enter Arguments here ...";
-                    selectSp . SelectionLength = selectSp . Text . Length;
-                }
-            }
-            else
-                MessageBox . Show ( "Once you have a Stored Procedure selected, this menu option \nwill allow you to access the Execution process !!" , "Stored Procedure support" );
-        }
-
-        private void Execsp_Click ( object sender , RoutedEventArgs e )
-        {
-            // We are trying to load the SP viewer ( SpResultsViewer ) so need a list of all currently listed SP's
-            // plus the content oof the current SP
-            string spname = "spGetFullScript";  // SpName . Text;
-            string [ ] args = new string [ 1 ];
-            //Store search term for use  by later dialogs
-            spname = "spGetAllMatchingsprocs";
-            //= selectSp . Text . ToUpper ( );
-            args [ 0 ] = $"'{SpSearchTerm}'";
-
-            spviewer = new SpResultsViewer ( this , spname , SpSearchTerm );
-            e . Handled = true;
-            spviewer . Show ( );
-            // load listbox is secondary viewer
-            //            spviewer . LoadSpList ( );
-            //spviewer . ListResults . Items = Splist . Items;
-            Execsp . Visibility = Visibility . Collapsed;
-            Execsp . UpdateLayout ( );
-            Debug . WriteLine ( $"Executing S.P {spname}" );
-            List<string> contents = DatagridControl . ProcessUniversalQueryStoredProcedure ( spname , args , CurrentTableDomain , out string err );
-
-            List<string> processResults = new List<string> ( );
-            //return;
-            if ( contents . Count > 0 )
-            {
-                string line = "";
-                string sptext = "";
-
-                ///how to load  the contents of any sproc - works well
-                //foreach ( string item in contents )
-                //{
-                //    line = item . ToString ( );
-                //    sptext = FetchStoredProcedureCode ( line );
-                //    processResults . Add ( sptext );
-                //}
-                //List<string> reslt = processResults . Where (
-                //matchtext => sptext . ToUpper ( ) . Contains ( selectSp . Text . ToUpper ( ) )
-                //) . ToList ( );
-
-                // Store search term in our dialog for easier access
-                SpSearchTerm = selectSp . Text . ToUpper ( );
-
-                spviewer . ListResults . ItemsSource = null;
-                spviewer . ListResults . Items . Clear ( );
-                int selindex = 0, indx = 0;
-                if ( contents . Count > 0 )
-                {
-                    ListBox lb = spviewer . ListResults;
-                    // load all sprocs into lstbox in our full viewer window
-                    foreach ( string item in contents )
-                    {
-                        lb . Items . Add ( item );
-                        if ( item . ToUpper ( ) == CurrentSpSelection?.ToUpper ( ) )
-                            selindex = indx;
-                        indx++;
-                    }
-                    lb . SelectedIndex = selindex;
-                    lb . Refresh ( );
-                    lb . ScrollIntoView ( lb . SelectedItem );
-                    FlowDocument fd = new FlowDocument ( );
-                    fd . Blocks . Clear ( );
-                    // Get content of 1st sproc (selected above)
-                    sptext = FetchStoredProcedureCode ( lb . SelectedItem . ToString ( ) );
-                    fd = CreateBoldString ( fd , sptext , SpSearchTerm . ToUpper ( ) );
-                    fd . Background = FindResource ( "Black3" ) as SolidColorBrush;
-                    spviewer . TextResult . Document = fd;
-                    //spviewer . SPArguments . Text = SpSearchTerm . ToUpper ( );
-                }
-                e . Handled = true;
-                //ReturnProcedureHeader ( );
-            }
-        }
 
         private void ExecDragDialog_LButtonDn ( object sender , MouseButtonEventArgs e )
         {
@@ -4632,7 +4312,6 @@ namespace Views
             e . Handled = false;
         }
 
-
         private void selectSp_MouseLeave ( object sender , MouseEventArgs e )
         {
             if ( selectSp . Text == "" )
@@ -4695,10 +4374,7 @@ namespace Views
         public List<string> ConvertTableNames ( List<string> TablesList )
         {
             List<string> newNamesList = new List<string> ( );
-            //foreach ( var item in TablesList )
-            //{
             return newNamesList = ValidTableNames . ConvertTableName ( TablesList );
-            //}
         }
         public static void GetValidDomain ( )
         {
@@ -4710,25 +4386,13 @@ namespace Views
 
         private void Splist_PreviewMouseDoubleClick ( object sender , MouseButtonEventArgs e )
         {
+            // user double clicked in Splist to load Results viewer
             ExecuteSP_Click ( sender , null );
+        }
 
-        }
-        private string ReturnProcedureHeader ( )
-        {
-            string output = "";
-            int recordcount = 0;
-            string err = "";
-            string [ ] args = new string [ 0 ];
-            string [ ] outputs = new string [ 0 ];
-            List<string> list = new List<string> ( );
-            string arguments = "";
-            DatagridControl . CreateGenericCollection ( ref GridData , $"Select * from {Splist . SelectedItem}" , "","","","",ref list , ref err );
-            //            dgControl . GetDataFromStoredProcedure ( $"Select * from {Splist. SelectedItem}", args, CurrentTableDomain,out err, out outputs, out recordcount);
-            return output;
-        }
-        
-        //#region TREEVIEW code
-        
+
+        #region TREEVIEW code
+
         //private void LoadSpView ( object sender , RoutedEventArgs e )
         //{
         //    // Load Stored procedures Tree viewer
@@ -4904,170 +4568,1379 @@ namespace Views
         //private void Image_PreviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
         //{
         //}
-        //#endregion Treeview  handlers
 
         //private void DbTablesTree_SelectedItemChanged ( object sender , RoutedPropertyChangedEventArgs<object> e )
         //{
 
         //}
 
-        private void TextBlock_PreviewMouseLeftButtonUp ( object sender , MouseButtonEventArgs e )
+        //        private void DbProcsTree_Collapsed ( object sender , RoutedEventArgs e )
+        //        {
+        //#pragma warning disable CS0219 // The variable 'x' is assigned but its value is never used
+        //            int x = 0;
+        //#pragma warning restore CS0219 // The variable 'x' is assigned but its value is never used
+        //        }
+
+        //        private void TextBlock_PreviewMouseRightButtonUp ( object sender , MouseButtonEventArgs e )
+        //        {
+        //            // right click for S.P script
+        //            TextBlock tb = sender as TextBlock;
+        //            string selection = tb . Text;
+        //#pragma warning disable CS0219 // The variable 'index' is assigned but its value is never used
+        //            int index = 0;
+        //#pragma warning restore CS0219 // The variable 'index' is assigned but its value is never used
+        //            foreach ( var item in ProcsCollection )
+        //            {
+        //                if ( item . Procname == selection )
+        //                {
+        //                    item . IsSelected = true;
+        //                    break;
+        //                }
+        //            }
+        //        }
+
+        //        private void DbProcsTree_PreviewMouseRightButtonUp ( object sender , MouseButtonEventArgs e )
+        //        {
+        //            // process right click to show the  full script in a FlowDoc viewer 
+        //            if ( SqlSpCommand != "" && SqlSpCommand != null )
+        //            {
+        //                DataTable dt = new DataTable ( );
+        //                string [ ] args = { "" , "" , "" , "" };
+        //#pragma warning disable CS0219 // The variable 'err' is assigned but its value is never used
+        //                string err = "", errormsg = "";
+        //#pragma warning restore CS0219 // The variable 'err' is assigned but its value is never used
+        //                List<string> list = new List<string> ( );
+        //                ObservableCollection<GenericClass> Generics = new ObservableCollection<GenericClass> ( );
+        //                foreach ( var item in DatabasesCollection )
+        //                {
+        //                    CurrentSPDb = item . Databasename;
+        //                    if ( NewWpfDev.Utils . CheckResetDbConnection ( CurrentSPDb , out string constring ) == false )
+        //                        return;
+
+        //                    List<string> procslist = new List<string> ( );
+        //                    ObservableCollection<BankAccountViewModel> bvmparam = new ObservableCollection<BankAccountViewModel> ( );
+        //                    List<string> genericlist = new List<string> ( );
+        //#pragma warning disable CS0168 // The variable 'ex' is declared but never used
+        //                    try
+        //                    {
+        //                        DapperSupport . CreateGenericCollection (
+        //                            ref Generics ,
+        //                            "spGetSpecificSchema  " ,
+        //                            SqlSpCommand ,
+        //                            "" ,
+        //                            "" ,
+        //                            ref genericlist ,
+        //                            ref errormsg );
+        //                        if ( Generics . Count > 0 )
+        //                        {
+        //                            break;
+        //                        }
+        //                    }
+        //                    catch ( Exception ex )
+        //                    {
+        //                    }
+        //#pragma warning restore CS0168 // The variable 'ex' is declared but never used
+
+        //                }
+        //                if ( Generics . Count == 0 )
+        //                {
+        //                    if ( errormsg != "" )
+        //                        MessageBox . Show ( $"No Argument information is available. \nError message = [{errormsg}]" , $"[{SqlSpCommand}] SP Script Information" , MessageBoxButton . OK , MessageBoxImage . Warning );
+        //                    return;
+        //                }
+        //                string output = "NB: You can select a different S.P & right click it WITHOUT closing this viewer window...\nThe new Script will replace the current contents of the viewer\n\n";
+        //                foreach ( var item in Generics )
+        //                {
+        //                    string store = "";
+        //                    store = item . field1 + ",";
+        //                    output += store;
+        //                }
+        //                // Display the script in whatever chsen container is relevant
+        //                bool resetUse = false;
+        //                if ( UseFlowdoc == false )
+        //                {
+        //                    UseFlowdoc = true;
+        //                    resetUse = true;
+        //                }
+        //                if ( output != "" && UseFlowdoc )
+        //                {
+        //                    string fdinput = $"Procedure Name : {SqlSpCommand . ToUpper ( )}\n\n";
+        //                    fdinput += output;
+        //                    fdinput += $"\n\nPress ESCAPE to close this window...\n";
+        //                    fdl.ShowInfo ( Flowdoc, Filtercanvas , line1: fdinput , clr1: "Black0" , line2: "" , clr2: "Black0" , line3: "" , clr3: "Black0" , header: "" , clr4: "Black0" );
+        //                }
+        //                else
+        //                {
+        //                    Mouse . OverrideCursor = Cursors . Arrow;
+        //                    if ( UseFlowdoc )
+        //                        fdl . ShowInfo ( Flowdoc , Filtercanvas , line1: $"Procedure [{SqlSpCommand . ToUpper ( )}] \ndoes not Support / Require any arguments" , clr1: "Black0" , line2: "" , clr2: "Black0" , line3: "" , clr3: "Black0" , header: "" , clr4: "Black0" );
+        //                }
+        //                if ( resetUse )
+        //                    UseFlowdoc = false;
+        //            }
+        //        }
+
+        //        private void DbProcsTree_SelectedItemChanged ( object sender , RoutedPropertyChangedEventArgs<object> e )
+        //        {
+        //            if ( e . NewValue == null )
+        //                return;
+        //            //var  v = SqlProcedures . IsSelected as Procname;
+        //            var tablename = e . NewValue as Database;
+        //            if ( tablename == null )
+        //            {
+        //                if ( e . NewValue == null )
+        //                    return;
+        //                var tvi = e . NewValue as SqlProcedures;
+        //                SqlSpCommand = tvi . Procname;
+        //                // Noow get  nmme  of the Db we are in 
+        //                var items = DbProcsTree . Items;
+        //                if ( items . CurrentItem != null )
+        //                {
+        //                    var db = items . CurrentItem as Database;
+        //                    CurrentSPDb = db . Databasename;
+        //                }
+        //                else
+        //                {
+        //                    var v = sender as ItemsControl;
+        //                    //foreach ( var item in v . Items )
+        //                    //{
+        //                    //	Debug. WriteLine ( item . ToString ( ) );
+        //                    //}
+        //                    var treeItems = WpfLib1 . Utils . FindVisualParent<TextBlock> ( this );
+        //                    //treeItems . ForEach ( I => i . IsExpanded = false );
+        //                }
+        //            }
+        //            else
+        //            {
+        //                var tvi = e . NewValue as Database;
+        //                CurrentSPDb = tvi . Databasename;
+        //            }
+
+        //        }
+
+        //        private void DbProcsTree_Expanded ( object sender , RoutedEventArgs e )
+        //        {
+
+        //        }
+
+        #endregion  Treeview stuff
+
+        #region Execution Window methods
+        //****************************************************//
+
+        /// <summary>
+        /// Clever method that loads any selected  Stored Procedure into a ScrollViewer
+        /// in Genericgrid and SpResultsViewer widows independently of each other.
+        /// The Document viewer higlights the current Search term in the SP loaded.
+        /// </summary>
+        /// <param name="win">Caller window</param>
+        /// <param name="spfilename">SP to be loaded</param>
+        /// <param name="sptext">Search Text to be highlighted</param>
+        /// <returns></returns>
+        public bool LoadShowMatchingSproc ( Window win , FlowDocumentScrollViewer flowdocsv , string spfilename , ref string sptext )
+        {
+            // Read an SP into memory and display it inFlowdocscrollviewer received
+            // This reads the SP into memory in sptext  and displays it in the SpResultsViewer Scrollviewer
+            this . FetchStoredProcedureCode ( spfilename , ref sptext );
+            SplistRightclick = false;
+            if ( sptext == "" )
+            {
+                StdError ( );
+                SetStatusbarText ( $"Failed to read the Stored Procedure {Splist . SelectedItem . ToString ( )}" , 1 );
+                return false;
+            }
+            else spTextBuffer = sptext;     // store full sp text in window Property
+
+            // This ensures that both widnows are updated independently
+            // depending on which list triggers the reload of the SP.
+            if ( win . Name == "Gengrid" )
+            {
+                /// It is Genericgrid that has triggered thiis data load, so put the SP details into the ScrollDooc
+                infotext = sptext;
+                flowdocsv . Document = null;
+                myFlowDocument = new FlowDocument ( );
+                myFlowDocument . Blocks . Clear ( );
+                myFlowDocument = CreateBoldString ( myFlowDocument , sptext , Searchtext );
+                myFlowDocument . Background = FindResource ( "Black3" ) as SolidColorBrush;
+                flowdocsv . Document = myFlowDocument;
+            }
+            if ( Resultsviewer != null )
+            {
+                // has the Results viewer gotany items in it's listbox ?
+                if ( win . Name == "Spresultsviewer" )
+                {
+                    Resultsviewer . TextResult . Document = null;
+                    FlowDocument myFlowDocument = new FlowDocument ( );
+                    Resultsviewer . TextResult . Document = myFlowDocument;
+                    Resultsviewer . TextResult . Document . Blocks . Clear ( );
+                    Resultsviewer . TextResult . Document = CreateBoldString ( myFlowDocument , sptext , Searchtext );
+                    Resultsviewer . TextResult . Document . Background = FindResource ( "Black3" ) as SolidColorBrush;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Handle cosmetics fr execution window and GenericGrid
+        /// </summary>
+        /// <param name="srchtext"></param>
+        public void SetSpWindowInfoText ( object Sender , object target , string srchtext )
+        {
+            dynamic Caller = null;
+            dynamic Target = null;
+            string currentSelection = "";
+            Type type = Sender . GetType ( );
+            if ( type == typeof ( Genericgrid ) )
+                Caller = Sender as Genericgrid;
+            else if ( type == typeof ( SpResultsViewer ) )
+                Caller = Sender as SpResultsViewer;
+
+            type = target . GetType ( );
+            if ( type == typeof ( Genericgrid ) )
+            {
+                Target = target as Genericgrid;
+                Gengrid = Target as Genericgrid;
+            }
+            else if ( type == typeof ( SpResultsViewer ) )
+            {
+                Target = target as SpResultsViewer;
+                spviewer = Target as SpResultsViewer;
+            }
+            if ( Splist . SelectedItem == null )
+                Splist . SelectedIndex = 0;
+            if ( Splist . SelectedItem . ToString ( ) == "" )
+            {
+                Splist . SelectedIndex = 0;
+                currentSelection = Splist . SelectedItem . ToString ( );
+            }
+            else
+                currentSelection = Splist . SelectedItem . ToString ( );
+
+            // create a default SP search item in case it is empty
+            if ( srchtext == "" )
+                srchtext = "SELECT";
+
+            if ( Target . GetType ( ) == typeof ( Genericgrid ) )
+            {
+                // Handle GenericGrid Window
+                if ( srchtext != "" && Genericgrid . UsingMatches == true )
+                {
+                    // there is a search text, but showing matches
+                    Gengrid . SpInfo . Text = Gengrid . SpInfo2 . Text = $"All ({Gengrid . Splist . Items . Count}) SP's matching [{srchtext}]";
+                    Gengrid . InfoHeaderPanel . Text = $"All ({Gengrid . Splist . Items . Count}) Stored Procedures matching Search Term [ {srchtext} ] are displayed";
+                }
+                else if ( Genericgrid . UsingMatches == false )
+                {
+                    // there is a searchtext, but we are  showing all
+                    Gengrid . SpInfo2 . Text = $"All ({Gengrid . Splist . Items . Count}) available SP's";
+                    Gengrid . InfoHeaderPanel . Text = $"All ({Gengrid . Splist . Items . Count}) Stored Procedures are displayed";
+                }
+            }
+            else if ( Target . GetType ( ) == typeof ( SpResultsViewer ) )
+            {
+                // Handle SpResultsViewer Window
+                if ( srchtext != "" && Resultsviewer . UsingMatches == true )
+                {
+                    /// got searchtext and we are using matches
+                    spviewer . Bannerline . Text = $"Stored Procedures Helper : ({spviewer . ListResults . Items . Count}) SP's matching  [{Searchtext}] is  shown)";
+                    spviewer . ShowingAllSprocs . Content = $"Show All available SP's. ";
+                }
+                else if ( Resultsviewer . UsingMatches == false )
+                {
+                    // there is a search text, but showing all
+                    spviewer . Bannerline . Text = $"Stored Procedures Helper : ALL ({spviewer . ListResults . Items . Count}) available SP's  shown)";
+                    spviewer . ShowingAllSprocs . Content = $"Show Only SP's matching [{Gengrid . Searchtext}]. ";
+                }
+            }
+            //spviewer . Bannerline . Text = $"Stored Procedures Helper ({Gengrid . Splist . Items . Count}) SP's Matching  [{Searchtext}] shown)";
+            //    spviewer . ShowingAllSprocs . Content = $"Show ALL available SP's. ";
+            //}
+            //if ( Genericgrid . Resultsviewer != null )
+            //{
+            //    spviewer . Bannerline . Text = Gengrid . SpInfo2 . Text;
+            //    Gengrid . SpInfo2 . Text = $"{Gengrid . Splist . Items . Count} match [{Searchtext}]";
+            //    Gengrid . InfoHeaderPanel . Text = $"All ({Gengrid . Splist . Items . Count}) Stored Procedures matching Search Term [ {Searchtext} ] are displayed";
+            //    spviewer . Bannerline . Text = $"Stored Procedures Helper ({Gengrid . Splist . Items . Count}) SP's Matching  [{Searchtext}] shown)";
+            //    spviewer . ShowingAllSprocs . Content = $"Show ALL available SP's. ";
+            //}
+            //}
+            //else if ( srchtext != "" && Genericgrid . UsingMatches == false )
+            //{
+            //    if ( Target . GetType ( ) == typeof ( Genericgrid ) )
+            //    {
+            //        Gengrid . SpInfo . Text = $"All  Matching S.P's";
+            //        Gengrid . SpInfo . Text = $"All  S.P's";
+            //        Gengrid . SpInfo2 . Text = $"All ({Gengrid . Splist . Items . Count}) available SP's";
+            //        Gengrid . InfoHeaderPanel . Text = $"All ({Gengrid . Splist . Items . Count}) Stored Procedures are displayed";
+            //    }
+            //    else if ( srchtext == "" && Genericgrid . UsingMatches == false )
+            //    {
+            //        Gengrid . SpInfo . Text = $"All  S.P's";
+            //        Gengrid . SpInfo2 . Text = $"All ({Gengrid . Splist . Items . Count}) available SP's";
+            //        Gengrid . InfoHeaderPanel . Text = $"All ({Gengrid . Splist . Items . Count})available Stored Procedures are displayed";
+            //    }
+        }
+
+        public void RunExecute_Click ( Window win )
+        {
+            // Call method to load/reload SpResultsviewer listbox
+            Execsp_Click ( ( object ) win , null );
+        }
+
+        public static void GetSystemVariables ( object sender , out string currentselection , out string srchtext )
+        {
+            Genericgrid grid = null;
+            SpResultsViewer spviewer = null;
+            srchtext = "";
+            currentselection = "";
+            if ( sender . GetType ( ) == typeof ( Genericgrid ) )
+            {
+                grid = GenGrid;
+                if ( GenGrid . Splist . SelectedItem . ToString ( ) == "" )
+                {
+                    GenGrid . Splist . SelectedIndex = 0;
+                    currentselection = GenGrid . Splist . SelectedItem . ToString ( );
+                }
+                else
+                    currentselection = GenGrid . Splist . SelectedItem . ToString ( );
+
+                // create a default SP search item (Property) in case it is empty
+                if ( srchtext == "" )
+                {
+                    GenGrid . Searchtext = "SELECT";
+                    srchtext = GenGrid . Searchtext;
+                }
+            }
+        }
+
+        private void ExecuteSP_Click ( object sender , RoutedEventArgs e )
+        {
+            // user has elected to show the SpResultsViewer Execute dialog for Sp's via dblclick in listbox,
+            // so show the popup dialog select SP's and enter arguments then try to execute  it.
+            string tagstring = "";
+            SpResultsViewer spviewer = Resultsviewer;
+            Type type = sender . GetType ( );
+            if ( type == typeof ( MenuItem ) )
+            {
+                MenuItem cm = sender as MenuItem;
+                if ( cm . Tag != null )
+                {
+                    tagstring = cm . Tag . ToString ( );
+                }
+            }
+            // std preamble
+            string currentselection = "";
+            string srchtext = Searchtext;
+            GetSystemVariables ( sender , out currentselection , out srchtext );
+            // end of preamble
+
+            Mouse . OverrideCursor = Cursors . Wait;
+            if ( Resultsviewer == null )
+            {
+                // SpResultsViewer NOT open, so open it here 
+                if ( Splist . SelectedItem != null )
+                    SpName . Text = Splist . SelectedItem . ToString ( );
+                else
+                    SpName . Text = "";
+                // make sure our menu tag doesn't give us a different selection item
+                if ( tagstring != "" )
+                    SpName . Text = tagstring;
+
+                if ( tagstring != "" )
+                    currentselection = tagstring;
+                else
+                    currentselection = SpName . Text;
+                // Get a new instance and load the Resultsviewer here 
+                spviewer = new SpResultsViewer ( this , currentselection , srchtext );
+                // set global pointer to SpResultsViewer
+                Resultsviewer = spviewer;
+                spviewer . UsingMatches = false;
+                // // load methods listbox
+                spviewer . createoptypes ( );
+                spviewer . optype . UpdateLayout ( );
+                spviewer . Show ( );
+            }
+            else
+            {
+                if ( Splist . SelectedItem != null )
+                    currentselection = Splist . SelectedItem . ToString ( );
+            }
+            // clear Viewer listbox
+            spviewer . ListResults . ItemsSource = null;
+            spviewer . ListResults . Items . Clear ( );
+            if ( UsingMatches == false && ResultsListLoadType == "ALL" )
+            {
+                // we have a FULL list, so copy them to resultsviewer
+                // Load Sp list from our own list which has All SP's in it
+                foreach ( var item in Splist . Items )
+                {
+                    spviewer . ListResults . Items . Add ( item );
+                }
+                for ( int x = 0 ; x < spviewer . ListResults . Items . Count ; x++ )
+                {
+                    string str = spviewer . ListResults . Items [ x ] . ToString ( );
+                    if ( currentselection != "" )
+                    {
+                        if ( str == currentselection )
+                        {
+                            spviewer . ListResults . SelectedIndex = x;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        if ( str == Splist . SelectedItem . ToString ( ) )
+                        {
+                            spviewer . ListResults . SelectedIndex = x;
+                            break;
+                        }
+                    }
+                }
+                if ( spviewer . ListResults . SelectedItem != null )
+                    spviewer . ListResults . ScrollIntoView ( spviewer . ListResults . SelectedItem );
+                spviewer . ListResults . Refresh ( );
+            }
+            else if ( UsingMatches == true && ResultsListLoadType == "MATCH" )
+            {
+                // we need to load matching SP's only
+                // Load Sp list from our own list which has matching SP's in it
+                //    // our list is matches only, so copy it
+                foreach ( var item in Splist . Items )
+                {
+                    spviewer . ListResults . Items . Add ( item );
+                }
+                for ( int x = 0 ; x < spviewer . ListResults . Items . Count ; x++ )
+                {
+                    string str = spviewer . ListResults . Items [ x ] . ToString ( );
+                    if ( str == spviewer . ListResults . Items [ x ] . ToString ( ) )
+                    {
+                        spviewer . ListResults . SelectedIndex = x;
+                        break;
+                    }
+                }
+                if ( spviewer . ListResults . SelectedItem != null )
+                    spviewer . ListResults . ScrollIntoView ( spviewer . ListResults . SelectedItem );
+            }
+            else if ( UsingMatches == false && ResultsListLoadType == "MATCH" )
+            {
+                // we need to load matching SP's only
+                // Load Sp list fromSql
+                //    // our list is all sp's, so cannot copy it
+                string [ ] args = new string [ 1 ];
+                args [ 0 ] = Searchtext;
+                List<string> list = DatagridControl . ProcessUniversalQueryStoredProcedure ( "spGetAllSprocsMatchingsearchterm" , args , CurrentTableDomain , out string err );
+                foreach ( var item in list )
+                {
+                    spviewer . ListResults . Items . Add ( item );
+                }
+                for ( int y = 0 ; y < spviewer . ListResults . Items . Count ; y++ )
+                {
+                    if ( spviewer . ListResults . Items [ y ] . ToString ( ) == currentselection )
+                    {
+                        spviewer . ListResults . SelectedIndex = y;
+                        break;
+                    }
+                }
+                if ( spviewer . ListResults . SelectedItem != null )
+                    spviewer . ListResults . ScrollIntoView ( spviewer . ListResults . SelectedItem );
+                // load selected Sp into Scrollviewer
+                bool result = LoadShowMatchingSproc ( this , spviewer . TextResult , spviewer . ListResults . SelectedItem . ToString ( ) , ref srchtext );
+                // set glboal so cosmetics  work correctly
+                Resultsviewer . UsingMatches = true;
+            }
+            else if ( UsingMatches == false )
+            {
+                // load matching SP's into ResultsViewer
+                //string [ ] args = new string [ 1 ];
+                //args [ 0 ] = Searchtext;
+                List<string> list = DatagridControl . ProcessUniversalQueryStoredProcedure ( "spGetStoredProcs" , null , CurrentTableDomain , out string err );
+                foreach ( var item in list )
+                {
+                    spviewer . ListResults . Items . Add ( item );
+                }
+                spviewer . ListResults . SelectedIndex = 0;
+                for ( int y = 0 ; y < spviewer . ListResults . Items . Count ; y++ )
+                {
+                    if ( spviewer . ListResults . Items [ y ] . ToString ( ) == currentselection )
+                    {
+                        spviewer . ListResults . SelectedIndex = y;
+                        break;
+                    }
+                }
+                if ( spviewer . ListResults . SelectedItem != null )
+                    spviewer . ListResults . ScrollIntoView ( spviewer . ListResults . SelectedItem );
+                bool result = LoadShowMatchingSproc ( this , spviewer . TextResult , spviewer . ListResults . SelectedItem . ToString ( ) , ref srchtext );
+            }
+            else
+            {
+                // gotta reload from disk, cos we only have matching SP's in our list
+                //string [ ] args = new string [ 1 ];
+                //args [ 0] = 
+                List<string> list = DatagridControl . ProcessUniversalQueryStoredProcedure ( "spGetStoredProcs" , null , CurrentTableDomain , out string err );
+                foreach ( var item in list )
+                {
+                    spviewer . ListResults . Items . Add ( item );
+                }
+                for ( int y = 0 ; y < spviewer . ListResults . Items . Count ; y++ )
+                {
+                    if ( spviewer . ListResults . Items [ y ] . ToString ( ) == currentselection )
+                    {
+                        spviewer . ListResults . SelectedIndex = y;
+                        break;
+                    }
+                }
+                spviewer . ListResults . Refresh ( );
+                spviewer . ListResults . SelectedItem = Splist . SelectedItem;
+                spviewer . ListResults . ScrollIntoView ( spviewer . ListResults . SelectedItem );
+                //Load method selection listbox
+                spviewer . createoptypes ( );
+                spviewer . optype . UpdateLayout ( );
+                /// load and show data in Scrollviewer
+                bool result = LoadShowMatchingSproc ( this , spviewer . TextResult , spviewer . ListResults . SelectedItem . ToString ( ) , ref srchtext );
+            }
+            // resultsviewer is definitely opened, so just reload it with ALL SP's ?
+            // toggle its status to Show ALL SP's
+            if ( ResultsListLoadType == "MATCH" )
+            {
+                spviewer . UsingMatches = true;
+                spviewer . ShowingAllSPs = false;
+            }
+            else
+            {
+                spviewer . UsingMatches = false;
+                spviewer . ShowingAllSPs = true;
+            }
+            if ( spviewer . ListResults . SelectedIndex == -1 )
+                spviewer . ListResults . SelectedIndex = 0;
+            SetSpWindowInfoText ( this , spviewer , Searchtext );
+            ////call stub to load  Click event in Resultsviewer
+            //spviewer . LoadAllSps ( this , Splist . SelectedIndex ); ;
+            Mouse . OverrideCursor = Cursors . Arrow;
+        }
+
+        /// <summary>
+        /// Open Execution Viewer
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        //private void ExecuteSP_Click ( object sender , RoutedEventArgs e )
+        //{
+        //    // user has elected to show the SpResultsViewer Execute dialog for Sp's via dblclick in listbox,
+        //    // so show the popup dialog select SP's and enter arguments then try to execute  it.
+        //    SpResultsViewer spviewer = Resultsviewer;
+        //    string currentselection = "";
+        //    Mouse . OverrideCursor = Cursors . Wait;
+        //    if ( Resultsviewer == null )
+        //    {
+        //        // NOT open
+        //        if ( Splist . SelectedItem != null )
+        //            SpName . Text = Splist . SelectedItem . ToString ( );
+        //        else
+        //            SpName . Text = "";
+        //        currentselection = SpName . Text;
+        //        // Get a new instance and load the Resultsviewer here 
+        //        spviewer = new SpResultsViewer ( this , SpName . Text , Searchtext );
+        //        // set global pointer
+        //        Resultsviewer = spviewer;
+        //        spviewer . UsingMatches = false;
+        //        // // load methods listbox
+        //        spviewer.createoptypes ( );
+        //        spviewer . optype . UpdateLayout ( );
+        //        spviewer . Show ( );
+        //    }
+        //    else
+        //    {
+        //        if ( Splist . SelectedItem != null )
+        //            currentselection = Splist . SelectedItem . ToString ( );
+        //    }
+        //    // clear Viewer listbox
+        //    spviewer . ListResults . ItemsSource = null;
+        //    spviewer . ListResults . Items . Clear ( );
+        //    if ( UsingMatches == false )
+        //    {
+        //        // we have a FULL list, so copy them to resultsviewer
+        //        // Load Sp list from our own list which has All SP's in it
+        //        foreach ( var item in Splist . Items )
+        //        {
+        //            spviewer . ListResults . Items . Add ( item );
+        //        }
+        //        for( int x= 0 ; x < spviewer . ListResults .Items.Count ; x++ )
+        //        {
+        //            string str = spviewer . ListResults.Items [ x ] . ToString ( );
+        //            if ( str == spviewer . ListResults . Items [ x ] . ToString ( ) )
+        //            {
+        //                spviewer . ListResults . SelectedIndex = x;
+        //                break;
+        //            }
+        //        }
+        //        spviewer . ListResults . Refresh ( );
+        //    }
+        //    else
+        //    {
+        //        // gotta reload from disk, cos we only have matching SP's in our list
+        //        //string [ ] args = new string [ 1 ];
+        //        //args [ 0] = 
+        //        List<string> list = DatagridControl . ProcessUniversalQueryStoredProcedure ( "spGetStoredProcs" , null , CurrentTableDomain , out string err );
+        //        foreach ( var item in list )
+        //        {
+        //            spviewer . ListResults . Items . Add ( item );
+        //        }
+
+        //        spviewer . ListResults . SelectedItem = Splist . SelectedItem;
+        //        spviewer . ListResults . ScrollIntoView ( spviewer . ListResults . SelectedItem );
+        //        //Load method selection listbox
+        //        spviewer . createoptypes ( );
+        //        spviewer . optype . UpdateLayout ( );
+        //        // setup Cosmmetics
+        //        //                Mouse . OverrideCursor = Cursors . Arrow;
+        //        //                return;
+        //    }
+        //    // resultsviewer is definitely opened, so just reload it with ALL SP's ?
+        //    // toggle its status to Show ALL SP's
+        //     SetSpWindowInfoText ( this ,  spviewer , Searchtext );
+        //    spviewer . ShowingAllSPs = true;
+        //    spviewer . UsingMatches = false;
+        //    ////call stub to load  Click event in Resultsviewer
+        //    //spviewer . LoadAllSps ( this , Splist . SelectedIndex ); ;
+        //    Mouse . OverrideCursor = Cursors . Arrow;
+        //}
+
+        /// <summary>
+        ///  Load Execution Window
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Execsp_Click ( object sender , RoutedEventArgs e )
+        {
+            // We are trying to load the SP viewer ( SpResultsViewer ) so need a list of all currently listed SP's
+            // plus the content oof the current SP
+            string spname = "spGetAllSprocsMatchingsearchterm";  // SpName . Text;
+            string [ ] args = new string [ 1 ];
+            //Store SP contents search term for use  by later dialogs
+            string srchterm = Searchtext;
+
+            if ( Resultsviewer == null )
+            {
+                //Need to open SpResultsViewer
+                spviewer = new SpResultsViewer ( this , spname , srchterm );
+                spviewer . Show ( );
+                // load listbox in secondary viewer
+                Execsp . Visibility = Visibility . Collapsed;
+                Execsp . UpdateLayout ( );
+                Debug . WriteLine ( $"Executing S.P {spname}" );
+            }
+            else
+                spviewer = Resultsviewer;
+
+            args [ 0 ] = srchterm;
+            //call SQl method using SP to get all MATCHING SP's (if srchterm != "")
+            List<string> contents = DatagridControl . ProcessUniversalQueryStoredProcedure ( spname , args , CurrentTableDomain , out string err );
+
+            if ( contents . Count > 0 )
+            {
+                string line = "";
+                string sptext = "";
+
+                // Store search term into our Property for easier access
+                SpSearchTerm = selectSp . Text . ToUpper ( );
+
+                // Load listbox with SP's matching searc term
+                spviewer . ListResults . ItemsSource = null;
+                spviewer . ListResults . Items . Clear ( );
+                int selindex = 0, indx = 0;
+                if ( contents . Count > 0 )
+                {
+                    ListBox lb = spviewer . ListResults;
+                    // load all sprocs into listbox in our full viewer window
+                    foreach ( string item in contents )
+                    {
+                        lb . Items . Add ( item );
+                        if ( CurrentSpSelection != null )
+                        {
+                            if ( item . ToUpper ( ) == CurrentSpSelection . ToUpper ( ) )
+                                selindex = indx;
+                        }
+                        indx++;
+                    }
+                    lb . SelectedIndex = selindex;
+                    lb . Refresh ( );
+                    lb . ScrollIntoView ( lb . SelectedItem );
+                    FlowDocument fd = new FlowDocument ( );
+                    fd . Blocks . Clear ( );
+                    // Get content of 1st sproc (selected above) and load into scrollviewer
+                    Gengrid . FetchStoredProcedureCode ( Splist . SelectedItem . ToString ( ) , ref sptext );
+                    fd = CreateBoldString ( fd , sptext , SpSearchTerm . ToUpper ( ) );
+                    fd . Background = FindResource ( "Black3" ) as SolidColorBrush;
+                    spviewer . TextResult . Document = fd;
+                }
+            }
+        }
+
+        public bool DisplayInformationViewer ( bool showSPlist = false , bool reload = true )
+        {
+            List<string> SpList = new List<string> ( );
+
+            if ( showSPlist && ( InfoGrid . Visibility == Visibility . Visible ) )
+            {
+                // Load the list of SP's for the InfoGrid viewer
+                if ( reload )
+                {
+                    int count = LoadStoredProcedures ( "spGetStoredProcs" , "" );
+                    if ( count == 0 )
+                        return false;
+                    ViewerGrid . ColumnDefinitions [ 0 ] . Width = new GridLength ( 250 , GridUnitType . Pixel );
+                }
+                Splist . Visibility = Visibility . Visible;
+            }
+            else if ( Splist . Items . Count == 0 )
+            {
+                // Load the list of SP's for the InfoGrid viewer
+                int count = LoadStoredProcedures ( "spGetStoredProcs" , "" );
+                if ( count == 0 )
+                    return false;
+            }
+            // load text from previously specified file
+            myFlowDocument . Blocks . Clear ( );
+            if ( myFlowDocument . Blocks . Count == 0 )
+            {
+                if ( infotext . Contains ( "Information text goes here ...." ) )
+                    infotext = File . ReadAllText ( @$"C:\users\ianch\Documents\GenericGridInfo.Txt" );
+                myFlowDocument = LoadFlowDoc ( RTBox , FindResource ( "Black3" ) as SolidColorBrush , infotext );
+            }
+            // Show complete container
+            InfoGrid . Visibility = Visibility . Visible;
+            RTBox . Visibility = Visibility . Visible;
+            RTBox . Refresh ( );
+            Mouse . OverrideCursor = Cursors . Arrow;
+            InfoViewerShown = true;
+            return true;
+        }
+
+        /// <summary>
+        /// A clever method that loads/reloads the list of SP's in the left hand listboxes
+        /// of Genericgrid and SpResultsViewer windows that loads ALL SP's that
+        /// are currently in the SQL SP cache
+        /// </summary>
+        /// <param name="sender">Calling window</param>
+        /// <param name="e">Std arguments</param>
+        public int LoadStoredProcedures ( string spCommand , string srchterm )
+        {
+            List<string> NewSplist = new List<string> ( );
+            string previousSelection = "";
+            if ( Splist . SelectedItem != null )
+                previousSelection = Splist . SelectedItem . ToString ( );
+            string [ ] args = new string [ 1 ];
+            if ( srchterm != "" )
+                args [ 0 ] = srchterm;
+            else
+                args = null;
+            // load list of all sp's
+            NewSplist = CallStoredProcedure ( NewSplist , spCommand , args );
+            Splist . ItemsSource = null;
+            Splist . UpdateLayout ( );
+            // load list into listbox
+            Splist . ItemsSource = NewSplist;
+            Splist . Items . SortDescriptions . Add ( new SortDescription ( "" , ListSortDirection . Ascending ) );
+            SpInfo . Text = SpInfo . Text = $"All S.Procs ";
+            SpInfo2 . Text = $"{Splist . Items . Count} available...";
+            InfoHeaderPanel . Text = $"All {Splist . Items . Count} Stored Procedures are displayed";
+            CurrentSpList = "ALL";
+            if ( previousSelection != "" )
+            {
+                int indx = 0;
+                foreach ( var item in Splist . Items )
+                {
+                    if ( item == previousSelection )
+                    {
+                        Splist . SelectedIndex = indx;
+                        break;
+                    }
+                }
+            }
+            Splist . UpdateLayout ( );
+            if ( NewSplist != null )
+                return NewSplist . Count;
+            else return 0;
+        }
+
+        private void LoadSpResultsMatch ( object sender , RoutedEventArgs e )
+        {
+            // user selected option in Context menu to load Results viewer
+            if ( Resultsviewer == null )
+            {
+                ResultsListLoadType = "MATCH";
+                ExecuteSP_Click ( sender , null );
+            }
+            else
+                Resultsviewer . Focus ( );
+        }
+
+        private void LoadSpResultsAll ( object sender , RoutedEventArgs e )
+        {
+            // user double clicked in Splist to load Results viewer
+            if ( Resultsviewer == null )
+            {
+                ResultsListLoadType = "ALL";
+                ExecuteSP_Click ( sender , null );
+            }
+            else
+                Resultsviewer . Focus ( );
+        }
+
+        //****************************************************//
+        #endregion Execution Window methods
+        //****************************************************//
+
+        //public static void setforegrnd ( string wintoactivate )
+        //{
+        //    //var hwnd = FindWindow ( IntPtr . Zero , wintoactivate );
+        //    //           hwnd . Dump ( );  // make sure we got a match
+        //    //           SetForegroundWindow ( hwnd );
+        //}
+        //[DllImport ( "user32.dll" , SetLastError = true )]
+        //public static extern IntPtr SetForegroundWindow ( IntPtr hWnd );
+
+        //[DllImport ( "user32.dll" , EntryPoint = "FindWindow" , SetLastError = true )]
+        //public static extern IntPtr FindWindow ( IntPtr ZeroOnly , string lpWindowName );
+
+
+        //****************************************************//
+
+        #region UNUSED METHODS
+
+        public ObservableCollection<GenericClass> GetFullColumnData ( string table )
+        {
+            ObservableCollection<GenericClass> returndata = new ObservableCollection<GenericClass> ( );
+            string [ ] args = new string [ 1 ];
+            string err = "";
+            int recordcount = 0;
+            args [ 0 ] = $"'{table}'";
+            string command = "drop table if exists x_1";
+            dgControl . ExecuteDapperTextCommand ( command , args , out err );
+            command = $"select table_name column_name, data_type, character_maximum_length, numeric_precision, numeric_scale into x_1 from information_schema.columns where table_name='{args [ 0 ]}'";
+            returndata = dgControl . GetDataFromStoredProcedure ( command , args , CurrentTableDomain , out err , out recordcount );
+            return returndata;
+        }
+
+
+        #region treeview  properties
+        public static string TvSqlCommand { get; set; }
+        public static bool TvMouseCaptured { get; set; }
+        public static double TvFirstXPos { get; set; }
+        public static double TvFirstYPos { get; set; }
+        public static double CpFirstXPos { get; set; }
+        public static double CpFirstYPos { get; set; }
+        public static string SqlSpCommand { get; set; }
+        public static string CurrentSPDb { get; set; }
+
+        #endregion  TreeviewProperties 
+
+        public List<string> GetDataTableAsList ( )
+        {
+            List<string> TablesList = new List<string> ( );
+            List<string> list = new List<string> ( );
+            string SqlCommand = "spGetTablesList";
+            //// All Db's have their own version of this SP.....
+            GenericGridSupport . CallStoredProcedure ( list , SqlCommand );
+            //This call returns us a DataTable
+            DataTable dt = dgControl . GetDataTable ( SqlCommand );
+            // This how to access Row data from  a grid the easiest way.... parsed into a List <xxxxx>
+            if ( dt != null )
+            {
+                TablesList = GenericGridSupport . GetDataDridRowsAsListOfStrings ( dt );
+            }
+            return TablesList;
+        }
+        private void Button_MouseEnter ( object sender , MouseEventArgs e )
+        {
+            Button btn = sender as Button;
+            LinearGradientBrush brsh = FindResource ( "Black2OrangeSlant" ) as LinearGradientBrush;
+            btn . Background = brsh;
+            btn . UpdateLayout ( );
+        }
+        private void CloseBtn_GotFocus ( object sender , RoutedEventArgs e )
+        {
+            Button btn = sender as Button;
+            LinearGradientBrush brsh = FindResource ( "Black2OrangeSlant" ) as LinearGradientBrush;
+            btn . Background = brsh;
+            btn . UpdateLayout ( );
+        }
+        private void CloseBtn_IsMouseDirectlyOverChanged ( object sender , DependencyPropertyChangedEventArgs e )
+        {
+            Button btn = sender as Button;
+            LinearGradientBrush brsh = FindResource ( "Black2OrangeSlant" ) as LinearGradientBrush;
+            btn . Background = brsh;
+            btn . UpdateLayout ( );
+        }
+        static public string RemoveTrailingChars ( string processQuery )
+        {
+            if ( processQuery . Trim ( ) . Contains ( "}," ) )
+            {
+                processQuery = NewWpfDev . Utils . ReverseString ( processQuery );
+                processQuery = processQuery . Substring ( 2 );
+                processQuery = NewWpfDev . Utils . ReverseString ( processQuery );
+            }
+            return processQuery;
+        }
+
+        //**********************************//
+        #region local control support
+        //**********************************//
+        private async void asyncSqlTables_SelectionChanged ( object sender , SelectionChangedEventArgs e )
+        {
+            string selection = e . AddedItems [ 0 ] . ToString ( );
+            int columncount = 0;
+            // call User Control to load the selected table from the current Sql Db
+            // TODO   NOT WORKING 3/10/2022
+            var result = dgControl . LoadData ( $"{selection}" , ShowColumnHeaders , Flags . CurrentConnectionString , out columncount );
+        }
+        private void IsLoaded ( object sender , RoutedEventArgs e )
+        {
+            ToggleColumnHeaders . IsChecked = true;
+        }
+        //-----------------------------------------------------------//
+        #endregion local control support
+
+        private void RTBox_MouseRightButtonDown ( object sender , MouseButtonEventArgs e )
         {
 
         }
 
-        private void TablesLabel_PreviewMouseRightButtonUp ( object sender , MouseButtonEventArgs e )
+        // NOT USED
+        public static FlowDocument ProcessRTBParagraph ( FlowDocument document , string SearchTerm )
         {
+            //Paragraph p = ( Paragraph )document . Blocks . FirstBlock;
+            //string originalRunText = ( ( Run )p . Inlines . FirstInline ) . Text;
+            //String word = SearchTerm;
 
+            //var textSearchRange = new TextRange(p . ContentStart , p . ContentEnd);
+            //Int32 position = textSearchRange . Text . IndexOf(word , StringComparison . OrdinalIgnoreCase);
+            //if ( position < 0 ) return document;
+
+            //TextPointer start;
+            //start = textSearchRange . Start . GetPositionAtOffset(position);
+            //var end = textSearchRange . Start . GetPositionAtOffset(position + word . Length);
+
+            //var textR = new TextRange(start , end);
+            //textR . Text = "";
+
+            //ToolTip tt = new ToolTip();
+
+            //tt . Background = Brushes . LightYellow;
+            //tt . Content = new Label() { Content = "Tooltip of HighLighted word" };
+
+            //Run newRun = new Run(word , start);
+            //newRun . FontSize = 30;
+            //newRun . ToolTip = tt;
+            return document;
+        }
+        public List<string> LoadSPList ( )
+        {
+            // Load ALL S.Procedures into List<string>
+            DataTable dt = new ( );
+            // Load list of SP's for viewer panel'
+            List<string> list = new List<string> ( );
+            dt = DatagridControl . ProcessSqlCommand ( $"spGetStoredProcs" , Flags . CurrentConnectionString );
+            foreach ( DataRow row in dt . Rows )
+            {
+                list . Add ( row . Field<string> ( 0 ) );
+            }
+            return list;
         }
 
-//        private void DbProcsTree_Collapsed ( object sender , RoutedEventArgs e )
-//        {
-//#pragma warning disable CS0219 // The variable 'x' is assigned but its value is never used
-//            int x = 0;
-//#pragma warning restore CS0219 // The variable 'x' is assigned but its value is never used
-//        }
+        #region FlowDoc support
 
-//        private void TextBlock_PreviewMouseRightButtonUp ( object sender , MouseButtonEventArgs e )
-//        {
-//            // right click for S.P script
-//            TextBlock tb = sender as TextBlock;
-//            string selection = tb . Text;
-//#pragma warning disable CS0219 // The variable 'index' is assigned but its value is never used
-//            int index = 0;
-//#pragma warning restore CS0219 // The variable 'index' is assigned but its value is never used
-//            foreach ( var item in ProcsCollection )
-//            {
-//                if ( item . Procname == selection )
-//                {
-//                    item . IsSelected = true;
-//                    break;
-//                }
-//            }
-//        }
+        /// <summary>
+        ///  These are the only methods any window needs to provide support for my FlowDoc system.
 
-//        private void DbProcsTree_PreviewMouseRightButtonUp ( object sender , MouseButtonEventArgs e )
-//        {
-//            // process right click to show the  full script in a FlowDoc viewer 
-//            if ( SqlSpCommand != "" && SqlSpCommand != null )
-//            {
-//                DataTable dt = new DataTable ( );
-//                string [ ] args = { "" , "" , "" , "" };
-//#pragma warning disable CS0219 // The variable 'err' is assigned but its value is never used
-//                string err = "", errormsg = "";
-//#pragma warning restore CS0219 // The variable 'err' is assigned but its value is never used
-//                List<string> list = new List<string> ( );
-//                ObservableCollection<GenericClass> Generics = new ObservableCollection<GenericClass> ( );
-//                foreach ( var item in DatabasesCollection )
-//                {
-//                    CurrentSPDb = item . Databasename;
-//                    if ( NewWpfDev.Utils . CheckResetDbConnection ( CurrentSPDb , out string constring ) == false )
-//                        return;
+        // This is triggered/Broadcast by FlowDoc so that the parent controller can Collapse the 
+        // Canvas so it  does not BLOCK other controls after being closed.
+        private void Flowdoc_FlowDocClosed ( object sender , EventArgs e )
+        {
+            Filtercanvas . Visibility = Visibility . Collapsed;
+        }
 
-//                    List<string> procslist = new List<string> ( );
-//                    ObservableCollection<BankAccountViewModel> bvmparam = new ObservableCollection<BankAccountViewModel> ( );
-//                    List<string> genericlist = new List<string> ( );
-//#pragma warning disable CS0168 // The variable 'ex' is declared but never used
-//                    try
-//                    {
-//                        DapperSupport . CreateGenericCollection (
-//                            ref Generics ,
-//                            "spGetSpecificSchema  " ,
-//                            SqlSpCommand ,
-//                            "" ,
-//                            "" ,
-//                            ref genericlist ,
-//                            ref errormsg );
-//                        if ( Generics . Count > 0 )
-//                        {
-//                            break;
-//                        }
-//                    }
-//                    catch ( Exception ex )
-//                    {
-//                    }
-//#pragma warning restore CS0168 // The variable 'ex' is declared but never used
+        protected void MaximizeFlowDoc ( object sender , EventArgs e )
+        {
+            // Clever "Hook" method that Allows the flowdoc to be resized to fill window
+            // or return to its original size and position courtesy of the Event declard in FlowDoc
+            fdl . MaximizeFlowDoc ( this . Flowdoc , Filtercanvas , e );
+        }
 
-//                }
-//                if ( Generics . Count == 0 )
-//                {
-//                    if ( errormsg != "" )
-//                        MessageBox . Show ( $"No Argument information is available. \nError message = [{errormsg}]" , $"[{SqlSpCommand}] SP Script Information" , MessageBoxButton . OK , MessageBoxImage . Warning );
-//                    return;
-//                }
-//                string output = "NB: You can select a different S.P & right click it WITHOUT closing this viewer window...\nThe new Script will replace the current contents of the viewer\n\n";
-//                foreach ( var item in Generics )
-//                {
-//                    string store = "";
-//                    store = item . field1 + ",";
-//                    output += store;
-//                }
-//                // Display the script in whatever chsen container is relevant
-//                bool resetUse = false;
-//                if ( UseFlowdoc == false )
-//                {
-//                    UseFlowdoc = true;
-//                    resetUse = true;
-//                }
-//                if ( output != "" && UseFlowdoc )
-//                {
-//                    string fdinput = $"Procedure Name : {SqlSpCommand . ToUpper ( )}\n\n";
-//                    fdinput += output;
-//                    fdinput += $"\n\nPress ESCAPE to close this window...\n";
-//                    fdl.ShowInfo ( Flowdoc, Filtercanvas , line1: fdinput , clr1: "Black0" , line2: "" , clr2: "Black0" , line3: "" , clr3: "Black0" , header: "" , clr4: "Black0" );
-//                }
-//                else
-//                {
-//                    Mouse . OverrideCursor = Cursors . Arrow;
-//                    if ( UseFlowdoc )
-//                        fdl . ShowInfo ( Flowdoc , Filtercanvas , line1: $"Procedure [{SqlSpCommand . ToUpper ( )}] \ndoes not Support / Require any arguments" , clr1: "Black0" , line2: "" , clr2: "Black0" , line3: "" , clr3: "Black0" , header: "" , clr4: "Black0" );
-//                }
-//                if ( resetUse )
-//                    UseFlowdoc = false;
-//            }
-//        }
+        private void Flowdoc_MouseLeftButtonUp ( object sender , MouseButtonEventArgs e )
+        {
+            // Window wide  !!
+            // Called  when a Flowdoc MOVE has ended
+            MovingObject2 = fdl . Flowdoc_MouseLeftButtonUp ( sender , Flowdoc , MovingObject2 , e );
+            // TODO ?????
+            //MovingObject2 . ReleaseMouseCapture();
+        }
 
-//        private void DbProcsTree_SelectedItemChanged ( object sender , RoutedPropertyChangedEventArgs<object> e )
-//        {
-//            if ( e . NewValue == null )
-//                return;
-//            //var  v = SqlProcedures . IsSelected as Procname;
-//            var tablename = e . NewValue as Database;
-//            if ( tablename == null )
-//            {
-//                if ( e . NewValue == null )
-//                    return;
-//                var tvi = e . NewValue as SqlProcedures;
-//                SqlSpCommand = tvi . Procname;
-//                // Noow get  nmme  of the Db we are in 
-//                var items = DbProcsTree . Items;
-//                if ( items . CurrentItem != null )
-//                {
-//                    var db = items . CurrentItem as Database;
-//                    CurrentSPDb = db . Databasename;
-//                }
-//                else
-//                {
-//                    var v = sender as ItemsControl;
-//                    //foreach ( var item in v . Items )
-//                    //{
-//                    //	Debug. WriteLine ( item . ToString ( ) );
-//                    //}
-//                    var treeItems = WpfLib1 . Utils . FindVisualParent<TextBlock> ( this );
-//                    //treeItems . ForEach ( I => i . IsExpanded = false );
-//                }
-//            }
-//            else
-//            {
-//                var tvi = e . NewValue as Database;
-//                CurrentSPDb = tvi . Databasename;
-//            }
+        // CALLED WHEN  LEFT BUTTON PRESSED
+        private void Flowdoc_PreviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
+        {
+            //In this event, we get current mouse position on the control to use it in the MouseMove event.
+            MovingObject2 = fdl . Flowdoc_PreviewMouseLeftButtonDown ( sender , Flowdoc , e );
+            Debug . WriteLine ( $"MvvmDataGrid Btn down {MovingObject2}" );
+        }
 
-//        }
+        private void Flowdoc_MouseMove ( object sender , MouseEventArgs e )
+        {
+            // We are Resizing the Flowdoc using the mouse on the border  (Border.Name=FdBorder)
+            fdl . Flowdoc_MouseMove ( Flowdoc , Filtercanvas , MovingObject , e );
+        }
 
-//        private void DbProcsTree_Expanded ( object sender , RoutedEventArgs e )
-//        {
+        // Shortened version proxy call		
+        private void Flowdoc_LostFocus ( object sender , RoutedEventArgs e )
+        {
+            Flowdoc . BorderClicked = false;
+        }
 
-//        }
+        public void FlowDoc_ExecuteFlowDocBorderMethod ( object sender , EventArgs e )
+        {
+            // EVENTHANDLER to Handle resizing
+            FlowDoc fd = sender as FlowDoc;
+            Point pt = Mouse . GetPosition ( Filtercanvas );
+            double dLeft = pt . X;
+            double dTop = pt . Y;
+        }
+
+        private void LvFlowdoc_PreviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
+        {
+            //In this event, we get current mouse position on the control to use it in the MouseMove event.
+            MovingObject2 = fdl . Flowdoc_PreviewMouseLeftButtonDown ( sender , Flowdoc , e );
+        }
+
+        public void fdmsg ( string line1 , string line2 = "" , string line3 = "" )
+        {
+            //We have to pass the Flowdoc.Name, and Canvas.Name as well as up   to 3 strings of message
+            //  you can  just provide one if required
+            // eg fdmsg("message text");
+            fdl . FdMsg ( Flowdoc , Filtercanvas , line1 , line2 , line3 );
+        }
+
+        //-----------------------------------------------------------//
+        #endregion Flowdoc support via library
+
+        private void ShowMoveInfo ( object sender , RoutedEventArgs e )
+        {
+            infotext = File . ReadAllText ( @$"C:\users\ianch\documents\Universal Control Moving Info.Txt" );
+            DisplayInformationViewer ( );
+        }
+        private void Lostfocus ( object sender , RoutedEventArgs e )
+        {
+            //DragCtrl . MovementEnd(sender , e , this);
+        }
+
+        private void CloseAll_Click ( object sender , RoutedEventArgs e )
+        {
+            Application . Current . Shutdown ( );
+        }
+
+        public bool LoadRtDocument ( string spfilename )
+        {
+            string sptext = "";
+            string stringresult = "";
+
+            if ( SplistRightclick == false )
+            {
+                //  Task . Run ( async ( ) =>
+                //{
+                //string stringresult = "";
+                Gengrid . FetchStoredProcedureCode ( Splist . SelectedItem . ToString ( ) , ref sptext );
+                //} );
+            }
+            else
+            {
+                // Task . Run ( async ( ) =>
+                //{
+                Gengrid . FetchStoredProcedureCode ( null , ref sptext );
+                //} );
+                //sptext = FetchStoredProcedureCode ( null, ref stringresult );
+            }
+            SplistRightclick = false;
+            if ( sptext == "" )
+            {
+                StdError ( );
+                SetStatusbarText ( $"Failed to read the Stored Procedure {Splist . SelectedItem . ToString ( )}" , 1 );
+                return false;
+            }
+            infotext = sptext;
+            RTBox . Document = null;
+            myFlowDocument . Blocks . Clear ( );
+            myFlowDocument = CreateBoldString ( myFlowDocument , sptext , Searchtext );
+            myFlowDocument . Background = FindResource ( "Black3" ) as SolidColorBrush;
+            RTBox . Document = myFlowDocument;
+
+            //myFlowDocument = CreateBoldString ( myFlowDocument , sptext , Searchtext );
+            //RTBox . Document = myFlowDocument;
+            //myFlowDocument . Background = FindResource ( "Black3" ) as SolidColorBrush;
+            return true;
+        }
+
+        private void SrchtextKeyDown ( object sender , KeyEventArgs e )
+        {
+            //if ( e . Key == Key . Enter )
+            //    SPTextset_Click ( sender , null );
+            //else if ( e . Key == Key . Escape )
+            //    SPtextbox . Visibility = Visibility . Collapsed;
+        }
+
+        private void ShowAllSPsClick ( object sender , RoutedEventArgs e )
+        {
+            // load full list of SP.s
+            List<string> SpList = new List<string> ( );
+            SpList = CallStoredProcedure ( SpList , "spGetStoredProcs" );
+            Splist . ItemsSource = null;
+            Splist . Items . Clear ( );
+            Splist . ItemsSource = SpList;
+            SpInfo . Text = SpInfo . Text = $"All S.Procs ";
+            SpInfo2 . Text = $"{Splist . Items . Count} available...";
+            InfoHeaderPanel . Text = $"All ({Splist . Items . Count}) Stored Procedures are displayed";
+            CurrentSpList = "ALL";
+
+            //ListCounter . Text = $"{Splist . Items . Count} Files available...";
+            //Splist . Items . SortDescriptions . Add ( new SortDescription ( "" , ListSortDirection . Ascending ) );
+            //PromptLine . Text = $"Listbox in left Column loaded wiith ALL {SpList . Count} user owned Stored Procedures.";
+            Mouse . OverrideCursor = Cursors . Arrow;
+        }
+
+        private void ShowMatchingSPsClick ( object sender , RoutedEventArgs e )
+        {
+            if ( Splist . SelectedItem == null ) return;
+            string currentselection = Splist . SelectedItem . ToString ( );
+            if ( Searchtext != "" )
+            {
+                Mouse . OverrideCursor = Cursors . Wait;
+                List<string> list = LoadMatchingStoredProcs ( Splist , Searchtext );
+                Splist . ItemsSource = null;
+                Splist . ItemsSource = list;
+                SpInfo . Text = $"All  Matching S.P's";
+                SpInfo2 . Text = $"{Splist . Items . Count} match [{Searchtext}]";
+                InfoHeaderPanel . Text = $"All ({Splist . Items . Count}) Stored Procedures matching Search Term [ {Searchtext} ] are displayed";
+                CurrentSpList = "MATCH";
+
+                bool success = false;
+                if ( currentselection != null )
+                {
+                    foreach ( string item in Splist . Items )
+                    {
+                        if ( item == currentselection )
+                        {
+                            success = true;
+                            break;
+                        }
+                    }
+                    string sptext = "";
+                    string stringresult = "";
+                    if ( success )
+                    {
+                        //Task . Run ( async ( ) =>
+                        //{
+                        //    string stringresult = "";
+                        Gengrid . FetchStoredProcedureCode ( currentselection , ref sptext );
+                        //} );
+                        //   sptext = FetchStoredProcedureCode ( currentselection , ref stringresult );
+                    }
+                    else
+                    {
+                        sptext = "";
+                        SetStatusbarText ( $"({Splist . Items . Count}) S.P's matching [{Searchtext}] loaded successfully.\nSorry, but the previous S.P is not in \nthe new (filtered) list which is why the viewer is empty" , 1 );
+                        RTBox . Document = null;
+                        myFlowDocument . Blocks . Clear ( );
+                        StdError ( );
+
+                    }
+                }
+                //if ( list . Count > 0 )
+                //    PromptLine . Text = $"Listbox in left Column loaded wiith ALL {list . Count} user owned Stored Procedures matching Search Term [ {Searchtext}]";
+                //else
+                //    PromptLine . Text = $"No user owned Stored Procedures matching Search Term [ {Searchtext} ]can be found ???.";
+                //ListCounter . Text = $"{Splist . Items . Count} Files available...";
+                Mouse . OverrideCursor = Cursors . Arrow;
+            }
+            //else
+            //{
+            //    SPtextbox . Visibility = Visibility . Visible;
+            //}
+        }
+
+        private void RTBox_Loaded ( object sender , RoutedEventArgs e )
+        {
+            this . Width += 1;
+        }
+
+        private void ReloadCurrentSP ( object sender , RoutedEventArgs e )
+        {
+            // all working, but no longer needed 23/10/22
+            //if ( Splist . SelectedItem == null )
+            //{
+            //    Splist . SelectedIndex = 0;
+            //}
+            // string sptext = FetchStoredProcedureCode ( Splist . SelectedItem . ToString ( ) );
+            //infotext = sptext;
+            //myFlowDocument = CreateBoldString ( myFlowDocument , sptext , Searchtext );
+            //myFlowDocument . Background = FindResource ( "Black3" ) as SolidColorBrush;
+            //RTBox . Document = myFlowDocument;
+            //RTBox . UpdateLayout ( );
+            //if ( CurrentSpList == "ALL" )
+            //    LoadMatchingItems . IsEnabled = false;
+            //GridVisible . IsEnabled = true;
+            //// open list cos we are opening SP viewer panel
+            //GridLength gl = new GridLength ( );
+            //gl = ViewerGrid . ColumnDefinitions [ 0 ] . Width;
+            //if ( gl . Value < 5 )
+            //    ViewerGrid . ColumnDefinitions [ 0 ] . Width = new GridLength ( 200 , GridUnitType . Pixel );
+            //Currentpanel = "DATA";
+            //if ( Splist . SelectedItem != null )
+            //    Splist . SelectedIndex = 0;
+            ////all correct
+            //LoadAllItems . IsEnabled = false;
+            //LoadMatchingItems . IsEnabled = true;
+            //InfoVisible . IsEnabled = true;
+
+            //RTBox . Visibility = Visibility . Visible;
+            //RTBox . Document . BringIntoView ( );
+        }
+
+        private void Search1__DragDialog_LButtonDn ( object sender , MouseButtonEventArgs e )
+        {
+            ActiveDragControl = SpStringsSelection;
+            DragDialog_LButtonDn ( sender , e );
+        }
+
+        private void Search1_Filtering_DragDialog_Ending ( object sender , MouseButtonEventArgs e )
+        {
+            ActiveDragControl = SpStringsSelection;
+            DragDialog_Ending ( sender , e );
+        }
+
+        private void Search1_Filtering_DragDialog_Moving ( object sender , MouseEventArgs e )
+        {
+            ActiveDragControl = SpStringsSelection;
+            DragDialog_Moving ( sender , e );
+        }
+
+        private void Search1_BlockFiltering_Moving ( object sender , MouseButtonEventArgs e )
+        {
+            e . Handled = true;
+            selectedSp . Focus ( );
+        }
+
+        private void Search1_BlockFiltering_Moving ( object sender , MouseEventArgs e )
+        {
+            e . Handled = true;
+            selectedSp . Focus ( );
+        }
+
+        public static ObservableCollection<GenericClass> LoadTableGeneric (
+               string SqlCommand , ref ObservableCollection<GenericClass> GenCollection , out string error )
+        {
+            GenCollection = null;
+            string errormsg = "";
+            error = "";
+            int DbCount = 0;
+
+            //            $"Entering " . dcwinfo();
+            // Set dapperlib scope flag to convert datetime to date string only for displqay usage inj datagrids etc.
+            // ConvertDateTimeToNvarchar = true;
+
+            GenCollection = CreateGenericCollection (
+            SqlCommand ,
+            "" ,
+            "" ,
+            "" ,
+             ref errormsg ,
+             CurrentTableDomain );
+
+            //            $"Exiting " . dcwinfo();
+            error = errormsg;
+            return GenCollection;
+        }
+
+        private void TestLinq ( )
+        {
+            string sentence = "the quick brown fox jumps over the lazy dog";
+            // Split the string into individual words to create a collection.  
+            string [ ] words = sentence . Split ( ' ' );
+
+            List<GenericClass> list = GridData . Where ( row => Convert . ToInt16 ( row . field1 ) < 25 ) . ToList ( );
+            foreach ( GenericClass item in list )
+                Debug . WriteLine ( $"{item . field1} = {item . field3}" );
+
+            //    redisClient . SetAdd<string> ( "Qualification:" + setName , list . Select ( x => x . ProductID ) . ToString ( ) );
+            /////          }
+            //list = from GridData where  field1 != "25"select
+            // Using query expression syntax.  
+            Debug . WriteLine ( $"\n" );
+            // WORKS
+            IEnumerable<GenericClass> data = from x in GridData
+                                             where Convert . ToInt16 ( x . field1 ) < 10
+                                             select x;
+            foreach ( GenericClass item in data )
+                Debug . WriteLine ( $"{item . field1} = {item . field3}" );
+            return;
+        }
+
+        private void Magnifier_PreviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
+        {
+            //if ( InfoGrid . Visibility == Visibility . Visible )
+            //{
+            //    // Hide complete info viewer container
+            //    InfoGrid . Visibility = Visibility . Visible;
+            //    RTBox . Visibility = Visibility . Visible;
+            //    // Show main datagrid
+            //    InfoGrid . Visibility = Visibility . Collapsed;
+            //    maingrid . RowDefinitions [ 0 ] . Height = new GridLength ( InfoGrid . ActualHeight + 10 , GridUnitType . Pixel );
+            //}
+            //else
+            //{
+            //    // Show info viewer panel
+            //    DisplayInformationViewer ( reload: false );
+            //    InfoGrid . Visibility = Visibility . Visible;
+            //    //GridLength gl = new GridLength ( );
+            //    //gl = ViewerGrid . ColumnDefinitions [ 0 ] . Width;
+            //    //if ( gl . Value <= 4 )
+            //    maingrid . RowDefinitions [ 0 ] . Height = new GridLength ( InfoGrid . Height , GridUnitType . Pixel );
+            //}
+        }
+
+        private void GenGridCtrl_PreviewMouseRightButtonDown ( object sender , MouseButtonEventArgs e )
+        {
+            ContextMenu cm = FindResource ( "GenGridContextMenu" ) as ContextMenu;
+            // Hide relevant entries
+            List<string> hideitems = new List<string> ( );
+            hideitems . Add ( "gm1" );
+            hideitems . Add ( "gm2" );
+            hideitems . Add ( "gm3" );
+            hideitems . Add ( "gm4" );
+
+            ContextMenu menu = RemoveMenuItems ( "GenGridContextMenu" , "" , hideitems );
+            //forces menu to show immeduiately to right and below mouse pointer
+            menu . PlacementTarget = sender as FrameworkElement;
+            Point pt = e . GetPosition ( sender as UIElement );
+            menu . PlacementRectangle = new Rect ( pt . X , pt . Y , 350 , 300 );
+            menu . IsOpen = true;
+            e . Handled = true;
+        }
+
+        private string ReturnProcedureHeader ( )
+        {
+            string output = "";
+            int recordcount = 0;
+            string err = "";
+            string [ ] args = new string [ 0 ];
+            string [ ] outputs = new string [ 0 ];
+            List<string> list = new List<string> ( );
+            string arguments = "";
+            DatagridControl . CreateGenericCollection ( ref GridData , $"Select * from {Splist . SelectedItem}" , "" , "" , "" , "" , ref list , ref err );
+            //            dgControl . GetDataFromStoredProcedure ( $"Select * from {Splist. SelectedItem}", args, CurrentTableDomain,out err, out outputs, out recordcount);
+            return output;
+        }
+
+        #endregion UNUSED METHODS
+
     }
+
 }
+

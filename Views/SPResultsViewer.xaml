@@ -6,17 +6,29 @@
         xmlns:local="clr-namespace:Views"
         xmlns:conv="clr-namespace:NewWpfDev.Converts"
         mc:Ignorable="d"
+        Closing="Spresultsviewer_Closing"
         Background="{StaticResource Cyan0}"
         x:Name="Spresultsviewer"
+        Topmost="False"
+        IsHitTestVisible="True"
+        KeyDown="Spresultsviewer_KeyDown"
+        FocusableChanged="Spresultsviewer_FocusableChanged"
+        Loaded="Spresultsviewer_Loaded"
   	    WindowChrome.ResizeGripDirection="BottomRight"
 	    ResizeMode="CanResizeWithGrip"
         Title="Stored Procedures Results Viewer" 
-        Height="510" Width="650"
-        MinHeight="400" MinWidth="450">
+        Height="870" Width="950"
+        MinHeight="500" MinWidth="550">
 
     <Window.Resources>
         <conv:IncreaseByParamValue x:Key="IncreaseByParamValue" />
         <conv:ReduceByParamValue x:Key="ReduceByParamValue"/>
+
+        <LinearGradientBrush x:Key="HorizontalGraduated" StartPoint="0, 1" EndPoint="0, 0">
+            <GradientStop Color="Black" Offset="1"/>
+            <GradientStop Color="Lime" Offset="0.5"/>
+            <GradientStop Color="Black" Offset="0"/>
+        </LinearGradientBrush>
 
         <Style TargetType="{x:Type Paragraph}">
             <Setter Property="Margin" Value="0" />
@@ -260,15 +272,18 @@
             Visibility="Visible">
         <Grid.RowDefinitions>
             <RowDefinition x:Name="vrow0" Height="35"/>
-            <RowDefinition x:Name="vrow1" Height="150"/>
+            <RowDefinition x:Name="vrow1" Height="*"/>
+            <RowDefinition x:Name="hsplit" Height="30"/>
             <RowDefinition  x:Name="vrow2"  Height="*"/>
-            <RowDefinition  x:Name="vrow3" Height="95"/>
+            <RowDefinition  x:Name="vrow3" Height="115"/>
         </Grid.RowDefinitions>
 
-       <TextBlock Grid.Row="0" x:Name="SrchTerm"  Visibility="Collapsed"/>
+        <TextBlock Grid.Row="0" x:Name="SrchTerm"  Visibility="Collapsed"/>
 
         <Grid x:Name="BannerGrid" Grid.Row="0" VerticalAlignment="Top" 
             Height="35"
+            IsHitTestVisible="True"
+            KeyDown="Spresultsviewer_KeyDown"
             HorizontalAlignment="Center" 
             Width="{Binding ActualWidth, ElementName=SpViewerResults,
                 Converter={StaticResource ReduceByParamValue},ConverterParameter=-10}"
@@ -281,7 +296,9 @@
                 Height="35"
                 Text="Execute Stored Procedures Helper"
                 TextAlignment="Center"
-                Padding="0 8 0  0"
+                Padding="0 6 0 0"
+                IsHitTestVisible="True"
+                KeyDown="Spresultsviewer_KeyDown"
                 Margin="0,0,0,0"
                 Background="Red"
                 Foreground="White" 
@@ -292,8 +309,7 @@
 
         <!--Height="{Binding ActualHeight, ElementName=vrow1,
                     Converter={StaticResource ReduceByParamValue},ConverterParameter=0}"-->
-        <Grid  x:Name="Listboxesgrid" Grid.Row="1" VerticalAlignment="Top"
-               Height="150">
+        <Grid  x:Name="Listboxesgrid" Grid.Row="1" VerticalAlignment="Stretch">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="280"/>
@@ -302,22 +318,25 @@
                 <RowDefinition Height="25"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            
-              <ListBox x:Name="ListResults" Grid.Row="0" Grid.RowSpan="2" Grid.Column="0"
-                    Height="150"
+
+            <!--Height="150"-->
+            <ListBox x:Name="ListResults" Grid.Row="0" Grid.RowSpan="2" Grid.Column="0"
                     Width="{Binding ActualWidth, ElementName=Listboxesgrid,
-                        Converter={StaticResource ReduceByParamValue},ConverterParameter=300}"
+                        Converter={StaticResource ReduceByParamValue},ConverterParameter=285}"
                     Background="{StaticResource Black7}"
-                    HorizontalAlignment="Stretch"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    VerticalContentAlignment="Stretch"
                     SelectionMode="Single"
                     FontSize="16"
                     FontWeight="DemiBold"
-                    Margin="11,5,11,0"
+                    Margin="8,3,0,5"
+                    IsHitTestVisible="True"
+                     KeyDown="Spresultsviewer_KeyDown"
                     PreviewMouseRightButtonDown="ListResults_MouseRightButtonDown"
                     SelectionChanged="ListResults_SelectionChanged"
                     ScrollViewer.HorizontalScrollBarVisibility="Auto"
                     ScrollViewer.VerticalScrollBarVisibility="Visible"
-                    MinHeight="150"
                     ToolTip="Right click will reload this list of Stored Procedures...."
                     ToolTipService.InitialShowDelay="500"                  
                     ToolTipService.ShowDuration="2500"
@@ -326,28 +345,77 @@
             <TextBlock Grid.Row="0" Grid.Column="1"   
                     Width="270"
                     Height="25"
+                    Margin="0 3 0 0 "
+                    IsHitTestVisible="True"
+                    KeyDown="Spresultsviewer_KeyDown"
+                    VerticalAlignment="Top"
                     Background="{StaticResource Green2}"
                     Foreground="{StaticResource White0}"
                     FontSize="16"
                     TextAlignment="Center"
                     Text="Select Execution method"/>
+            
             <ListBox x:Name="optype"  Grid.Row="1" Grid.Column="1"
-                    Height="130" 
-                    Width="270" 
-                    Margin="5 0 5 0" 
-                     Background="Black"
+                    Width="275" 
+                    Height="135" 
+                    MaxHeight="130"
+                    Margin="5 0 2 0" 
+                    Background="Black"
                     VerticalAlignment="Top" 
+                    IsHitTestVisible="True"
+                     KeyDown="Spresultsviewer_KeyDown"
                     HorizontalContentAlignment="Left" 
-                     ToolTip="Double Click to Execute the S.P using the Method selected..."
-                     MouseDoubleClick="optype_MouseDoubleClick"
+                    ToolTip="Double Click to Execute the S.P using the Method selected..."
+                    MouseDoubleClick="optype_MouseDoubleClick"
                     ScrollViewer.VerticalScrollBarVisibility="Hidden"
                     ItemContainerStyle="{StaticResource SpMethodsStyle}"
-                    FontSize="14"/>
+                    FontSize="14"
+                     />
         </Grid>
 
-        <!--Height="{Binding ActualHeight, ElementName=vrow2,
-                    Converter={StaticResource ReduceByParamValue},ConverterParameter=0}"-->
-        <Grid x:Name="Flowdocgrid" Grid.Row="2" VerticalAlignment="Stretch"
+        <GridSplitter x:Name="hspltter" 
+                Grid.Row="2" 
+                Height="30" 
+                Width="{Binding ActualWidth, ElementName=Spresultsviewer,Converter={StaticResource ReduceByParamValue}, ConverterParameter=25}"
+                Focusable="True"
+                Cursor="SizeNS"
+                MouseEnter="hSplitter_MouseEnter" 
+                MouseLeave="hSplitter_MouseLeave"
+                MouseMove="Hsplitter_MouseMove"
+                Background ="{StaticResource HorizontalGraduated}"
+                ResizeBehavior="PreviousAndNext"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                Panel.ZIndex="5">
+            <GridSplitter.Template>
+                <ControlTemplate>
+                    <Grid 
+						   Background ="{StaticResource HorizontalGraduated}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="20" />
+                        </Grid.RowDefinitions>
+                        <StackPanel 
+                                Orientation="Horizontal" 
+                                HorizontalAlignment="Center" 
+                               Background ="Transparent"
+                                Grid.Row="0"  >
+                            <TextBlock Text="Drag Up/Down here to change panel sizes" 
+                                        Height="20" 
+                                        Padding="0 4 4 0" 
+                                        FontSize="12"                                           
+                                        Foreground="Black"
+                                        FontWeight="DemiBold"
+                                        Background ="Transparent"
+                                        HorizontalAlignment="Left" Margin="30,0,0,0"/>
+                            <Image x:Name="ImgUp"  Source="\icons\updown arrow red copy.png"  Margin="30 4 0 0"
+										               Height="25" Width="20" HorizontalAlignment="Right"/>
+                        </StackPanel>
+                    </Grid>
+                </ControlTemplate>
+            </GridSplitter.Template>
+        </GridSplitter>
+
+        <Grid x:Name="Flowdocgrid" Grid.Row="3" VerticalAlignment="Stretch"
                   Width="{Binding ActualWidth, ElementName=Listboxgrid,
                     Converter={StaticResource ReduceByParamValue},ConverterParameter=20}">
 
@@ -355,7 +423,9 @@
                     BorderBrush="White"
                     HorizontalAlignment="Stretch"                                      
                     VerticalAlignment="Stretch"
-                    Margin="5 10,2,5"
+                    IsHitTestVisible="True"
+                    KeyDown="Spresultsviewer_KeyDown"
+                    Margin="5 5,2,5"
                     HorizontalScrollBarVisibility="Auto"
                     VerticalScrollBarVisibility="Visible"
                     Background="{StaticResource Black7}"
@@ -364,15 +434,50 @@
                     PreviewMouseRightButtonDown="TextResult_PreviewMouseRightButtonDown"
                     TextOptions.TextFormattingMode="Ideal"
                     TextOptions.TextRenderingMode="ClearType"/>
+
+
         </Grid>
+
+        <CheckBox x:Name="ShowingAllSprocs"
+                          Grid.Row="4"
+                          Grid.Column="0"
+                          HorizontalAlignment="Left"
+                          VerticalAlignment="Top"
+                          Background="{StaticResource Red5}"
+                          FontSize="14"
+                          Foreground="Black"
+                          FontWeight="DemiBold"
+                          Content="Show All Stored Procedures"                      
+                          IsChecked="{Binding  ShowingAllSPs}"
+                          IsHitTestVisible="true"                          
+                          Click="ShowAllSps"
+                          Margin="15,3,0,0" Width="401" Checked="ShowingAllSps_Checked"/>
+
+        <CheckBox x:Name="OntopCheck"
+                          Grid.Row="4"
+                          Grid.Column="2"
+                          HorizontalAlignment="Right"
+                          VerticalAlignment="Top"
+                          Background="{StaticResource Green4}"
+                          FontSize="14"
+                          Foreground="Black"
+                          FontWeight="DemiBold"
+                          Content="Keep on Top"                          
+                          IsChecked="true"
+                          IsHitTestVisible="true"
+                          Panel.ZIndex="{Binding zOrder}"
+                          Click="OntopCheck_Click"
+                          Margin="0,3,10,0"/>
 
         <!--Height="{Binding ActualHeight, ElementName=vrow3,
                     Converter={StaticResource ReduceByParamValue},ConverterParameter=0}"-->
-        
-        <Grid  x:Name="buttonspanelgrid" Grid.Row="3" VerticalAlignment="Bottom"
+
+        <Grid  x:Name="buttonspanelgrid" Grid.Row="4" VerticalAlignment="Bottom"
                  Width="{Binding ActualWidth, ElementName=SpViewerResults,
                     Converter={StaticResource ReduceByParamValue},ConverterParameter=30}"
-               Height="100"
+                Height="100"
+                IsHitTestVisible="True"
+               KeyDown="Spresultsviewer_KeyDown"
                 HorizontalAlignment="Stretch"
                Visibility="Visible">
 
@@ -380,20 +485,21 @@
                 <ColumnDefinition  x:Name="vcol1" Width="*"/>
                 <ColumnDefinition  x:Name="vcol2" Width="100"/>
             </Grid.ColumnDefinitions>
-    
+
             <Grid x:Name="wrapper" Grid.Column="0" 
                     Height="90"
                     Background="Transparent"
                     Opacity="0.9"
                     HorizontalAlignment="Stretch"                    
                     VerticalAlignment="Stretch">
-                
+
                 <Grid.RowDefinitions>
                     <RowDefinition Height="50"/>
                     <RowDefinition Height="40"/>
                 </Grid.RowDefinitions>
                 <TextBlock x:Name="prompter" 
                        Grid.Row="0"
+                      Grid.Column="0"
                        HorizontalAlignment="Stretch"                        
                        TextAlignment="Center"    
                        Height="40"
@@ -402,9 +508,12 @@
                        TextWrapping="Wrap"
                        FontSize="16"
                         Padding="10 0 10 0"
+                        IsHitTestVisible="True"
+                        KeyDown="Spresultsviewer_KeyDown"
                         Background="Transparent"
                         Foreground="Red"
                         FontWeight="DemiBold"
+                        ToolTip="Press F1 for detailed information on how to pass parameters"
                         Text="Select the S.P required, enter any Argument(s) required and then Press Enter or Click Execute Button"
                         Margin="0 0 0 0"/>
 
@@ -424,11 +533,15 @@
                          MouseLeftButtonDown="SPArguments_MouseLeftButtonDown"
                          GotFocus="SPArguments_GotFocus"
                         UseLayoutRounding="True"
+                        ToolTip="Press F1 for detailed information on how to pass parameters"
                         Visibility="Visible" 
                          Width="Auto" 
-                        Margin="3 0 0 0"/>
+                        Margin="3 0 0 0" />
+
+
+
             </Grid>
-            
+
             <Grid x:Name="ButtonsGrid"
                 HorizontalAlignment="Right" 
                   VerticalAlignment="Bottom" 
@@ -436,16 +549,15 @@
                   Margin="0 0 -10 0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="35"/>
-                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="40"/>
                 </Grid.RowDefinitions>
 
-                <Button x:Name="ExecuteBtn"  Grid.Column="2"
+                <Button x:Name="ExecuteBtn"
                     Grid.Row="0"
                     Height="32"
                     Width="100" 
-                    HorizontalAlignment="Right"                                     
-                    Margin="0 -25 0 0"
-                    VerticalAlignment="Stretch"
+                    HorizontalAlignment="Left"                                     
+                    Margin="11,-4,0,7"
                     FontSize="14"
                     Style="{StaticResource ButtonSlant}"
                     Content="&lt;-- Execute"
@@ -472,26 +584,29 @@
                     Converter={StaticResource ReduceByParamValue},ConverterParameter=0}"
                 Height="{Binding ActualHeight, ElementName=SpViewerResults,
                     Converter={StaticResource ReduceByParamValue},ConverterParameter=0}"
+                  Panel.ZIndex="15"
                 Visibility="Collapsed">
 
             <!--#region  popup select processing method (int, collection, none)-->
-            <Grid x:Name="OperationSelection" 
+            <!--<Grid x:Name="OperationSelection" 
                   Height="200" 
                   Width="300" 
                   Background="Orange" 
                   Canvas.Top="100" 
                   Canvas.Left="200" 
                   Visibility="Collapsed">
-                
+
                 <Border BorderBrush="Black" BorderThickness="3"/>
-                
+
                 <Grid x:Name="innercontainer">
-                    
+
                     <ListBox x:Name="operationtype2" 
                              Height="130" 
                              Width="290" 
                              Margin="5 10 5 0" 
                              VerticalAlignment="Top" 
+                            IsHitTestVisible="True"
+                             KeyDown="Spresultsviewer_KeyDown"
                              HorizontalContentAlignment="Center" 
                              ItemContainerStyle="{StaticResource SpMethodsStyle}"
                              FontSize="16"/>
@@ -519,17 +634,19 @@
                             VerticalAlignment="Bottom" 
                             HorizontalAlignment="Right" 
                             Margin="0 0 120 10"/>
-                </Grid>
-                <!--#endregion  popup processing type selection-->
-            </Grid>
+                </Grid>-->
+            <!--</Grid>-->
+
+            <!--#endregion  popup processing type selection-->
 
             <!--#region  popup Info for error input-->
             <Grid x:Name="DetailInfo" 
                   Height="300" 
                   Width="600" 
                   Background="{StaticResource Blue5}" 
-                  Canvas.Top="50" 
-                  Canvas.Left="10" 
+                  Canvas.Top="350" 
+                  Canvas.Left="200" 
+                  Panel.ZIndex="10"
                   Visibility="Collapsed">
 
                 <Border BorderBrush="Black" BorderThickness="3"/>
@@ -543,7 +660,9 @@
                             Foreground="{StaticResource Red2}"
                             Margin="5 10 5 0" 
                             Padding="10 10 10 0"
-                           TextWrapping="Wrap"
+                            IsHitTestVisible="True"
+                            KeyDown="Spresultsviewer_KeyDown"
+                          TextWrapping="Wrap"
                             VerticalAlignment="Top" 
                             ScrollViewer.VerticalScrollBarVisibility="Visible"
                             FontSize="16"/>
@@ -552,6 +671,8 @@
                             Width="370" 
                             Background="{StaticResource White3}"
                             Foreground="{StaticResource Black1}"
+                            IsHitTestVisible="True"
+                             KeyDown="Spresultsviewer_KeyDown"
                             Margin="10 3 0 13" 
                             Padding="10 3 10 0"
                             HorizontalAlignment="Left"
@@ -559,8 +680,8 @@
                             VerticalAlignment="Bottom" 
                             FontSize="16"/>
 
-                            <!--Background="{StaticResource Green5}"-->
-                    <Button x:Name="Executer" 
+                    <!--Background="{StaticResource Green5}"-->
+                    <!--<Button x:Name="Executer" 
                             Click="Exec_Click"
                              Foreground="{StaticResource White0}"
                             Height="35" 
@@ -571,8 +692,8 @@
                             VerticalAlignment="Bottom" 
                             HorizontalAlignment="Right" 
                             Style="{StaticResource ButtonSlant}"
-                            Margin="0 0 115 10"/>
-                    
+                            Margin="0 0 115 10"/>-->
+
                     <Button x:Name="closepanel" 
                             Click="Closepanel_Click"
                             Height="35" 
@@ -587,8 +708,8 @@
                             Margin="0 0 10 10"/>
                 </Grid>
                 <!--#endregion  popup Info for error input-->
-                
-             </Grid>
+
+            </Grid>
 
         </Canvas>
     </Grid>

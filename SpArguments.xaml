@@ -1,0 +1,63 @@
+﻿<Window x:Class="NewWpfDev.SpArguments"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:NewWpfDev"
+        mc:Ignorable="d"
+        WindowChrome.ResizeGripDirection="BottomRight"
+	    ResizeMode="CanResizeWithGrip"
+        Background="{StaticResource Blue5}"
+        IsHitTestVisible="True"
+        KeyDown="PasteButton_KeyDown"
+        Topmost="True"
+        Title="Stored Procedure Arguments Help" Height="250" Width="500">
+    
+    <Grid
+            IsHitTestVisible="True"
+            KeyDown="PasteButton_KeyDown">
+        
+        <TextBlock x:Name="SPHeaderblock"
+            Background="{StaticResource White4}" 
+            Foreground="Black" 
+            FontSize="18"
+            Padding="20 10 0 0"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            IsHitTestVisible="True"
+            KeyDown="PasteButton_KeyDown"
+            ToolTip="Click 'Paste' button or press Enter to paste (adjusted) arguments into the Window's arguments field"
+            Margin="5 5  5 45"/>
+
+        <Button Click="Button_Click" 
+                Background="{StaticResource Red4}"
+                Foreground="White"
+                Height="30"
+                Width="150"
+                Content="Close Help"
+                Padding="0  0 0 5"
+                FontSize="16"
+                FontWeight="DemiBold"
+                IsHitTestVisible="True"
+                VerticalAlignment="Bottom"
+                HorizontalAlignment="Right"
+                ToolTip="Click button or press Escape to close this help window"
+                Margin="0 0 5 6"/>
+        
+        <Button Click="Paste_Click" 
+                Background="{StaticResource Green5}"
+                Foreground="OrangeRed"
+                Padding="0  0 0 5"
+                Height="30"
+                Width="220"
+                KeyDown="PasteButton_KeyDown"
+                Content="Paste into argument buffer"
+                IsHitTestVisible="True"
+                FontSize="16"
+                FontWeight="DemiBold"
+                ToolTip="Click button or press Enter to paste (adjusted) arguments into the Window's arguments field"
+                VerticalAlignment="Bottom"
+                HorizontalAlignment="Right"
+                Margin="0 0 160 6"/>
+    </Grid>
+</Window>

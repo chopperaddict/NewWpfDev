@@ -10,6 +10,7 @@
     <Platforms>AnyCPU;x64</Platforms>
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -35,12 +36,16 @@
   <ItemGroup>
     <Compile Remove="Configurations\**" />
     <Compile Remove="oldThemes\**" />
+    <Compile Remove="UserControls\saved older versions\**" />
     <EmbeddedResource Remove="Configurations\**" />
     <EmbeddedResource Remove="oldThemes\**" />
+    <EmbeddedResource Remove="UserControls\saved older versions\**" />
     <None Remove="Configurations\**" />
     <None Remove="oldThemes\**" />
+    <None Remove="UserControls\saved older versions\**" />
     <Page Remove="Configurations\**" />
     <Page Remove="oldThemes\**" />
+    <Page Remove="UserControls\saved older versions\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -254,9 +259,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DocumentFormat.OpenXml" Version="2.17.1">
-      <TreatAsUsed>true</TreatAsUsed>
-    </PackageReference>
     <PackageReference Include="Microsoft.Data.SqlClient" Version="4.1.0">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>

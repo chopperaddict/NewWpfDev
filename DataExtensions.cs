@@ -96,20 +96,20 @@ namespace NewWpfDev
         }
 
         //Extension Method
-        public static Dictionary<string , string> GetDbTableColumns (
-            this ObservableCollection<DapperGenericsLib . GenericClass> Gencollection ,
-            ref List<Dictionary<string , string>> ColumntypesList ,
-             ref List<string> list ,
-             string dbName ,
-             string DbDomain ,
-             ref List<DapperGenericsLib . DataGridLayout> dglayoutlist )
-        {
-            //$"Entering " . cwinfo ( );
-            // Make sure we are accessing the correct Db Domain
-            DapperLibSupport . CheckDbDomain ( DbDomain );
-            Dictionary<string , string> dict = DapperGenLib . GetSpArgs ( ref Gencollection , ref ColumntypesList , ref list , dbName , DbDomain , ref dglayoutlist );
-            return dict;
-        }
+        //public static Dictionary<string , string> GetDbTableColumns (
+        //    this ObservableCollection<DapperGenericsLib . GenericClass> Gencollection ,
+        //    ref List<Dictionary<string , string>> ColumntypesList ,
+        //     ref List<string> list ,
+        //     string dbName ,
+        //     string DbDomain ,
+        //     ref List<DataTableLayout> dglayoutlist )
+        //{
+        //    //$"Entering " . cwinfo ( );
+        //    // Make sure we are accessing the correct Db Domain
+        //    DapperLibSupport . CheckDbDomain ( DbDomain );
+        //    Dictionary<string , string> dict = DapperGenLib . GetSpArgs ( ref Gencollection , ref ColumntypesList , ref list , dbName , DbDomain , ref dglayoutlist );
+        //    return dict;
+        //}
 
         #region non Extension support methods
         public static void CheckDbDomain ( string DbDomain )

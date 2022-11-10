@@ -6,17 +6,12 @@
 
 using System;
 using System . Collections . Generic;
-using System . Data . SqlClient;
 using System . Diagnostics;
-using System . Threading;
 using System . Windows;
 using System . Windows . Controls;
-using System . Windows . Controls . Primitives;
 using System . Windows . Media;
 
-
-
-namespace NewWpfDev. Views
+namespace NewWpfDev . Views
 {
     public static class Flags
     {

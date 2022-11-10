@@ -1,4 +1,43 @@
 ﻿=============================================================================================================
+    How to set get return values from SQL requests
+===============================================================================================================
+		
+		var p = new DynamicParameters();
+		p.Add("@a", 11);
+		p.Add("@b", dbType: DbType.Int32, direction: ParameterDirection.Output);
+		p.Add("@c", dbType: DbType.Int32, direction: ParameterDirection.ReturnValue);
+
+		cnn.Execute("spMagicProc", p, commandType: commandType.StoredProcedure); 
+
+		int b = p.Get<int>("@b");
+		int c = p.Get<int>("@c");
+
+=============================================================================================================
+    How to set  grid.Row height from c#
+===============================================================================================================
+
+		grid1.RowDefinitions[0].Height = new GridLength(30);
+
+=============================================================================================================
+    How to access return value from dapper Query that passes an OUTPUT or RETURN variable in the Args
+===============================================================================================================
+            // assuming this result is returned in List<string with just one row in @Retval.
+           // access  the variable paased  to SQL server by name
+		   res3 . Get<int> ( "@Retval" );
+		   // as we only got one row, we can access it using index [0] .....
+		   // other options can be used of course.
+            int colcount = Convert . ToInt32 ( SqlQuerylist [ 0 ] );
+=============================================================================================================
+    How to convert a Dynamic to an Int (or string or whatever else is needed)
+===============================================================================================================
+
+                dynamic counter = sqlCon . Query ( spCommand , parameters , commandType: CommandType . Text );
+                // Method found in Genericrid.CS
+				dynamic  str9 = Genericgrid . GetStringFromDynamic ( counter );
+                string stdstring = str9 . ToString ( ); 
+                string [ ] splitter = stdstring . Split ( "," );
+                res = Convert . ToInt32 ( splitter [0] .ToString ());
+=============================================================================================================
     How to load S.P contents (for FlowDocScrollViewer or other string viewer) from C# code 
 ===============================================================================================================
 

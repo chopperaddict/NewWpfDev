@@ -226,7 +226,7 @@ namespace Views
                         err = "";
                         args3 [ 0 ] = NewDbName;
                         string [ ] output;
-                        var reccount = dgControl . ExecuteDapperCommand ( "Drop Table if exists " , args3 , out err );
+                        var reccount = dgControl . ExecuteDapperTextCommand ( "Drop Table if exists " , args3 , out err );
                         if ( err != "" && err . ToUpper ( ) . Contains ( "PROBLEM-FILE  EXISTS" ) == false )
                         {
                             MessageBoxResult result3 = MessageBox . Show ( $"Failed to delete (Drop) the original table, so processing will now end\n Error message  ={err}" , "Deletion failed" ,
@@ -1035,7 +1035,7 @@ namespace Views
                 string [ ] args1 = { $"{NewDbName}" };
                 int colcount = dgControl . datagridControl . Columns . Count;
                 DatagridControl . LoadActiveRowsOnlyInGrid ( dgControl . datagridControl , GenericControl . GridData , colcount );
-                GenericControl . ResetColumnHeaderToTrueNames ( NewDbName , dgControl . datagridControl );
+                GenericControl . ResetColumnHeaderToTrueNames ( GenericControl . GridData , NewDbName , dgControl . datagridControl );
                 GenericControl . LoadDbTables ( NewDbName );
                 GenericControl . statusbar . Text = $"The current table [{originalname . ToUpper ( )}] was saved as [{NewDbName . ToUpper ( )}] successfully ...";
             }
@@ -1061,19 +1061,23 @@ namespace Views
         {
             List<string> SqlQuerylist = new List<string> ( );
             //string err2 = "";
+            //***************************************//
+            // ALL WORKING CORRECTLY 3/11/2022
+            // Making direct SQL enquireis on SQL server
+            //***************************************//
             string spCommand = "drop table if exists zz";
-            SqlQuerylist = DatagridControl . ProcessUniversalQueryStoredProcedure ( spCommand , args , CurrentTableDomain , out string err21 );
-            spCommand = $"drop table if exists zzz";
-            SqlQuerylist = DatagridControl . ProcessUniversalQueryStoredProcedure ( spCommand , args , CurrentTableDomain , out string err3 );
+            dgControl . ExecuteDapperScalar ( spCommand , args , out string err );
+            string err21 = "";
+              spCommand = $"drop table if exists zzz";
+            dgControl . ExecuteDapperScalar ( spCommand , args , out string err3 );
             spCommand = $"select column_name,upper(Table_name) as name into zz from information_schema.columns; ";
-            SqlQuerylist = DatagridControl . ProcessUniversalQueryStoredProcedure ( spCommand , args , CurrentTableDomain , out string err31 );
-            spCommand = $"select column_name, name into zzz from zz where name='{tname}'; "; 
-            SqlQuerylist = DatagridControl . ProcessUniversalQueryStoredProcedure ( spCommand , args , CurrentTableDomain , out string err4 );
-            
-            // proven way to get a count value  back from dapper
+            dgControl . ExecuteDapperScalar ( spCommand , args , out string err31 );
+             spCommand = $"select column_name, name into zzz from zz where name='{tname}'; ";
+            dgControl . ExecuteDapperScalar ( spCommand , args , out string err4 );
+
+            // proven way to get a count value  back from dapper - WORKING 3/11/2022
             spCommand = $"select count(name) as cnt from zzz;";
-            var colcount = dgControl . ExecuteDapperScalar( spCommand , args , out string err );
-            //SqlQuerylist = DatagridControl . ProcessUniversalQueryStoredProcedure ( spCommand , args , CurrentTableDomain, out string err25);
+            var colcount = dgControl . ExecuteDapperScalar( spCommand , args , out string err33 , 1);
             Debug . WriteLine ( $"Columns count returned [ {colcount} ]" );
             if ( err21 != "" )
                 Debug . WriteLine ( $"SqlCommand [ {spCommand} ] failed : Reason [ {err21} ]" );
@@ -1082,6 +1086,7 @@ namespace Views
            // int colcount = Convert . ToInt32 ( SqlQuerylist [ 0 ] );
             return colcount;
         }
+
         // EOF EOF EOF EOF EOF EOF EOF EOF EOF EOF EOF EOF EOF EOF EOF EOF EOF EOF EOF EOF EOF EOF 
     }
 }

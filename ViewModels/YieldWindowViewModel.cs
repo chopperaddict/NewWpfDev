@@ -13,7 +13,6 @@ using System . Windows . Controls;
 using System . Windows . Data;
 using System . Windows . Input;
 
-using DocumentFormat . OpenXml . Drawing;
 
 using NewWpfDev . SQL;
 using NewWpfDev . Views;

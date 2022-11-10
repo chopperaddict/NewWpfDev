@@ -1,0 +1,80 @@
+﻿<Window x:Class="NewWpfDev.ShowArgumentsHelp"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:NewWpfDev"
+        mc:Ignorable="d"
+        WindowStartupLocation="CenterOwner"
+        Loaded="Window_Loaded"
+        WindowState="Normal"
+        WindowStyle="SingleBorderWindow"
+  	    WindowChrome.ResizeGripDirection="BottomRight"
+	    ResizeMode="CanResizeWithGrip"
+        Title="ShowArgumentsHelp" Height="411" Width="900">
+    <Grid>
+        <Border x:Name="bdr" BorderBrush="{StaticResource Green3}" 
+                BorderThickness="3 3 3 10" Background="{StaticResource Blue7}"
+            Panel.ZIndex="300">
+            <Grid >
+                <Grid.RowDefinitions>
+                    <RowDefinition x:Name="row0" Height="35"/>
+                    <RowDefinition  x:Name="row1" Height="*"/>
+                    <RowDefinition  x:Name="row2" Height="45"/>
+                </Grid.RowDefinitions>
+                
+                <TextBlock x:Name="header" 
+                           Grid.Row="0"
+                            HorizontalAlignment="Stretch"
+                           TextAlignment="Center"
+                           FontSize="16"
+                           Padding="0 5 0 0"
+                           Background="{StaticResource Red5}"
+                           Foreground="White"
+                           Text="IMPORTANT Stored Procedure Execution Arguments Information"/>
+
+              
+                <TextBlock x:Name="ArgInfo" 
+                           Grid.Row="1"
+                           VerticalAlignment="Top"                           
+                           TextWrapping="Wrap"
+                           Background="{StaticResource White3}"
+                           FontSize="18"
+                           Padding="10 0 10 0"
+                           Margin="10 0 10 0"
+                           ScrollViewer.VerticalScrollBarVisibility="Visible"                           
+                           ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                           Visibility="Collapsed"/>
+              
+                <FlowDocumentScrollViewer x:Name="ScrollArginfo" 
+                    Grid.Row="1"
+                    BorderBrush="White"
+                    HorizontalAlignment="Stretch"   
+                    VerticalAlignment="top"                    
+                    IsHitTestVisible="True"
+                    Margin="5 5,2,5"
+                    HorizontalScrollBarVisibility="Auto"
+                    VerticalScrollBarVisibility="Visible"
+                    Background="{StaticResource Black7}"
+                    Foreground="{StaticResource White0}"                                              
+                    TextOptions.TextFormattingMode="Ideal"
+                    TextOptions.TextRenderingMode="ClearType"
+                    Visibility="Visible"/>
+
+
+                <Button x:Name="Closebtn" 
+                        Click="Closebtn_Click"
+                        Grid.Row="2"
+                        HorizontalAlignment="Right"
+                        Height="35"
+                        Width="120"
+                        FontSize="20"
+                        FontWeight="Bold"
+                        Content="Close...." 
+                        Margin="0 0 10 0"
+                        Background="{StaticResource Black5}"
+                        Foreground="White"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

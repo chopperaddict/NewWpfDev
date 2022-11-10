@@ -130,7 +130,8 @@ namespace NewWpfDev . Views {
             Maingrid . ColumnDefinitions [ 0 ] . Width= new GridLength ( 0 , GridUnitType . Pixel );
             //Maingrid . ColumnDefinitions [ 1 ] . Width = new GridLength ( 30 , GridUnitType . Pixel );
             //Maingrid . ColumnDefinitions [ 2 ] . Width = new GridLength ( 1 , GridUnitType . Star );
-            //Maingrid . ColumnDefinitions [ 3 ] . Width = new GridLength ( 10 , GridUnitType . Pixel );
+            //Maingrid . ColumnDefinitions [ 3 ] . Width = new
+            //GridLength ( 10 , GridUnitType . Pixel );
         }
 
         #region DP.s

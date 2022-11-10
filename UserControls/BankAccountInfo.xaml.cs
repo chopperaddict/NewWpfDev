@@ -13,7 +13,7 @@ using NewWpfDev . SQL;
 using NewWpfDev . ViewModels;
 using NewWpfDev . Views;
 
-using ServiceStack;
+
 
 namespace NewWpfDev . UserControls
 {

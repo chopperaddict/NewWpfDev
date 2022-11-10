@@ -9,7 +9,7 @@ namespace NewWpfDev
     using System . Runtime . Serialization;
     using System . Runtime . Serialization . Formatters . Binary;
 
-    using ServiceStack;
+
 
     /// <summary>
     /// Reference Article http://www.codeproject.com/KB/tips/SerializedObjectCloner.aspx

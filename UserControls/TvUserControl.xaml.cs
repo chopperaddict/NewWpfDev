@@ -15,8 +15,6 @@ using System . Windows . Media . Imaging;
 using System . Windows . Navigation;
 using System . Windows . Shapes;
 
-using DocumentFormat . OpenXml . Presentation;
-
 using NewWpfDev . ViewModels;
 using NewWpfDev . Views;
 

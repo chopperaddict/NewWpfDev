@@ -9,7 +9,7 @@ namespace NewWpfDev
     {
         public App ( ) : base ( )
         {
-            SetupUnhandledExceptionHandling ( );
+//            SetupUnhandledExceptionHandling ( );
         }
 
         private void SetupUnhandledExceptionHandling ( )

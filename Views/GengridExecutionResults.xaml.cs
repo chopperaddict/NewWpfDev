@@ -13,22 +13,27 @@ using System . Windows . Shapes;
 namespace Views
 {
     /// <summary>
-    /// Interaction logic for GengridExecutionResults.xaml
+     /// part of  GenDapperQueries (Partial class - 3 parts)
     /// </summary>
     public partial class GengridExecutionResults : Window
     {
         SpResultsViewer spResultsViewer;
-        public GengridExecutionResults ( SpResultsViewer  parent)
+
+        public bool IsHostTopmost { get; set; }
+        public GengridExecutionResults ( SpResultsViewer  parent, bool istopmost)
         {
             InitializeComponent ( );
             spResultsViewer = parent;
             WpfLib1 . Utils . SetupWindowDrag ( this );
-
+            IsHostTopmost = istopmost;
         }
         private void showExecuteresults_Click ( object sender , RoutedEventArgs e )
         {
-            //spResultsViewer . Visibility = Visibility . Collapsed;
-            spResultsViewer . OperationSelection . Visibility = Visibility . Collapsed;
+            if ( IsHostTopmost == true )
+            {
+                if( this . Topmost == true)
+                this . Topmost = false;
+            }
             this . Close ( );
         }
 

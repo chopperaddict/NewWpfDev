@@ -1,15 +1,6 @@
-﻿using System;
-using System . Collections . Generic;
-using System . ComponentModel;
-using System . Text;
+﻿using System . ComponentModel;
 using System . Windows;
-using System . Windows . Controls;
-using System . Windows . Data;
-using System . Windows . Documents;
 using System . Windows . Input;
-using System . Windows . Media;
-using System . Windows . Media . Imaging;
-using System . Windows . Shapes;
 
 namespace Views
 {
@@ -102,6 +93,31 @@ namespace Views
         }
 
         private void Window_PreviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
+        {
+
+        }
+
+        private void Window_Loaded ( object sender , RoutedEventArgs e )
+        {
+            if ( Msg1 . Text . Length > 150 )
+            {
+                this . Height += 80;
+                this . Width += 100;
+            }
+            else if ( Msg1 . Text . Length > 100 )
+            {
+                this . Height += 80;
+                this . Width += 80;
+            }
+            else if ( Msg1 . Text . Length > 50 )
+            {
+                this . Height += 60;
+                this . Width += 60;
+            }
+            e . Handled = true;
+        }
+
+        private void Window_SizeChanged ( object sender , SizeChangedEventArgs e )
         {
 
         }

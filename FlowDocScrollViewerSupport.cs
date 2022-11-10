@@ -60,10 +60,6 @@ namespace NewWpfDev
                         {
                             // Found it !!!!
                             position = soffset += tempRange . Text . IndexOf ( srchterm );
-                            //soffset -= linefeeds * 2;
-                            //soffset -= tabs * 2;
-                            // approximations  required to force it to a realistic position !!!!!
-                            //Debug . WriteLine (soffset);
                             if ( soffset < 200 )
                                 soffset = soffset - 100;
                             else if ( soffset < 300 )
@@ -84,8 +80,7 @@ namespace NewWpfDev
                                 soffset = ( int ) ( ( double ) soffset - ( ( double ) soffset / 6.0 ) );
                             else if ( soffset < 1200 )
                                 soffset = ( int ) ( ( double ) soffset - ( ( double ) soffset / 2.5 ) );
-                            // Debug . WriteLine ( $"Final offset= {soffset}, LF's = {linefeeds}, Tabs={tabs}" );// + tempRange . Text . Length + Environment . NewLine;
-
+ 
                             // save to return value
                             offset = soffset;
                             Debug . WriteLine ($"TextSearch match found...");
@@ -97,16 +92,12 @@ namespace NewWpfDev
                             // and linefeeds and finally carry on to next block (if any)
                             string blocktxt = tempRange . Text . ToString ( );
                             soffset += blocktxt . Length;
-                           // Debug . WriteLine ($"This block length = {soffset}");
                             // count linefeeds
                             strings = blocktxt . Split ( "\r\n" );
                             linefeeds += strings . Length;   // there are 2 characters in Cr/Lf pair!!!!
                             // count tabs
                             strings = blocktxt . Split ( "\t" );
                             tabs = +strings . Length;
-                            //save current offset to return variable
-                            //offset = soffset;
-                            //Debug . WriteLine ($"LF's={linefeeds}, tabs={tabs}");
                             continue;
                         }
                     }
@@ -116,12 +107,10 @@ namespace NewWpfDev
                         if ( actualtext . ToUpper ( ) == srchterm )
                         {
                             offset = ( int ) GetCharOffsetFromPointer ( line , doc );
-                            //Debug . WriteLine ( $"Offset of highlighted word {actualtext} is {offset}" );
-                            break;
+                             break;
                         }
                     }
                 }
-
                 return offset;
             }
             else
@@ -147,8 +136,7 @@ namespace NewWpfDev
                             if ( actualtext . ToUpper ( ) == srchterm )
                             {
                                 offset = GetCharOffsetFromPointer ( line , doc );
-                               // Debug . WriteLine ( $"Offset of highlighted word {actualtext} is {offset}" );
-                                break;
+                                 break;
                             }
                         }
                         if ( offset > ( double ) 0 )

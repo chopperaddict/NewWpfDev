@@ -947,7 +947,7 @@
                 </MenuItem.Header>
             </MenuItem>
 
-            <MenuItem  x:Name="cm3" FontSize="16" Click="LoadAllSPs_Click" IsEnabled="false">
+            <MenuItem  x:Name="cm3" FontSize="16" IsEnabled="false">
                 <MenuItem.Header>
                     <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
                         <TextBlock 
@@ -962,6 +962,49 @@
                 </MenuItem.Header>
             </MenuItem>
 
+            <MenuItem  x:Name="cm16" FontSize="16" Foreground=" Black" Click="LoadSpResultsAll"  IsEnabled="{Binding ExecuteLoaded}">
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                Text="Show Show S.P's Execution Window (All SP's)" 
+                                FontSize="16"
+                                Height="25"
+                                Padding="20 0 0 0"
+                                Margin="0 0 0 0"                               
+                                Width="425"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <MenuItem  x:Name="cm17" FontSize="16" Foreground=" Black" Click="LoadSpResultsMatch"  IsEnabled="{Binding ExecuteLoaded}">
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                Text="Show S.P's Execution Window (Matching SP's)" 
+                                FontSize="16"
+                                Height="25"
+                                Padding="20 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="425"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <MenuItem  x:Name="cm18" FontSize="16"  IsEnabled="false">
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                Text="------------------------------------------------------------------------"
+                                Foreground="{StaticResource Red0}" 
+                                FontSize="8"
+                                Height="15"
+                                Padding="20 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="425"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+            
             <MenuItem x:Name="cm4" FontSize="16" Click="LoadAllSPs_Click">
                 <MenuItem.Header>
                     <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
@@ -991,7 +1034,7 @@
             </MenuItem>
 
 
-            <MenuItem x:Name="cm6" FontSize="16" Click="LoadAllSPs_Click"  IsEnabled="false">
+            <MenuItem x:Name="cm6" FontSize="16"  IsEnabled="false">
                 <MenuItem.Header>
                     <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
                         <TextBlock 
@@ -1034,7 +1077,7 @@
                 </MenuItem.Header>
             </MenuItem>
 
-            <MenuItem x:Name="cm9" FontSize="16" Click="LoadAllSPs_Click"  IsEnabled="false">
+            <MenuItem x:Name="cm9" FontSize="16"  IsEnabled="false">
                 <MenuItem.Header>
                     <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
                         <TextBlock 
@@ -1078,7 +1121,7 @@
             </MenuItem>
 
             <!--// reload ALL SP.s-->
-            <MenuItem x:Name="cm12" FontSize="16" Click="LoadAllSPs_Click"  IsEnabled="false">
+            <MenuItem x:Name="cm12" FontSize="16"  IsEnabled="false">
                 <MenuItem.Header>
                     <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
                         <TextBlock 
@@ -1107,7 +1150,36 @@
                 </MenuItem.Header>
             </MenuItem>
 
-            <MenuItem x:Name="cm14" FontSize="16" Click="LoadAllSPs_Click"  IsEnabled="false">
+            <MenuItem x:Name="cm14" FontSize="16"  IsEnabled="false">
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                Text="------------------------------------------------------------------------"
+                                FontSize="8"
+                                Foreground="{StaticResource Red0}" 
+                                Height="15"
+                                Padding="20 0 0 0"
+                                Margin="0 0 0 0"
+                                Width="425"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <MenuItem   x:Name="cm19" Click="LoadAllDatabases" >
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                    Text="Switch to different SQL Database" 
+                                    FontSize="16"
+                                     Height="25"
+                                    Padding="20 0 0 0"
+                                    Margin="0 0 0 0"
+                                     Width="375"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <MenuItem x:Name="cm20" FontSize="16"  IsEnabled="false">
                 <MenuItem.Header>
                     <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
                         <TextBlock 
@@ -2239,7 +2311,7 @@
             </Border>-->
             <!--#endregion TreeViews-->
 
-            <!--<user:FlowDoc x:Name="Flowdoc"
+            <user:FlowDoc x:Name="Flowdoc"
 				backGround="{StaticResource Gray5}"
 				borderColor="{StaticResource Orange1}"
 				Canvas.Left="45"
@@ -2255,7 +2327,7 @@
 				Opacity="1"
 				Panel.ZIndex="22"
 				Visibility="Hidden"
-				Width="520" />-->
+				Width="520" />
 
 
         </Canvas>
@@ -2510,14 +2582,11 @@
                                                 PreviewMouseRightButtonUp="Splist_PreviewMouseRightButtonUp"
                                                 PreviewMouseDoubleClick="Splist_PreviewMouseDoubleClick"
                                                 FontWeight="DemiBold"                                 
-                                                Foreground="Black"
-                                                ToolTipService.ShowDuration="3000"
-                                                ToolTipService.HasDropShadow="True"
-                                                ToolTipService.BetweenShowDelay="5000"
+                                                Foreground="Black"                                                
                                                 ItemContainerStyle="{StaticResource SpStringsStyle}">
-                                <ListBox.ToolTip  >
+                                <!--<ListBox.ToolTip  >
                                     <ToolTip>
-                                        <Border Width="240" Height="85" BorderBrush="{StaticResource Red4}" BorderThickness="2">
+                                        <Border Width="240" Height="105" BorderBrush="{StaticResource Red4}" BorderThickness="2">
                                             <TextBlock x:Name="ViewerBanner"
                                                         Text="Right click to toggle list between All SP's and only those that contain the current search text"
                                                         Padding="10 5 10 10"
@@ -2527,7 +2596,7 @@
                                                         TextWrapping="Wrap"/>
                                         </Border>
                                     </ToolTip>
-                                </ListBox.ToolTip>
+                                </ListBox.ToolTip>-->
                             </ListBox>
                         </Grid>
                         <!--#endregion SP List box-->
@@ -2771,7 +2840,7 @@
 
         </Grid>
         <!--#endregion Main Btn Panel-->
-
+       
         <!--// TREEVIEW EXAMPLE FOR TESTING-->
         <!--<TreeView ItemsSource="{Binding Source={StaticResource MyBooks}, Path=Booklist}">
             <TreeView.Resources>

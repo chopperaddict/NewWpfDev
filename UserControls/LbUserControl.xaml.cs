@@ -335,7 +335,7 @@ namespace NewWpfDev . UserControls {
             //WpfLib1 . Utils . IsHashEqual ( Tabview . Tabcntrl . lbUserctrl . listbox1 , this . listbox1 , "Tabview . Tabcntrl . lbUserctrl. listbox1" , "this.listbox1" , true ); 
             Application . Current . Dispatcher . Invoke ( async ( ) => {
                 await DispatcherExtns . SwitchToUi ( Application . Current . Dispatcher );
-                Debug . WriteLine ( $"\nInside Dispatcher" );
+                //Debug . WriteLine ( $"\nInside Dispatcher" );
                 $"Dispatcher on UI thread =  {Application . Current . Dispatcher . CheckAccess ( )}" . CW ( );
                 CurrentType = "BANK";
                 TabWinViewModel . TriggerDbType ( CurrentType );
@@ -356,7 +356,7 @@ namespace NewWpfDev . UserControls {
             //Works  well - Fast too 1//7/2022
             Application . Current . Dispatcher . Invoke ( async ( ) => {
                 await DispatcherExtns . SwitchToUi ( Application . Current . Dispatcher );
-                Debug . WriteLine ( $"\nInside Dispatcher" );
+                //Debug . WriteLine ( $"\nInside Dispatcher" );
                 $"Dispatcher on UI thread =  {Application . Current . Dispatcher . CheckAccess ( )}" . CW ( );
                 Bvm = new ObservableCollection<BankAccountViewModel> ( );
             this . listbox1 . ItemsSource = null;
@@ -381,7 +381,7 @@ namespace NewWpfDev . UserControls {
             if ( e . CallerDb != "LbUserControl" ) return;
             Application . Current . Dispatcher . Invoke ( async ( ) => {
                 await DispatcherExtns . SwitchToUi ( Application . Current . Dispatcher );
-                Debug . WriteLine ( $"\nInside Dispatcher" );
+                //Debug . WriteLine ( $"\nInside Dispatcher" );
                 $"Dispatcher on UI thread =  {Application . Current . Dispatcher . CheckAccess ( )}" . CW ( );
                 this . listbox1 . ItemsSource = null;
                 this . listbox1 . Items . Clear ( );
@@ -435,7 +435,7 @@ namespace NewWpfDev . UserControls {
             if ( e . CallerType != "LbUserControl" ) return;
             Application . Current . Dispatcher . Invoke ( async ( ) => {
                 await DispatcherExtns . SwitchToUi ( Application . Current . Dispatcher );
-                Debug . WriteLine ( $"\nInside Dispatcher" );
+                //Debug . WriteLine ( $"\nInside Dispatcher" );
                 $"Dispatcher on UI thread =  {Application . Current . Dispatcher . CheckAccess ( )}" . CW ( );
                 this . listbox1 . ItemsSource = null;
                 this . listbox1 . Items . Clear ( );

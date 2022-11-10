@@ -20,7 +20,7 @@ using NewWpfDev . Models;
 using NewWpfDev . UserControls;
 using NewWpfDev . ViewModels;
 
-using ServiceStack;
+
 
 using static NewWpfDev . Views . Tabview;
 
@@ -146,23 +146,16 @@ namespace NewWpfDev . Views {
             DependencyProperty . Register ( "Combobox" , typeof ( ComboBox ) , typeof ( Tabview ) , new PropertyMetadata ( ( ComboBox ) null ) );
 
         public bool ViewersLinked {   // DP VIEWERSLINKED
-            get {
-                return ( bool ) GetValue ( ViewersLinkedProperty );
-            }
-            set {
-                SetValue ( ViewersLinkedProperty , value );
-            }
+            get {return ( bool ) GetValue ( ViewersLinkedProperty );}
+            set {SetValue ( ViewersLinkedProperty , value );}
         }
         public static readonly DependencyProperty ViewersLinkedProperty =
             DependencyProperty . Register ( "ViewersLinked" , typeof ( bool ) ,
                 typeof ( Tabview ) , new PropertyMetadata ( ( bool ) false ) );
 
         public string DbType {
-            get {
-                return ( string ) GetValue ( DbTypeProperty );
-            }
-            set {
-                SetValue ( DbTypeProperty , value );
+            get {return ( string ) GetValue ( DbTypeProperty );}
+            set {SetValue ( DbTypeProperty , value );
                 NotifyPropertyChanged ( nameof ( DbType ) );
                 Tabview . SetDbType ( value );
             }
@@ -171,12 +164,8 @@ namespace NewWpfDev . Views {
             DependencyProperty . Register ( "DbType" , typeof ( string ) , typeof ( Tabview ) , new PropertyMetadata ( "BANK" ) );
 
         public Tabview TabViewWin {// DP TABVIEWWIN
-            get {
-                return ( Tabview ) GetValue ( TabViewWinProperty );
-            }
-            set {
-                SetValue ( TabViewWinProperty , value );
-            }
+            get {return ( Tabview ) GetValue ( TabViewWinProperty );}
+            set {SetValue ( TabViewWinProperty , value );}
         }
         public static readonly DependencyProperty TabViewWinProperty =
             DependencyProperty . Register ( "TabViewWin" , typeof ( Tabview ) ,
@@ -237,6 +226,7 @@ namespace NewWpfDev . Views {
             if ( DGControlProperty == null ) return null;
             return ( DataGrid ) obj . GetValue ( DGControlProperty );
         }
+
         public static void SetDGControl ( DependencyObject obj , DataGrid value ) {
             obj . SetValue ( DGControlProperty , value );
         }
@@ -288,7 +278,7 @@ namespace NewWpfDev . Views {
             TabViewWin = this;
             //Tctrl = Tabcntrl;
             //Debug . WriteLine ($"{ Tctrl.GetType()}");
-            FlowdocLib fdl = new FlowdocLib ( Flowdoc , canvas );
+            //FlowdocLib fdl = new FlowdocLib ( this.Flowdoc , this.canvas );
 
             CreateControlStructs ( );
             InitializeComponent ( );
@@ -328,14 +318,22 @@ namespace NewWpfDev . Views {
             Tabview . Tabcntrl . DtTemplates . TemplatesCombo . SelectedIndex = 0;
             Mouse . OverrideCursor = Cursors . Arrow;
             Utils . SetupWindowDrag ( this );
-            //Infopanelptr = LoadName;
-            //string [ ] strs = { "" , "" , "" };
-            //bool result = Utils . GetDynamicVarType ( Infopanelptr , out strs );
-            //Debug . WriteLine ( $"TextBlock Info panel type is ListView : \n\"{strs [ 0 ]}\"\n\"{strs [ 1 ]}\"\n\"{strs [ 2 ]}\"" );
-            // How to use "Public Static Dynamic" pointer to access Infopanel TextBlock Text from anywhere in Tabview
+                // How to use "Public Static Dynamic" pointer to access Infopanel TextBlock Text from anywhere in Tabview
             LoadName . Text = "Tabview loaded successfully";
             IsLoading = false;
-            Console. WriteLine ("HOOOORAH, CONSOLE WRITELINE IS WORKING !!!!!!");
+
+            Console . WriteLine ("HOOOORAH, CONSOLE WRITELINE IS WORKING !!!!!!");
+        }
+
+        private void Window_Loaded ( object sender , RoutedEventArgs e )
+        {
+            Tabctrl . SelectedIndex = 0;
+            FlowdocLib fdl = new FlowdocLib ( this . Flowdoc , this . canvas );
+            TabWinViewModel . IsLoadingDb = false;
+
+            Application . Current . Dispatcher . Invoke ( async ( ) =>
+                ControllerVm . SetCurrentTab ( this , "DgridTab" )
+            );
         }
 
         public static int FindDbName ( string dbname ) {
@@ -539,13 +537,6 @@ namespace NewWpfDev . Views {
             DgUserControl . SetListSelectionChanged ( val );
             linkViewers . IsChecked = val;
             ViewersLinked = val;
-        }
-        private void Window_Loaded ( object sender , RoutedEventArgs e ) {
-            Tabctrl . SelectedIndex = 0;
-            TabWinViewModel . IsLoadingDb = false;
-            Application . Current . Dispatcher . Invoke ( async ( ) =>
-                ControllerVm . SetCurrentTab ( this , "DgridTab" )
-            );
         }
         #endregion Startup
 

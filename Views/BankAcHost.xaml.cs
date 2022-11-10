@@ -262,7 +262,7 @@ namespace NewWpfDev . Views
                                 GenericGridControl . Title1 = tablename;
                                 //st<DapperGenericsLib . DataGridLayout> dglayoutlist = new List<DapperGenericsLib . DataGridLayout> ( );
                                 if ( GenericGrid . maskcols . Content . ToString ( ) == "Mask Columns" )
-                                    DapperLibSupport . ReplaceDataGridFldNames ( tablename , ref GenericGrid . datagrid1 , ref GenericGridControl . dglayoutlist1 , colcount );
+                                    DapperLibSupport . ReplaceDataGridFldNames ( tablename , ref GenericGrid . datagrid1 , ref GenericGridControl. dglayoutlist1 , colcount );
                                 else
                                     GenericGrid . SetDefColumnHeaderText ( GenericGrid . datagrid1 , false );
                                 // Setup new label and default table name
@@ -296,7 +296,7 @@ namespace NewWpfDev . Views
                                 GenericGridControl . Title2 = tablename;
                                 //st<DapperGenericsLib . DataGridLayout> dglayoutlist = new List<DapperGenericsLib . DataGridLayout> ( );
                                 if ( GenericGrid . maskcols . Content . ToString ( ) == "Mask Columns" )
-                                    DapperLibSupport . ReplaceDataGridFldNames ( tablename , ref GenericGrid . datagrid2 , ref GenericGridControl . dglayoutlist2 , colcount );
+                                    DapperLibSupport . ReplaceDataGridFldNames ( tablename , ref GenericGrid . datagrid2 , ref GenericGridControl. dglayoutlist2 , colcount );
                                 else
                                     GenericGrid . SetDefColumnHeaderText ( GenericGrid . datagrid2 , false );
                                 // Setup new label and default table name

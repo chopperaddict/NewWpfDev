@@ -7,29 +7,237 @@
         xmlns:conv="clr-namespace:NewWpfDev.Converts"
         mc:Ignorable="d"
         IsHitTestVisible="True"
+        Loaded="Window_Loaded"
         PreviewMouseLeftButtonDown="Window_PreviewMouseLeftButtonDown"
-        Title="CustomMsgBox" Height="240" Width="486"
-        WindowStyle="None"        
-        WindowStartupLocation="CenterOwner">
+        Title="CustomMsgBox" Height="220" Width="386"
+        MinHeight="220" MinWidth="380"
+        WindowStyle="SingleBorderWindow"
+        SizeChanged="Window_SizeChanged"
+    	WindowChrome.ResizeGripDirection="BottomRight"
+	    ResizeMode="CanResizeWithGrip"
+        WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
         <conv:ReduceByParamValue x:Key="ReduceByParamValue"/>
+
+        <Style x:Key="BtnText" TargetType="TextBlock">
+            <!--Default layout-->
+            <Setter Property="OverridesDefaultStyle" Value="True" />
+            <!--These defaults can be overriden by the Button Code in the design-->
+            <!--<Setter Property="Height" Value="25" />
+            <Setter Property="Width" Value="150" />-->
+            <!--<Setter Property="BorderBrush" Value="Black" />-->
+            <Setter Property="Foreground" Value="White" />
+            <!--<Setter Property="BorderThickness" Value="1" />-->
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <!--<Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush 
+                                    StartPoint="0.2, 0" EndPoint="0, 1">
+                        <GradientStop Offset="0" Color="#DF000000" />
+                        <GradientStop Offset="4" Color="#69000000" />
+                        <GradientStop Offset="0.5" Color="#69EB5E00" />
+                        <GradientStop Offset="6" Color="#69000000" />
+                        <GradientStop Offset="1" Color="#DF000000" />
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>-->
+            <!--Lets change the TextBlock as well but use the colors
+			defined in the Buttons declaration in the xaml code-->
+
+            <Setter Property="Control.Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border  x:Name="border"
+						        Background="{TemplateBinding Background}"						                                        
+                                 Margin="{TemplateBinding Margin}"
+        						CornerRadius="0,0,0,0">
+                                <ContentPresenter x:Name="Presenter"
+							        HorizontalAlignment="Center"
+  							        VerticalAlignment="Center"
+							        RecognizesAccessKey="True" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+            <!--Now to handle those pesky TextBlock Triggers-->
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="false">
+                    <!--<Setter Property="Button.Foreground"  Value="{TemplateBinding Foreground}"/>-->
+                    <!--<Setter Property="BorderBrush"  Value="{Binding BackGround}"/>
+                    <Setter Property="BorderThickness"  Value="3"/>-->
+                    <!--<Setter Property="Background" Value="{TemplateBinding Background}"/>-->
+                </Trigger>
+                <!--// TextBlock-->
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="TextElement.Foreground"  Value="{StaticResource White0}"/>
+                    <!--<Setter Property="BorderBrush"  Value="{StaticResource Red5}"/>
+                    <Setter Property="BorderThickness"  Value="3"/>-->
+                    <Setter Property="Background" Value="{StaticResource Black3}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="Buttonstyle" TargetType="Button">
+            <!--Default layout-->
+            <Setter Property="OverridesDefaultStyle" Value="True" />
+            <!--These defaults can be overriden by the Button Code in the design-->
+            <!--<Setter Property="Height" Value="25" />
+            <Setter Property="Width" Value="150" />-->
+            <Setter Property="BorderBrush" Value="Black" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush 
+                                    StartPoint="0.2, 0" EndPoint="0, 1">
+                        <GradientStop Offset="0" Color="#DF000000" />
+                        <GradientStop Offset="4" Color="#69000000" />
+                        <GradientStop Offset="0.5" Color="#69EB5E00" />
+                        <GradientStop Offset="6" Color="#69000000" />
+                        <GradientStop Offset="1" Color="#DF000000" />
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <!--Lets change the Button's Border as well but use the colors
+			defined in the Buttons declaration in the xaml code-->
+
+            <Setter Property="Control.Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border  x:Name="border"
+						        Background="{TemplateBinding Background}"
+						        BorderBrush="{TemplateBinding BorderBrush}"
+						        BorderThickness="{TemplateBinding BorderThickness}"                                
+                                 Margin="{TemplateBinding Margin}"
+        						CornerRadius="0,0,0,0">
+                            <ContentPresenter x:Name="Presenter"
+							        HorizontalAlignment="Center"
+  							        VerticalAlignment="Center"
+							        RecognizesAccessKey="True" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+            <!--Now to handle those pesky Button Triggers-->
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="false">
+                    <!--<Setter Property="Button.Foreground"  Value="{TemplateBinding Foreground}"/>-->
+                    <Setter Property="BorderBrush"  Value="{Binding BackGround}"/>
+                    <Setter Property="BorderThickness"  Value="3"/>
+                    <Setter Property="Background" Value="{StaticResource Red5}"/>
+                </Trigger>
+                <!--// Button-->
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="TextElement.Foreground"  Value="{StaticResource White0}"/>
+                    <Setter Property="BorderBrush"  Value="{StaticResource Red5}"/>
+                    <Setter Property="BorderThickness"  Value="3"/>
+                    <Setter Property="Background" Value="{StaticResource Black3}"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background">
+                        <Setter.Value>
+                            <!--Makes gradient fill work horizontally-->
+                            <RadialGradientBrush Center="0.5, 1.0">
+                                <GradientStop Offset="0" Color="Beige" />
+                                <GradientStop Offset="1" Color="Green" />
+                            </RadialGradientBrush>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="Foreground" Value="Black"/>
+                </Trigger>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsEnabled" Value="False"/>
+                    </MultiTrigger.Conditions>
+                    <MultiTrigger.Setters>
+                        <Setter Property="Background">
+                            <Setter.Value>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                    <GradientStop Color="LightGray" Offset="0.35" />
+                                    <GradientStop Color="DarkGray" Offset="1" />
+                                </LinearGradientBrush>
+                            </Setter.Value>
+                        </Setter>
+                    </MultiTrigger.Setters>
+                </MultiTrigger>
+            </Style.Triggers>
+        </Style>
+
+
+        <Style x:Key="Borderstyle" TargetType="Border">
+            <!--Default Button layout-->
+            <Setter Property="OverridesDefaultStyle" Value="True" />
+            <!--These defaults can be overriden by the Button Code in the design-->
+              <Setter Property="BorderBrush" Value="Black" />
+            <Setter Property="BorderThickness" Value="1" />
+ 
+            <!--// Border-->
+            <Setter Property="Control.Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border  x:Name="border"
+						Background="Transparent"
+						BorderBrush="{TemplateBinding BorderBrush}"
+						BorderThickness="{TemplateBinding BorderThickness}"
+						CornerRadius="0,0,0,0">
+                            <ContentPresenter
+							Margin="2"
+							HorizontalAlignment="Center"
+							VerticalAlignment="Center"
+							RecognizesAccessKey="True" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+            <!--Now to handle those pesky Border triggers-->
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="TextElement.Foreground"  Value="{StaticResource Green6}"/>
+                    <Setter Property="BorderBrush"  Value="{Binding BackGround}"/>
+                    <Setter Property="BorderThickness"  Value="3"/>
+                     <Setter Property="Background" Value="{StaticResource Black4}"/>
+                   </Trigger>
+                  <!--<MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsEnabled" Value="False"/>
+                    </MultiTrigger.Conditions>
+                    <MultiTrigger.Setters>
+                        <Setter Property="Background">
+                            <Setter.Value>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                    <GradientStop Color="LightGray" Offset="0.35" />
+                                    <GradientStop Color="DarkGray" Offset="1" />
+                                </LinearGradientBrush>
+                            </Setter.Value>
+                        </Setter>
+                    </MultiTrigger.Setters>
+                </MultiTrigger>-->
+            </Style.Triggers>
+        </Style>
+
     </Window.Resources>
 
     <Grid x:Name="MsgBoxGrid" Background="{StaticResource Black4}"
               Visibility="Visible" Panel.ZIndex="2">
         <Grid.RowDefinitions>
             <RowDefinition x:Name="row0" Height="30"/>
-            <RowDefinition x:Name="row1" Height="2*"/>
+            <RowDefinition x:Name="row1" MinHeight="100" Height="2*"/>
             <RowDefinition x:Name="row3" Height="1*"/>
             <RowDefinition x:Name="row4" Height="40"/>
         </Grid.RowDefinitions>
 
-            <WrapPanel Orientation="Horizontal" 
+        <WrapPanel Orientation="Horizontal" 
                        Grid.Row="0" 
                        HorizontalAlignment="Stretch" 
                        Panel.ZIndex="3">
-                    <TextBlock x:Name="Title"                        
+            <TextBlock x:Name="Title"                        
                                Height="30"
                                Width="{Binding ActualWidth, ElementName=MsgBoxGrid, Converter={StaticResource ReduceByParamValue},ConverterParameter=30}"       
                                Background="Red"
@@ -38,118 +246,170 @@
                                FontWeight="DemiBold"
                                HorizontalAlignment="Stretch"
                                TextAlignment="Center"
-                               Padding="0 1 0 0"
+                               Padding="0 4 0 0"
                                Text="System Message"
                                Panel.ZIndex="4"
                                Visibility="Visible"/>
-                    <Image Source="\icons\red-cross-icon.png" 
+            <Image Source="\icons\red-cross-icon.png" 
                            Height="20"
                            Width="20" 
+                           Panel.ZIndex="5"
                            HorizontalAlignment="Right" 
                            Margin="5 0 0 0"/>
-            </WrapPanel>
+        </WrapPanel>
 
-            <TextBlock x:Name="Msg1" 
+                           <!--Height="{Binding Height, ElementName=row1}"-->
+        <TextBlock x:Name="Msg1" 
                            Background="{StaticResource Black7}"
                            Grid.Row="1"
-                           Height="{Binding Height, ElementName=row1}"
+                           MinHeight="100"
                            Foreground="Black"
                            FontSize="14"
                            FontWeight="DemiBold"
                             Margin="0,0,0,0"                       
                            Padding="10 10 10 0"
                            Panel.ZIndex="5"
-                           Text="Test MessageboxMessagebox"
+                           Text="Test Messagebox + Messagebox"
                            TextAlignment="Left"
                            TextWrapping="Wrap"
                             TextTrimming="WordEllipsis"
-                            Visibility="Visible"                       
+                            Visibility="Visible"       
+                            VerticalAlignment="Stretch"
                             Width="{Binding ActualWidth, ElementName=MsgBoxGrid}"/>
- 
-            <TextBlock x:Name="Msg2" 
+
+        <TextBlock x:Name="Msg2" 
                            Background="{StaticResource Black3}"
                            Grid.Row="2"
-                          Height="{Binding Height, ElementName=row3}"
                            Foreground="LightGreen"
                            FontSize="15"
                            FontWeight="Normal"
                             Margin="0,0,0,0"                       
                            Padding="0 5 0 0"
                            Panel.ZIndex="5"
-                            Text="Test Messagebox line 3x" 
+                            Text="Test Messagebox line 2x" 
                            TextAlignment="Center"
                            TextWrapping="Wrap"
                             TextTrimming="WordEllipsis"
                             Visibility="Visible"                       
-                            Width="{Binding ActualWidth, ElementName=MsgBoxGrid}"/>
-            <WrapPanel Orientation="Horizontal" 
+                            Width="{Binding ActualWidth, ElementName=MsgBoxGrid}"
+                            MinHeight="50"         
+                            Height="{Binding ActualHeight, ElementName=row2}"/>
+        <WrapPanel Orientation="Horizontal" 
                     HorizontalAlignment="Right"
                     Grid.Row="3" Visibility="Visible">
 
-                <Border x:Name="BtnBorder3" 
-                            CornerRadius="5" 
-                            Background="{StaticResource Green1}"
-                            BorderBrush="{StaticResource Black0}"
+            <Border x:Name="BtnBorder3" 
+                            Background="Transparent"
+                            BorderBrush="{StaticResource Red9}"
                             BorderThickness="3"
-                             Width="138"
-                            Height="34"
+                            Style="{StaticResource Borderstyle}"
+                             Width="119"
+                            Height="30"
                             Margin="5 5 10 0"
+                            CornerRadius="3"
                             HorizontalAlignment="Right">
 
-                    <Button x:Name="CloseAppBtn"
+                <Button x:Name="CloseAppBtn"
                                 Click="BtnCloseapp"
-                                Width="132"
-                                Padding="0 0 0 7"
-                                FontSize="14"
+                                Height="30"
+                                Width="{Binding ActualWidth, ElementName=BtnBorder3}"
+                                Margin="0,-2 0,0"
+                                Padding="0 5 0 7"
+                                Style="{StaticResource Buttonstyle}"
+                                FontSize="12"
                                 Foreground="White"
                                 HorizontalAlignment="Center"
-                                Background="{StaticResource Red5}" 
-                                Content="Close Application"/>
-                </Border>
-                <Border x:Name="BtnBorder1" 
-                            CornerRadius="5" 
-                            Background="{StaticResource Orange3}"
-                            BorderBrush="{StaticResource Red5}"
+                                Background="{StaticResource Red5}" >
+                    <Button.Content>
+                        <TextBlock x:Name="BtnText3"
+                               TextAlignment="Center"
+                               Padding="0 3 0 0"
+                               Margin="0 0 0 0"
+                               Style="{StaticResource BtnText}"
+                                Height="{Binding ActualHeight, ElementName=BtnBorder3, Converter={StaticResource ReduceByParamValue},
+                            ConverterParameter=8}"
+                                Width="{Binding ActualWidth, ElementName=BtnBorder3, Converter={StaticResource ReduceByParamValue}, 
+                            ConverterParameter=6}"
+                                Text="Close Application"/>
+                    </Button.Content>
+
+                </Button>
+            </Border>
+            
+            <!--<Border x:Name="BtnBorder1" 
+                            CornerRadius="3" 
+                            Background="Transparent"
+                            BorderBrush="{StaticResource Yellow0}"
+                            Style="{StaticResource Borderstyle}"
                             BorderThickness="3"
-                            Width="100"
-                            Height="34"
+                            Width="70"
+                            Height="30"
+                            Padding="0 -0 0 0"
                             Margin="5 5 10 0"
                             HorizontalAlignment="Right">
 
-                    <Button x:Name="CancelBtn"
-                                    Click="BtnOk"
-                                Width="92"
-                                Margin="0,1,0,2"
-                                Padding="0 0 0 7"
-                                FontSize="14"
+                <Button x:Name="CancelBtn"
+                                Click="BtnOk"
+                                Height="28"
+                                Width="{Binding ActualWidth, ElementName=BtnBorder1}"
+                                Style="{StaticResource Buttonstyle}"
+                                Margin="0 -2 0 -1"
+                                Padding="0 0 0 0"
+                                FontSize="12"
                                 Foreground="Black"
                                 HorizontalAlignment="Center"
-                                Background="{StaticResource Orange3}" 
-                                Content="Cancel"
-                                Visibility="Visible"/>
-                </Border>
+                                Visibility="Visible">
+                    <Button.Content>
+                                --><!--Background="{StaticResource Orange1}"--><!-- 
+                        <TextBlock x:Name="BtnText1"
+                               TextAlignment="Center"
+                                   Padding="0 4 0 0"
+                                   Margin="0 0 0 0"
+                                   Style="{StaticResource BtnText}"
+                                Height="{Binding ActualHeight, ElementName=BtnBorder1, Converter={StaticResource ReduceByParamValue}, ConverterParameter=1}"
+                                Width="{Binding ActualWidth, ElementName=BtnBorder1, Converter={StaticResource ReduceByParamValue}, ConverterParameter=6}"
+                                Text="Cancel"/>
+                    </Button.Content>
+                </Button>
+            </Border>-->
 
-                <Border x:Name="BtnBorder2" 
-                            CornerRadius="5" 
-                            Background="{StaticResource Green1}"
+            <Border x:Name="BtnBorder2" 
+                            CornerRadius="3" 
+                            Background="Transparent"
                             BorderBrush="{StaticResource Green5}"
+                            Style="{StaticResource Borderstyle}"
                             BorderThickness="3"
-                             Width="76"
+                             Width="55"
                             Height="30"
                             Margin="5 5 10 0"
                             HorizontalAlignment="Right">
 
-                    <Button x:Name="CloseBtn"
+                <Button x:Name="CloseBtn"
                                 Click="BtnCancel"
-                                Width="59"
-                                Padding="0 0 0 0"
-                                FontSize="14"
+                                Height="30"
+                                Width="{Binding ActualWidth, ElementName=BtnBorder2}"
+                                Style="{StaticResource Buttonstyle}"
+                                Margin="0,0 0,0"
+                                FontSize="12"
                                 Foreground="White"
                                 HorizontalAlignment="Center"
-                                Background="{StaticResource Green1}" 
-                                Content="OK" Height="20" VerticalAlignment="Center"/>
-                </Border>
+                                Background="{StaticResource Green1}"                                
+                        VerticalAlignment="Center">
+                    <Button.Content>
+                        <TextBlock x:Name="BtnText2"
+                               TextAlignment="Center"
+                                Padding="0 3 0 0"
+                                Style="{StaticResource BtnText}"
+                                Height="{Binding ActualHeight, ElementName=BtnBorder2, Converter={StaticResource ReduceByParamValue}, 
+                            ConverterParameter=8}"
+                                Width="{Binding ActualWidth, ElementName=BtnBorder2, Converter={StaticResource ReduceByParamValue}, 
+                            ConverterParameter=6}"
+                                Text="OK"/>
+                    </Button.Content>
 
-            </WrapPanel>
+                </Button>
+            </Border>
+
+        </WrapPanel>
     </Grid>
 </Window>

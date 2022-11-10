@@ -50,8 +50,5 @@ public class DataGridLayout
         set { datavalue = value; OnPropertyChanged ( nameof ( DataValue ) ); }
     }
 
-    public DataGridLayout ( )
-    { }
-
 
 }
