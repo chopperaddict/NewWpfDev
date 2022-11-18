@@ -1,16 +1,23 @@
 ﻿using System;
 using System . Collections . Generic;
+using System . Collections . ObjectModel;
 using System . Data;
 using System . Diagnostics;
+using System . Windows;
 
 using Dapper;
 
 using GenericSqlLib;
 
+using Microsoft . VisualBasic;
+
+using NewWpfDev;
+using NewWpfDev . Converts;
+
 namespace NewWpfDev
 {
     // All Support methods for main class file GenDapperQueries.cs (3 partial files)
-    public static partial class GenDapperQueries
+    public  partial class GenDapperQueries
     {
         public static string CheckSetSqlDomain ( string domain )
         {
@@ -57,7 +64,7 @@ namespace NewWpfDev
         static public DynamicParameters ParseSqlArgs ( DynamicParameters parameters , string [ ] args )
         {
             if ( args == null || args . Length == 0 )
-                return new DynamicParameters();
+                return new DynamicParameters ( );
             string [ ] argtype = new string [ args . Length ];
             // store orginal args so we can reporcess them during debugging !
             string [ ] OriginalArgs = new string [ args . Length ];
@@ -105,8 +112,8 @@ namespace NewWpfDev
                                         type = "STRING[]";
                                     else
                                         type = "STRING";
-                                    if (argparts [2].Trim().ToUpper() == "OUTPUT")
-                                    argtype [ outindex++ ] = $"{argparts [ 0 ]},{type},OUTPUT";
+                                    if ( argparts [ 2 ] . Trim ( ) . ToUpper ( ) == "OUTPUT" )
+                                        argtype [ outindex++ ] = $"{argparts [ 0 ]},{type},OUTPUT";
                                 }
                                 //else
                                 //{
@@ -165,7 +172,7 @@ namespace NewWpfDev
                             // create an OUTPUT Argument INT=0
                             string [ ] splitter = args [ x ] . Split ( " " );
                             parameters . Add ( $"{splitter [ 0 ]}" , null ,
-                                               DbType . Object,
+                                               DbType . Object ,
                                                ParameterDirection . Output );
                         }
                         // Reset arg name to single item
@@ -230,7 +237,7 @@ namespace NewWpfDev
                            ParameterDirection . Input );
                             }
                         }
-                        args [ x ] = argparts [ 0 ].Trim();
+                        args [ x ] = argparts [ 0 ] . Trim ( );
                     }
                 }
             }
@@ -352,6 +359,90 @@ namespace NewWpfDev
                 }
             }
             return Con;
+        }
+
+        /// <summary>
+        /// Method to parse any Dynamic collection into a genericlass table
+        /// </summary>
+        /// <param name="data">Dynamic  data</param>
+        /// <param name="errormsg">string</param>
+        /// <param name="reccount">int</param>
+        /// <param name="genericlist">List<string></string></param>
+        /// <returns></returns>
+        public static ObservableCollection<GenericClass> ParseDynamicToCollection (
+            IEnumerable<dynamic> data,
+            out string errormsg , 
+            out int reccount,
+            out List<string> genericlist )
+        {
+            string result = "";
+            errormsg = "";
+            genericlist = new List<string> ( );
+             Dictionary<string , object> dict = new Dictionary<string , object> ( );
+            ObservableCollection<GenericClass> collection = new ObservableCollection<GenericClass> ();
+            //Although this is duplicated  with the one below we CANNOT make it a method()
+            errormsg = "";
+            int dictcount = 0;
+            int fldcount = 0;
+            int colcount = 0;
+            try
+            {
+                foreach ( var item in data )
+                {
+                    GenericClass gc = new GenericClass ( );
+                    try
+                    {
+                        // we need to create a dictionary for each row of data then add it to a GenericClass row then add row to Generics Db
+                        string buffer = "";
+                        List<int> VarcharList = new List<int> ( );
+                        gc = ParseDapperRow ( item , dict , out colcount , ref VarcharList );
+                        dictcount = 1;
+                        fldcount = dict . Count;
+                        string tmp = "";
+                        foreach ( var pair in dict )
+                        {
+                            try
+                            {
+                                if ( pair . Key != null && pair . Value != null )
+                                {
+                                    AddDictPairToGeneric ( gc , pair , dictcount++ );
+                                    tmp = pair . Key . ToString ( ) + "=" + pair . Value . ToString ( );
+                                    buffer += tmp + ",";
+                                }
+                            }
+                            catch ( Exception ex )
+                            {
+                                Debug . WriteLine ( $"Dictionary ERROR : {ex . Message}" );
+                                Utils . DoErrorBeep ( );
+                                result = ex . Message;
+                            }
+                        }
+                        //remove trailing comma
+                        string s = buffer . Substring ( 0 , buffer . Length - 1 );
+                        buffer = s;
+                        genericlist . Add ( buffer );
+                    }
+                    catch ( Exception ex )
+                    {
+                        result = $"SQLERROR : {ex . Message}";
+                        Utils . DoErrorBeep ( );
+                        errormsg = result;
+                        Debug . WriteLine ( result );
+                    }
+                    collection . Add ( gc );
+                    dict . Clear ( );
+                    dictcount = 1;
+                }
+            }
+            catch ( Exception ex )
+            {
+                Debug . WriteLine ( $"OUTER DICT/PROCEDURE ERROR : {ex . Message}" );
+                result = ex . Message;
+                Utils . DoErrorBeep ( );
+                errormsg = result;
+            }
+            reccount = collection.Count;
+            return collection;
         }
     }
 }

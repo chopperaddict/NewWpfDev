@@ -80,6 +80,7 @@ namespace Views
 
         private void SelectBtn_Click ( object sender , RoutedEventArgs e )
         {
+            // switch toa diferent database
             int offset = Dbgrid . SelectedIndex;
             DatagridControl . CurrentTableDomain = Genericgrid . CurrentTableDomain = Dbgrid . Items [ offset ] . ToString ( );
             gencontrol . RemoteReloadTables ( );

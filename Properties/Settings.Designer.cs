@@ -173,5 +173,53 @@ namespace NewWpfDev.Properties {
                 this["FlowDocFont"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool ShowTypesInSpArgumentsString {
+            get {
+                return ((bool)(this["ShowTypesInSpArgumentsString"]));
+            }
+            set {
+                this["ShowTypesInSpArgumentsString"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool AutoCloseSpArgumentsViewer {
+            get {
+                return ((bool)(this["AutoCloseSpArgumentsViewer"]));
+            }
+            set {
+                this["AutoCloseSpArgumentsViewer"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool SpViewerUseDarkMode {
+            get {
+                return ((bool)(this["SpViewerUseDarkMode"]));
+            }
+            set {
+                this["SpViewerUseDarkMode"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool SpResultsViewerOnTop {
+            get {
+                return ((bool)(this["SpResultsViewerOnTop"]));
+            }
+            set {
+                this["SpResultsViewerOnTop"] = value;
+            }
+        }
     }
 }

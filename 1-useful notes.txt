@@ -1,4 +1,25 @@
 ﻿=============================================================================================================
+    REGEX  charcters and usages
+===============================================================================================================
+	when search term e "begin" and we use regex command
+	MatchCollection mc = Regex . Matches ( buffer_to_be_searched , @".begin.", RegexOptions.IgnoreCase );
+	
+	"begin" will match the word ANYWHERE at all
+	"^begin" will only match if "begin" is at the startof the buffer/string
+	"begin$" will only match if "begin" is at the end of the buffer/string
+	"as | begin" will match both "as" and "begin" anywhere
+	
+	"[adm]begin" will match if "begin" is 'abegin', 'dbegin' or 'mbegin'
+	"begin[adm]" will only match if "begin" is 'begina', 'begind' or 'beginm'
+	the above 2 can also use a range by using '[d-K]' or similar
+
+	"begin[adm]" will only match if "begin" is 'begina', 'begind' or 'beginm'
+
+
+
+	".begin." will match "begin with ANY character at start and end
+	"
+=============================================================================================================
     How to set get return values from SQL requests
 ===============================================================================================================
 		

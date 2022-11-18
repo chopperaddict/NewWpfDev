@@ -16,7 +16,10 @@ using Dapper;
 
 using DapperGenericsLib;
 
+//using GenericSqlLib . Dapper;
+
 using NewWpfDev;
+using NewWpfDev . Dapper;
 using NewWpfDev . Models;
 using NewWpfDev . UserControls;
 using NewWpfDev . Views;
@@ -26,6 +29,7 @@ using Views;
 using static Dapper . SqlMapper;
 
 using GenericClass = NewWpfDev . GenericClass;
+using Utils = DapperGenericsLib . Utils;
 
 namespace UserControls
 {
@@ -285,6 +289,7 @@ namespace UserControls
         {
             err = "";
             dynamic dynretval = null;
+            dynretval = ExecuteDapperScalar ( command , args , out err , 0 );
             return dynretval;
         }
 
@@ -336,7 +341,7 @@ namespace UserControls
             }
             SqlCommand = "spLoadTableAsGeneric";
             // WORKING 9/11/2022
-             collection = LoadGeneric ( SqlCommand , args , ConnectionString , out ResultString );
+            collection = LoadGeneric ( SqlCommand , args , ConnectionString , out ResultString );
             // Create a completely new instance via seriazable Clone method stored in NewWpfDev.Utils (in ObjectCopier class file)
             GridData = NewWpfDev . Utils . CopyCollection ( collection , GridData );
             //            GridData = collection .MakeClone (  );
@@ -457,6 +462,7 @@ namespace UserControls
             }
             catch ( Exception ex )
             {
+                NewWpfDev . Utils . DoErrorBeep ( );
                 Debug . WriteLine ( $"Column count error '{ex . Message}'" );
             }
             return 0;
@@ -469,7 +475,7 @@ namespace UserControls
             {
                 if ( Sqlcommand . Contains ( " " ) )
                 {
-                   args = Sqlcommand . Split ( " " );
+                    args = Sqlcommand . Split ( " " );
                     argument = args [ 1 ];
                     Sqlcommand = args [ 0 ] . Trim ( );
                 }
@@ -523,13 +529,14 @@ namespace UserControls
                     "" ,
                     "" ,
                     ref genericlist ,
-                    ref errormsg,
+                    ref errormsg ,
                     args );
                 ResultString = errormsg;
                 return generics;
             }
             catch ( Exception ex )
             {
+                NewWpfDev . Utils . DoErrorBeep ( );
                 MessageBox . Show ( $"SQL ERROR 1125 - {ex . Message}" );
                 return null;
             }
@@ -566,7 +573,7 @@ namespace UserControls
                     try
                     {
                         // Parse out the arguments and put them in correct order for all SP's
-                        if ( args == null || args ?. Length == 0 )
+                        if ( args == null || args?.Length == 0 )
                         {
                             string [ ] parts = Arguments . Split ( ',' );
                             if ( parts . Length > 1 )
@@ -726,6 +733,7 @@ namespace UserControls
                                                 }
                                                 catch ( Exception ex )
                                                 {
+                                                    NewWpfDev . Utils . DoErrorBeep ( );
                                                     Debug . WriteLine ( $"Dictionary ERROR : {ex . Message}" );
                                                     result = ex . Message;
                                                 }
@@ -737,6 +745,7 @@ namespace UserControls
                                         }
                                         catch ( Exception ex )
                                         {
+                                            NewWpfDev . Utils . DoErrorBeep ( );
                                             result = $"SQLERROR : {ex . Message}";
                                             errormsg = result;
                                             Debug . WriteLine ( result );
@@ -748,6 +757,7 @@ namespace UserControls
                                 }
                                 catch ( Exception ex )
                                 {
+                                    NewWpfDev . Utils . DoErrorBeep ( );
                                     Debug . WriteLine ( $"OUTER DICT/PROCEDURE ERROR : {ex . Message}" );
                                     result = ex . Message;
                                     errormsg = result;
@@ -775,7 +785,7 @@ namespace UserControls
                             if ( arg4 != "" )
                                 argsbuff += $", {arg4}";
                             $"{SqlCommand} {argsbuff}" . DapperTrace ( );
-                            if(args != null && args.Length > 0 )
+                            if ( args != null && args . Length > 0 )
                             {
                                 parameters = new DynamicParameters ( );
                                 ParseSqlArgs ( parameters , args );
@@ -784,7 +794,7 @@ namespace UserControls
                             //***************************************************************************************************************//
                             // load an entire table from current database
                             // WORKING 9/11/2022
-                            IEnumerable<dynamic> reslt = db . Query( SqlCommand , parameters , commandType: CommandType . StoredProcedure );
+                            IEnumerable<dynamic> reslt = db . Query ( SqlCommand , parameters , commandType: CommandType . StoredProcedure );
                             //***************************************************************************************************************//
 
                             if ( reslt != null )
@@ -824,6 +834,7 @@ namespace UserControls
                                                 }
                                                 catch ( Exception ex )
                                                 {
+                                                    NewWpfDev . Utils . DoErrorBeep ( );
                                                     Debug . WriteLine ( $"Dictionary ERROR : {ex . Message}" );
                                                     result = ex . Message;
                                                 }
@@ -835,6 +846,7 @@ namespace UserControls
                                         }
                                         catch ( Exception ex )
                                         {
+                                            NewWpfDev . Utils . DoErrorBeep ( );
                                             result = $"SQLERROR : {ex . Message}";
                                             Debug . WriteLine ( result );
                                             return 0;
@@ -848,6 +860,7 @@ namespace UserControls
                                 }
                                 catch ( Exception ex )
                                 {
+                                    NewWpfDev . Utils . DoErrorBeep ( );
                                     Debug . WriteLine ( $"OUTER DICT/PROCEDURE ERROR : {ex . Message}" );
                                     if ( ex . Message . Contains ( "not find stored procedure" ) )
                                     {
@@ -885,6 +898,7 @@ namespace UserControls
                     }
                     catch ( Exception ex )
                     {
+                        NewWpfDev . Utils . DoErrorBeep ( );
                         Debug . WriteLine ( $"STORED PROCEDURE ERROR : {ex . Message}" );
                         $"STORED PROCEDURE ERROR : {ex . Message}" . err ( );
                         result = ex . Message;
@@ -893,6 +907,7 @@ namespace UserControls
                 }
                 catch ( Exception ex )
                 {
+                    NewWpfDev . Utils . DoErrorBeep ( );
                     Debug . WriteLine ( $"Sql Error, {ex . Message}" );
                     result = ex . Message;
                 }
@@ -907,7 +922,7 @@ namespace UserControls
             GenericClass GenRow = new GenericClass ( );
             int index = 0;
             colcount = 0;
-            dict = new Dictionary<string , object> ();
+            dict = new Dictionary<string , object> ( );
 
             try
             {
@@ -929,6 +944,7 @@ namespace UserControls
             }
             catch ( Exception ex )
             {
+                NewWpfDev . Utils . DoErrorBeep ( );
                 Debug . WriteLine ( $"ParseDapperRow failed [{ex . Message}]" );
                 return null;
             }
@@ -1437,9 +1453,9 @@ namespace UserControls
             }
             #endregion
             Grid . SelectedIndex = 0;
-            Grid . Visibility = Visibility . Visible;
-            Grid . UpdateLayout ( );
-            Grid . Focus ( );
+            // Grid . Visibility = Visibility . Visible;
+            //Grid . UpdateLayout ( );
+            //Grid . Focus ( );
             "" . Track ( 1 );
         }
         public static int GetColumnsCount ( ObservableCollection<GenericClass> collection = null , List<GenericClass> list = null )
@@ -1545,13 +1561,13 @@ namespace UserControls
                     //More efficient than accessing dglayoutlist every column
                     foreach ( var item in dglayoutlist )
                     {
-                        colnames [index++]= item . Fieldname;
+                        colnames [ index++ ] = item . Fieldname;
                     }
                     try
                     {
                         if ( Grid1 . Columns . Count > 0 )
                         {
-                            //Change the column headers
+                            //Actually Change the column headers
                             index = 0;
                             foreach ( var item in Grid1 . Columns )
                             {
@@ -1608,6 +1624,7 @@ namespace UserControls
             }
             catch ( Exception ex )
             {
+                NewWpfDev . Utils . DoErrorBeep ( );
                 MessageBox . Show ( $"SQL ERROR 1125 - {ex . Message}" );
                 dict . Clear ( );
                 "" . Track ( 1 );
@@ -1776,6 +1793,7 @@ namespace UserControls
                                         }
                                         catch ( Exception ex )
                                         {
+                                            NewWpfDev . Utils . DoErrorBeep ( );
                                             Debug . WriteLine ( $"Dictionary ERROR : {ex . Message}" );
                                             result = ex . Message;
                                         }
@@ -1863,6 +1881,7 @@ namespace UserControls
                                     }
                                     catch ( Exception ex )
                                     {
+                                        NewWpfDev . Utils . DoErrorBeep ( );
                                         Debug . WriteLine ( $"INNER DICT ERROR : {ex . Message}" );
                                         result = ex . Message;
                                         errormsg = result;
@@ -2169,124 +2188,7 @@ namespace UserControls
             //grid . Refresh ( );
             //if ( IsCollapsed ) grid . Visibility = Visibility . Collapsed;
         }
-        public string GetFullColumnInfo ( string spName , string CurrentTable , string ConString , bool ShowFdl = true , bool ShowOutput = true )
-        {
-            string output = "";
-            string errormsg = "";
-            int columncount = 0;
-            DataTable dt = new DataTable ( );
-            ObservableCollection<GenericClass> Generics = new ObservableCollection<GenericClass> ( );
-            List<string> genericlist = new List<string> ( );
-            try
-            {
-                List<GenericToRealStructure> list = new List<GenericToRealStructure> ( );
-                // Generate a new table structure by passing CURRENT table name
-                // so we get a buffer containing the column info 
-                Generics = CreateFullColumnInfo ( CurrentTable , ConString , false );
-                string buffer = "";
-                if ( Generics . Count ( ) > 0 )
-                {
-                    // process donor table structure
-                    foreach ( var item in Generics )
-                    {
-                        buffer += $"{item . field1 . Trim ( )}";    // fname
-                        buffer += $":{item . field2 . Trim ( )}";
-                        if ( item . field3 != null && item . field3 != "0" )
-                            buffer += $":{item . field3 . Trim ( )}";
-                        if ( item . field4 != null && item . field4 != "0" )
-                            buffer += $":{item . field4 . Trim ( )}\n";
-                        else
-                            buffer += $"\n";
-                    }
-                    if ( ShowFdl == false )
-                        return buffer;  // contains fields :fields :fields :fields\n:  we need to create a new table structure eg: Create new Table (......)
-                }
-                string [ ] args = new string [ 1 ];
-                args [ 0 ] = spName;
-                //args [ 0 ] = spName;
-                dt = ProcessSqlCommand ( "spGetTableColumnWithSize2" , ConString , args );
-            }
-            catch ( Exception ex )
-            {
-                MessageBox . Show ( $"SQL ERROR 1125 - {ex . Message}" );
-                return "";
-            }
-            if ( dt . Rows . Count == 0 )
-            {
-                columncount = 0;
-                return "";
-            }
-            if ( ShowOutput == false )
-                output = "";
-            string fieldnames = "";
-            foreach ( var item in dt . Rows )
-            {
-                string store = "";
-                //if ( item . ToString ( ) != "TABLE_NAME" )
-                //    continue;
-                DataRow dr = item as DataRow;
-                //if ( dr . ItemArray [0] == )
-                columncount = dr . ItemArray . Count ( );
-                if ( columncount == 0 )
-                    columncount = 1;
-                // we only need max cols - 1 here !!!
-                for ( int x = 0 ; x < columncount ; x++ )
-                {
-                    if ( dr . ItemArray [ x ] . ToString ( ) != "{}" )
-                    {
-                        store = dr . ItemArray [ x ] . ToString ( ) . ToUpper ( );
-                        if ( store != CurrentTable )
-                            continue;
-
-                        store = store . Substring ( 0 , store . Length - 1 );
-                        store += dr . ItemArray [ x ] . ToString ( ) + ",";
-                    }
-                    else store = store . Substring ( 0 , store . Length - 1 );
-                }
-                if ( store . Contains ( ",," ) ) store = store . Substring ( 0 , store . Length - 2 );
-                store = NewWpfDev . Utils . ReverseString ( store );
-                if ( store [ 0 ] == ',' )
-                {
-                    store = store . Substring ( 1 );
-                    store = NewWpfDev . Utils . ReverseString ( store );
-                }
-                else
-                    store = NewWpfDev . Utils . ReverseString ( store );
-                output += store + ":";
-                output = output . Substring ( 0 , output . Length - 1 );
-                // output string are seperated by COLONs
-                // we now have the err, so lets process them
-                // data is fieldname, sql-datatype, size (where appropriate)
-                string buffer = output;
-                string [ ] lines = buffer . Split ( ':' );
-
-                int counter = 0;
-                string tmp = "";
-                if ( output != "" ) { output = output . Trim ( ) + "\n"; } //output += $"\n{item}  "; }
-                else output += $"{item} \n";
-            }
-            // we now have a list of the Args for the selected SP in output terminated by \n
-            // Show it in a TextBox if it takes 1 or more args
-            // format is ("fielddname, fieldtype, size1, size2\n,")
-            if ( output != "" && ShowFdl )
-            {
-                string fdinput = $"Procedure Name : {spName . ToUpper ( )}\n";
-                fdinput += output;
-                fdl . ShowInfo ( Flowdoc , canvas , line1: fdinput , clr1: "Black0" , line2: "" , clr2: "Black0" , line3: "" , clr3: "Black0" , header: "" , clr4: "Black0" );
-                canvas . Visibility = Visibility . Visible;
-                Flowdoc . Visibility = Visibility . Visible;
-            }
-            if ( ShowFdl == false )
-            {
-                if ( errormsg == "" )
-                {
-                    MessageBox . Show ( $"No Argument information is available" , $"[{spName}] SP Script Information" , MessageBoxButton . OK , MessageBoxImage . Warning );
-                    return "";
-                }
-            }
-            return output;
-        }
-        static public DataTable ProcessSqlCommand ( string SqlCommand , string connstring , string [ ] args = null )
+         static public DataTable ProcessSqlCommand ( string SqlCommand , string connstring , string [ ] args = null )
         {
             SqlConnection con;
             DataTable dt = new DataTable ( );
@@ -2988,17 +2890,42 @@ namespace UserControls
                 int recordcount = 0;
                 string [ ] args = new string [ 1 ];
                 args [ 0 ] = spName;
-
+                string resultstring = "";
+                string error = "";
+                object obj = null;
+                Type Objtype = null;
+                int count = 0;
                 List<Dictionary<string , string>> ColumnTypesList = new List<Dictionary<string , string>> ( );
                 string SqlCommand = $"select column_name, data_type, character_maximum_length,numeric_precision, numeric_scale from information_schema . columns WHERE upper ( table_name ) = '{spName . ToUpper ( )}'";
-                dynamic dynreslt = GetDataViaDapper ( SqlCommand , args , out ColumnTypesList , out recordcount );
+                IEnumerable<dynamic> DynList = GenDapperQueries . Get_DynamicValue_ViaDapper (
+                   SqlCommand ,
+                   args ,
+                  ref resultstring ,
+                  ref obj ,
+                  ref Objtype ,
+                  ref count ,
+                  ref error ,
+                   3 );
+                //               dynamic dynreslt = GetDataViaDapper ( SqlCommand , args , out ColumnTypesList , out recordcount );
                 //GetDataFromStoredProcedure ( SqlCommand , null , out err , out recordcount );
                 //we  now have a table (Generics) holding all column info
-                if ( Generics . Count == 0 )
-                {
-                    columncount = 0;
-                    return null;
-                }
+                Dictionary<string , object> dict = new Dictionary<string , object> ( );
+                List<int> varcharlen = new List<int> ( );
+                if ( DynList != null )
+
+                    foreach ( var item in DynList )
+                    {
+                        int colcount = 0;
+                        GenericClass gc = new GenericClass ( );
+                        //  Dictionary<string, object> dict, out int colcount, ref List<int> varcharlen, bool GetLength = false
+                        gc = DapperSupport . ParseDapperRow ( item , out dict , out colcount , ref varcharlen , true );
+                        Generics . Add ( gc );
+                    }
+                //if ( DynList == null )
+                //{
+                //    columncount = 0;
+                //    return null;
+                //}
                 //int decsize = 0, decpart = 0, decroot = 0;
                 if ( showinfo )
                 {
@@ -3943,11 +3870,19 @@ namespace UserControls
                     Debug . WriteLine ( $"[ {spCommand . ToUpper ( )} ]\n{cmddebug}" );
                     //                    Debug . WriteLine ( $"ExecuteStoredProcedure() : [ {spCommand . ToUpper ( )} ]" );
                     $"[ {spCommand . ToUpper ( )} ]" . DapperTrace ( );
+
                     if ( method == 0 ) // execute code on server
+                    {
+                        //**************************************************************************************************************//
                         res = sqlCon . Execute ( spCommand , parameters , commandType: CommandType . Text );
+                        //**************************************************************************************************************//
+                    }
                     else if ( method == 1 ) // Get int return value
                     {
+                        //**************************************************************************************************************//
                         counter = sqlCon . Query ( spCommand , parameters , commandType: CommandType . Text );
+                        //**************************************************************************************************************//
+
                         dynamic str9 = Genericgrid . GetStringFromDynamic ( counter );
                         string stdstring = str9 . ToString ( );
                         string [ ] splitter = stdstring . Split ( "," );
@@ -3955,9 +3890,18 @@ namespace UserControls
                         // IEnumerable< dynamic > dynres = Convert . ToInt32 ( Genericgrid . GetStringFromDynamic ( counter ) );
                     }
                     else if ( method == 2 ) // execute a Stored procedure
+                    {
+                        //**************************************************************************************************************//
                         res = sqlCon . Execute ( spCommand , parameters , commandType: CommandType . StoredProcedure );
+                        //**************************************************************************************************************//
+                    }
                     else if ( method == 3 )
+                    {
+
+                        //**************************************************************************************************************//
                         res = sqlCon . Execute ( spCommand , parameters , commandType: CommandType . TableDirect );
+                        //**************************************************************************************************************//
+                    }
                     //    spCommand = $"drop table if exists {args [ 2 ]}";
                     //    ExecuteDapperCommand ( spCommand , null , out err );
                     //    spCommand = $"Select * into {args [ 2 ]} from {args [ 0 ]} where {args [ 1 ]}";
@@ -3975,6 +3919,7 @@ namespace UserControls
             }
             catch ( Exception ex )
             {
+                NewWpfDev . Utils . DoErrorBeep ( );
                 Debug . WriteLine ( $"{ex . Message}" );
                 err = ex . Message;
             }
@@ -4087,6 +4032,7 @@ namespace UserControls
                                         }
                                         catch ( Exception ex )
                                         {
+                                            NewWpfDev . Utils . DoErrorBeep ( );
                                             Debug . WriteLine ( $"Dictionary ERROR : {ex . Message}" );
                                             err = ex . Message;
                                         }
@@ -4095,6 +4041,7 @@ namespace UserControls
                                 catch ( Exception ex )
                                 {
                                     err = $"SQLERROR : {ex . Message}";
+                                    NewWpfDev . Utils . DoErrorBeep ( );
                                     Debug . WriteLine ( err );
                                     return GenClass;
                                 }
@@ -4106,6 +4053,7 @@ namespace UserControls
                         catch ( Exception ex )
                         {
                             Debug . WriteLine ( $"OUTER DICT/PROCEDURE ERROR : {ex . Message}" );
+                            NewWpfDev . Utils . DoErrorBeep ( );
                             if ( ex . Message . Contains ( "not find stored procedure" ) )
                             {
                                 err = $"SQL PARSE ERROR - [{ex . Message}]";
@@ -4132,6 +4080,7 @@ namespace UserControls
             catch ( Exception ex )
             {
                 Debug . WriteLine ( $"{ex . Message}" );
+                Utils . DoErrorBeep ( );
                 err = ex . Message;
             }
             Mouse . OverrideCursor = Cursors . Arrow;
@@ -4166,56 +4115,7 @@ namespace UserControls
             }
             return parameters;
         }
-        static public List<string> ProcessUniversalQueryStoredProcedure ( string spCommand , string [ ] args , string CurrentTableDomain , out string err )
-        {
-            int result = -1;
-            string Con = "";
-            err = "";
-            //if ( MainWindow . SqlCurrentConstring != CurrentTableDomain )
-            //    MainWindow . SqlCurrentConstring = CurrentTableDomain;
-            Con = GenericDbUtilities . CheckSetSqlDomain ( CurrentTableDomain );
-            if ( Con == "" )
-            {
-                // set to our local definition
-                Con = MainWindow . CurrentSqlTableDomain;
-                MessageBox . Show ( $"It was not possible to Identify a valid Sql Connection string for \nthe Database [ {CurrentTableDomain . ToUpper ( )} ]\n\n Please report  this error to DB Technical Support" , "Connection Error" );
-                return null;
-            }
-
-            SqlConnection sqlCon = new SqlConnection ( );
-            List<string> queryresults = new List<string> ( );
-
-            "" . Track ( );
-            Mouse . OverrideCursor = Cursors . Wait;
-            Debug . WriteLine ( $"Running Stored Procedure {spCommand}" );
-            using ( sqlCon = new SqlConnection ( Con ) )
-            {
-                sqlCon . Open ( );
-                // Now add record  to SQL table
-                var parameters = new DynamicParameters ( );
-                parameters = ParseSqlArgs ( parameters , args );
-                try
-                {
-                    $" calling {spCommand} ()" . CW ( );
-
-                    Debug . WriteLine ( $"ProocessUniversalQueryStoredProcedure() : [ {spCommand . ToUpper ( )} ]" );
-
-                    queryresults = sqlCon . Query<string> ( spCommand , parameters , commandType: CommandType . StoredProcedure ) . ToList ( );
-                    //result = sqlCon . Execute ( spCommand , parameters , commandType: CommandType . StoredProcedure );
-                    Debug . WriteLine ( $"{spCommand} returned  RESULT = {queryresults . Count}" );
-                }
-                catch ( Exception ex )
-                {
-                    Debug . WriteLine ( $"{ex . Message}" );
-                    result = -1;
-                    err = ex . Message;
-                }
-                Mouse . OverrideCursor = Cursors . Arrow;
-                "" . Track ( 1 );
-                return queryresults;
-            }
-        }
-        //****************************************************************//
+       //****************************************************************//
         public dynamic GetDataViaDapper ( string SqlCommand , string [ ] args , out List<Dictionary<string , string>> ColumnTypesList , out int count , int method = 0 )
         {
             string connectionString = MainWindow . SqlCurrentConstring;
@@ -4262,6 +4162,7 @@ namespace UserControls
             }
             catch ( Exception ex )
             {
+                Utils . DoErrorBeep ( );
                 Debug . WriteLine ( $"SQL error : [ {ex . Message} ]" );
             }
             return null;
@@ -4328,6 +4229,7 @@ namespace UserControls
             }
             catch ( Exception ex )
             {
+                NewWpfDev.Utils . DoErrorBeep ( );
                 err = "EXISTS : {ex.Message}, {ex.Data}";
             }
             finally
@@ -4341,33 +4243,121 @@ namespace UserControls
             DapperGenericsLib . Utils . DoErrorBeep ( 400 , 100 , 1 );
             DapperGenericsLib . Utils . DoErrorBeep ( 300 , 400 , 1 );
         }
-        public static DynamicParameters ParseSqlArguments ( DynamicParameters parameters , string [ ] args , ref bool hasoutput , ref bool hasretval )
+
+        public string GetFullColumnInfo ( string spName , string CurrentTable , string ConString , bool ShowFdl = true , bool ShowOutput = true )
         {
-            // WORKING CORRECTLY 6/11/2022 ?
-            if ( args != null && args . Length > 0 && args [ 0 ] != "-" )
+            string output = "";
+            string errormsg = "";
+            int columncount = 0;
+            DataTable dt = new DataTable ( );
+            ObservableCollection<GenericClass> Generics = new ObservableCollection<GenericClass> ( );
+            List<string> genericlist = new List<string> ( );
+            try
             {
-                for ( int x = 0 ; x < args . Length ; x++ )
+                List<GenericToRealStructure> list = new List<GenericToRealStructure> ( );
+                // Generate a new table structure by passing CURRENT table name
+                // so we get a buffer containing the column info 
+                Generics = CreateFullColumnInfo ( CurrentTable , ConString , false );
+                string buffer = "";
+                if ( Generics . Count ( ) > 0 )
                 {
-                    // breakout on first unused array element
-                    if ( args [ x ] == "" ) break;
-                    if ( args [ x ] . ToUpper ( ) . Contains ( "OUTPUT" ) )
+                    // process donor table structure
+                    foreach ( var item in Generics )
                     {
-                        string [ ] splitter = args [ x ] . Split ( " " );
-                        parameters . Add ( $"{splitter [ 1 ]}" , splitter [ 1 ] ,
-                                           DbType . String ,
-                                           ParameterDirection . Output ,
-                                           splitter [ 1 ] . Length );
+                        buffer += $"{item . field1 . Trim ( )}";    // fname
+                        buffer += $":{item . field2 . Trim ( )}";
+                        if ( item . field3 != null && item . field3 != "0" )
+                            buffer += $":{item . field3 . Trim ( )}";
+                        if ( item . field4 != null && item . field4 != "0" )
+                            buffer += $":{item . field4 . Trim ( )}\n";
+                        else
+                            buffer += $"\n";
                     }
-                    else
+                    if ( ShowFdl == false )
+                        return buffer;  // contains fields :fields :fields :fields\n:  we need to create a new table structure eg: Create new Table (......)
+                }
+                string [ ] args = new string [ 1 ];
+                args [ 0 ] = spName;
+                dt = ProcessSqlCommand ( "spGetTableColumnWithSize2" , ConString , args );
+            }
+            catch ( Exception ex )
+            {
+                MessageBox . Show ( $"SQL ERROR 1125 - {ex . Message}" );
+                return "";
+            }
+            if ( dt . Rows . Count == 0 )
+            {
+                columncount = 0;
+                return "";
+            }
+            if ( ShowOutput == false )
+                output = "";
+            foreach ( var item in dt . Rows )
+            {
+                string store = "";
+                DataRow dr = item as DataRow;
+                columncount = dr . ItemArray . Count ( );
+                if ( columncount == 0 )
+                    columncount = 1;
+                // we only need max cols - 1 here !!!
+                for ( int x = 0 ; x < columncount ; x++ )
+                {
+                    if ( dr . ItemArray [ x ] . ToString ( ) != "{}" )
                     {
-                        parameters . Add ( $"Arg{x + 1}" , args [ x ] ,
-                       DbType . String ,
-                       ParameterDirection . Input ,
-                       args [ x ] . Length );
+                        store = dr . ItemArray [ x ] . ToString ( ) . ToUpper ( );
+                        if ( store != CurrentTable )
+                            continue;
+
+                        store = store . Substring ( 0 , store . Length - 1 );
+                        store += dr . ItemArray [ x ] . ToString ( ) + ",";
                     }
+                    else store = store . Substring ( 0 , store . Length - 1 );
+                }
+                if ( store . Contains ( ",," ) ) store = store . Substring ( 0 , store . Length - 2 );
+                store = NewWpfDev . Utils . ReverseString ( store );
+                if ( store [ 0 ] == ',' )
+                {
+                    store = store . Substring ( 1 );
+                    store = NewWpfDev . Utils . ReverseString ( store );
+                }
+                else
+                    store = NewWpfDev . Utils . ReverseString ( store );
+                output += store + ":";
+                output = output . Substring ( 0 , output . Length - 1 );
+                // output string are seperated by COLONs
+                // we now have the err, so lets process them
+                // data is fieldname, sql-datatype, size (where appropriate)
+                string buffer = output;
+                string [ ] lines = buffer . Split ( ':' );
+
+                string tmp = "";
+                if ( output != "" ) { output = output . Trim ( ) + "\n"; } //output += $"\n{item}  "; }
+                else output += $"{item} \n";
+            }
+            // we now have a list of the Args for the selected SP in output terminated by \n
+            // Show it in a TextBox if it takes 1 or more args
+            // format is ("fielddname, fieldtype, size1, size2\n,")
+            //           return output;
+
+            output = DapperSupport . GetFullColumnsStructure ( spName , CurrentTable , ConString , ShowFdl = true , ShowOutput = true );
+            if ( output != "" && ShowFdl )
+            {
+                string fdinput = $"Procedure Name : {spName . ToUpper ( )}\n";
+                fdinput += output;
+                fdl . ShowInfo ( Flowdoc , canvas , line1: fdinput , clr1: "Black0" , line2: "" , clr2: "Black0" , line3: "" , clr3: "Black0" , header: "" , clr4: "Black0" );
+                canvas . Visibility = Visibility . Visible;
+                Flowdoc . Visibility = Visibility . Visible;
+            }
+            if ( ShowFdl == false )
+            {
+                if ( errormsg == "" )
+                {
+                    MessageBox . Show ( $"No Argument information is available" , $"[{spName}] SP Script Information" , MessageBoxButton . OK , MessageBoxImage . Warning );
+                    return "";
                 }
             }
-            return parameters;
+            return output;
         }
+
     }
 }

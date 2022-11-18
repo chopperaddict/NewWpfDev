@@ -2,10 +2,8 @@
 using System . Collections . Generic;
 using System . Collections . ObjectModel;
 using System . ComponentModel;
-using System . Configuration;
 using System . Diagnostics;
-using System . Linq;
-using System . Reflection . PortableExecutable;
+using System . Text . RegularExpressions;
 using System . Threading . Tasks;
 using System . Windows;
 using System . Windows . Controls;
@@ -13,17 +11,16 @@ using System . Windows . Documents;
 using System . Windows . Input;
 using System . Windows . Media;
 
-using Azure . Core;
-
-using Microsoft . VisualBasic;
-using Microsoft . Xaml . Behaviors . Media;
-
-using Newtonsoft . Json;
+using Expandos;
 
 using NewWpfDev;
-using NewWpfDev . UserControls;
+
+using StoredProcs;
 
 using UserControls;
+
+using static Community . CsharpSqlite . Sqlite3;
+using static IronPython . Modules . _ast;
 
 namespace Views
 {
@@ -35,11 +32,17 @@ namespace Views
         Genericgrid Gengrid { get; set; }
         public string Searchtext { get; set; }
         public string Searchterm { get; set; }
+        public bool CloseArgsViewerOnPaste { get; set; } = false;
+        public bool ShowTypesInArgsViewer { get; set; } = true;
         public static FlowDocScrollViewerSupport FdSupport { get; set; }
         public static string [ ] arguments = new string [ 10 ];
-        GengridExecutionResults GenResults { get; set; }
+        public GengridExecutionResults GenResults { get; set; }
 
-        ObservableCollection<GenericClass> DataGrid = new ObservableCollection<GenericClass> ( );
+        public static bool IsMoving = false;
+        public ObservableCollection<GenericClass> DataGrid = new ObservableCollection<GenericClass> ( );
+        static public DragCtrlHelper DragCtrl;
+        public FrameworkElement ActiveDragControl { get; set; }
+        public static dynamic spViewerexpobj { get; private set; }
 
         public struct ExecutionResults
         {
@@ -50,6 +53,23 @@ namespace Views
             public ObservableCollection<GenericClass> resultCollection { get; set; }
         }
         public static ExecutionResults ExecResults;
+
+        #region full props
+
+        private object movingobject;
+        public object MovingObject
+        {
+            get { return movingobject; }
+            set { movingobject = value; }
+        }
+        private object movingobject2;
+        public object MovingObject2
+        {
+            get { return movingobject2; }
+            set { movingobject2 = value; }
+        }
+
+        #endregion full props
 
         #region OnPropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;
@@ -65,7 +85,7 @@ namespace Views
 
         #endregion OnPropertyChanged
 
-        #region Dependecy properties
+        #region Dependency properties
 
         public int zOrder
         {
@@ -96,7 +116,6 @@ namespace Views
 
         #endregion Dependecy properties
 
-
         public SpResultsViewer ( Genericgrid genControl , string sproc , string searchterm )
         {
             InitializeComponent ( );
@@ -104,6 +123,7 @@ namespace Views
             Gengrid = genControl;
             //nResults = Gengrid.
             FdSupport = new FlowDocScrollViewerSupport ( );
+            DragCtrl = new DragCtrlHelper ( SqlTablesViewer );
             Genericgrid . Resultsviewer = this;
             string spname = Gengrid . SpName . Text;
             Searchtext = spname;
@@ -111,17 +131,31 @@ namespace Views
             Mouse . OverrideCursor = Cursors . Wait;
             canvas . Visibility = Visibility . Visible;
             // setup a pointer to ourselves
-            this . Topmost = true;
+            this . Topmost = false;
             Gengrid . ExecuteLoaded = true;
             hspltter . Cursor = Cursors . ScrollNS;
-            //ExecResults = new ExecutionResults ( );
-            //GengridExecutionResults ge = new GengridExecutionResults ( this , true );
-            //ge . CollectionShortTextresults . Text = "dsggga dgg g g ag e ey bvc bcvn 54 7 3747 bvm  utr ";
-            //ge . Show ( );
+
+            ShowTypesInArgsViewer = ( bool ) MainWindow . GetSystemSetting ( "ShowTypesInSpArgumentsString" );
+            CloseArgsViewerOnPaste = ( bool ) MainWindow . GetSystemSetting ( "AutoCloseSpArgumentsViewer" );
+            OntopCheck . IsChecked = ( bool ) MainWindow . GetSystemSetting ( "SpResultsViewerOnTop" );
+            if ( ( bool ) MainWindow . GetSystemSetting ( "SpViewerUseDarkMode" ) == true )
+            {
+                SpViewerResults . Background = FindResource ( "Black3" ) as SolidColorBrush;
+                ShowingAllSprocs . Foreground = FindResource ( "White0" ) as SolidColorBrush;
+                prompter . Foreground = FindResource ( "White0" ) as SolidColorBrush;
+                BannerGrid . Background = FindResource ( "Orange5" ) as SolidColorBrush;
+                OntopCheck . Foreground = FindResource ( "White0" ) as SolidColorBrush;
+                MovingObject = SqlTablesViewer;
+            }
+            if ( spViewerexpobj == null )
+                spViewerexpobj = ExpandoClass . GetNewExpandoObject ( );
+
+            var t = new Dictionary<string , object> ( );
+            t . Add ( "asdda" , 4456 );
+
 
             return;
         }
-
         private void ListResults_SelectionChanged ( object sender , SelectionChangedEventArgs e )
         {
             // Load data into Scrollviewer
@@ -161,52 +195,15 @@ namespace Views
             //Store search term for use  by later dialogs
             Genericgrid . SpSearchTerm = Gengrid . selectSp . Text . ToUpper ( );
             Debug . WriteLine ( $"Executing S.P {spname}" );
-            List<string> results = DatagridControl . ProcessUniversalQueryStoredProcedure ( spname , args , Genericgrid . CurrentTableDomain , out string err );
+            List<string> results = GetListViaSProc . ProcessUniversalQueryStoredProcedure ( spname , args , Genericgrid . CurrentTableDomain , out string err );
             //            List<string> processResults = new List<string> ( );
             if ( results . Count > 0 )
             {
-                //TextResult . Visibility = Visibility . Visible;
-                //ListResults . Visibility = Visibility . Visible;
-                //SpViewerResults . Visibility = Visibility . Visible;
-
-                //string stringresult = "";
-                //    Task . Run( ( ) =>
-                //{
-                ///              string stringresult = "";
                 Task task = Task . Run ( async ( ) =>
                 {
                     await fetchandloadAllSProcs ( results );
                     //                    sptext = Gengrid . FetchStoredProcedureCode ( Splist . SelectedItem . ToString ( ) , ref stringresult );
                 } );
-                // string line = "";
-                // string sptext = "";
-                //foreach ( string item in results )
-                //{
-                //   line = item . ToString ( );
-                //    Gengrid . FetchStoredProcedureCode ( line , ref sptext );
-                //    processResults . Add ( sptext );
-                //}
-                //List<string> reslt = processResults . Where (
-                //matchtext => sptext . ToUpper ( ) . Contains ( Gengrid . selectSp . Text . ToUpper ( ) )
-                //) . ToList ( );
-                //ListResults . Items . Clear ( );
-                //if ( reslt . Count > 0 )
-                //{
-                //    foreach ( string item in results )
-                //    {
-                //        ListResults . Items . Add ( item );
-                //    }
-                //    ListResults . SelectedIndex = 0;
-                //     FlowDocument fd = new FlowDocument ( );
-                //    fd . Blocks . Clear ( );
-
-                //    // Store search term in our dialog for easier access
-                //    SrchTerm . Text = Gengrid . selectSp . Text . ToUpper ( );
-
-                //    fd = Gengrid . CreateBoldString ( fd , sptext , Genericgrid . SpSearchTerm . ToUpper ( ) );
-                //    fd . Background = FindResource ( "Black3" ) as SolidColorBrush;
-                //    TextResult . Document = fd;
-                //    //RTBox . Document = myFlowDocument;
             }
             e . Handled = true;
         }
@@ -350,7 +347,7 @@ namespace Views
                     resultstring = ( string ) obj?.ToString ( );
                 newtype = objtype;
             }
-            else if ( objtype == typeof ( ObservableCollection<GenericClass> ) )
+            else if ( objtype == typeof ( IEnumerable<dynamic> ) )
             {
                 newtype = objtype;
             }
@@ -534,54 +531,37 @@ namespace Views
                         }
                     }
                     //-------------------------------------------------------------------------------------------------//
-                    else if ( newtype . ToString ( ) . ToUpper ( ) . Contains ( "OBSERVABLECOLLECTION" ) == true )
+                    else if ( newtype . ToString ( ) . ToUpper ( ) . Contains ( "IENUMERABLE" ) == true )
                     {
-                        // got an observable collection
-                        if ( count > 0 )
+                        // got an observable collection, so parse it
+                        ObservableCollection<GenericClass> genclass = new ObservableCollection<GenericClass> ( );
+                        ObservableCollection<GenericClass> output = new ObservableCollection<GenericClass> ( );
+                        genclass = GenDapperQueries . ParseDynamicToCollection (
+                                     dynvar ,
+                                     out string errormsg ,
+                                     out int reccount ,
+                                     out List<string> genericlist );
+                        GenResults . CollectionGridresults . Visibility = Visibility . Visible;
+                        GenResults . CollectionTextresults . Visibility = Visibility . Visible;
+                        string argstring = SPArguments . Text == "Argument(s) required ?" ? "" : SPArguments . Text;
+                        string [ ] parts = SPArguments . Text . Split ( ',' );
+                        foreach ( var item in genclass )
                         {
-                            GenResults . CollectionTextresults . Visibility = Visibility . Visible;
-                            GenResults . CollectionGridresults . Visibility = Visibility . Visible;
-                            string argstring = SPArguments . Text == "Argument(s) required ?" ? "" : SPArguments . Text;
-                            GenResults . CollectionGridresults . ItemsSource = dynvar;
-                            GenResults . CollectionTextresults . Document = Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
+                            GenericClass gc = new GenericClass ( );
+                            gc = item as GenericClass;
+                            if ( gc . field1 == parts [ 0 ] )
+                                output . Add ( gc );
+                        }
+                        count = output . Count;
+                        GenResults . CollectionGridresults . ItemsSource = output;
+                        //GenResults . CollectionGridresults . ItemsSource = dynvar;
+                        GenResults . CollectionTextresults . Document = Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
                         FindResource ( "Black3" ) as SolidColorBrush ,
-                                $"Execution Result : SUCCESS\n\nThe enquiry [ {ListResults . SelectedItem . ToString ( )} {argstring} ] \nwas processed successfully and returned a value of [ {count} ] records..." );
-                            GenResults . ExecutionInfo . Text = $"Execution of [ {optype . SelectedItem . ToString ( )} ]\ncompleted successfully, details shown above...";
-                            // Showing Scrollviewer Text Only, so reduce height
-                            // Squeeze unused row so buttons show in our 220 height
-                            //GenResults . Height = 280;
-                            //GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Pixel );
-                            NewWpfDev . Utils . DoSuccessBeep ( );
-                            GenResults . ShowDialog ( );
-                            GenResults . Refresh ( );
-                        }
-                        else if ( newtype . ToString ( ) != "" )
-                        {
-                            if ( newtype . Name . Contains ( "ObservableCollection" ) )
-                            {
-                                ObservableCollection<GenericClass> resultcollection = new ObservableCollection<GenericClass> ( );
-                                resultcollection = NewWpfDev . Utils . CopyCollection ( dynvar , resultcollection );
-                                if ( resultcollection . Count > 0 )
-                                {
-                                    string argstring = SPArguments . Text == "Argument(s) required ?" ? "" : SPArguments . Text;
-                                    GenResults . CollectionTextresults . Visibility = Visibility . Visible;
-                                    GenResults . CollectionGridresults . ItemsSource = resultcollection;
-                                    GenResults . CollectionTextresults . Document = Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
-                                    FindResource ( "Black3" ) as SolidColorBrush ,
-                                           $"The enquiry [ {optype . SelectedItem . ToString ( )} {argstring} ] \nreturned a DataGrid as shown below" );
-                                    GenResults . ExecutionInfo . Text = $"Execution of [ {optype . SelectedItem . ToString ( )} ] completed successfully, details shown above...";
-                                    GenResults . CollectionGridresults . Visibility = Visibility . Visible;
-                                    NewWpfDev . Utils . DoSuccessBeep ( );
-                                    GenResults . ShowDialog ( );
-                                    GenResults . Refresh ( );
-                                }
-                                else
-                                {
-                                    NewWpfDev . Utils . PlayErrorBeep ( );
-                                }
-                                Mouse . OverrideCursor = Cursors . Arrow;
-                            }
-                        }
+                            $"Execution Result : SUCCESS\n\nThe enquiry [ {ListResults . SelectedItem . ToString ( )} {argstring} ] \nwas processed successfully and returned a value of [ {count} ] records..." );
+                        GenResults . ExecutionInfo . Text = $"Execution of [ {optype . SelectedItem . ToString ( )} ]\ncompleted successfully, details shown above...";
+                        NewWpfDev . Utils . DoSuccessBeep ( );
+                        GenResults . ShowDialog ( );
+                        GenResults . Refresh ( );
                         Mouse . OverrideCursor = Cursors . Arrow;
                     }
                     else
@@ -611,146 +591,13 @@ namespace Views
             }
             catch ( Exception ex )
             {
+                Utils . DoErrorBeep ( );
                 NewWpfDev . Utils . PlayErrorBeep ( );
                 Debug . WriteLine ( $"SQL error encountered ...\n {ex . Message}, [{ex . Data}]" );
             }
             Mouse . OverrideCursor = Cursors . Arrow;
         }
 
-        public string ExecuteSelectedStoredproc ( string spname , string Searchtext )
-        {
-            //Show popup optype selection dialog
-            //string resulltstring = "";
-            //string [ ] args1;
-            //if ( Searchtext != null )
-            //{
-            //    args1 = Searchtext . Trim ( ) . Split ( ',' );
-            //    int count = args1 . Length;
-            //    string [ ] args = new string [ count ];
-            //}
-            //createoptypes ( );
-            //optype . UpdateLayout ( );
-            return "";
-        }
-        public void createoptypes ( )
-        {
-            optype . Items . Add ( $"SP returning an INT value" );
-            optype . Items . Add ( $"SP returning a String" );
-            optype . Items . Add ( $"SP returning a List<string>" );
-            optype . Items . Add ( $"SP returning a Table as Collection<GenericTable>" );
-            optype . Items . Add ( $"SP returning a 'Pot Luck' result" );
-            optype . Items . Add ( $"SP returning No value" );
-        }
-
-        private string ReturnProcedureHeader ( string commandline , string Arguments )
-        {
-            //*********************************//
-            // only called  by Resultsviewer
-            //*********************************//
-            Parameters . Text = GetSpHeaderBlock ( Arguments );
-            DetailInfo . Visibility = Visibility . Visible;
-            operationtype3 . Text = $"Stored Procedure {commandline . ToUpper ( )} Header Details :-\n\n{Parameters . Text}";
-            return "Done";
-        }
-        /// <summary>
-        /// Method to strip out the header block of any SP
-        /// </summary>
-        /// <param name="Arguments"></param>
-        public string GetSpHeaderBlock ( string Arguments )
-        {
-            string output = "";
-            string arguments = Arguments;
-            int argcount = 0;
-            string header = "";
-            string buffer = "";
-            string temp = Arguments;
-          temp = temp . Trim ( ) . TrimStart ( );
-            Arguments = temp . ToUpper ( );
-            int count = -1;
-            count = Arguments . IndexOf ( "CREATE PROCEDURE" );
-            if ( count != -1 )
-                buffer = Arguments . Substring ( count );
-            string [ ] strings = new string [0];
-
-            if ( buffer . ToUpper ( ) . Contains ( "PROCEDURE" ) )
-            {
-                header = buffer;
-
-            }
-            strings = header . ToUpper ( ) . Split ( "AS" );
-            string [ ] parts = strings [ 0 ] . Split ( "\r\n" );
-            argcount = 0;
-            foreach ( var item in parts )
-            {
-                if ( argcount == 0 && item.Contains("PROCEDURE"))
-                {
-                    output = $"{item . Trim ( )}\n";
-                    argcount++;
-                    continue;
-                }
-                if ( item.Trim() == "" )
-                    continue;
-                if ( item . ToUpper ( ) . Contains ( "\r\nBEGIN" ) )
-                    break;
-                else
-                {
-                    if ( item . ToUpper ( ) . Contains ( "OUTPUT" ) )
-                    {
-                        if ( item . Contains ( '\t' ) )
-                            output += $" Output : [{item . Trim ( ) . Substring ( 2 )}]";
-                        else
-                            output += $" Output : [{item . Trim ( )}]\n";
-                    }
-                    else
-                    {
-                        if ( argcount >= 1 )
-                        {
-                            if ( item . TrimStart ( ) . StartsWith ( "--" ) )
-                            {
-                                argcount++;
-                                continue;
-                            }
-                            if ( item . Contains ( "--" ) )
-                            {
-                                string [ ] tmp = item . Split ( "--" );
-                                if ( tmp . Length > 1 )
-                                {
-                                    tmp [ 0 ] = StripTabs ( tmp [ 0 ] );
-                                    output += tmp [ 0 ];
-                                }
-                            }
-                            else
-                            {
-                               string  tmp = StripTabs ( item );
-                                output += $" Input : [{tmp. Trim ( )}]\n";
-                            }
-                        }
-                    }
-                }
-                argcount++;
-            }
-            return output;
-        }
-
-        public string StripTabs ( string input )
-        {
-            string output = "";
-            int offset = -1;
-            string [ ] test = new string [ 0 ];
-            if ( input . Contains ( '\t' ) )
-            {
-                offset = input . IndexOf ( '\t' );
-                test = input . Split ( '\t' );
-                for (int x = 0 ; x < test.Length ; x++ )
-                {
-                    if ( test [ x ] . StartsWith ( '\t' ) )
-                        test [ x ] = $" {test [x] + 1}";
-                    output += test [ x ];
-                }
-            }
-            return output;
-        }
-        // called by Stub DoExecute_Click ( object sender , RoutedEventArgs e )
         private dynamic Execute_click ( ref int Count , ref string ResultString , ref Type Objtype , ref object Obj , out string Err )
         {
             // called when executing an SP
@@ -802,240 +649,284 @@ namespace Views
             string innerresultstring = ResultString;
             object innerobj = Obj;
             string innerrerr = Err;
-
-            // Now find out what method we are going to use
-            if ( operationtype == "SP returning an INT value" )
+            try
             {
-                string SqlCommand = $"{ListResults . SelectedItem . ToString ( )}";
-                // Need to pass method=0 to a query as we are using an SP. to return an INT value
-                SqlCommand = $"spgetcolscount";
-                // tell method what we are expecting back
-                Objtype = typeof ( int );
-                //********************************************************************************//
-                dynamic stringresult = GenDapperQueries . Get_DynamicValue_ViaDapper ( SqlCommand ,
-                    args ,
-                    ref innerresultstring ,
-                    ref innerobj ,
-                    ref Objtype ,
-                    ref innercount ,
-                    ref Err ,
-                    0 );
-                //********************************************************************************//
-
-                if ( stringresult != null )
+                // Now find out what method we are going to use
+                if ( operationtype == "SP returning an INT value" )
                 {
-                    // TODO Maybe wrong  8/11/2022
+                    string SqlCommand = $"{ListResults . SelectedItem . ToString ( )}";
+                    // Need to pass method=0 to a query as we are using an SP. to return an INT value
+                    SqlCommand = $"spgetcolscount";
+                    // tell method what we are expecting back
+                    Objtype = typeof ( int );
+                    //********************************************************************************//
+                    dynamic stringresult = GenDapperQueries . Get_DynamicValue_ViaDapper ( SqlCommand ,
+                        args ,
+                        ref innerresultstring ,
+                        ref innerobj ,
+                        ref Objtype ,
+                        ref innercount ,
+                        ref Err ,
+                        0 );
+                    //********************************************************************************//
+
+                    if ( stringresult != null )
+                    {
+                        // TODO Maybe wrong  8/11/2022
+                        ResultString = innerresultstring;
+                        Obj = ( object ) stringresult;
+                        Objtype = typeof ( Int32 );
+                        Count = innercount;
+                        return ( dynamic ) innerobj;
+                    }
+                    if ( Err != "" && innerresultstring == "" )
+                    {
+                        if ( ReturnProcedureHeader ( SqlCommand , ListResults . SelectedItem . ToString ( ) ) == "DONE" )
+                            return ( dynamic ) null;
+                        ShowError ( operationtype , Err );
+                        return ( dynamic ) null;
+                    }
+                }
+                else if ( operationtype == "SP returning a String" )
+                {
+                    //Use storedprocedure  version
+                    string SqlCommand = $"{ListResults . SelectedItem . ToString ( )}";
+
+                    // tell method what we are expecting back
+                    Objtype = typeof ( string );
+
+                    //********************************************************************************//
+                    dynamic stringresult = GenDapperQueries . Get_DynamicValue_ViaDapper ( SqlCommand , args , ref innerresultstring , ref innerobj , ref Objtype , ref innercount , ref Err , 2 );
+                    //********************************************************************************//
+                    // Working 8/11/2022
+                    if ( Err != "" )
+                    {
+                        if ( ReturnProcedureHeader ( SqlCommand , ListResults . SelectedItem . ToString ( ) ) == "DONE" )
+                            return ( dynamic ) null;
+                        ShowError ( operationtype , Err );
+                    }
                     ResultString = innerresultstring;
                     Obj = ( object ) stringresult;
-                    Objtype = typeof ( Int32 );
+                    Objtype = typeof ( string );
                     Count = innercount;
-                    return ( dynamic ) innerobj;
+
+                    if ( Objtype == typeof ( string ) )
+                        return stringresult;
+                    else
+                        return stringresult . ToString ( );
                 }
-                if ( Err != "" && innerresultstring == "" )
+                else if ( operationtype == "SP returning a List<string>" )
                 {
-                    if ( ReturnProcedureHeader ( SqlCommand , ListResults . SelectedItem . ToString ( ) ) == "DONE" )
+                    DatagridControl dgc = new ( );
+                    List<string> list = new List<string> ( );
+
+                    // tell method what we are expecting back
+                    Objtype = typeof ( List<string> );
+
+                    //********************************************************************************//
+                    list = StoredprocsProcessing . ProcessGenericDapperStoredProcedure (
+                         ListResults . SelectedItem . ToString ( ) ,
+                        args ,
+                        Genericgrid . CurrentTableDomain ,
+                        ref innerresultstring ,
+                        ref innerobj ,
+                        ref Objtype ,
+                        ref innercount ,
+                        ref Err );
+                    //********************************************************************************//
+
+                    ResultString = innerresultstring;
+                    Obj = ( object ) list;
+                    Objtype = typeof ( List<string> );
+                    Count = list . Count;
+
+                    if ( Objtype == typeof ( List<string> ) )
+                        return ( dynamic ) list;
+                    else
                         return ( dynamic ) null;
-                    ShowError ( operationtype , Err );
-                    return ( dynamic ) null;
+
+                    //if ( list . Count > 0 )
+                    //    return ( dynamic ) list;
+                    //else
+                    //    return ( dynamic ) null;
                 }
-            }
-            else if ( operationtype == "SP returning a String" )
-            {
-                //Use storedprocedure  version
-                string SqlCommand = $"{ListResults . SelectedItem . ToString ( )}";
-
-                // tell method what we are expecting back
-                Objtype = typeof ( string );
-
-                //********************************************************************************//
-                dynamic stringresult = GenDapperQueries . Get_DynamicValue_ViaDapper ( SqlCommand , args , ref innerresultstring , ref innerobj , ref Objtype , ref innercount , ref Err , 2 );
-                //********************************************************************************//
-                // Working 8/11/2022
-                if ( Err != "" )
+                else if ( operationtype == "SP returning a Table as ObservableCollection" )
                 {
-                    if ( ReturnProcedureHeader ( SqlCommand , ListResults . SelectedItem . ToString ( ) ) == "DONE" )
-                        return ( dynamic ) null;
-                    ShowError ( operationtype , Err );
-                }
-                ResultString = innerresultstring;
-                Obj = ( object ) stringresult;
-                Objtype = typeof ( string );
-                Count = innercount;
+                    DatagridControl dgc = new ( );
 
-                if ( Objtype == typeof ( string ) )
-                    return stringresult;
-                else
-                    return stringresult . ToString ( );
-            }
-            else if ( operationtype == "SP returning a List<string>" )
-            {
-                DatagridControl dgc = new ( );
-                List<string> list = new List<string> ( );
+                    // tell method what we are expecting back
+                    Objtype = typeof ( ObservableCollection<GenericClass> );
 
-                // tell method what we are expecting back
-                Objtype = typeof ( List<string> );
-
-                //********************************************************************************//
-                list = StoredprocsProcessing . ProcessGenericDapperStoredProcedure (
+                    //********************************************************************************//
+                    // Shouldnormally  be  '[spLoadTableAsGeneric]' but can be any SP that wants a colection back
+                    IEnumerable<dynamic> tableresult = GenDapperQueries . Get_DynamicValue_ViaDapper (
                      ListResults . SelectedItem . ToString ( ) ,
-                    args ,
-                    Genericgrid . CurrentTableDomain ,
-                    ref innerresultstring ,
-                    ref innerobj ,
-                    ref Objtype ,
-                    ref innercount ,
-                    ref Err );
-                //********************************************************************************//
+                     args ,
+                     ref innerresultstring ,
+                     ref innerobj ,
+                     ref Objtype ,
+                     ref innercount ,
+                     ref Err ,
+                     4 );
 
-                ResultString = innerresultstring;
-                Obj = ( object ) list;
-                Objtype = typeof ( List<string> );
-                Count = list . Count;
+                    ResultString = innerresultstring;
+                    Obj = ( object ) tableresult;
+                    Objtype = typeof ( IEnumerable<dynamic> );
+                    //Count = innercount;
 
-                if ( Objtype == typeof ( List<string> ) )
-                    return ( dynamic ) list;
-                else
-                    return ( dynamic ) null;
-
-                //if ( list . Count > 0 )
-                //    return ( dynamic ) list;
-                //else
-                //    return ( dynamic ) null;
-            }
-            else if ( operationtype == "SP returning a Table as Collection<GenericTable>" )
-            {
-                DatagridControl dgc = new ( );
-
-                // tell method what we are expecting back
-                Objtype = typeof ( ObservableCollection<GenericClass> );
-
-                //********************************************************************************//
-                // Should be  '[spLoadTableAsGeneric]'
-                dynamic tableresult = GenDapperQueries . Get_DynamicValue_ViaDapper (
-                    ListResults . SelectedItem . ToString ( ) ,
-                    args ,
-                    ref innerresultstring ,
-                    ref innerobj ,
-                    ref Objtype ,
-                    ref innercount ,
-                    ref Err ,
-                    4 );
-
-                ResultString = innerresultstring;
-                Obj = ( object ) innerobj;
-                Objtype = typeof ( ObservableCollection<GenericClass> );
-                Count = innercount;
-
-                if ( Objtype == typeof ( ObservableCollection<GenericClass> ) )
-                    return ( dynamic ) tableresult;
-                else
-                    return ( dynamic ) null;
-
-
-                //********************************************************************************//
-
-                if ( Err != "" )
-                {
-                    if ( ReturnProcedureHeader ( ListResults . SelectedItem . ToString ( ) , ListResults . SelectedItem . ToString ( ) ) == "DONE" )
+                    if ( Objtype == typeof ( IEnumerable<dynamic> ) )
+                        return ( dynamic ) tableresult;
+                    else
                         return ( dynamic ) null;
-                    ShowError ( operationtype , Err );
-                }
-                else return tableresult;
-            }
-            else if ( operationtype == "SP returning a 'Pot Luck' result" )
-            {
-                DatagridControl dgc = new ( );
-                int recordcount = 0;
 
-                // tell method what we are expecting back ??????
-                //Objtype = typeof ( ObservableCollection<GenericClass> );
 
-                //********************************************************************************//
-                ObservableCollection<GenericClass>
-                   rescollection = dgc . GetDataFromStoredProcedure (
-                     ListResults . SelectedItem . ToString ( ) ,
-                    args ,
-                    Genericgrid . CurrentTableDomain ,
-                    out Err ,
-                    out recordcount );
-                //********************************************************************************//
+                    //********************************************************************************//
 
-                if ( Err == "" && rescollection . Count > 0 )
-                {
-                    int returnedcount = rescollection . Count;
-                    if ( returnedcount > 0 )
+                    if ( Err != "" )
                     {
-                        string output = $"Results of the {optype . SelectedItem . ToString ( )} request is shown below\n\n";
-                        foreach ( var item in rescollection )
-                        {
-                            output += $"{item . field1 . ToString ( )}\n";
-                        }
-                        Obj = output;
-                        ResultString = "SUCCESS";
-                        return ( dynamic ) Obj;
+                        if ( ReturnProcedureHeader ( ListResults . SelectedItem . ToString ( ) , ListResults . SelectedItem . ToString ( ) ) == "DONE" )
+                            return ( dynamic ) null;
+                        ShowError ( operationtype , Err );
                     }
+                    else return tableresult;
+                }
+                else if ( operationtype == "SP returning a 'Pot Luck' result" )
+                {
+                    DatagridControl dgc = new ( );
+                    int recordcount = 0;
 
+                    // tell method what we are expecting back ??????
+                    //Objtype = typeof ( ObservableCollection<GenericClass> );
+
+                    //********************************************************************************//
+                    ObservableCollection<GenericClass>
+                       rescollection = dgc . GetDataFromStoredProcedure (
+                         ListResults . SelectedItem . ToString ( ) ,
+                        args ,
+                        Genericgrid . CurrentTableDomain ,
+                        out Err ,
+                        out recordcount );
+                    //********************************************************************************//
+
+                    if ( Err == "" && rescollection . Count > 0 )
+                    {
+                        int returnedcount = rescollection . Count;
+                        if ( returnedcount > 0 )
+                        {
+                            string output = $"Results of the {optype . SelectedItem . ToString ( )} request is shown below\n\n";
+                            foreach ( var item in rescollection )
+                            {
+                                output += $"{item . field1 . ToString ( )}\n";
+                            }
+                            Obj = output;
+                            ResultString = "SUCCESS";
+                            return ( dynamic ) Obj;
+                        }
+
+                        else
+                        {
+                            Err = $"No usable values were returned";
+                            Obj = ( object ) Err;
+                            ResultString = "FAILURE";
+                            return ( dynamic ) Obj;
+                        }
+                    }
+                    else if ( rescollection . Count == 0 && Err == "" )
+                    {
+                        DatagridControl dg = new DatagridControl ( );
+
+                        //********************************************************************************//
+                        var result = dg . GetDataFromStoredProcedure ( "Select columncount from countreturnvalue" , null , "" , out Err , out recordcount , 1 );
+                        //********************************************************************************//
+
+                        if ( result . Count == 0 )
+                            MessageBox . Show ( $"No Error was encountered,  but the request did NOT return any type of value...\n\nPerhaps the processing method that you selected as shown below :-\n" +
+                                $"[{optype . SelectedItem . ToString ( ) . ToUpper ( )}]\n was not the correct processing method type for this Stored.Procedure ?" , "SQL Error" );
+                        if ( ReturnProcedureHeader ( "Select columncount from countreturnvalue" , "" ) == "DONE" )
+                            return ( dynamic ) null;
+                    }
                     else
                     {
-                        Err = $"No usable values were returned";
-                        Obj = ( object ) Err;
-                        ResultString = "FAILURE";
-                        return ( dynamic ) Obj;
+                        string errmsg = $"SQL Error encountered : The error message was \n{Err}\n\nPerhaps a  different Execution method would work more effectively for this Stored.Procedure.?";
+                        Err = errmsg;
+                        return ( dynamic ) null;
                     }
                 }
-                else if ( rescollection . Count == 0 && Err == "" )
+                else if ( operationtype == "SP returning No value" )
                 {
-                    DatagridControl dg = new DatagridControl ( );
+                    DatagridControl dgc = new ( );
 
                     //********************************************************************************//
-                    var result = dg . GetDataFromStoredProcedure ( "Select columncount from countreturnvalue" , null , "" , out Err , out recordcount , 1 );
+                    var result = dgc . ExecuteDapperTextCommand ( ListResults . SelectedItem . ToString ( ) , args , out Err );
                     //********************************************************************************//
 
-                    if ( result . Count == 0 )
-                        MessageBox . Show ( $"No Error was encountered,  but the request did NOT return any type of value...\n\nPerhaps the processing method that you selected as shown below :-\n" +
-                            $"[{optype . SelectedItem . ToString ( ) . ToUpper ( )}]\n was not the correct processing method type for this Stored.Procedure ?" , "SQL Error" );
-                    if ( ReturnProcedureHeader ( "Select columncount from countreturnvalue" , "" ) == "DONE" )
-                        return ( dynamic ) null;
+                    if ( Err != "" )
+                        ShowError ( operationtype , Err );
+                    else
+                    {
+                        string argstring = SPArguments . Text == "Argument(s) required ?" ? "" : SPArguments . Text;
+                        GenResults = new ( this , this . Topmost );
+                        GenResults . ExecutionInfo . Visibility = Visibility . Visible;
+                        GenResults . CollectionTextresults . Document = Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
+                       FindResource ( "Black3" ) as SolidColorBrush ,
+                        $"The enquiry [ {ListResults . SelectedItem . ToString ( )} {argstring} ] did not respond with any return values.\n\nPerhaps using a different Execution method will resullt in a better result ??" );
+                        GenResults . ExecutionInfo . Text = $"Execution of [ {optype . SelectedItem?.ToString ( )} ] completed but no value was returned...";
+                        GenResults . Show ( );
+                        GenResults . Refresh ( );
+                        NewWpfDev . Utils . PlayErrorBeep ( );
+                    }
                 }
                 else
                 {
-                    string errmsg = $"SQL Error encountered : The error message was \n{Err}\n\nPerhaps a  different Execution method would work more effectively for this Stored.Procedure.?";
-                    Err = errmsg;
-                    return ( dynamic ) null;
+                    MessageBox . Show ( "You MUST select one of these options to proceed....." , "Selection Error" );
+                    return -9;
                 }
             }
-            else if ( operationtype == "SP returning No value" )
+            catch ( Exception ex )
             {
-                DatagridControl dgc = new ( );
-
-                //********************************************************************************//
-                var result = dgc . ExecuteDapperTextCommand ( ListResults . SelectedItem . ToString ( ) , args , out Err );
-                //********************************************************************************//
-
-                if ( Err != "" )
-                    ShowError ( operationtype , Err );
-                else
-                {
-                    string argstring = SPArguments . Text == "Argument(s) required ?" ? "" : SPArguments . Text;
-                    GenResults = new ( this , this . Topmost );
-                    GenResults . ExecutionInfo . Visibility = Visibility . Visible;
-                    GenResults . CollectionTextresults . Document = Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
-                   FindResource ( "Black3" ) as SolidColorBrush ,
-                    $"The enquiry [ {ListResults . SelectedItem . ToString ( )} {argstring} ] did not respond with any return values.\n\nPerhaps using a different Execution method will resullt in a better result ??" );
-                    GenResults . ExecutionInfo . Text = $"Execution of [ {optype . SelectedItem?.ToString ( )} ] completed but no value was returned...";
-                    GenResults . Show ( );
-                    GenResults . Refresh ( );
-                    NewWpfDev . Utils . PlayErrorBeep ( );
-                }
-            }
-            else
-            {
-                MessageBox . Show ( "You MUST select one of these options to proceed....." , "Selection Error" );
-                return -9;
+                Utils . DoErrorBeep ( );
+                Debug . WriteLine ( $"Execute_Click ERROR : \n{ex . Message}\n{ex . Data}" );
             }
             return ( dynamic ) null;
         }
 
+        public string ExecuteSelectedStoredproc ( string spname , string Searchtext )
+        {
+            //Show popup optype selection dialog
+            //string resulltstring = "";
+            //string [ ] args1;
+            //if ( Searchtext != null )
+            //{
+            //    args1 = Searchtext . Trim ( ) . Split ( ',' );
+            //    int count = args1 . Length;
+            //    string [ ] args = new string [ count ];
+            //}
+            //createoptypes ( );
+            //optype . UpdateLayout ( );
+            return "";
+        }
+        public void createoptypes ( )
+        {
+            optype . Items . Add ( $"SP returning an INT value" );
+            optype . Items . Add ( $"SP returning a String" );
+            optype . Items . Add ( $"SP returning a List<string>" );
+            optype . Items . Add ( $"SP returning a Table as ObservableCollection" );
+            optype . Items . Add ( $"SP returning a 'Pot Luck' result" );
+            optype . Items . Add ( $"SP returning No value" );
+        }
+
+        private string ReturnProcedureHeader ( string commandline , string Arguments )
+        {
+            //*********************************//
+            // only called  by Resultsviewer
+            //*********************************//
+            Parameters . Text = SProcsDataHandling . GetSpHeaderBlock ( Arguments );
+            if ( Parameters . Text == "" )
+                return "";
+            DetailInfo . Visibility = Visibility . Visible;
+            operationtype3 . Text = $"Stored Procedure {commandline . ToUpper ( )} Header Details :-\n\n{Parameters . Text}";
+            return "Done";
+        }
         //private void Hidepanel_Click ( object sender , RoutedEventArgs e )
         //{
         //    OperationSelection . Visibility = Visibility . Collapsed;
@@ -1052,39 +943,32 @@ namespace Views
                     $"The help window just opened shows you the parameter types required by this S.P?" , "SQL Error" );
 
         }
-
         private void SPArguments_MouseEnter ( object sender , MouseEventArgs e )
         {
             SPArguments . SelectAll ( );
         }
-
         private void SPArguments_MouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
         {
             if ( SPArguments . Text == "Argument(s) required ?" )
                 SPArguments . Text = "";
         }
-
         private void SPArguments_GotFocus ( object sender , RoutedEventArgs e )
         {
             if ( SPArguments . Text == "Argument(s) required ?" )
                 SPArguments . Text = "";
         }
-
         private void TextResult_PreviewKeyDown ( object sender , KeyEventArgs e )
         {
 
         }
-
         private void Closepanel_Click ( object sender , RoutedEventArgs e )
         {
             DetailInfo . Visibility = Visibility . Collapsed;
         }
-
         private void optype_MouseDoubleClick ( object sender , MouseButtonEventArgs e )
         {
             DoExecute_Click ( null , null );
         }
-
         private void Exec_Click ( object sender , RoutedEventArgs e )
         {
             Gengrid . RunExecute_Click ( this );
@@ -1106,24 +990,38 @@ namespace Views
         }
         private void ListResults_MouseRightButtonDown ( object sender , MouseButtonEventArgs e )
         {
-            // call a  context menu to refresh list of SP's
+            ContextMenu cm = FindResource ( "ResultsViewerContextMenu" ) as ContextMenu;
+            Point pt = e . GetPosition ( sender as UIElement );
+            // Hide relevant entries
+            List<string> hideitems = new List<string> ( );
+            if ( ShowingAllSPs == false )
+            {   // Show show all as we showing matches only
+                hideitems . Add ( "gm1" );
+            }
+            else
+            {   // hide show all as we already are showing all
+                hideitems . Add ( "gm2" );
+            }
+            //hideitems . Add ( "gm3" );
+            //hideitems . Add ( "gm4" );
+            // Hide close tables viewer as it is not open
+            hideitems . Add ( "gm5" );
+            //hideitems . Add ( "gm6" );
+            //hideitems . Add ( "gm7" );
+            //hideitems . Add ( "gm8" );
 
-            ListBox lb = sender as ListBox;
-            string srchtext = Gengrid . Searchtext;
-            int currindex = lb . SelectedIndex;
-            if ( currindex < 0 )
-                currindex = 0;
-            LoadSpList ( this , currindex , srchtext );
+            ContextMenu menu = RemoveMenuItems ( "ResultsViewerContextMenu" , "" , hideitems );
+            //forces menu to show immeduiately to right and below mouse pointer
+            menu . PlacementTarget = sender as FrameworkElement;
+            menu . PlacementRectangle = new Rect ( pt . X , pt . Y , 250 , 100 );
             e . Handled = true;
-            lb . SelectedIndex = currindex;
+            menu . IsOpen = true;
         }
-
         private void Spresultsviewer_Closing ( object sender , System . ComponentModel . CancelEventArgs e )
         {
             Genericgrid . Resultsviewer = null;
+            MainWindow . SaveSystemSetting ( "SpResultsViewerOnTop" , OntopCheck . IsChecked );
         }
-
-
         private void OntopCheck_Click ( object sender , RoutedEventArgs e )
         {
             CheckBox cb = sender as CheckBox; ;
@@ -1138,8 +1036,6 @@ namespace Views
                 Spresultsviewer . Topmost = false;
             }
         }
-
-
         private void ShowingAllSps_Checked ( object sender , RoutedEventArgs e )
         {
             // Checkbox clicked to change SP's shown
@@ -1239,34 +1135,35 @@ namespace Views
             // sort out the layout, but pass  a blank search term as we are loading ALL SP's
             Mouse . OverrideCursor = Cursors . Arrow;
         }
-
-
         private void Spresultsviewer_Loaded ( object sender , RoutedEventArgs e )
         {
             if ( ShowingAllSPs == false )
                 ShowingAllSPs = true;
             //           ShowingAllSprocs . IsChecked = true;
         }
-
         private void hSplitter_MouseEnter ( object sender , MouseEventArgs e )
         {
-            this . Cursor = Cursors . ScrollNS;
+            GridSplitter gs = sender as GridSplitter;
+            gs . Cursor = Cursors . ScrollNS;
+            Mouse . OverrideCursor = Cursors . SizeNS;
         }
 
         private void hSplitter_MouseLeave ( object sender , MouseEventArgs e )
         {
-            this . Cursor = Cursors . Arrow;
+            GridSplitter gs = sender as GridSplitter;
+            gs . Cursor = Cursors . Arrow;
+            Mouse . OverrideCursor = Cursors . Arrow;
         }
         private void Hsplitter_MouseMove ( object sender , MouseEventArgs e )
         {
-            this . Cursor = Cursors . ScrollNS;
+            GridSplitter gs = sender as GridSplitter;
+            gs . Cursor = Cursors . ScrollNS;
+            Mouse . OverrideCursor = Cursors . SizeNS;
         }
-
         private void Spresultsviewer_FocusableChanged ( object sender , DependencyPropertyChangedEventArgs e )
         {
             Debug . WriteLine ( $"Ontop status = {this . Topmost}" );
         }
-
         private void Spresultsviewer_KeyDown ( object sender , KeyEventArgs e )
         {
             if ( e . Key == Key . F1 )
@@ -1287,13 +1184,605 @@ namespace Views
             else if ( e . Key == Key . F3 )
             {
                 SpArguments sh = new SpArguments ( SPArguments );
-                sh . SPHeaderblock . Text = GetSpHeaderBlock ( Gengrid . SpTextBuffer );
-                sh . Show ( );
+                sh . SPHeaderblock . Text = SProcsDataHandling . GetSpHeaderBlock ( Gengrid . SpTextBuffer );
+
+                if ( sh . SPHeaderblock . Text != "" )
+                    sh . Show ( );
                 e . Handled = true;
             }
         }
+        private void ListResults_MouseDoubleClick ( object sender , MouseButtonEventArgs e )
+        {
+            SpArguments sh = new SpArguments ( SPArguments );
+            sh . SPHeaderblock . Text = SProcsDataHandling . GetSpHeaderBlock ( Gengrid . SpTextBuffer );
+            if ( sh . SPHeaderblock . Text != "" )
+                sh . Show ( );
+            e . Handled = true;
 
+        }
+  
+        #region SqlTablesViewer
+        private void LoadViewerTables ( object sender , RoutedEventArgs e )
+        {
+            //List<string> data = new List<string> ( );
+            //           data = Gengrid . Domethod ( );
+            List<string> TablesList = Gengrid . GetDbTablesList ( MainWindow . CurrentSqlTableDomain );
+            AllTables . ItemsSource = TablesList;
+            //            AllTables . ItemsSource = data;
+            SqlTablesViewer . Visibility = Visibility . Visible;
+            reccount . Text = AllTables . Items . Count . ToString ( );
+
+        }
+        private void tableviewer_LButtonDn ( object sender , MouseButtonEventArgs e )
+        {
+            ListBox senderlb;
+            Grid grid;
+            string Sendername = "";
+            Type type = sender . GetType ( );
+            if ( type == typeof ( ListBox ) )
+            {
+                senderlb = sender as ListBox;
+                Sendername = senderlb . Name;
+            }
+            else
+            {
+                grid = sender as Grid;
+                Sendername = grid . Name;
+            }
+            ActiveDragControl = SqlTablesViewer;
+            this . MovingObject = SqlTablesViewer;
+            DragCtrl . InitializeMovement ( ( FrameworkElement ) SqlTablesViewer );
+            DoPanelDragInit ( sender , e , Sendername );
+        }
+
+        private void tableviewer_Moving ( object sender , MouseEventArgs e )
+        {
+            if ( MovingObject != null && e . LeftButton == MouseButtonState . Pressed )
+            {
+                Type type = sender . GetType ( );
+                if ( type == typeof ( Button ) )
+                {
+                    e . Handled = true;
+                    return;
+                }
+                else if ( type == typeof ( TextBox ) )
+                {
+                    e . Handled = true;
+                    return;
+                }
+                else
+                {
+                    ActiveDragControl = SqlTablesViewer;
+                    DragCtrl . Ismoving = true;
+                    DragCtrl . CtrlMoving ( sender , e );
+                    e . Handled = false;
+                }
+            }
+        }
+        private void tableviewer_Ending ( object sender , MouseButtonEventArgs e )
+        {
+            ActiveDragControl = SqlTablesViewer;
+            DragCtrl . MovementEnd ( sender , e );
+            e . Handled = true;
+        }
+
+        private void tableviewer_KeyDown ( object sender , KeyEventArgs e )
+        {
+            if ( e . Key == Key . Enter )
+            {
+                //CurrentSpSelection = Splist . SelectedItem . ToString ( );
+                //ExecBtn . RaiseEvent ( new RoutedEventArgs ( System . Windows . Controls . Primitives . ButtonBase . ClickEvent ) );
+                e . Handled = true;
+            }
+            else if ( e . Key == Key . Escape )
+            {
+                SqlTablesViewer . Visibility = Visibility . Collapsed;
+                e . Handled = true;
+            }
+            e . Handled = false;
+        }
+
+        public static void DoPanelDragInit ( object sender , MouseButtonEventArgs e , string Sendername )
+        {
+            Control activegrid = null;
+            Grid grid = new Grid ( );
+            FrameworkElement parent = null;
+            FrameworkElement fwelement = new FrameworkElement ( );
+            Type type = sender . GetType ( );
+            Debug . WriteLine ( $"Type={type}" );
+            // Finds the parent immediately above the Canvas,
+            // which is what we are dragging
+            if ( type == typeof ( Button ) )
+                return;
+            else if ( type == typeof ( TextBox ) )
+                return;
+            else if ( type == typeof ( Border ) )
+            {
+                parent = NewWpfDev . Utils . FindVisualParent<Grid> ( ( DependencyObject ) sender , out string [ ] objectarray );
+                if ( parent != null )
+                {
+                    if ( parent . Name == Sendername )
+                    {
+                        DragCtrl . InitializeMovement ( ( FrameworkElement ) parent );
+                        DragCtrl . MovementStart ( parent , e );
+                        e . Handled = true;
+                        return;
+                    }
+                    else
+                    {
+                        if ( type == typeof ( Grid ) )
+                        {
+                            grid = sender as Grid;
+                            if ( grid . Name == Sendername )
+                            {
+                                DragCtrl . InitializeMovement ( ( FrameworkElement ) grid );
+                                DragCtrl . MovementStart ( grid , e );
+                                e . Handled = true;
+                                return;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    parent = ( Grid ) FindOuterParent ( sender , e );
+                    if ( parent . GetType ( ) == typeof ( Grid ) && parent . Name == Sendername )
+                    {
+                        DragCtrl . InitializeMovement ( parent );
+                        DragCtrl . MovementStart ( parent , e );
+                        e . Handled = true;
+                        return;
+                    }
+                }
+            }
+            else if ( type == typeof ( Grid ) )
+            {
+                grid = sender as Grid;
+                if ( grid . Name == Sendername )
+                {
+                    DragCtrl . InitializeMovement ( grid );
+                    DragCtrl . MovementStart ( grid , e );
+                    e . Handled = true;
+                    return;
+                }
+                else
+                {
+                    parent = ( Grid ) FindOuterParent ( sender , e );
+                    if ( parent . GetType ( ) == typeof ( Grid ) && parent . Name == Sendername )
+                    {
+                        DragCtrl . InitializeMovement ( parent );
+                        DragCtrl . MovementStart ( parent , e );
+                        e . Handled = true;
+                        return;
+                    }
+                }
+            }
+            else
+            {
+                parent = ( Grid ) FindOuterParent ( sender , e );
+                if ( parent . GetType ( ) == typeof ( Grid ) && parent . Name == Sendername )
+                {
+                    DragCtrl . InitializeMovement ( parent );
+                    DragCtrl . MovementStart ( parent , e );
+                    e . Handled = true;
+                    return;
+                }
+            }
+        }
+
+        public static Grid FindOuterParent ( object sender , RoutedEventArgs e , string target = "" )
+        {
+            UIElement returnval = null;
+            Grid dgobj = null;
+            Border dgobj2 = null;
+            string currgrid = "", lastgrid = "";
+            int gridcount = 0;
+            UIElement fe = sender as UIElement;
+            Type type = sender . GetType ( );
+
+            if ( target != "" && type == typeof ( Grid ) )
+            {
+                dgobj = sender as Grid;
+                if ( dgobj . Name == target )
+                    return dgobj;
+            }
+            dgobj = DapperGenericsLib . Utils . FindVisualParent<Grid> ( e . OriginalSource as DependencyObject );
+
+            if ( dgobj != null )
+            {
+                if ( target != "" )
+                {
+                    if ( dgobj . Name == target )
+                        return dgobj;
+                }
+                while ( true )
+                {
+                    if ( dgobj . GetType ( ) == typeof ( Grid ) && currgrid == "" )
+                    {
+                        currgrid = dgobj . Name;
+                        return dgobj;
+                    }
+                    if ( dgobj == null )
+                        dgobj = DapperGenericsLib . Utils . FindVisualParent<Grid> ( dgobj2 as DependencyObject );
+                    //else 
+                    //    dgobj = DapperGenericsLib . Utils . FindVisualParent<Grid> ( e . OriginalSource as DependencyObject );
+
+                    if ( dgobj == null ) break;
+                    if ( target != "" && dgobj . Name == target )
+                    {
+                        dgobj . Visibility = Visibility . Collapsed;
+                        break;
+                    }
+                    else lastgrid = dgobj . Name;
+
+                    if ( currgrid == lastgrid )
+                    {
+                        dgobj2 = DapperGenericsLib . Utils . FindVisualParent<Border> ( dgobj as DependencyObject );
+                    }
+                }   // End While (true)
+
+            }
+            return dgobj;
+        }
+        #endregion SqlTablesViewer
+
+        private void closeviewer_Click ( object sender , RoutedEventArgs e )
+        {
+            SqlTablesViewer . Visibility = Visibility . Collapsed;
+        }
+        private void closeviewer ( object sender , RoutedEventArgs e )
+        {
+            SqlTablesViewer . Visibility = Visibility . Collapsed;
+        }
+        private void Viewer_PreviewMouseRightButtonDown ( object sender , MouseButtonEventArgs e )
+        {
+            ContextMenu cm = FindResource ( "ResultsViewerContextMenu" ) as ContextMenu;
+            // Hide relevant entries
+            List<string> hideitems = new List<string> ( );
+            hideitems . Add ( "gm2" );
+            hideitems . Add ( "gm6" );
+            hideitems . Add ( "gm7" );
+
+            ContextMenu menu = RemoveMenuItems ( "ResultsViewerContextMenu" , "" , hideitems );
+            //forces menu to show immeduiately to right and below mouse pointer
+            menu . PlacementTarget = sender as FrameworkElement;
+            Point pt = e . GetPosition ( sender as UIElement );
+            menu . PlacementRectangle = new Rect ( pt . X , pt . Y , 350 , 300 );
+            menu . IsOpen = true;
+            e . Handled = true;
+        }
+        public ContextMenu RemoveMenuItems ( string menuname , string singleton = "" , List<string> delItems = null )
+        {
+            // Collapse visibility on one or more context menu items
+            int listcount = 0;
+            if ( delItems != null )
+                listcount = delItems . Count;
+            MenuItem mi = new MenuItem ( );
+
+            var menu = FindResource ( menuname ) as ContextMenu;
+            List<MenuItem> items = new List<MenuItem> ( );
+
+            if ( singleton != "" )
+            {
+                foreach ( var item in menu . Items )
+                {
+                    mi = item as MenuItem;
+                    if ( mi . Name == singleton )
+                    {
+                        mi . Visibility = Visibility . Collapsed;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                {
+                    foreach ( var menuitem in delItems )
+                    {
+                        foreach ( var item in menu . Items )
+                        {
+                            mi = item as MenuItem;
+                            if ( mi == null )
+                                continue;
+                            if ( mi . Name == menuitem )
+                            {
+                                mi . Visibility = Visibility . Collapsed;
+                                //items . Add ( mi );
+                            }
+                        }
+                    }
+                }
+            }
+            return menu;
+        }
+        public ContextMenu AddMenuItem ( string menuname , string entry )
+        {
+            SolidColorBrush sbrush = null;
+            var menu = FindResource ( menuname ) as ContextMenu;
+            MenuItem mi = new MenuItem ( );
+            foreach ( MenuItem item in menu . Items )
+            {
+                if ( item . Name == entry )
+                {
+                    //PopupMenu.cm15
+                    mi = item;
+                    //if ( Splist . SelectedItem != null && Splist . SelectedItem . ToString ( ) != "" )
+                    //    SPExecuteText = $"Show the S.P Execute Window with [ {Splist . SelectedItem . ToString ( )} ]";
+                    //else
+                    //{
+                    //    Splist . SelectedIndex = 0;
+                    //    SPExecuteText = $"Show the S.P Execute Window with [ {Splist . SelectedItem . ToString ( )} ]";
+                    //}
+
+                    //mi . Header = SPExecuteText;
+                    //mi . Height = 25;
+                    //mi . Tag = Splist . SelectedItem . ToString ( );
+                    break;
+                }
+            }
+            return menu;
+        }
+
+        /// <summary>
+        /// Resets Visibility of 1 or more Context menu entries and returns a ContextMenu pointer
+        /// </summary>
+        /// <param name="menuname"></param>
+        /// <param name="singleton"></param>
+        /// <param name="delItems"></param>
+        /// <returns></returns>
+        public ContextMenu ResetMenuItems ( string menuname , string singleton = "" , List<string> delItems = null )
+        {
+            int listcount = 0;
+            // reset visibility on one or more previously collapsed context menu items
+            if ( delItems != null )
+                listcount = delItems . Count;
+
+            var menu = FindResource ( menuname ) as ContextMenu;
+
+            if ( singleton != "" )
+            {
+                // show menu item(s)
+                foreach ( MenuItem item in menu . Items )
+                {
+                    if ( item . Name == singleton )
+                    {
+                        item . Visibility = Visibility . Visible;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                // ??
+                foreach ( var delitem in delItems )
+                {
+                    foreach ( MenuItem menuitem in menu . Items )
+                    {
+                        //var v = mi . Items;
+                        if ( menuitem . Name == delitem )
+                            menuitem . Visibility = Visibility . Visible;
+                    }
+                }
+            }
+            return menu;
+        }
+        private void ContextMenu_Closed ( object sender , RoutedEventArgs e )
+        {
+            //Restore Popup to full contents
+            ContextMenu cm = FindResource ( "ResultsViewerContextMenu" ) as ContextMenu;
+            List<string> hideitems = new List<string> ( );
+            hideitems . Add ( "gm1" );
+            hideitems . Add ( "gm2" );
+            hideitems . Add ( "gm3" );
+            hideitems . Add ( "gm4" );
+            hideitems . Add ( "gm5" );
+            hideitems . Add ( "gm6" );
+            hideitems . Add ( "gm7" );
+            //hideitems . Add ( "gm8" );
+            ContextMenu menu = ResetMenuItems ( "ResultsViewerContextMenu" , "" , hideitems );
+            menu . IsOpen = false;
+            e . Handled = true;
+        }
+
+        private void ContextMenu_Opened ( object sender , RoutedEventArgs e )
+        {
+            // cannot identify caller !!!!
+            object [ ] objectarray;
+            //var ret = Utils.GetChildControls ( (UIElement) sender , "Button");
+            //e . Handled = true;
+        }
+
+        private void CloseTableviewer ( object sender , RoutedEventArgs e )
+        {
+            SqlTablesViewer . Visibility = Visibility . Collapsed;
+
+        }
+
+        private void showmatchesonly ( object sender , RoutedEventArgs e )
+        {
+            // Careful = calls from Context Menu will NOT find a window, so check it here
+            Mouse . OverrideCursor = Cursors . Wait;
+            ListBox lbox = null;
+            string callertype = "";
+            Window dgobj = null;
+            dgobj = DapperGenericsLib . Utils . FindVisualParent<Window> ( e . OriginalSource as DependencyObject );
+            if ( dgobj == null )
+            {
+                ContextMenu cmenu = null;
+                cmenu = DapperGenericsLib . Utils . FindVisualParent<ContextMenu> ( e . OriginalSource as DependencyObject );
+                if ( cmenu . GetType ( ) == typeof ( ContextMenu ) )
+                    callertype = "CTXMENU";
+                Debug . WriteLine ( "Context Menu is the caller" );
+            }
+            if ( dgobj != null )
+            {
+                if ( dgobj . GetType ( ) == typeof ( Genericgrid ) )
+                    callertype = "GENGRID";
+                else if ( dgobj . GetType ( ) == typeof ( SpResultsViewer ) )
+                    callertype = "RESVIEW";
+            }
+            // Dbl click or context mnu click in SP list, so load only matching SP's
+            string currItem = "";
+            if ( callertype == "CTXMENU" || dgobj == null )
+            {
+                lbox = ListResults;
+                // must be Generigrid if dgobk == null
+                if ( ListResults . Items . Count > 0 )
+                {
+                    if ( ListResults . SelectedItem == null )
+                        currItem = ListResults . Items [ 0 ] . ToString ( );
+                    else
+                        currItem = ListResults . SelectedItem . ToString ( );
+                }
+                else
+                    return;
+            }
+            if ( Gengrid . Searchtext != "" )
+            {
+                string srchtext = Gengrid . Searchtext;
+                // call sql to get SP list and load it into listbox
+                List<string> list = null;
+                if ( callertype == "CTXMENU" )
+                    list = Gengrid . LoadMatchingStoredProcs ( ListResults , srchtext );
+                //else
+                //    list = Gengrid . LoadMatchingStoredProcs ( GenGrid . Splist , srchterm );
+                if ( currItem != null && currItem != "" )
+                    lbox . SelectedItem = currItem;
+
+                // Update the resultsviewer as well (if open)
+                lbox . ItemsSource = null;
+                lbox . Items . Clear ( );
+                lbox . ItemsSource = list;
+                {
+                    lbox . SelectedItem = currItem;
+                    lbox . ScrollIntoView ( currItem );
+                }
+                ListResults . Refresh ( );
+                Bannerline . Text = $"Stored Procedures Helper ({list . Count}) SP's Matching  [{srchtext}] for Db [{MainWindow . CurrentSqlTableDomain}] are shown)";
+                // set generic flag to show we are no not showing ALL sp's
+                ShowingAllSPs = false;
+                Mouse . OverrideCursor = Cursors . Arrow;
+
+            }
+            Mouse . OverrideCursor = Cursors . Arrow;
+        }
+
+        private void ShowArgDetailsonly ( object sender , RoutedEventArgs e )
+        {
+            //bool sucess = false;
+            string Output = "";
+            string buffer = SProcsDataHandling . GetSpHeaderBlock ( Gengrid . SpTextBuffer );
+            AllArgs . Items . Clear ( );
+            string [ ] items;
+            string [ ] lines = buffer . Split ( '\n' );
+            foreach ( var line in lines )
+            {
+                if ( line . Contains ( "CREATE PROC" ) == false )
+                    Output += SProcsDataHandling . GetBareSProcHeader ( line , ListResults . SelectedItem . ToString ( ) , out bool success );
+            }
+            if ( Output . Length < 5 )
+            {
+                AllArgs . Items . Add ( "This Procedure does NOT appear to require any Arguments.,\nbut it may possibly contain a Syntax Error in the arguments section\nsuch as a defult value that only has [ \" ] a single quote mark\ninstead of the correct [ \" ..\" ] quote marks ?" );
+                DetailedArgsViewer . Visibility = Visibility . Visible;
+            }
+            else
+            {
+                items = Output . Split ( '\n' );
+                DetailedArgsViewer . Visibility = Visibility . Visible;
+                foreach ( string item in items )
+                {
+                    if ( item . Length > 2 )
+                        AllArgs . Items . Add ( item );
+                }
+            }
+            AllArgs . SelectedIndex = 0;
+            AllArgs . SelectedItem = 0;
+            AllArgs . Focus ( );
+            e . Handled = true;
+        }
+
+        private void ShowAllSprocs ( object sender , RoutedEventArgs e )
+        {
+            string currItem = "";
+            if ( this . ListResults . Items . Count > 0 )
+            {
+                if ( this . ListResults . SelectedItem == null )
+                    currItem = this . ListResults . Items [ 0 ] . ToString ( );
+                else
+                    currItem = this . ListResults . SelectedItem . ToString ( );
+            }
+            List<string> list = new List<string> ( );
+            list = GetListViaSProc . CallStoredProcedure ( list , "spGetStoredProcs" );
+            ListResults . ItemsSource = null;
+            ListResults . Items . Clear ( );
+            ListResults . ItemsSource = list;
+            ListResults . SelectedItem = currItem;
+            ListResults . ScrollIntoView ( currItem );
+            Mouse . OverrideCursor = Cursors . Arrow;
+            //SetStatusbarText ( $"All ({Splist . Items . Count}) S.P's loaded successfully..." );
+            Bannerline . Text = $"All {ListResults . Items . Count} existing S.Procs for Db [{MainWindow . CurrentSqlTableDomain}] are displayed";
+            //            reccount . Text = ListResults . Items . Count . ToString ( );
+            ShowingAllSPs = true;
+            //SpInfo2 . Text = $"{Splist . Items . Count} available...";
+            //InfoHeaderPanel . Text = $"All ({Splist . Items . Count}) Stored Procedures are listed";
+            //CurrentSpList = "ALL";
+
+            // Context menu options - all correct  
+            //LoadAllItems . IsEnabled = false;
+            //LoadMatchingItems . IsEnabled = true;
+
+            // Force list to show()
+            //GridLength gl = new GridLength ( );
+            //gl = ViewerGrid . ColumnDefinitions [ 0 ] . Width;
+            //if ( gl . Value < 5 )
+            //    ViewerGrid . ColumnDefinitions [ 0 ] . Width = new GridLength ( 200 , GridUnitType . Pixel );
+        }
+
+        private void ShowMatchingSprocs ( object sender , RoutedEventArgs e )
+        {
+
+        }
+
+        private void TablesViewer_PreviewMouseRightButtonDown ( object sender , MouseButtonEventArgs e )
+        {
+            //control for ContextMenu = "{StaticResource TableViewerContextMenu}"
+            ContextMenu cm = FindResource ( "TableViewerContextMenu" ) as ContextMenu;
+            //forces menu to show immeduiately to right and below mouse pointer
+            cm . PlacementTarget = sender as FrameworkElement;
+            Point pt = e . GetPosition ( sender as UIElement );
+            cm . PlacementRectangle = new Rect ( pt . X + 70 , pt . Y + 10 , 12 , 40 );
+            cm . IsOpen = true;
+            e . Handled = true;
+        }
+
+        private void ListResults_MouseRightButtonUp ( object sender , MouseButtonEventArgs e )
+        {
+
+        }
+
+        private void closeargsviewer_Click ( object sender , RoutedEventArgs e )
+        {
+            DetailedArgsViewer . Visibility = Visibility . Collapsed;
+        }
+
+        private void DetailedArgsViewer_KeyDown ( object sender , KeyEventArgs e )
+        {
+            if ( e . Key == Key . Escape )
+                DetailedArgsViewer . Visibility = Visibility . Collapsed;
+        }
+
+        private void detailsviewer_LButtonDn ( object sender , MouseButtonEventArgs e )
+        {
+        }
+
+        private void detailsviewer_KeyDown ( object sender , KeyEventArgs e )
+        {
+            if ( e . Key == Key . Escape )
+            {
+                DetailedArgsViewer . Visibility = Visibility . Collapsed;
+                e . Handled = true;
+            }
+        }
     }
-
 }
 

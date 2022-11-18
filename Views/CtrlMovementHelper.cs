@@ -5,7 +5,7 @@ using System . Diagnostics;
 using System . Windows . Controls;
 using System . Windows . Input;
 using System . Windows;
-using static Views . DragCtrlHelper;
+//using static Views . DragCtrlHelper;
 
 
 namespace Views
@@ -38,25 +38,33 @@ namespace Views
         }
         public  DragData CtrlDragData = new DragData ( );
  
-        public object MovingObject = null;
-        public double currentleft = 0.0;
-        public double currenttop = 0.0;
-        public double FirstXPos = 0.0;
-        public double FirstYPos = 0.0;
-        public string CtrlName = "";
-        public Control parent = null;
-        public FrameworkElement CurrentControl = null;
-        public double width = 0.0, height = 0.0, top = 0.0, left = 0.0;
-        public bool Ismoving = false;
+        public object MovingObject { get; set; } = null;
+        public double currentleft { get; set; } = 0.0;
+        public double currenttop { get; set; } = 0.0;
+        public double FirstXPos { get; set; } = 0.0;
+        public double FirstYPos { get; set; } = 0.0;
+        public string CtrlName { get; set; } = "";
+        public FrameworkElement  parent { get; set; } = null;
+        public FrameworkElement CurrentControl { get; set; } = null;
+        public double width { get; set; } = 0.0;
+        public double height { get; set; } = 0.0;
+        public double top { get; set; } = 0.0;
+        public double left { get; set; } = 0.0;
+        public bool Ismoving { get; set; }
+
+        public DragCtrlHelper ( FrameworkElement caller )
+        {
+            parent = caller;
+        }
 
         //***************************************************************************************************************//
-        public void InitializeMovement ( FrameworkElement controlToMove , Window win )
+        public void InitializeMovement ( FrameworkElement controlToMove )
         {
             CtrlDragData.CurrentControl = controlToMove;
             CtrlDragData . CurrentControl = controlToMove;
         }
         //***************************************************************************************************************//
-        public void MovementStart ( object sender , MouseButtonEventArgs e , Window win = null )
+        public void MovementStart ( object sender , MouseButtonEventArgs e  )
         {
             if ( NewWpfDev . Utils . HitTestValidMoveType ( sender , e ) == true )
             {
@@ -71,7 +79,7 @@ namespace Views
             e . Handled = true;
         }
         //***************************************************************************************************************//
-        public void CtrlMoving ( object sender , MouseEventArgs e , Window win =null)
+        public void CtrlMoving ( object sender , MouseEventArgs e )
         {
             //Debug . WriteLine ( $"{e . LeftButton == MouseButtonState . Pressed}" );
             if ( CtrlDragData . CurrentControl == null && e . LeftButton == MouseButtonState . Pressed ) return;
@@ -91,9 +99,13 @@ namespace Views
                     ( CtrlDragData . CurrentControl as FrameworkElement ) . SetValue ( Canvas . TopProperty , CtrlDragData . top );
                 //Debug . WriteLine($"Y top {Convert . ToDouble(top)} / {Convert . ToDouble(left)}");
             }
+            else
+            {
+                int x = 0;
+            }
         }
         //***************************************************************************************************************//
-        public void MovementEnd ( object sender , RoutedEventArgs e , Window win )
+        public void MovementEnd ( object sender , RoutedEventArgs e )
         {
             if ( CtrlDragData . CurrentControl == null ) return;
             CtrlDragData . Ismoving = false;

@@ -2406,7 +2406,7 @@ namespace NewWpfDev . Views
             List<string> list = new List<string> ( );
             List<string> fldnameslist = new List<string> ( );
             string output = "";
-            SqlCommand = $"spGetTableColumnWithSize2 {dbNameLb . SelectedItem . ToString ( )}";
+            SqlCommand = $"spGetTableColumnWithSize {dbNameLb . SelectedItem . ToString ( )}";
             //SqlCommand = SqlCommand = $"spGetTableColumns";
             fldnameslist = Datagrids . CallStoredProcedureWithSizes ( list , SqlCommand );
 
@@ -2434,17 +2434,31 @@ namespace NewWpfDev . Views
         private void ViewTableColumnsLv ( object sender , RoutedEventArgs e )
         {
             bool flowdocswitch = false;
-#pragma warning disable CS0219 // The variable 'count' is assigned but its value is never used
-            int count = 0;
-#pragma warning restore CS0219 // The variable 'count' is assigned but its value is never used
             List<string> list = new List<string> ( );
             string output = "";
-            SqlCommand = $"spGetTableColumnWithSize2 {dbNameLv . SelectedItem . ToString ( )}";
-            list = Datagrids . CallStoredProcedureWithSizes ( list , SqlCommand );
-            output = WpfLib1 . Utils . ParseTableColumnData ( list );
 
-            //This call returns us a DataTable
-            DataTable dt = DataLoadControl . GetDataTable ( SqlCommand );
+             SqlCommand = $"spGetTableColumnWithSize {dbNameLv . SelectedItem . ToString ( )}";
+
+            bool UseMethod1 = true;
+            // TWO different methods that give the SAME result
+            // works fine !
+            //Method 1 : This call returns us a List<string>
+            if ( UseMethod1 )
+            {
+                list = Datagrids . CallStoredProcedureWithSizes ( list , SqlCommand );
+                output = WpfLib1 . Utils . ParseTableColumnData ( list );
+            }
+            else{
+                // works fine !
+                //Method 2 : This call returns us a DataTable
+                DataTable dt = DataLoadControl . GetDataTable ( SqlCommand );
+                if ( dt != null )
+                {
+                    //This call returns us a List<string>
+                    list = GenericDbUtilities . GetDataDridRowsWithSizes ( dt );
+                    output = WpfLib1 . Utils . ParseTableColumnData ( list );
+                }
+            }
             // Fiddle  to allow Flowdoc  to show Field info even though Flowdoc use is disabled
             if ( UseFlowdoc == false )
             {

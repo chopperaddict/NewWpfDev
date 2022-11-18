@@ -17,6 +17,8 @@ using GenericSqlLib . Models;
 using NewWpfDev . Models;
 using NewWpfDev . Views;
 
+using Views;
+
 namespace NewWpfDev
 {
     // Dynamic QUERY methods for main class GenDapperQueries
@@ -29,11 +31,11 @@ namespace NewWpfDev
         /// it implements various methods access via the 'method=x' argument
         /// which basically controls  the return type exepcted from each call received
         /// 
-        /// method  0 :  returns an IEnumerable<dynamic> INT commandType  is StoredProcedure
-        /// method  1 :  returns an IEnumerable<dynamic> STRING where commandType  is TEXT (no args array received)
-        /// method  2 :  returns an IEnumerable<dynamic> STRING FROM AN OUTPUT VARIABLE commandType  is StoredProcedure
+        /// method  0 :  returns an IEnumerable[dynamic] INT commandType  is StoredProcedure
+        /// method  1 :  returns an IEnumerable[dynamic] STRING where commandType  is TEXT (no args array received)
+        /// method  2 :  returns an IEnumerable[dynamic] STRING FROM AN OUTPUT VARIABLE commandType  is StoredProcedure
         /// method  3 :  currenty unused
-        /// method  4 :  returns an IEnumerable<dynamic> OBSERVABLECOLLECTION<GENERICclASS> commandType  is StoredProcedure
+        /// method  4 :  returns an IEnumerable[dynamic] OBSERVABLECOLLECTION[GENERICLASS] commandType  is StoredProcedure
         /// </summary>
         /// <param name="SqlCommand"></param>
         /// <param name="args"></param>
@@ -54,7 +56,8 @@ namespace NewWpfDev
             ref string error ,
             int method = 0 )
         {
-              string connectionString = MainWindow .SqlCurrentConstring;
+            #region declarations
+            string connectionString = MainWindow . SqlCurrentConstring;
             SqlConnection sqlCon = null;
             ObservableCollection<GenericClass> temp = new ObservableCollection<GenericClass> ( );
             List<Dictionary<string , string>> list = new List<Dictionary<string , string>> ( );
@@ -69,6 +72,9 @@ namespace NewWpfDev
             IEnumerable<dynamic> intval;
             dynamic reslt;
             IEnumerable<dynamic> IEintval = null;
+            
+            #endregion declarations
+
             string Con = CheckSetSqlDomain ( MainWindow . CurrentSqlTableDomain );
             if ( Con == "" )
             {
@@ -83,11 +89,13 @@ namespace NewWpfDev
                 using ( sqlCon = new SqlConnection ( Con ) )
                 {
                     var parameters = new DynamicParameters ( );
-                    parameters = ParseSqlArgs ( parameters , args );
-                     $"{SqlCommand}" . DapperTrace ( );
+                    parameters = StoredprocsProcessing . ParseSqlArgs ( parameters , args );
+                    $"{SqlCommand}" . DapperTrace ( );
 
                     //********************************************************************************************************//                    
-                    if ( method == 0 )       // use StoredProcedure version  returning IEnumerable<dynamic>
+                    // use StoredProcedure version returning IEnumerable<dynamic>
+                    //********************************************************************************************************//                    
+                    if ( method == 0 )       
                     {
                         //=================================================================================//
                         IEintval = sqlCon . Query ( SqlCommand , parameters , commandType: CommandType . StoredProcedure );
@@ -106,26 +114,26 @@ namespace NewWpfDev
                             stringresult = parameters . Get<string> ( "result" );
                         else if ( Objtype == typeof ( object ) )
                             objectresult = parameters . Get<object> ( "result" );
-                        else if ( Objtype == typeof ( List<string>) )
+                        else if ( Objtype == typeof ( List<string> ) )
                             listresult = parameters . Get<List<string>> ( "result" );
-                        
+
                         newcount = intresult;
                         foreach ( var item in IEintval )
                         {
                             // set (ref) parameters  to be  returned
-                            GetReturnString (newcount, out count , out resultstring );
+                            GetReturnString ( newcount , out count , out resultstring );
                             obj = ( object ) -1;
                             Objtype = typeof ( int );
                         }
                         return obj;
                     }
-                    else if ( method == 1 )       
+                    else if ( method == 1 )
                     {
-                        string [ ] splitter = args [ 1 ] . Split ( ' ' );
-                        SqlCommand += $" {args [ 0 ]}, {splitter [ 1 ]}";
+                        //string [ ] splitter = args [ 1 ] . Split ( ' ' );
+                        //SqlCommand += $" {args [ 0 ]}, {splitter [ 1 ]}";
 
                         //**************************************************************************************************************************************************//
-                        // using Text command version returning IEnumerable<dynamic>
+                        // using Text command version returning IEnumerable<dynamic> (for int results)
                         //**************************************************************************************************************************************************//
 
                         //=================================================================================//
@@ -133,35 +141,20 @@ namespace NewWpfDev
                         //=================================================================================//
 
                         // parse out the int value from the IEnumerable <dynamic> IEintval  variable returned to us
-                        dynamic newcount = null;
+                        //dynamic newcount = null;
 
-                        foreach ( var item in IEintval )
-                        {
-                            // set (ref) parameters  to be  returned
-                            newcount = item . count;
-                            Objtype = typeof ( string );
-                            //GetReturnString ( newcount , out count , out resultstring );
-                            if ( newcount > 0 )
-                            {
-                                obj = ( object ) newcount . ToString ( );
-                                count = newcount;
-                                resultstring = "SUCCESS";
-                            }
-                            else
-                            {
-                                obj = ( object ) "-1";
-                                count = -1;
-                                resultstring = "FAIL";
-                            }
-                            return obj;
-                        }
+                        Objtype = typeof ( int );
+                        obj = ( object ) IEintval;
+                        count = 1;
+                        resultstring = "SUCCESS";
+                        return obj;
                     }
                     else if ( method == 2 )
                     {
                         Debug . WriteLine ( $"ProcessUniversalQueryStoredProcedure() : [ {SqlCommand . ToUpper ( )} ]" );
 
                         //**************************************************************************************************************************************************//
-                        // Getting a string from an output  variable '@result'
+                        // using SP to get a string from an output  variable '@result' 
                         //**************************************************************************************************************************************************//
 
                         //=================================================================================//
@@ -197,52 +190,46 @@ namespace NewWpfDev
                     }
                     else if ( method == 3 )
                     {
-                    }
-                    else if ( method == 4 )
-                    {
-                        Debug . WriteLine ( $"ProcessUniversalQueryStoredProcedure() : [ {SqlCommand . ToUpper ( )} ]" );
-
                         //**************************************************************************************************************************************************//
-                        // Getting a generic <GenericClass>collection 
-                        // SP should normally be [spLoadTableAsGeneric]
+                        // using Text command to get an Ienumerable  collection 
                         //**************************************************************************************************************************************************//
 
                         //=================================================================================//
-                        IEnumerable<dynamic> table = sqlCon . Query<dynamic> ( SqlCommand , parameters , commandType: CommandType . StoredProcedure );
+                        IEnumerable<dynamic> IEList = sqlCon . Query<dynamic> ( SqlCommand , parameters , commandType: CommandType . Text );
                         //=================================================================================//
 
-                        Debug . WriteLine ( $"ProcessUniversalQueryStoredProcedure() (method=4): {SqlCommand} returned  RESULT = {table}" );
+                        Debug . WriteLine ( $"ProcessUniversalQueryStoredProcedure() (method=4): {SqlCommand} returned  RESULT = {IEList}" );
                         //string restring = parameters . Get<string> ( "result" );
                         ObservableCollection<GenericClass> newtable = new ObservableCollection<GenericClass> ( );
-                        foreach ( var rows in table )
+                        foreach ( var rows in IEList )
                         {
                             var fields = rows as IDictionary<string , object>;
                             var sum = fields [ "" ];
                             newtable . Add ( fields as GenericClass );
                             // ...
                         }
-                        foreach ( var item in table )
-                        {
-                            // set (ref) parameters  to be  returned
-                            Objtype = typeof ( Collection<GenericClass> );
-                            if ( table != null )
-                            {
-                                //int tryintresult = 0;
-                                count = newtable . Count;
-                                obj = ( object ) newtable;
-                                Objtype = typeof ( ObservableCollection<GenericClass> );
-                                resultstring = "SUCCESS";
-                            }
-                            else
-                            {
-                                obj = null;
-                                count = -1;
-                                resultstring = "FAIL";
-                            }
-                            if ( table . ToList ( ) . Count == 0 )
-                                return null;
-                            return table;
-                        }
+                        return IEList;
+                    }
+                    else if ( method == 4 )
+                    {
+                        Debug . WriteLine ( $"ProcessUniversalQueryStoredProcedure() : [ {SqlCommand . ToUpper ( )} ]" );
+
+                        //**************************************************************************************************************************************************//
+                        // using SP to get a generic <GenericClass>collection 
+                        // SP should normally be [spLoadTableAsGeneric]
+                        //**************************************************************************************************************************************************//
+
+                        Dictionary<string , object> dictionary = new Dictionary<string , object> ( );
+                        dictionary . Add ("Arg1", args [0]  );
+                        //dictionary . Add ( "output" , "output" );
+                        //=================================================================================//
+                        IEnumerable<dynamic> table = sqlCon . Query<dynamic> ( SqlCommand , new DynamicParameters (dictionary), commandType: CommandType . StoredProcedure );
+//                        IEnumerable<dynamic> table = sqlCon . Query<dynamic> ( SqlCommand , parameters , commandType: CommandType . StoredProcedure );
+                        //=================================================================================//
+
+                        // should have a dynamic list  by here 
+                        Debug . WriteLine ( $"ProcessUniversalQueryStoredProcedure() (method=4): {SqlCommand} returned  RESULT = {table}" );
+                        return table;
                     }
                 }
             }
@@ -251,6 +238,7 @@ namespace NewWpfDev
                 Debug . WriteLine ( $"SQL error : [ {ex . Message} ]" );
                 error = $"SQL error : [ {ex . Message} ]";
                 $"{ex . Message} [ {ex . Data} ]" . err ( );
+                Utils . DoErrorBeep ( );
             }
             return null;
         }
@@ -448,6 +436,7 @@ namespace NewWpfDev
                                                 catch ( Exception ex )
                                                 {
                                                     Debug . WriteLine ( $"Dictionary ERROR : {ex . Message}" );
+                                                    Utils . DoErrorBeep ( );
                                                     result = ex . Message;
                                                 }
                                             }
@@ -459,6 +448,7 @@ namespace NewWpfDev
                                         catch ( Exception ex )
                                         {
                                             result = $"SQLERROR : {ex . Message}";
+                                            Utils . DoErrorBeep ( );
                                             errormsg = result;
                                             Debug . WriteLine ( result );
                                         }
@@ -471,6 +461,7 @@ namespace NewWpfDev
                                 {
                                     Debug . WriteLine ( $"OUTER DICT/PROCEDURE ERROR : {ex . Message}" );
                                     result = ex . Message;
+                                    Utils . DoErrorBeep ( );
                                     errormsg = result;
                                 }
                                 if ( errormsg == "" )
@@ -538,6 +529,7 @@ namespace NewWpfDev
                                                 catch ( Exception ex )
                                                 {
                                                     Debug . WriteLine ( $"Dictionary ERROR : {ex . Message}" );
+                                                    Utils . DoErrorBeep ( );
                                                     result = ex . Message;
                                                 }
                                             }
@@ -549,6 +541,7 @@ namespace NewWpfDev
                                         catch ( Exception ex )
                                         {
                                             result = $"SQLERROR : {ex . Message}";
+                                            Utils . DoErrorBeep ( );
                                             Debug . WriteLine ( result );
                                             return 0;
                                         }
@@ -566,6 +559,7 @@ namespace NewWpfDev
                                     {
                                         result = $"SQL PARSE ERROR - [{ex . Message}]";
                                         $"SQL PARSE ERROR - [{ex . Message}]" . err ( );
+                                        Utils . DoErrorBeep ( );
                                         errormsg = $"{result}";
                                         return 0;
                                     }
@@ -603,6 +597,7 @@ namespace NewWpfDev
                     {
                         Debug . WriteLine ( $"STORED PROCEDURE ERROR : {ex . Message}" );
                         $"STORED PROCEDURE ERROR : {ex . Message}" . err ( );
+                        Utils . DoErrorBeep ( );
                         result = ex . Message;
                         errormsg = $"SQLERROR : {result}";
                     }
@@ -610,6 +605,7 @@ namespace NewWpfDev
                 catch ( Exception ex )
                 {
                     Debug . WriteLine ( $"Sql Error, {ex . Message}" );
+                    Utils . DoErrorBeep ( );
                     $"Sql Error, {ex . Message}" . err ( );
                     result = ex . Message;
                 }
@@ -618,7 +614,7 @@ namespace NewWpfDev
 
             return dict . Count;
         }
-        private static void GetReturnString ( int newcount, out int count , out string resultstring )
+        private static void GetReturnString ( int newcount , out int count , out string resultstring )
         {
             if ( newcount > 0 )
             {

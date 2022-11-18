@@ -23,9 +23,6 @@ Theme Styles For Windows Presentation Foundation Version
                 Value="{Binding RelativeSource={RelativeSource Self}}"/>
     </Style>
 
-
-
-
     
     <Style x:Key="NavigationChromeDownLevelBackButtonStyle"
            TargetType="{x:Type Button}">

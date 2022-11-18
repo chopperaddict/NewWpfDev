@@ -15,10 +15,11 @@ using System . ComponentModel;
 using NewWpfDev. Views;
 using NewWpfDev. ViewModels;
 using NewWpfDev. Models;
+using UserControls;
 
 namespace NewWpfDev. Dapper
 {
-	public static class DapperSupport
+	public  class DapperSupport
 
 	{
 		static int [ ] dummyargs= {0,0,0};
@@ -3488,14 +3489,209 @@ namespace NewWpfDev. Dapper
 			}
 			return result;
 		}
-		#endregion  Details record Db Update Method
+        #endregion  Details record Db Update Method
 
-		/// <summary>
-		///  This is a MASSIVE Function that handles updating the Dbs via SQL plus sorting the current grid
-		///  out & notifying all other viewers that a change has occurred so they can (& in fact do) update
-		///  their own data grids rather nicely right now - 22/4/21
-		/// </summary>
-		public static void UpdateAllDb ( string CurrentDb , string DbName , DataGrid Bankgrid , DataGrid Custgrid , DataGrid Detgrid )
+        public static ObservableCollection<GenericClass> CreateFullColumnInfo ( string spName , string ConString , bool showinfo = true )
+        {
+            string output = "";
+            string errormsg = "";
+            int columncount = 0;
+            string fname = "", ftype = "", intstring = "";
+            List<GenericToRealStructure> newstructure = new List<GenericToRealStructure> ( );
+            DataTable dt = new DataTable ( );
+            ObservableCollection<GenericClass> Generics = new ObservableCollection<GenericClass> ( );
+            List<string> genericlist = new List<string> ( );
+            try
+            {
+                string err = "";
+                int recordcount = 0;
+                string [ ] args = new string [ 1 ];
+                args [ 0 ] = spName;
+                string resultstring = "";
+                string error = "";
+                object obj = null;
+                Type Objtype = null;
+                int count = 0;
+                List<Dictionary<string , string>> ColumnTypesList = new List<Dictionary<string , string>> ( );
+                string SqlCommand = $"select column_name, data_type, character_maximum_length,numeric_precision, numeric_scale from information_schema . columns WHERE upper ( table_name ) = '{spName . ToUpper ( )}'";
+                IEnumerable<dynamic> DynList = GenDapperQueries . Get_DynamicValue_ViaDapper (
+                   SqlCommand ,
+                   args ,
+                  ref resultstring ,
+                  ref obj ,
+                  ref Objtype ,
+                  ref count ,
+                  ref error ,
+                   3 );
+                //               dynamic dynreslt = GetDataViaDapper ( SqlCommand , args , out ColumnTypesList , out recordcount );
+                //GetDataFromStoredProcedure ( SqlCommand , null , out err , out recordcount );
+                //we  now have a table (Generics) holding all column info
+                Dictionary<string , object> dict = new Dictionary<string , object> ( );
+                List<int> varcharlen = new List<int> ( );
+                if ( DynList != null )
+
+                    foreach ( var item in DynList )
+                    {
+                        int colcount = 0;
+                        GenericClass gc = new GenericClass ( );
+                        //  Dictionary<string, object> dict, out int colcount, ref List<int> varcharlen, bool GetLength = false
+                        gc = DapperSupport . ParseDapperRow ( item , out dict , out colcount , ref varcharlen , true );
+                        Generics . Add ( gc );
+                    }
+ 
+                
+                //if ( showinfo )
+                //{
+                //    string buffer = "";
+                //    foreach ( var item in Generics )
+                //    {
+                //        buffer += $"{item . field1 . Trim ( )}:";    // fname
+                //        if ( item . field2 != null )
+                //            buffer += $" {item . field2 . Trim ( )}:";
+                //        if ( item . field3 != null )
+                //            buffer += $" {item . field3 . Trim ( )}:";
+                //        if ( item . field4 != null )
+                //            buffer += $" {item . field4 . Trim ( )}";
+                //        buffer += "\n";
+                //    }
+
+                //    string fdinput = $"Procedure Name : {spName . ToUpper ( )}\n";
+                //    fdinput += buffer;
+                //    fdl . ShowInfo ( Flowdoc , canvas , line1: fdinput , clr1: "Black0" , line2: "" , clr2: "Black0" , line3: "" , clr3: "Black0" , header: "" , clr4: "Black0" );
+                //    canvas . Visibility = Visibility . Visible;
+                //    Flowdoc . Visibility = Visibility . Visible;
+                //    return null;
+                //}
+                //else
+                    return Generics;    // Collection of donor tables structure elements
+            }
+            catch ( Exception ex )
+            {
+                MessageBox . Show ( $"SQL ERROR 1125 - {ex . Message}, {ex . Data}" );
+            }
+            return null;
+        }
+
+        public static string GetFullColumnsStructure ( string spName , string CurrentTable , string ConString , bool ShowFdl = true , bool ShowOutput = true )
+        {
+            string output = "";
+            string errormsg = "";
+            int columncount = 0;
+            DataTable dt = new DataTable ( );
+            ObservableCollection<GenericClass> Generics = new ObservableCollection<GenericClass> ( );
+            List<string> genericlist = new List<string> ( );
+            try
+            {
+                List<GenericToRealStructure> list = new List<GenericToRealStructure> ( );
+                // Generate a new table structure by passing CURRENT table name
+                // so we get a buffer containing the column info 
+                Generics = DapperSupport.CreateFullColumnInfo ( CurrentTable , ConString , false );
+                string buffer = "";
+                if ( Generics . Count ( ) > 0 )
+                {
+                    // process donor table structure
+                    foreach ( var item in Generics )
+                    {
+                        buffer += $"{item . field1 . Trim ( )}";    // fname
+                        buffer += $":{item . field2 . Trim ( )}";
+                        if ( item . field3 != null && item . field3 != "0" )
+                            buffer += $":{item . field3 . Trim ( )}";
+                        if ( item . field4 != null && item . field4 != "0" )
+                            buffer += $":{item . field4 . Trim ( )}\n";
+                        else
+                            buffer += $"\n";
+                    }
+                    if ( ShowFdl == false )
+                        return buffer;  // contains fields :fields :fields :fields\n:  we need to create a new table structure eg: Create new Table (......)
+                }
+                string [ ] args = new string [ 1 ];
+                args [ 0 ] = spName;
+                dt = DatagridControl . ProcessSqlCommand ( "spGetTableColumnWithSize2" , ConString , args );
+            }
+            catch ( Exception ex )
+            {
+                MessageBox . Show ( $"SQL ERROR 1125 - {ex . Message}" );
+                return "";
+            }
+            if ( dt . Rows . Count == 0 )
+            {
+                columncount = 0;
+                return "";
+            }
+            if ( ShowOutput == false )
+                output = "";
+            foreach ( var item in dt . Rows )
+            {
+                string store = "";
+                DataRow dr = item as DataRow;
+                columncount = dr . ItemArray . Count ( );
+                if ( columncount == 0 )
+                    columncount = 1;
+                // we only need max cols - 1 here !!!
+                for ( int x = 0 ; x < columncount ; x++ )
+                {
+                    if ( dr . ItemArray [ x ] . ToString ( ) != "{}" )
+                    {
+                        store = dr . ItemArray [ x ] . ToString ( ) . ToUpper ( );
+                        if ( store != CurrentTable )
+                            continue;
+
+                        store = store . Substring ( 0 , store . Length - 1 );
+                        store += dr . ItemArray [ x ] . ToString ( ) + ",";
+                    }
+                    else store = store . Substring ( 0 , store . Length - 1 );
+                }
+                if ( store . Contains ( ",," ) ) store = store . Substring ( 0 , store . Length - 2 );
+                store = NewWpfDev . Utils . ReverseString ( store );
+                if ( store [ 0 ] == ',' )
+                {
+                    store = store . Substring ( 1 );
+                    store = NewWpfDev . Utils . ReverseString ( store );
+                }
+                else
+                    store = NewWpfDev . Utils . ReverseString ( store );
+                output += store + ":";
+                output = output . Substring ( 0 , output . Length - 1 );
+                // output string are seperated by COLONs
+                // we now have the err, so lets process them
+                // data is fieldname, sql-datatype, size (where appropriate)
+                string buffer = output;
+                string [ ] lines = buffer . Split ( ':' );
+
+                string tmp = "";
+                if ( output != "" ) { output = output . Trim ( ) + "\n"; } //output += $"\n{item}  "; }
+                else output += $"{item} \n";
+            }
+            // we now have a list of the Args for the selected SP in output terminated by \n
+            // Show it in a TextBox if it takes 1 or more args
+            // format is ("fielddname, fieldtype, size1, size2\n,")
+            return output;
+
+            //if ( output != "" && ShowFdl )
+            //{
+            //    string fdinput = $"Procedure Name : {spName . ToUpper ( )}\n";
+            //    fdinput += output;
+            //    fdl . ShowInfo ( Flowdoc , canvas , line1: fdinput , clr1: "Black0" , line2: "" , clr2: "Black0" , line3: "" , clr3: "Black0" , header: "" , clr4: "Black0" );
+            //    canvas . Visibility = Visibility . Visible;
+            //    Flowdoc . Visibility = Visibility . Visible;
+            //}
+            //if ( ShowFdl == false )
+            //{
+            //    if ( errormsg == "" )
+            //    {
+            //        MessageBox . Show ( $"No Argument information is available" , $"[{spName}] SP Script Information" , MessageBoxButton . OK , MessageBoxImage . Warning );
+            //        return "";
+            //    }
+            //}
+            //return output;
+        }
+
+        /// <summary>
+        ///  This is a MASSIVE Function that handles updating the Dbs via SQL plus sorting the current grid
+        ///  out & notifying all other viewers that a change has occurred so they can (& in fact do) update
+        ///  their own data grids rather nicely right now - 22/4/21
+        /// </summary>
+        public static void UpdateAllDb ( string CurrentDb , string DbName , DataGrid Bankgrid , DataGrid Custgrid , DataGrid Detgrid )
 		{
 			/// This ONLY gets called when a cell is edited in THIS viewer
 

@@ -7,23 +7,29 @@
         mc:Ignorable="d"
         WindowChrome.ResizeGripDirection="BottomRight"
 	    ResizeMode="CanResizeWithGrip"
-        Background="{StaticResource Blue5}"
+        Background="{StaticResource Black3}"
         IsHitTestVisible="True"
+        Loaded="Window_Loaded"
+        Closing="Window_Closing"
         KeyDown="PasteButton_KeyDown"
         Topmost="True"
-        Title="Stored Procedure Arguments Help" Height="250" Width="500">
+        Title="Stored Procedure Arguments Help" Height="350" Width="650"
+        MinHeight="300" MinWidth="600">
     
     <Grid
             IsHitTestVisible="True"
             KeyDown="PasteButton_KeyDown">
         
         <TextBlock x:Name="SPHeaderblock"
-            Background="{StaticResource White4}" 
+            Background="{StaticResource White2}" 
             Foreground="Black" 
             FontSize="18"
             Padding="20 10 0 0"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch"
+            ScrollViewer.CanContentScroll="True"
+            ScrollViewer.VerticalScrollBarVisibility="Visible"
+            TextWrapping="Wrap"
             IsHitTestVisible="True"
             KeyDown="PasteButton_KeyDown"
             ToolTip="Click 'Paste' button or press Enter to paste (adjusted) arguments into the Window's arguments field"
@@ -33,7 +39,7 @@
                 Background="{StaticResource Red4}"
                 Foreground="White"
                 Height="30"
-                Width="150"
+                Width="110"
                 Content="Close Help"
                 Padding="0  0 0 5"
                 FontSize="16"
@@ -58,6 +64,29 @@
                 ToolTip="Click button or press Enter to paste (adjusted) arguments into the Window's arguments field"
                 VerticalAlignment="Bottom"
                 HorizontalAlignment="Right"
-                Margin="0 0 160 6"/>
+                Margin="0 0 120 6"/>
+        <CheckBox x:Name="AutoClose" 
+                  Content="Close after Pasting"
+                  Foreground="White"
+                  FontSize="12"
+                  IsChecked="False"
+                  Margin="6,0,0,23"
+                  Loaded="AutoClose_Loaded"
+                  
+                  Checked="AutoClose_Checked"
+                  VerticalAlignment="Bottom"
+                  HorizontalAlignment="Left"/>
+
+        <CheckBox x:Name="ShowTypes" 
+                  Content="Show Argument types"
+                  Foreground="White"
+                  FontSize="12"
+                  Click="ShowTypes_Click"
+                  Loaded="ShowTypes_Loaded"
+                  Checked="ShowTypes_Checked"
+                  IsChecked="true"
+                  Margin="6,0,0,5"
+                  VerticalAlignment="Bottom"
+                  HorizontalAlignment="Left"/>
     </Grid>
 </Window>

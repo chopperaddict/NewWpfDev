@@ -570,6 +570,7 @@ namespace NewWpfDev . Views {
                 timer . Start ( );
             string str = GetSpArgs ( Storedprocs . SelectedItem . ToString ( ) );
             //DbCopiedResult . Text = $"Display selected Stored Procedure Command completed successfully ...";
+            timer . Stop ( );
             Mouse . OverrideCursor = Cursors . Arrow;
         }
         public string GetSpArgs ( string spName , bool showfull = false ) {

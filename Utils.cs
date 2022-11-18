@@ -36,6 +36,7 @@ using NewWpfDev . AttachedProperties;
 using NewWpfDev . Properties;
 using GenericSqlLib . Models;
 using NewWpfDev . Models;
+using System . Dynamic;
 
 namespace NewWpfDev
 {
@@ -242,7 +243,8 @@ namespace NewWpfDev
             {
                 for ( int i = 0 ; i < repeat ; i++ )
                 {
-                    Console . Beep ( freq , count );
+                    Console . Beep ( 280 , 100 );
+                    Console . Beep ( 200 , 500 );
                 }
                 Thread . Sleep ( 100 );
             }
@@ -257,9 +259,9 @@ namespace NewWpfDev
                     Console . Beep ( 370 , 150 );
                     Console . Beep ( 370 , 150 );
                     Console . Beep ( 370 , 250 );
-                    Console . Beep ( 300 , 800  );
+                    Console . Beep ( 300 , 800 );
                 }
-              }
+            }
             return;
         }
         public static void PlayErrorBeep ( int freq = 280 , int count = 100 , int repeat = 1 )
@@ -2556,6 +2558,20 @@ namespace NewWpfDev
             }
             return result;
         }
+        public static Window FindWindowFromClass ( string searchterm , ref Window handle )
+        {
+            Window result = null;
+            foreach ( Window window in Application . Current . Windows )
+            {
+                if ( window . ToString ( ) . ToUpper ( ) . Contains ( searchterm . ToUpper ( ) ) )
+                {
+                    handle = window;
+                    result = handle;
+                    break;
+                }
+            }
+            return result;
+        }
         public static Brush GetBrush ( string parameter )
         {
             if ( parameter == "BLUE" )
@@ -3321,6 +3337,6 @@ namespace NewWpfDev
             }
             return recordcount;
         }
- 
+
     }
 }

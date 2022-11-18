@@ -1,14 +1,13 @@
 ﻿#define SHOWSPS
 using System;
-using System . CodeDom;
 using System . Collections;
 using System . Collections . Generic;
 using System . Collections . ObjectModel;
 using System . ComponentModel;
 using System . Data;
 using System . Diagnostics;
+using System . Dynamic;
 using System . Linq;
-using System . Threading;
 using System . Threading . Tasks;
 using System . Windows;
 using System . Windows . Controls;
@@ -20,15 +19,15 @@ using System . Windows . Media;
 
 using Dapper;
 
-//using DapperGenericsLib;
-
-//using GenericSqlLib;
+using Expandos;
 
 using NewWpfDev;
+using NewWpfDev . Dapper;
 using NewWpfDev . Models;
 using NewWpfDev . UserControls;
 using NewWpfDev . ViewModels;
-using NewWpfDev . Views;
+
+using StoredProcs;
 
 using UserControls;
 
@@ -69,14 +68,14 @@ namespace Views
         public ObservableCollection<GenericClass> GridData = new ObservableCollection<GenericClass> ( );
         public ObservableCollection<GenericClass> collection = new ObservableCollection<GenericClass> ( );
         public ObservableCollection<GenericClass> ColumnsData = new ObservableCollection<GenericClass> ( );
-        static public DragCtrlHelper DragCtrl = new DragCtrlHelper ( );
+        static public DragCtrlHelper DragCtrl;
         public static FlowDocument myFlowDocument = new FlowDocument ( );
-        public static DragCtrlHelper dch = new DragCtrlHelper ( );
+        //public static DragCtrlHelper dch;
         public static Paragraph para1 = new Paragraph ( );
         public List<Dictionary<string , string>> ColumntypesList = new List<Dictionary<string , string>> ( );
         List<DapperGenericsLib . DataGridLayout> dglayoutlist = new List<DapperGenericsLib . DataGridLayout> ( );
         public ObservableCollection<Database> DatabasesCollection = new ObservableCollection<Database> ( );
-
+        public static dynamic Gengridexpobj { get; set; }
         #endregion global object initialization 
 
         #region static Domain variables        
@@ -102,6 +101,7 @@ namespace Views
         public double Splitterleftpos { get; set; }
         public double Splitterlastpos { get; set; }
         public bool SPViewerOpen { get; set; } = false;
+        public bool DatabaseChanged { get; set; } = false;
         bool SplistRightclick { get; set; } = false;
         string SpLastSelection { get; set; } = "";
         public FrameworkElement ActiveDragControl { get; set; }
@@ -121,12 +121,14 @@ namespace Views
         public static string CurrentSpList = "ALL";
         public static string Currentpanel = "GRID";
         public bool TableIsEmpty = false;
+        public bool LOCALFILTER { get; set; } = false;
 
         #endregion flags initialization 
 
+        #region full properties
         public static bool UseFlowdoc { get; set; }
         public static FlowdocLib fdl { get; set; }
-        
+
         //store for the full SP text
         private string spTextBuffer;
         public string SpTextBuffer
@@ -146,27 +148,17 @@ namespace Views
         private object movingobject;
         public object MovingObject
         {
-            get
-            {
-                return movingobject;
-            }
+            get { return movingobject; }
             set
-            {
-                movingobject = value;
-            }
+            { movingobject = value; }
         }
         private object movingobject2;
         public object MovingObject2
         {
-            get
-            {
-                return movingobject2;
-            }
-            set
-            {
-                movingobject2 = value;
-            }
+            get { return movingobject2; }
+            set { movingobject2 = value; }
         }
+        #endregion full properties
 
         // HSPLITTER stuff
         #region Splitter properties
@@ -294,31 +286,34 @@ namespace Views
         public Genericgrid ( )
         //========================================================================================//
         {
+            Mouse . OverrideCursor = Cursors . Wait;
             InitializeComponent ( );
             this . DataContext = this;
+
+            WpfLib1 . Utils . SetupWindowDrag ( this );
+
             GenericGridSupport . SetPointers ( null , this );
             GenControl = this;
-            Mouse . OverrideCursor = Cursors . Wait;
             CurrentTable = "BankAccount";
             // Sort out domain and default table
             CurrentTableDomain = "IAN1";
             DatagridControl . CurrentTableDomain = CurrentTableDomain;
             MainWindow . CurrentActiveTable = "BANKACCOUNT";
             string Con = NewWpfDev . Utils . GetCheckCurrentConnectionString ( CurrentTableDomain );
-
+            DragCtrl = new DragCtrlHelper ( this );
+            //dch = new DragCtrlHelper ( this);
             dgControl = this . GenGridCtrl;
             LastActiveTable = "";
             Dgrid = dgControl . datagridControl;
             ShowColumnHeaders = true;
-            // This call only loads the list of database Tables 
-            LoadDbTables ( MainWindow . CurrentActiveTable );
+            //// This call only loads the list of database Tables 
+            Mouse . OverrideCursor = Cursors . Wait;
             ToggleColumnHeaders . IsChecked = ShowColumnHeaders;
             ColumnsCount = Dgrid . Columns . Count;
             bStartup = false;
             DatagridControl . SetParent ( ( Control ) this );
             Flags . UseScrollView = false;
-            //Mouse . OverrideCursor = Cursors . Arrow;
-//            fdl = new FlowdocLib ( Flowdoc , Filtercanvas );
+            //            fdl = new FlowdocLib ( Flowdoc , Filtercanvas );
             NewTableName . Text = "qwerty";
             OptionsList . SelectedIndex = 0;
             ViewerGrid . ColumnDefinitions [ 0 ] . Width = new GridLength ( 1 , GridUnitType . Pixel );
@@ -331,28 +326,13 @@ namespace Views
             Vsplitter . SetValue ( ToolTipDelayBetweenShow , myInt );
             MovingObject = Filtering;
 
-            //string ConString = GenericDbUtilities . CheckSetSqlDomain ( "" );
-            //if ( ConString == "" )
-            //{
-            //    // set to our local definition
-            //    ConString = MainWindow . SqlCurrentConstring;
-            //}
-            //string [ ] args = new string [ 0 ];
-            // load datagrid with data
-            // GridData = dgControl . LoadGenericData ( CurrentTable , args , true , ConString );
-            Mouse . OverrideCursor = Cursors . Wait;
-            Reccount . Text = GridData . Count . ToString ( );
-            int colcount = 0;
-            colcount = DatagridControl . GetColumnsCount ( GridData );
-            DatagridControl . LoadActiveRowsOnlyInGrid ( dgControl . datagridControl , GridData , colcount );
-            // Force column renaming on initial loading - Honestly !!
-            DatagridControl . ReplaceDataGridFldNames ( GridData , ref dgControl . datagridControl , ref dglayoutlist , colcount );
-            GenGrid = this;
-            dgControl . datagridControl . UpdateLayout ( );
-
+            // This call only loads the list of database Tables 
+            LoadDbTables ( MainWindow . CurrentActiveTable );
             // setup various controls  visibility
             Filtercanvas . Visibility = Visibility . Visible;
             this . Show ( );
+            //            this . Refresh ( );
+            this . UpdateLayout ( );
 
             FilterStoredprocs = new RelayCommand ( ExecuteFilterStoredprocs , CanExecuteFilterStoredprocs );
             CloseFilterStoredprocs = new RelayCommand ( ExecuteCloseFilterStoredprocs , CanExecuteCloseFilterStoredprocs );
@@ -360,11 +340,54 @@ namespace Views
             caption . Text = $"Current Table Status / Processing information : Current Database = {CurrentTableDomain . ToUpper ( )}";
             ///Setup default SP match term
             Searchtext = "@Arg";
-            //Mouse . OverrideCursor = Cursors . Arrow;
 
+            //test ExpandoObject  
+            ExpandoObject expobj2 = new ExpandoObject ( );
+            bool success = false;
+            expobj2 = ExpandoClass . expobjAdd ( expobj2 , "Phone" , "0757 9062440" , out success );
+            expobj2 = ExpandoClass . expobjFind ( expobj2 , "Phone" );
+            ExpandoClass . expobj = expobj2;
+            if ( ExpandoClass . expobj != null )
+            {
+                // returns just the found item
+                expobj2 = ExpandoClass . expobjFind ( ExpandoClass . expobj , "Phone" );
+                if ( expobj2 != null )
+                {
+                    Dictionary<string , object> dict = new Dictionary<string , object> ( );
+                    //var v = expobj2 . ToString ( );
+                    foreach ( KeyValuePair<string , object> item in expobj2 )
+                    {
+                        if ( item . Key == "Phone" )
+                        {
+                            Debug . WriteLine ( $"Expando : Phone =  {item . Value} " );
+                            break;
+                        }
+                    }
+                }
+            }
+            LoadInitialData ( );
         }
 
-        private void Grid_Loaded ( object sender , RoutedEventArgs e )
+        private async void LoadInitialData ( )
+        {
+            Task . Run ( ( ) =>
+            {
+                Application . Current . Dispatcher . Invoke ( ( ) =>
+              {
+                  // load db table data
+                  Reccount . Text = GridData . Count . ToString ( );
+                  int colcount = 0;
+                  colcount = DatagridControl . GetColumnsCount ( GridData );
+                  DatagridControl . LoadActiveRowsOnlyInGrid ( dgControl . datagridControl , GridData , colcount );
+                  // Force column renaming on initial loading - Honestly !!
+                  DatagridControl . ReplaceDataGridFldNames ( GridData , ref dgControl . datagridControl , ref dglayoutlist , colcount );
+                  GenGrid = this;
+                  dgControl . datagridControl . UpdateLayout ( );
+              } );
+            } );
+
+        }
+        private async void Grid_Loaded ( object sender , RoutedEventArgs e )
         {
             // Show main datagrid and info viewer
             Mouse . OverrideCursor = Cursors . Wait;
@@ -376,16 +399,23 @@ namespace Views
             majorgrid . RowDefinitions [ 2 ] . Height = new GridLength ( 0 , GridUnitType . Star );
             GenGridCtrl . Height = majorgrid . ActualHeight;
             Gengrid_SizeChanged ( null , null );
-            this . Refresh ( );
+            //this . Show ( );
+            //this . Refresh ( );
+
+            //            // This call only loads the list of database Tables 
+            //            LoadDbTables ( MainWindow . CurrentActiveTable );
+
 #if SHOWSPS
             ShowInfo ( sender , e );
-#endif 
+#endif
+
             if ( Splist . SelectedIndex == -1 )
                 Splist . SelectedIndex = 0;
 
-             fdl = new FlowdocLib ( Flowdoc , Filtercanvas );
+            fdl = new FlowdocLib ( Flowdoc , Filtercanvas );
 
-            Mouse . OverrideCursor = Cursors . Arrow;
+            //TestExpando ( );
+
             return;
         }
 
@@ -494,7 +524,7 @@ namespace Views
                 gc = item;
                 dglayout . Fieldname = item . field1 . Trim ( );
                 dglayout . Fieldtype = item . field2 . Trim ( );
-                if( item . field3  != null)
+                if ( item . field3 != null )
                     dglayout . Fieldlength = Convert . ToInt32 ( item . field3 . Trim ( ) );
                 if ( item . field4 != null )
                     dglayout . Fielddec = item . field4 != null ? Convert . ToInt32 ( item . field4 . Trim ( ) ) : 0;
@@ -550,28 +580,27 @@ namespace Views
                 {
                     string error = "";
                     // returned count > 0 , so it DOES exist, so go get data from table
-                    GetValidDomain ( );
                     ObservableCollection<GenericClass> temp = new ObservableCollection<GenericClass> ( );
 
                     //returns the same record time over time 
                     $"Calling LoadGenericDb() {selection}" . Track ( );
                     string [ ] args = new string [ 1 ];
                     args [ 0 ] = selection;
-                    temp = dgControl . LoadGenericData ( $"spLoadTableAsGeneric", args , true , MainWindow . SqlCurrentConstring );
+                    temp = dgControl . LoadGenericData ( $"spLoadTableAsGeneric" , args , true , MainWindow . SqlCurrentConstring );
 
                     // TEMP ONLY
-                    Debug . WriteLine ( $"TEMP ONLY : {args [0]} loaded {temp.Count} records....");
+                    Debug . WriteLine ( $"TEMP ONLY : {args [ 0 ]} loaded {temp . Count} records...." );
                     "Leaving LoadGenericDb()" . Track ( 1 );
-                    //                   int columnscount = 0;
-                    //temp = dgControl . LoadData ( selection , true , MainWindow . SqlCurrentConstring , out int columnscount );
-                    //                    LoadTableGeneric ( $"Select * from {DBprefix}{selection}" , ref temp , out error );
+
                     if ( temp == null || temp . Count == 0 )
                     {
                         TableIsEmpty = true;
                         DataLoaded = true;
                         SqlTables . SelectedItem = LastActiveTable;
                         DataLoaded = false;
-                        SetStatusbarText ( $"Although the requested table [ {selection} ] is in the  current Database, it does NOT contain any records \nand therefore it has NOT been loaded, and the table {previousSelection} is still displayed" , 1 );
+                        if ( LOCALFILTER == false )
+                            SetStatusbarText ( $"Although the requested table [ {selection} ] is in the  current Database, it does NOT contain any records \n" +
+                            $"and therefore it has NOT been loaded, and the previous table {previousSelection} is still displayed" , 1 );
                         for ( int x = 0 ; x < Splist . Items . Count ; x++ )
                         {
                             if ( Splist . Items [ x ] == previousSelection )
@@ -581,7 +610,7 @@ namespace Views
                             }
                         }
                         CurrentTable = LastActiveTable;
-                        Mouse . OverrideCursor = Cursors . Arrow;
+                        //Mouse . OverrideCursor = Cursors . Arrow;
                         if ( e != null )
                             e . Handled = true;
                         "" . Track ( 1 );
@@ -589,9 +618,34 @@ namespace Views
                     }
                     else
                         GridData = temp;
+
+                    if ( LOCALFILTER == true && selection . ToUpper ( ) != "LOCALFILTERTABLE" )
+                    {
+                        // remove temp entry for display only filter result
+                        List<string> newlist = new List<string> ( );
+                        foreach ( var item in SqlTables . Items )
+                        {
+                            if ( item . ToString ( ) . ToUpper ( ) != "LOCALFILTERTABLE" )
+                            {
+                                newlist . Add ( item . ToString ( ) );
+                            }
+                            else
+                                Debug . WriteLine ( $"found and removed LOCALFILTERTABLE!" );
+                        }
+                        SqlTables . ItemsSource = null;
+                        SqlTables . Items . Clear ( );
+                        SqlTables . ItemsSource = newlist;
+                        ListReloading = true;
+                        SqlTables . SelectedItem = selection;
+                        ListReloading = false;
+                        // clear flag so we do not do this every time 
+                        LOCALFILTER = false;
+                    }
+                    else
+                        SqlTables . SelectedItem = LastActiveTable;
+
                     LastActiveTable = selection;
                     DataLoaded = true;
-                    SqlTables . SelectedItem = LastActiveTable;
                     CurrentTable = selection;
 
                     //*****************************************************************************************************************************************//
@@ -600,7 +654,7 @@ namespace Views
                     // These data  items are specific  to currentTable, and can there be used anywhere else without needing to update them
                     //*****************************************************************************************************************************************//
 
-                    dglayoutlist = GetNewColumnsLayout ( selection , this.GridData , out colcount );
+                    dglayoutlist = GetNewColumnsLayout ( selection , this . GridData , out colcount );
                     if ( dglayoutlist . Count > 20 )
                     {
                         StdError ( );
@@ -620,19 +674,24 @@ namespace Views
                             }
                         }
                         CurrentTable = previousSelection;
-                        Mouse . OverrideCursor = Cursors . Arrow;
+                        //Mouse . OverrideCursor = Cursors . Arrow;
                         e . Handled = true;
                         "" . Track ( 1 );
                         return;
                     }
                     // TODO URGENT These are  SLOW SLOW SLOW
-                    DatagridControl.LoadActiveRowsOnlyInGrid ( dgControl . datagridControl ,  GridData , colcount );
+                    DatagridControl . LoadActiveRowsOnlyInGrid ( dgControl . datagridControl , GridData , colcount );
                     DatagridControl . ReplaceDataGridFldNames ( GridData , ref dgControl . datagridControl , ref dglayoutlist , colcount );
                     Reccount . Text = GridData . Count . ToString ( );
                     if ( GridData . Count > 0 )
+                    {
                         SetStatusbarText ( $"The data for {selection . ToUpper ( )} was loaded successfully and is shown in the viewer above..." );
+                        GenGridCtrl . AlternateBackground = FindResource ( "Cyan0" ) as SolidColorBrush;
+                        GenGridCtrl . Refresh ( );
+                    }
                     LastActiveTable = selection;
                     CurrentTable = selection;
+                    this . UpdateLayout ( );
                 }
                 else if ( existval == 0 )
                 {
@@ -656,169 +715,11 @@ namespace Views
                 }
             }
             Mouse . OverrideCursor = Cursors . Arrow;
-            e . Handled = true;
+            if ( e != null ) e . Handled = true;
             "" . Track ( 1 );
+            this . Refresh ( );
         }
 
-
-        //      public int ProcessTableChanged ( SelectionChangedEventArgs e )
-        //      {
-        //          Dispatcher . BeginInvoke ( new Action ( ( ) =>
-        //          {
-        //              Task . Factory . StartNew ( async ( ) => await ProcessNewTableSelection ( e) );
-        //          } ) );
-        //          return 0;
-        //      }
-
-        //      public  Task<int> ProcessNewTableSelection ( SelectionChangedEventArgs e )
-        //      {
-        //          int result = 0;
-        //          Debug . WriteLine ( $"{Thread . CurrentThread . ManagedThreadId}" );
-        //          Debug . WriteLine ( "Sleeping 5000" );
-        //          // Thread . Sleep ( 5000 );
-        //          Debug . WriteLine ( "Finished Sleeping " );
-        //          Debug . WriteLine ( $"{Thread . CurrentThread . ThreadState}" );
-
-        //          string selection = "", prevselection = "";
-        //          int itemscount = 0;
-        //          if ( SqlTables . Items . Count == 0 )
-        //              return Task.FromResult(result);
-
-        //          "" . Track ( );
-        ////          Mouse . OverrideCursor = Cursors . Wait;
-
-        //          string previousSelection = LastActiveTable;
-        //          if ( e == null )
-        //          {
-        //              selection = SqlTables . SelectedItem . ToString ( );
-        //              itemscount = SqlTables . Items . Count;
-        //              selection = $"{DBprefix}{SqlTables . SelectedItem . ToString ( )}";
-        //          }
-        //          else
-        //          {
-        //              itemscount = e . AddedItems . Count;
-        //              selection = $"{e . AddedItems [ 0 ] . ToString ( )}";
-        //          }
-        //          if (itemscount > 0 )
-        //          {
-        //              NewTableSelection = selection;
-        //              if ( selection == LastActiveTable )
-        //              {
-        //                  "" . Track ( 1 );
-        //                  e . Handled = true;
-        //                  return Task . FromResult ( result );
-        //              }
-        //              LastActiveTable = CurrentTable;
-        //              // This value is necessary for an SQL Output value to be accessed
-        //              int colcount = 0;
-
-        //              // Returns count of COLUMNS in table specified
-        //              int existval = CheckTableExists ( selection , CurrentTableDomain );
-        //              if ( existval > 0 )
-        //              {
-        //                  string error = "";
-        //                  // returned count > 0 , so it DOES exist, so go get data from table
-        //                  GetValidDomain ( );
-        //                  ObservableCollection<GenericClass> temp = new ObservableCollection<GenericClass> ( );
-
-        //                  //returns the same record time over time 
-        //                  $"Calling LoadGenericDb() {selection}" . Track ( );
-        //                  temp = dgControl . LoadGenericData ( selection , true , MainWindow . SqlCurrentConstring );
-        //                  "Leaving LoadGenericDb()" . Track ( 1 );
-        //                  //                   int columnscount = 0;
-        //                  //temp = dgControl . LoadData ( selection , true , MainWindow . SqlCurrentConstring , out int columnscount );
-        //                  //                    LoadTableGeneric ( $"Select * from {DBprefix}{selection}" , ref temp , out error );
-        //                  if ( temp == null || temp . Count == 0 )
-        //                  {
-        //                      TableIsEmpty = true;
-        //                      DataLoaded = true;
-        //                      SqlTables . SelectedItem = LastActiveTable;
-        //                      DataLoaded = false;
-        //                      SetStatusbarText ( $"Although the requested table [ {selection} ] is in the  current Database, it does NOT contain any records \nand therefore it has NOT been loaded, and the table {previousSelection} is still displayed" , 1 );
-        //                      for ( int x = 0 ; x < Splist . Items . Count ; x++ )
-        //                      {
-        //                          if ( Splist . Items [ x ] == previousSelection )
-        //                          {
-        //                              Splist . SelectedIndex = x;
-        //                              break;
-        //                          }
-        //                      }
-        //                      CurrentTable = LastActiveTable;
-        //                      Mouse . OverrideCursor = Cursors . Arrow;
-        //                      if ( e != null )
-        //                          e . Handled = true;
-        //                      "" . Track ( 1 );
-        //                      return Task . FromResult ( result );
-        //                  }
-        //                  else
-        //                      GridData = temp;
-        //                  LastActiveTable = selection;
-        //                  DataLoaded = true;
-        //                  SqlTables . SelectedItem = LastActiveTable;
-        //                  CurrentTable = selection;
-
-        //                  //*****************************************************************************************************************************************//
-        //                  // Processes a hard coded enquiry using table (selection in this case))and returns ObsColl into GridData
-        //                  // and also returns  a (global var) of type [List<DataTableLayout>] containing the full table columns specification
-        //                  // These data  items are specific  to currentTable, and can there be used anywhere else without needing to update them
-        //                  //*****************************************************************************************************************************************//
-
-        //                  dglayoutlist = GetNewColumnsLayout ( selection , GridData , out colcount );
-        //                  if ( dglayoutlist . Count > 20 )
-        //                  {
-        //                      StdError ( );
-        //                      TableIsEmpty = true;
-        //                      DataLoaded = true;
-        //                      DataLoaded = false;
-        //                      SetStatusbarText ( $"The requested table [ {selection} ] structure has {dglayoutlist . Count} columns, which exceeds the Total Colums supported \nf 20 columns,and therefore cannot be loaded, so the original table [ {previousSelection . ToUpper ( )}]is still displayed" , 1 );
-        //                      for ( int x = 0 ; x < SqlTables . Items . Count ; x++ )
-        //                      {
-        //                          string upperstring = SqlTables . Items [ x ] . ToString ( ) . ToUpper ( );
-        //                          if ( upperstring == previousSelection . ToUpper ( ) )
-        //                          {
-        //                              ListReloading = true;
-        //                              SqlTables . SelectedIndex = x;
-        //                              ListReloading = false;
-        //                              break;
-        //                          }
-        //                      }
-        //                      CurrentTable = previousSelection;
-        //                      Mouse . OverrideCursor = Cursors . Arrow;
-        //                      e . Handled = true;
-        //                      "" . Track ( 1 );
-        //                      return Task . FromResult ( result );
-        //                  }
-        //                  DatagridControl . LoadActiveRowsOnlyInGrid ( dgControl . datagridControl , GridData , colcount );
-        //                  DatagridControl . ReplaceDataGridFldNames ( GridData , ref dgControl . datagridControl , ref dglayoutlist , colcount );
-        //                  Reccount . Text = GridData . Count . ToString ( );
-        //                  if ( GridData . Count > 0 )
-        //                      SetStatusbarText ( $"The data for {selection . ToUpper ( )} was loaded successfully and is shown in the viewer above..." );
-        //                  LastActiveTable = selection;
-        //                  CurrentTable = selection;
-        //              }
-        //              else if ( existval == 0 )
-        //              {
-        //                  StdError ( );
-        //                  TableIsEmpty = true;
-        //                  DataLoaded = true;
-        //                  SqlTables . SelectedItem = LastActiveTable;
-        //                  DataLoaded = false;
-        //                  CurrentTable = LastActiveTable;
-        //                  SetStatusbarText ( $"A check made for the requested table [ {selection} ]showed that although it does exist, \nit does NOT contain any records and therefore it has NOT been loaded" , 1 );
-        //              }
-        //              else if ( existval == -1 )
-        //              {
-        //                  StdError ( );
-        //                  TableIsEmpty = true;
-        //                  DataLoaded = true;
-        //                  SqlTables . SelectedItem = LastActiveTable;
-        //                  DataLoaded = false;
-        //                  CurrentTable = LastActiveTable;
-        //                  SetStatusbarText ( $"FATAL ERROR : The requested table [ {selection} ] does NOT exist" , 1 );
-        //              }
-        //          }
-        //          return Task . FromResult ( result );
-        //      }
         public int CheckTableExists ( string name , string domain = "IAN1" )
         {
             bool exist = false;
@@ -842,16 +743,6 @@ namespace Views
                     //*****************************************************************************************************************************//
                     result = reslt . Count ( );
                     $"{DBprefix}spCheckTableExists2 returned {result}" . DapperTrace ( );
-                    // now get the result in the format we want to return (int)
-                    //foreach ( var rows in reslt )
-                    //{
-                    //    var flds = rows as IDictionary<string , object>;
-                    //    var data = flds [ "data" ];
-                    //        result = Convert . ToInt32 ( data );
-                    //    $"Columns = {result}" . DapperTrace ( );
-                    //    break;
-                    //}
-                    //db . Close ( );
                 }
                 catch ( Exception ex )
                 {
@@ -885,7 +776,7 @@ namespace Views
                     bool hasoutput = false;
                     bool hasretval = false;
                     DynamicParameters parameters = new DynamicParameters ( );
-                    parameters = DatagridControl . ParseSqlArguments ( parameters , args , ref hasoutput , ref hasretval );
+                    parameters = SProcsSupport . ParseSqlArguments ( parameters , args , ref hasoutput , ref hasretval );
                     Dictionary<string , List<dynamic>> dict = new Dictionary<string , List<dynamic>> ( );
 
                     if ( method == 0 )
@@ -1103,12 +994,12 @@ namespace Views
             return tmp;
         }
 
-        public void ResetColumnHeaderToTrueNames (ObservableCollection<GenericClass> collection,  string CurrentTable , DataGrid Grid )
+        public void ResetColumnHeaderToTrueNames ( ObservableCollection<GenericClass> collection , string CurrentTable , DataGrid Grid )
         {
             //Update Column headers to original column names, so we need to create dummy list just to call Replace headers method
             int colcount = dgControl . datagridControl . Columns . Count;
             List<DapperGenericsLib . DataGridLayout> dglayoutlist = new List<DapperGenericsLib . DataGridLayout> ( );
-            ReplaceDataGridFldNames ( collection, ref Grid , ref dglayoutlist , colcount );
+            ReplaceDataGridFldNames ( collection , ref Grid , ref dglayoutlist , colcount );
         }
 
         public bool LoadDbTables ( string currentTable )
@@ -1163,19 +1054,20 @@ namespace Views
             GetValidDomain ( );
             SqlCommand = $"{DBprefix}spGetTablesList";
 
-            TablesList = GenericGridSupport . CallStoredProcedure ( list , SqlCommand );
+            TablesList = GetListViaSProc . CallStoredProcedure ( list , SqlCommand );
             if ( CurrentTableDomain . ToUpper ( ) == "ADVENTUREWORKS2019" )
                 TablesList = ConvertTableNames ( TablesList );
             //// return list of all current SQL tables in current Db
             return TablesList;
         }
-        public List<string> CallStoredProcedure ( List<string> list , string sqlcommand , string [ ] args = null )
-        {
-            List<string> splist = new List<string> ( );
-            splist = DatagridControl . ProcessUniversalQueryStoredProcedure ( "spGetStoredProcs" , args , CurrentTableDomain , out string err );
-            //This call returns us a List<string>
-            return splist;
-        }
+        //public List<string> CallStoredProcedure ( List<string> list , string sqlcommand , string [ ] args = null )
+        //{
+        //    List<string> splist = new List<string> ( );
+        //    splist = GetListViaSProc . ProcessUniversalQueryStoredProcedure ( "spGetStoredProcs" , args , CurrentTableDomain , out string err );
+        //    //This call returns us a List<string>
+        //    // This method is NOT a dynamic method
+        //    return splist;
+        //}
         public static List<string> GetDataDridRowsAsListOfStrings ( DataTable dt )
         {
             List<string> list = new List<string> ( );
@@ -1219,7 +1111,7 @@ namespace Views
         }
         private void ShowColumnInfo_Click ( object sender , RoutedEventArgs e )
         {
-            //popup th column info in a FlowDoc viewer
+            //popup the column info in a FlowDoc viewer
             int columncount = 0;
             dglayoutlist = GetNewColumnsLayout ( CurrentTable , GridData , out columncount );
 
@@ -1229,7 +1121,7 @@ namespace Views
                 GenericDbUtilities . CheckDbDomain ( "" );
                 ConString = MainWindow . CurrentSqlTableDomain;
             }
-            dgControl . CreateFullColumnInfo ( CurrentTable , ConString , true );
+            GridData = DapperSupport . CreateFullColumnInfo ( CurrentTable , ConString , true );
             Mouse . OverrideCursor = Cursors . Arrow;
 
             return;
@@ -1313,6 +1205,7 @@ namespace Views
                     ConString = MainWindow . CurrentSqlTableDomain;
                 }
                 string Output = dgControl . GetFullColumnInfo ( CurrentTable , CurrentTable , ConString , false );
+
                 string buffer = "";
                 int index = 0;
                 args = Output . Split ( '\n' );
@@ -1391,7 +1284,7 @@ namespace Views
                 NewTableName . Text = NewDbName;
 
             }
-            Mouse . OverrideCursor = Cursors . Arrow;
+            //Mouse . OverrideCursor = Cursors . Arrow;
             return 1;
         }
         private void ColNames_SelectionChanged ( object sender , SelectionChangedEventArgs e )
@@ -1497,7 +1390,7 @@ namespace Views
             int colcount = DatagridControl . GetColumnsCount ( ColumnsData );
             DatagridControl . LoadActiveRowsOnlyInGrid ( dgControl . datagridControl , ColumnsData , colcount );
             if ( ShowColumnHeaders == true )
-                ResetColumnHeaderToTrueNames (collection, NewTableName . Text , dgControl . datagridControl );
+                ResetColumnHeaderToTrueNames ( collection , NewTableName . Text , dgControl . datagridControl );
             else
             {
                 //List<DataTableLayout> dapperdglayoutlist = new List<DataTableLayout> ( );
@@ -1674,7 +1567,15 @@ namespace Views
         }
         public void RemoteReloadTables ( )
         {
+            DatabaseChanged = true;
             ReloadTables ( null , null );
+            Window handle = null;
+            handle = Utils . FindWindowFromClass ( "Spresultsviewer" , ref handle );
+            if ( handle != null )
+            {
+                MessageBox . Show ( "You already have the Results Viewer open, but it canot be updated on the fly to reflect this change to it's Data Source\n\nTherefore it will now be closed ..." , "Database being changed" );
+                handle . Close ( );
+            }
         }
         private void ReloadTables ( object sender , RoutedEventArgs e )
         {
@@ -1790,7 +1691,7 @@ namespace Views
             Type type = sender . GetType ( );
             Debug . WriteLine ( $"Show Type is {type}" );
             // Initialize our 'dialog' dragging system
-            DragCtrl . InitializeMovement ( Filtering as FrameworkElement , this );
+            DragCtrl . InitializeMovement ( Filtering as FrameworkElement );
             if ( LastActiveFillter != "" )
                 filtertext . Text = LastActiveFillter;
         }
@@ -1845,6 +1746,10 @@ namespace Views
         private void DragDialog_LButtonDn ( object sender , MouseButtonEventArgs e )
         {
             // Working 3/10/22
+            Grid sendergrid = sender as Grid;
+            string Sendername = sendergrid . Name;
+            DoPanelDragInit ( sender , e , Sendername );
+
             Control activegrid = null;
             Grid filtergrid = new Grid ( );
             FrameworkElement parent = null;
@@ -1864,14 +1769,14 @@ namespace Views
                     fwelement = ( FrameworkElement ) parent;
                 else
                 {
-                    DragCtrl . InitializeMovement ( parent , this );
+                    DragCtrl . InitializeMovement ( parent );
                     DragCtrl . MovementStart ( parent , e );
                     DragDialog_Moving ( parent , e );
                 }
             }
             else
             {
-                DragCtrl . InitializeMovement ( ( FrameworkElement ) sender , this );
+                DragCtrl . InitializeMovement ( ( FrameworkElement ) sender );
                 DragCtrl . MovementStart ( sender , e );
                 DragDialog_Moving ( sender , e );
             }
@@ -1893,7 +1798,7 @@ namespace Views
         private void DragDialog_Ending ( object sender , MouseButtonEventArgs e )
         {
             // Working 3/10/22
-            DragCtrl . MovementEnd ( sender , e , this );
+            DragCtrl . MovementEnd ( sender , e );
         }
         private void FieldSelectionGrid_LostFocus ( object sender , RoutedEventArgs e )
         {
@@ -1910,19 +1815,36 @@ namespace Views
             if ( e . Key == Key . Escape )
             {
                 Filtering . Visibility = Visibility . Collapsed;
-                DragCtrl . MovementEnd ( sender , e , this );
+                DragCtrl . MovementEnd ( sender , e );
             }
         }
         private void closeFilter ( object sender , RoutedEventArgs e )
         {
             Filtering . Visibility = Visibility . Collapsed;
-            DragCtrl . MovementEnd ( sender , e , this );
+            DragCtrl . MovementEnd ( sender , e );
             GenGridCtrl . Visibility = Visibility . Visible;
+            GenGridCtrl . Refresh ( );
         }
         //****************************************************//
         private void Filter_Click ( object sender , RoutedEventArgs e )
         {
             string temp = filtertext . Text . Trim ( );
+            if ( temp . Contains ( "\"" ) )
+            {
+                int index = 0;
+                string newstring = "";
+                string [ ] bakup;
+                //replace double quotes
+                for ( int x = 0 ; x < temp . Length ; x++ )
+                {
+                    char ch = temp [ x ];
+                    if ( ch != '\"' )
+                        newstring += ch;
+                    else
+                        newstring += "'";
+                }
+                temp = newstring;
+            }
             string filtercmd = $"{temp}";
             string err = "";
             int recordcount = 0;
@@ -1932,31 +1854,57 @@ namespace Views
 
             string [ ] filterargs = new string [ 3 ];
             filterargs [ 0 ] = $"{CurrentTable}";
-            filterargs [ 1 ] = LastActiveFillter;
+            filterargs [ 1 ] = LastActiveFillter . ToUpper ( );
 
             string replacementtable = "";
 
             "" . Track ( );
 
             // GenericClass gc = new GenericClass ( );
-            if ( CurrentTable != "FILTEREDDATA" && CurrentTable != "FILTEREDDATA2" )
+            if ( LOCALFILTER == false )
             {
-
-                int existval = CheckTableExists ( "'FILTEREDDATA2'" , CurrentTableDomain );
-                //string [ ] args2 = new string [ 1 ];
-                //args2 [ 0 ] = "'FILTEREDDATA2'";
-                //ObservableCollection<GenericClass> tempdb = new ObservableCollection<GenericClass> ( );
-                //recordcount = dgControl . GetCountFromStoredProc ( "spCheckTableExists" , args2 );
-                ////tempdb = dgControl . GetDataFromStoredProcedure ( "spCheckTableExists" , args2 , out err , out recordcount ,1);
-                //recordcount = tempdb . Count;
-                ////dgControl . ExecuteStoredProcedure ( "spCheckTableExists" , args2 , out err );
-                if ( existval != -1 )
-                    replacementtable = "FILTEREDDATA";
-                else
+                if ( CurrentTable != "FILTEREDDATA" && CurrentTable != "FILTEREDDATA2" )
                 {
-                    MessageBoxResult result3 = MessageBox . Show ( "The normal Filterered results table 'FILTEREDATA' already exists !.\n\nSelect YES to overwrite it or NO to save the results to 'FILTEREDDATA2" ,
-                        "Sql filtering Table Duplication" ,
-                             MessageBoxButton . YesNoCancel , MessageBoxImage . Question , MessageBoxResult . Yes );
+
+                    int existval = CheckTableExists ( "'FILTEREDDATA2'" , CurrentTableDomain );
+                    //string [ ] args2 = new string [ 1 ];
+                    //args2 [ 0 ] = "'FILTEREDDATA2'";
+                    //ObservableCollection<GenericClass> tempdb = new ObservableCollection<GenericClass> ( );
+                    //recordcount = dgControl . GetCountFromStoredProc ( "spCheckTableExists" , args2 );
+                    ////tempdb = dgControl . GetDataFromStoredProcedure ( "spCheckTableExists" , args2 , out err , out recordcount ,1);
+                    //recordcount = tempdb . Count;
+                    ////dgControl . ExecuteStoredProcedure ( "spCheckTableExists" , args2 , out err );
+                    if ( existval != -1 )
+                        replacementtable = "FILTEREDDATA";
+                    else
+                    {
+                        MessageBoxResult result3 = MessageBox . Show ( "The normal Filterered results table 'FILTEREDATA' already exists !.\n\nSelect YES to overwrite it or NO to save the results to 'FILTEREDDATA2" ,
+                            "Sql filtering Table Duplication" ,
+                                 MessageBoxButton . YesNoCancel , MessageBoxImage . Question , MessageBoxResult . Yes );
+                        if ( result3 == MessageBoxResult . No )
+                            replacementtable = "FILTEREDDATA2";
+                        else if ( result3 == MessageBoxResult . Cancel )
+                        {
+                            Filtering . Visibility = Visibility . Collapsed;
+                            "" . Track ( 1 );
+                            return;
+                        }
+                        else
+                            replacementtable = "FILTEREDDATA";
+                    }
+                }
+                else if ( CurrentTable == "FILTEREDDATA" )
+                    replacementtable = "FILTEREDDATA2";
+                else if ( CurrentTable == "FILTEREDDATA2" )
+                    replacementtable = "FILTEREDDATA";
+                filterargs [ 2 ] = $"{replacementtable}";
+
+                int exists = CheckTableExists ( replacementtable , CurrentTableDomain );
+                if ( exists > 0 )
+                {
+                    MessageBoxResult result3 = MessageBox . Show ( "The normal table for Filterered results of  'FILTEREDATA' already exists !.\n\nSelect YES to overwrite it or NO to save the results to 'FILTEREDDATA2" ,
+                          "Sql filtering Table Duplication" ,
+                               MessageBoxButton . YesNoCancel , MessageBoxImage . Question , MessageBoxResult . Yes );
                     if ( result3 == MessageBoxResult . No )
                         replacementtable = "FILTEREDDATA2";
                     else if ( result3 == MessageBoxResult . Cancel )
@@ -1969,30 +1917,10 @@ namespace Views
                         replacementtable = "FILTEREDDATA";
                 }
             }
-            else if ( CurrentTable == "FILTEREDDATA" )
-                replacementtable = "FILTEREDDATA2";
-            else if ( CurrentTable == "FILTEREDDATA2" )
-                replacementtable = "FILTEREDDATA";
-            filterargs [ 2 ] = $"{replacementtable}";
-
-            int exists = CheckTableExists ( replacementtable , CurrentTableDomain );
-            if ( exists > 0 )
+            else
             {
-                MessageBoxResult result3 = MessageBox . Show ( "The normal table for Filterered results of  'FILTEREDATA' already exists !.\n\nSelect YES to overwrite it or NO to save the results to 'FILTEREDDATA2" ,
-                      "Sql filtering Table Duplication" ,
-                           MessageBoxButton . YesNoCancel , MessageBoxImage . Question , MessageBoxResult . Yes );
-                if ( result3 == MessageBoxResult . No )
-                    replacementtable = "FILTEREDDATA2";
-                else if ( result3 == MessageBoxResult . Cancel )
-                {
-                    Filtering . Visibility = Visibility . Collapsed;
-                    "" . Track ( 1 );
-                    return;
-                }
-                else
-                    replacementtable = "FILTEREDDATA";
+                filterargs [ 2 ] = $"LocalFilterTable";
             }
-
             string spCommand = $"drop table if exists {filterargs [ 2 ]}";
             dgControl . ExecuteDapperTextCommand ( spCommand , null , out err );
             spCommand = $"Select * into {filterargs [ 2 ]} from {filterargs [ 0 ]} where {filterargs [ 1 ]}";
@@ -2042,7 +1970,7 @@ namespace Views
                 int colcount = DatagridControl . GetColumnsCount ( GridData );
                 DatagridControl . LoadActiveRowsOnlyInGrid ( dgControl . datagridControl , GridData , colcount );
                 if ( ShowColumnHeaders == true )
-                    ResetColumnHeaderToTrueNames (GridData,CurrentTable , dgControl . datagridControl );
+                    ResetColumnHeaderToTrueNames ( GridData , CurrentTable , dgControl . datagridControl );
                 else
                 {
                     //List<DataTableLayout> dapperdglayoutlist = new List<DataTableLayout> ( );
@@ -2053,16 +1981,55 @@ namespace Views
                 CurrentTable = filterargs [ 2 ];
                 //ReLoad tables list to include our new temporary table, and select it
                 LoadDbTables ( CurrentTable );
+                if ( LOCALFILTER == true && CurrentTable == "LOCALFILTERTABLE" )
+                {
+                    List<string> newlist = new List<string> ( );
+                    foreach ( var item in SqlTables . Items )
+                    {
+                        if ( item . ToString ( ) . ToUpper ( ) != "LOCALFILTERTABLE" )
+                            newlist . Add ( item . ToString ( ) );
+                        else
+                            Debug . WriteLine ( $"found and removed LOCALFILTERTABLE!)" );
+                    }
+                    newlist . Add ( "DISPLAY ONLY ! " );
+                    SqlTables . ItemsSource = null;
+                    SqlTables . Items . Clear ( );
+                    SqlTables . ItemsSource = newlist;
+
+                    CurrentTable = "DISPLAY ONLY ! ";
+                    if ( GridData . Count > 0 )
+                        SetStatusbarText ( $"The TEMPORARY filter [{LastActiveFillter}] on {originaltable . ToUpper ( )} returned a total of {GridData . Count ( )} records displayed above" +
+                            $"\nWARNING : As this is a TEMPORARY FILTER, the data will be lost as soon as you change the table viewed, unless you save it irst" , 3 );
+                    GenGridCtrl . AlternateBackground = FindResource ( "Orange4" ) as SolidColorBrush;
+                    GenGridCtrl . Refresh ( );
+
+                }
+                else
+                {
+                    if ( GridData . Count > 0 )
+                        SetStatusbarText ( $"The filter [{LastActiveFillter}] on {originaltable . ToUpper ( )} resulted in a total of {GridData . Count ( )} records being found and loaded\n" +
+                            $"into {CurrentTable} and these are shown in the viewer above..." , 2 );
+                    GenGridCtrl . AlternateBackground = FindResource ( "Cyan4" ) as SolidColorBrush;
+                    GenGridCtrl . Refresh ( );
+                }
+                ListReloading = true;
                 SqlTables . SelectedItem = CurrentTable;
-                if ( GridData . Count > 0 )
-                    SetStatusbarText ( $"The filter [{LastActiveFillter}] on {originaltable . ToUpper ( )} resulted in a total of {GridData . Count ( )} records being found and loaded\ninto {CurrentTable} and these are shown in the viewer above..." , 2 );
+                ListReloading = false;
                 StdSuccess ( );
                 //if ( replacementtable == "FILTEREDDATA" )
                 //    statusbar . Text = $"The Filter completed successfully and was placed into new Table '{replacementtable}' which is displayed in the table viewer ";
                 //else if ( replacementtable == "FILTEREDDATA2" )
                 //    statusbar . Text = $"The Filter completed successful, but because you the orignal Filtered table has been filtered a 2nd (or subsequent time) it has been saved to a seconndary 'Search results' Table named 'FilteredData2' which is shown above...";
-
+                SqlTables . UpdateLayout ( );
                 closeFilter ( sender , e );
+                if ( LOCALFILTER == true )
+                {
+                    // drop table immediately as it is a display table only
+                    spCommand = $"drop table localfiltertable";
+                    //string [ ] args = new string [ 1 ];
+                    //args [ 0 ] = "localfiltertable";
+                    dgControl . ExecuteDapperTextCommand ( spCommand , null , out err );
+                }
                 Mouse . OverrideCursor = Cursors . Arrow;
             }
         }
@@ -2077,7 +2044,7 @@ namespace Views
         {
             // close small dialog wih Text Entry field
             SpStringsSelector . Visibility = Visibility . Collapsed;
-            DragCtrl . MovementEnd ( sender , e , this );
+            DragCtrl . MovementEnd ( sender , e );
             selectedSp . Focus ( );
         }
 
@@ -2315,7 +2282,7 @@ namespace Views
             run1 . FontSize = 16;
             run1 . FontFamily = new FontFamily ( "Arial" );
             run1 . FontWeight = FontWeights . Normal;
-            run1 . Background = FindResource ( "Black4" ) as SolidColorBrush;
+            run1 . Background = FindResource ( "Black3" ) as SolidColorBrush;
             run1 . Foreground = FindResource ( "White0" ) as SolidColorBrush;
             return run1;
         }
@@ -2326,7 +2293,7 @@ namespace Views
             run2 . FontFamily = new FontFamily ( "Arial" );
             run2 . FontWeight = FontWeights . Bold;
             run2 . Foreground = FindResource ( "Green5" ) as SolidColorBrush;
-            run2 . Background = FindResource ( "Black4" ) as SolidColorBrush;
+            run2 . Background = FindResource ( "Black3" ) as SolidColorBrush;
             return run2;
         }
         public List<string> LoadMatchingStoredProcs ( ListBox lbox , string Searchtext )
@@ -2372,7 +2339,7 @@ namespace Views
                 cmb . Show ( msgargs );
                 return;
             }
-            DragCtrl . InitializeMovement ( SpStringsSelector as FrameworkElement , this );
+            DragCtrl . InitializeMovement ( SpStringsSelector as FrameworkElement );
             Splist . ItemsSource = null;
             Splist . Items . Clear ( );
             Splist . ItemsSource = list;
@@ -2447,9 +2414,6 @@ namespace Views
             //****************************************//
             Currentpanel = "INFO";
 
-            //LoadMatchingItems . IsEnabled = true;   //Load only matching SP's
-            //LoadAllItems . IsEnabled = false;   // Load ALL SP's
-
             majorgrid . RowDefinitions [ 0 ] . Height = new GridLength ( 5 , GridUnitType . Pixel );
             majorgrid . RowDefinitions [ 2 ] . Height = new GridLength ( 2 , GridUnitType . Star );
             double row2height = dgrow . ActualHeight + vwrow . ActualHeight;
@@ -2472,7 +2436,7 @@ namespace Views
         {
             SpStringsSelection . Visibility = Visibility . Visible;
             selectedSp . Focus ( );
-            DragCtrl . InitializeMovement ( SpStringsSelection as FrameworkElement , this );
+            DragCtrl . InitializeMovement ( SpStringsSelection as FrameworkElement );
             selectedSp . SelectAll ( );
         }
 
@@ -2481,7 +2445,7 @@ namespace Views
             if ( e . Key == Key . Escape )
             {
                 Filtering . Visibility = Visibility . Collapsed;
-                DragCtrl . MovementEnd ( sender , e , this );
+                DragCtrl . MovementEnd ( sender , e );
             }
         }
 
@@ -2570,9 +2534,10 @@ namespace Views
             deleteitems . Add ( "cm11" );
 
             ContextMenu menu = RemoveMenuItems ( "PopupMenu" , "" , deleteitems );
+            "aplist_previewMouseRightButtonDown" . cwinfo ( );
             menu = AddMenuItem ( "PopupMenu" , "cm15" );
             menu . IsOpen = true;
-            e . Handled = true;
+            //e . Handled = true;
         }
 
         private void Splist_PreviewMouseRightButtonUp ( object sender , MouseButtonEventArgs e )
@@ -2762,7 +2727,7 @@ namespace Views
                     currItem = Splist . SelectedItem . ToString ( );
             }
             List<string> SpList = new List<string> ( );
-            SpList = CallStoredProcedure ( SpList , "spGetStoredProcs" );
+            SpList = GetListViaSProc . CallStoredProcedure ( SpList , "spGetStoredProcs" );
             Splist . ItemsSource = null;
             Splist . Items . Clear ( );
             Splist . ItemsSource = SpList;
@@ -2847,13 +2812,13 @@ namespace Views
             else if ( type != typeof ( ScrollViewer ) && type != typeof ( Button ) )
             {
                 ActiveDragControl = FieldSelectionGrid;
-                MovingObject = ActiveDragControl;
+                this . MovingObject = ActiveDragControl;
                 Debug . WriteLine ( $"Calling _Move" );
 
                 //DragCtrlHelper dch = new DragCtrlHelper ( );
-                dch . InitializeMovement ( FieldSelectionGrid , null );
-                dch . MovementStart ( sender , e , null );
-                dch . CtrlMoving ( FieldSelectionGrid , e , null );
+                DragCtrl . InitializeMovement ( FieldSelectionGrid );
+                DragCtrl . MovementStart ( sender , e );
+                DragCtrl . CtrlMoving ( FieldSelectionGrid , e );
 
                 //ColSelect_DragDialog_Moving ( sender , e );
                 //               DragDialog_LButtonDn ( sender , e );
@@ -2872,7 +2837,7 @@ namespace Views
             if ( MovingObject != null && ActiveDragControl != null && dgobj != null )
             {
                 //DragCtrlHelper dch = new DragCtrlHelper ( );
-                dch . CtrlMoving ( FieldSelectionGrid , e , null );
+                DragCtrl . CtrlMoving ( FieldSelectionGrid , e );
 
                 //                Debug . WriteLine ( $"Moving : {dgobj . Name}, {obj . Name}" );
                 return;
@@ -2891,7 +2856,7 @@ namespace Views
                 //MovingObject = ActiveDragControl;
                 Debug . WriteLine ( $"In Moving !!!! movingobject = {MovingObject . GetType ( )}, {ActiveDragControl . Name}" );
                 //DragCtrlHelper dch = new DragCtrlHelper ( );
-                dch . CtrlMoving ( FieldSelectionGrid , e , null );
+                DragCtrl . CtrlMoving ( FieldSelectionGrid , e );
 
                 ////DragDialog_LButtonDn ( sender , e );
             }
@@ -2949,7 +2914,7 @@ namespace Views
             SpStringsSelection . Visibility = Visibility . Visible;
             selectedSp . Focus ( );
             selectedSp . Text = Searchtext;
-            DragCtrl . InitializeMovement ( SpStringsSelection as FrameworkElement , this );
+            DragCtrl . InitializeMovement ( SpStringsSelection as FrameworkElement );
             selectedSp . SelectAll ( );
             CurrentSpList = "MATCH";
         }
@@ -2985,6 +2950,8 @@ namespace Views
                 statusbar . Padding = th;
             }
             statusbar . Foreground = FindResource ( "White0" ) as SolidColorBrush;
+            if ( isError == 0 )
+                statusbar . Background = FindResource ( "White7" ) as SolidColorBrush;
             if ( isError == 1 )
                 statusbar . Background = FindResource ( "Red2" ) as SolidColorBrush;
             if ( isError == 2 )
@@ -2992,8 +2959,11 @@ namespace Views
                 statusbar . Background = FindResource ( "Green5" ) as SolidColorBrush;
                 statusbar . Foreground = FindResource ( "Black0" ) as SolidColorBrush;
             }
-            if ( isError == 0 )
-                statusbar . Background = FindResource ( "White7" ) as SolidColorBrush;
+            if ( isError == 3 )
+            {
+                statusbar . Background = FindResource ( "Orange4" ) as SolidColorBrush;
+                statusbar . Foreground = FindResource ( "Black0" ) as SolidColorBrush;
+            }
         }
 
         public static ObservableCollection<GenericClass> CreateGenericCollection (
@@ -3887,10 +3857,11 @@ namespace Views
                 hideitems . Add ( "cm5" );
 
             ContextMenu menu = RemoveMenuItems ( "PopupMenu" , "" , hideitems );
+            "RTBox_PreviewMouseRightButtonDown " . cwinfo ( );
             menu = AddMenuItem ( "PopupMenu" , "cm15" );
 
             menu . IsOpen = true;
-            e . Handled = true;
+            //e . Handled = true;
         }
 
         private void LoadTechInfo ( object sender , RoutedEventArgs e )
@@ -4070,7 +4041,7 @@ namespace Views
         { return true; }
         #endregion ICOMMANDS
 
-        public Grid FindOuterParent ( object sender , RoutedEventArgs e , string target = "" )
+        public static Grid FindOuterParent ( object sender , RoutedEventArgs e , string target = "" )
         {
             UIElement returnval = null;
             Grid dgobj = null;
@@ -4201,7 +4172,7 @@ namespace Views
                 {
                     if ( parent . Name == "Execsp" )
                     {
-                        DragCtrl . InitializeMovement ( ( FrameworkElement ) parent , this );
+                        DragCtrl . InitializeMovement ( ( FrameworkElement ) parent );
                         DragCtrl . MovementStart ( parent , e );
                         e . Handled = true;
                         return;
@@ -4213,7 +4184,7 @@ namespace Views
                             grid = sender as Grid;
                             if ( grid . Name == "Execsp" )
                             {
-                                DragCtrl . InitializeMovement ( ( FrameworkElement ) grid , this );
+                                DragCtrl . InitializeMovement ( ( FrameworkElement ) grid );
                                 DragCtrl . MovementStart ( grid , e );
                                 e . Handled = true;
                                 return;
@@ -4226,7 +4197,7 @@ namespace Views
                     parent = ( Grid ) FindOuterParent ( sender , e );
                     if ( parent . GetType ( ) == typeof ( Grid ) && parent . Name == "Execsp" )
                     {
-                        DragCtrl . InitializeMovement ( parent , null );
+                        DragCtrl . InitializeMovement ( parent );
                         DragCtrl . MovementStart ( parent , e );
                         e . Handled = true;
                         return;
@@ -4238,7 +4209,7 @@ namespace Views
                 grid = sender as Grid;
                 if ( grid . Name == "Execsp" )
                 {
-                    DragCtrl . InitializeMovement ( grid , null );
+                    DragCtrl . InitializeMovement ( grid );
                     DragCtrl . MovementStart ( grid , e );
                     e . Handled = true;
                     return;
@@ -4248,7 +4219,7 @@ namespace Views
                     parent = ( Grid ) FindOuterParent ( sender , e );
                     if ( parent . GetType ( ) == typeof ( Grid ) && parent . Name == "Execsp" )
                     {
-                        DragCtrl . InitializeMovement ( parent , null );
+                        DragCtrl . InitializeMovement ( parent );
                         DragCtrl . MovementStart ( parent , e );
                         e . Handled = true;
                         return;
@@ -4260,7 +4231,7 @@ namespace Views
                 parent = ( Grid ) FindOuterParent ( sender , e );
                 if ( parent . GetType ( ) == typeof ( Grid ) && parent . Name == "Execsp" )
                 {
-                    DragCtrl . InitializeMovement ( parent , null );
+                    DragCtrl . InitializeMovement ( parent );
                     DragCtrl . MovementStart ( parent , e );
                     e . Handled = true;
                     return;
@@ -4291,7 +4262,7 @@ namespace Views
         }
         private void ExecDragDialog_Ending ( object sender , MouseButtonEventArgs e )
         {
-            DragCtrl . MovementEnd ( sender , e , this );
+            DragCtrl . MovementEnd ( sender , e );
             e . Handled = true;
         }
 
@@ -4369,6 +4340,7 @@ namespace Views
             hideitems . Add ( "cm11" );
             e . Handled = true;
             ContextMenu menu = ResetMenuItems ( "PopupMenu" , "" , hideitems );
+            "InfoContextMenu_Closed " . cwinfo ( );
             menu . IsOpen = false;
         }
         public List<string> ConvertTableNames ( List<string> TablesList )
@@ -4826,13 +4798,13 @@ namespace Views
                 if ( srchtext != "" && Genericgrid . UsingMatches == true )
                 {
                     // there is a search text, but showing matches
-                    Gengrid . SpInfo . Text = Gengrid . SpInfo2 . Text = $"All ({Gengrid . Splist . Items . Count}) SP's matching [{srchtext}]";
-                    Gengrid . InfoHeaderPanel . Text = $"All ({Gengrid . Splist . Items . Count}) Stored Procedures matching Search Term [ {srchtext} ] are displayed";
+                    Gengrid . SpInfo . Text = Gengrid . SpInfo2 . Text = $"All SP's matching [{srchtext}]";
+                    Gengrid . InfoHeaderPanel . Text = $"All ({Gengrid . Splist . Items . Count}) Stored Procedures are displayed";
                 }
                 else if ( Genericgrid . UsingMatches == false )
                 {
                     // there is a searchtext, but we are  showing all
-                    Gengrid . SpInfo2 . Text = $"All ({Gengrid . Splist . Items . Count}) available SP's";
+                    Gengrid . SpInfo2 . Text = $"All available SP's";
                     Gengrid . InfoHeaderPanel . Text = $"All ({Gengrid . Splist . Items . Count}) Stored Procedures are displayed";
                 }
             }
@@ -4958,7 +4930,7 @@ namespace Views
                 // // load methods listbox
                 spviewer . createoptypes ( );
                 spviewer . optype . UpdateLayout ( );
-                spviewer . Show ( );
+                //               spviewer . Show ( );
             }
             else
             {
@@ -5028,7 +5000,7 @@ namespace Views
                 //    // our list is all sp's, so cannot copy it
                 string [ ] args = new string [ 1 ];
                 args [ 0 ] = Searchtext;
-                List<string> list = DatagridControl . ProcessUniversalQueryStoredProcedure ( "spGetAllSprocsMatchingsearchterm" , args , CurrentTableDomain , out string err );
+                List<string> list = GetListViaSProc . ProcessUniversalQueryStoredProcedure ( "spGetAllSprocsMatchingsearchterm" , args , CurrentTableDomain , out string err );
                 foreach ( var item in list )
                 {
                     spviewer . ListResults . Items . Add ( item );
@@ -5053,7 +5025,7 @@ namespace Views
                 // load matching SP's into ResultsViewer
                 //string [ ] args = new string [ 1 ];
                 //args [ 0 ] = Searchtext;
-                List<string> list = DatagridControl . ProcessUniversalQueryStoredProcedure ( "spGetStoredProcs" , null , CurrentTableDomain , out string err );
+                List<string> list = GetListViaSProc . ProcessUniversalQueryStoredProcedure ( "spGetStoredProcs" , null , CurrentTableDomain , out string err );
                 foreach ( var item in list )
                 {
                     spviewer . ListResults . Items . Add ( item );
@@ -5076,7 +5048,7 @@ namespace Views
                 // gotta reload from disk, cos we only have matching SP's in our list
                 //string [ ] args = new string [ 1 ];
                 //args [ 0] = 
-                List<string> list = DatagridControl . ProcessUniversalQueryStoredProcedure ( "spGetStoredProcs" , null , CurrentTableDomain , out string err );
+                List<string> list = GetListViaSProc . ProcessUniversalQueryStoredProcedure ( "spGetStoredProcs" , null , CurrentTableDomain , out string err );
                 foreach ( var item in list )
                 {
                     spviewer . ListResults . Items . Add ( item );
@@ -5113,97 +5085,9 @@ namespace Views
             if ( spviewer . ListResults . SelectedIndex == -1 )
                 spviewer . ListResults . SelectedIndex = 0;
             SetSpWindowInfoText ( this , spviewer , Searchtext );
-            ////call stub to load  Click event in Resultsviewer
-            //spviewer . LoadAllSps ( this , Splist . SelectedIndex ); ;
+            spviewer . Show ( );
             Mouse . OverrideCursor = Cursors . Arrow;
         }
-
-        /// <summary>
-        /// Open Execution Viewer
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        //private void ExecuteSP_Click ( object sender , RoutedEventArgs e )
-        //{
-        //    // user has elected to show the SpResultsViewer Execute dialog for Sp's via dblclick in listbox,
-        //    // so show the popup dialog select SP's and enter arguments then try to execute  it.
-        //    SpResultsViewer spviewer = Resultsviewer;
-        //    string currentselection = "";
-        //    Mouse . OverrideCursor = Cursors . Wait;
-        //    if ( Resultsviewer == null )
-        //    {
-        //        // NOT open
-        //        if ( Splist . SelectedItem != null )
-        //            SpName . Text = Splist . SelectedItem . ToString ( );
-        //        else
-        //            SpName . Text = "";
-        //        currentselection = SpName . Text;
-        //        // Get a new instance and load the Resultsviewer here 
-        //        spviewer = new SpResultsViewer ( this , SpName . Text , Searchtext );
-        //        // set global pointer
-        //        Resultsviewer = spviewer;
-        //        spviewer . UsingMatches = false;
-        //        // // load methods listbox
-        //        spviewer.createoptypes ( );
-        //        spviewer . optype . UpdateLayout ( );
-        //        spviewer . Show ( );
-        //    }
-        //    else
-        //    {
-        //        if ( Splist . SelectedItem != null )
-        //            currentselection = Splist . SelectedItem . ToString ( );
-        //    }
-        //    // clear Viewer listbox
-        //    spviewer . ListResults . ItemsSource = null;
-        //    spviewer . ListResults . Items . Clear ( );
-        //    if ( UsingMatches == false )
-        //    {
-        //        // we have a FULL list, so copy them to resultsviewer
-        //        // Load Sp list from our own list which has All SP's in it
-        //        foreach ( var item in Splist . Items )
-        //        {
-        //            spviewer . ListResults . Items . Add ( item );
-        //        }
-        //        for( int x= 0 ; x < spviewer . ListResults .Items.Count ; x++ )
-        //        {
-        //            string str = spviewer . ListResults.Items [ x ] . ToString ( );
-        //            if ( str == spviewer . ListResults . Items [ x ] . ToString ( ) )
-        //            {
-        //                spviewer . ListResults . SelectedIndex = x;
-        //                break;
-        //            }
-        //        }
-        //        spviewer . ListResults . Refresh ( );
-        //    }
-        //    else
-        //    {
-        //        // gotta reload from disk, cos we only have matching SP's in our list
-        //        //string [ ] args = new string [ 1 ];
-        //        //args [ 0] = 
-        //        List<string> list = DatagridControl . ProcessUniversalQueryStoredProcedure ( "spGetStoredProcs" , null , CurrentTableDomain , out string err );
-        //        foreach ( var item in list )
-        //        {
-        //            spviewer . ListResults . Items . Add ( item );
-        //        }
-
-        //        spviewer . ListResults . SelectedItem = Splist . SelectedItem;
-        //        spviewer . ListResults . ScrollIntoView ( spviewer . ListResults . SelectedItem );
-        //        //Load method selection listbox
-        //        spviewer . createoptypes ( );
-        //        spviewer . optype . UpdateLayout ( );
-        //        // setup Cosmmetics
-        //        //                Mouse . OverrideCursor = Cursors . Arrow;
-        //        //                return;
-        //    }
-        //    // resultsviewer is definitely opened, so just reload it with ALL SP's ?
-        //    // toggle its status to Show ALL SP's
-        //     SetSpWindowInfoText ( this ,  spviewer , Searchtext );
-        //    spviewer . ShowingAllSPs = true;
-        //    spviewer . UsingMatches = false;
-        //    ////call stub to load  Click event in Resultsviewer
-        //    //spviewer . LoadAllSps ( this , Splist . SelectedIndex ); ;
-        //    Mouse . OverrideCursor = Cursors . Arrow;
-        //}
 
         /// <summary>
         ///  Load Execution Window
@@ -5233,8 +5117,8 @@ namespace Views
                 spviewer = Resultsviewer;
 
             args [ 0 ] = srchterm;
-            //call SQl method using SP to get all MATCHING SP's (if srchterm != "")
-            List<string> contents = DatagridControl . ProcessUniversalQueryStoredProcedure ( spname , args , CurrentTableDomain , out string err );
+            //call SQL method using SP to get all MATCHING SP's (if srchterm != "")
+            List<string> contents = GetListViaSProc . ProcessUniversalQueryStoredProcedure ( spname , args , CurrentTableDomain , out string err );
 
             if ( contents . Count > 0 )
             {
@@ -5334,8 +5218,8 @@ namespace Views
                 args [ 0 ] = srchterm;
             else
                 args = null;
-            // load list of all sp's
-            NewSplist = CallStoredProcedure ( NewSplist , spCommand , args );
+            // load list of all sp's calling dapper to run an SP that returns  a List<string>
+            NewSplist = GetListViaSProc . CallStoredProcedure ( NewSplist , spCommand , args );
             Splist . ItemsSource = null;
             Splist . UpdateLayout ( );
             // load list into listbox
@@ -5690,7 +5574,7 @@ namespace Views
         {
             // load full list of SP.s
             List<string> SpList = new List<string> ( );
-            SpList = CallStoredProcedure ( SpList , "spGetStoredProcs" );
+            SpList = GetListViaSProc . CallStoredProcedure ( SpList , "spGetStoredProcs" );
             Splist . ItemsSource = null;
             Splist . Items . Clear ( );
             Splist . ItemsSource = SpList;
@@ -5940,7 +5824,179 @@ namespace Views
 
         #endregion UNUSED METHODS
 
+        private void ShowlocalFilter_Click ( object sender , RoutedEventArgs e )
+        {
+            // Working 3/10/22
+            // Open the 'Floating' dialog
+            LOCALFILTER = true;
+            Filtering . Visibility = Visibility . Visible;
+            Filtering . UpdateLayout ( );
+            filtertext . Text = "";
+            filtertext . Focus ( );
+            Type type = sender . GetType ( );
+            Debug . WriteLine ( $"Show Type is {type}" );
+            // Initialize our 'dialog' dragging system
+            DragCtrl . InitializeMovement ( Filtering as FrameworkElement );
+            if ( LastActiveFillter != "" )
+                filtertext . Text = LastActiveFillter;
+        }
+        public void LoadViewerTables ( object sender , RoutedEventArgs e )
+        {
+            // Need to do this so we can call functonality from other controls
+            Domethod ( );
+        }
+        public List<string> Domethod ( )
+        {
+            List<string> TablesList = GetDbTablesList ( CurrentTableDomain );
+            AllTables . ItemsSource = TablesList;
+            SpTableViewer . Visibility = Visibility . Visible;
+            return TablesList;
+        }
+
+        private void closeviewer_Click ( object sender , RoutedEventArgs e )
+        {
+            SpTableViewer . Visibility = Visibility . Collapsed;
+        }
+        private void tableviewer_LButtonDn ( object sender , MouseButtonEventArgs e )
+        {
+
+            Grid sendergrid = sender as Grid;
+            string Sendername = sendergrid . Name;
+            DoPanelDragInit ( sender , e , Sendername );
+
+        }
+
+        private void tableviewer_Moving ( object sender , MouseEventArgs e )
+        {
+            if ( MovingObject != null && e . LeftButton == MouseButtonState . Pressed )
+            {
+                Type type = sender . GetType ( );
+                if ( type == typeof ( Button ) )
+                {
+                    e . Handled = true;
+                    return;
+                }
+                else if ( type == typeof ( TextBox ) )
+                {
+                    e . Handled = true;
+                    return;
+                }
+                else
+                {
+                    DragCtrl . CtrlMoving ( sender , e );
+                    e . Handled = false;
+                }
+            }
+        }
+
+        private void tableviewer_Ending ( object sender , MouseButtonEventArgs e )
+        {
+            DragCtrl . MovementEnd ( sender , e );
+            e . Handled = true;
+        }
+
+        private void tableviewer_KeyDown ( object sender , KeyEventArgs e )
+        {
+            if ( e . Key == Key . Enter )
+            {
+                //CurrentSpSelection = Splist . SelectedItem . ToString ( );
+                //ExecBtn . RaiseEvent ( new RoutedEventArgs ( System . Windows . Controls . Primitives . ButtonBase . ClickEvent ) );
+                e . Handled = true;
+            }
+            else if ( e . Key == Key . Escape )
+            {
+                SpTableViewer . Visibility = Visibility . Collapsed;
+                e . Handled = true;
+            }
+            e . Handled = false;
+        }
+        public static void DoPanelDragInit ( object sender , MouseButtonEventArgs e , string Sendername )
+        {
+            Control activegrid = null;
+            Grid grid = new Grid ( );
+            FrameworkElement parent = null;
+            FrameworkElement fwelement = new FrameworkElement ( );
+            Type type = sender . GetType ( );
+            Debug . WriteLine ( $"Type={type}" );
+            // Finds the parent immediately above the Canvas,
+            // which is what we are dragging
+            if ( type == typeof ( Button ) )
+                return;
+            else if ( type == typeof ( TextBox ) )
+                return;
+            else if ( type == typeof ( Border ) )
+            {
+                parent = NewWpfDev . Utils . FindVisualParent<Grid> ( ( DependencyObject ) sender , out string [ ] objectarray );
+                if ( parent != null )
+                {
+                    if ( parent . Name == Sendername )
+                    {
+                        DragCtrl . InitializeMovement ( ( FrameworkElement ) parent );
+                        DragCtrl . MovementStart ( parent , e );
+                        e . Handled = true;
+                        return;
+                    }
+                    else
+                    {
+                        if ( type == typeof ( Grid ) )
+                        {
+                            grid = sender as Grid;
+                            if ( grid . Name == Sendername )
+                            {
+                                DragCtrl . InitializeMovement ( ( FrameworkElement ) grid );
+                                DragCtrl . MovementStart ( grid , e );
+                                e . Handled = true;
+                                return;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    parent = ( Grid ) FindOuterParent ( sender , e );
+                    if ( parent . GetType ( ) == typeof ( Grid ) && parent . Name == Sendername )
+                    {
+                        DragCtrl . InitializeMovement ( parent );
+                        DragCtrl . MovementStart ( parent , e );
+                        e . Handled = true;
+                        return;
+                    }
+                }
+            }
+            else if ( type == typeof ( Grid ) )
+            {
+                grid = sender as Grid;
+                if ( grid . Name == Sendername )
+                {
+                    DragCtrl . InitializeMovement ( grid );
+                    DragCtrl . MovementStart ( grid , e );
+                    e . Handled = true;
+                    return;
+                }
+                else
+                {
+                    parent = ( Grid ) FindOuterParent ( sender , e );
+                    if ( parent . GetType ( ) == typeof ( Grid ) && parent . Name == Sendername )
+                    {
+                        DragCtrl . InitializeMovement ( parent );
+                        DragCtrl . MovementStart ( parent , e );
+                        e . Handled = true;
+                        return;
+                    }
+                }
+            }
+            else
+            {
+                parent = ( Grid ) FindOuterParent ( sender , e );
+                if ( parent . GetType ( ) == typeof ( Grid ) && parent . Name == Sendername )
+                {
+                    DragCtrl . InitializeMovement ( parent );
+                    DragCtrl . MovementStart ( parent , e );
+                    e . Handled = true;
+                    return;
+                }
+            }
+
+        }
     }
-
 }
-
