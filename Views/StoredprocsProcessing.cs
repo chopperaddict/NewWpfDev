@@ -15,6 +15,7 @@ using System . Collections;
 using System . Linq;
 using System . Windows . Documents;
 using System . Reflection;
+using System . Reflection . Metadata;
 
 namespace Views
 {
@@ -142,31 +143,74 @@ namespace Views
         }
         static public DynamicParameters ParseSqlArgs ( DynamicParameters parameters , string [ ] args )
         {
+            bool error = false;
             // WORKING CORRECTLY 6/11/2022 ?
             DynamicParameters pms = new DynamicParameters ( );
-            //            DynamicParameters p = new DynamicParameters ( );
             if ( args != null && args . Length > 0 && args [ 0 ] != "-" )
             {
-                pms . AddDynamicParams ( args );
+                // pms . AddDynamicParams ( args );
                 for ( int x = 0 ; x < args . Length ; x++ )
                 {
-                    // breakout on first unused array element
                     if ( args [ x ] == "" ) break;
-                    if ( args [ x ] . ToUpper ( ) . Contains ( "OUTPUT" ) )
+
+                    string valid = "0123456789";
+                    string [ ] splitter = args [ x ] . Split ( " " );
+                    string name = splitter [ 0 ] . Trim ( ) . ToUpper ( );
+                    string type = splitter [ 1 ] . Trim ( ) . ToUpper ( );
+                    string size = splitter [ 2 ] . Trim ( ) . ToUpper ( );
+                    string returntype = splitter [ 3 ] . Trim ( ) . ToUpper ( );
+
+                    if ( name == "" )
+                    { error = true; break; }
+                    if ( type == "" )
+                    { error = true; break; }
+                    if ( size == "" )
+                    { error = true; break; }
+                    if ( returntype != "" && ( returntype != "OUTPUT" && returntype != "RETURN" && returntype != "OUT" ) )
+                    { error = true; break; }
+
+                    // process size buffer in case there are () around it
+                    string size2 = "";
+                    for ( int z = 0 ; z < size . Length ; z++ )
                     {
-                        string [ ] splitter = args [ x ] . Split ( " " );
-                        pms . Add ( $"{splitter [ 0 ]}" ,
-                                           dbType: DbType . String ,
-                                           direction: ParameterDirection . Output ,
-                                           size: int . MaxValue );
- //                       var properties = args [x] . GetType ( ) . GetProperties ( );
+                        string test = size [ z ] . ToString ( );
+                        if ( size . Contains ( test ) )
+                            size2 += size [ z ];
+                    }
+                    int intsize = Convert . ToInt32 ( size2 );
+                    if ( intsize <= 0 )
+                    { error = true; break; }
+
+                    // Now set them to values passed to us
+                    var fulltype = DbType . String;
+ 
+                    if ( splitter [ 3 ] != "" )
+                    {
+                        returntype = splitter [ 3 ] . Trim ( ) . ToUpper ( );
+                        // breakout on first unused array element
+                        if ( returntype == "OUTPUT" )
+                            returntype = "OUT";
+                        else if ( returntype == "RETURN" )
+                            returntype = "RETURN";
+                    }
+                    if ( returntype == "" )
+                    {
+                        pms . Add ( name ,
+                            dbType: fulltype ,
+                            size: intsize ,
+                            direction: ParameterDirection . Input );
                     }
                     else
                     {
-                        pms . Add ( $"Arg{x + 1}" , args [ x ] ,
-                       DbType . String );
+                        pms . Add ( name ,
+                            dbType: fulltype ,
+                            size: intsize ,
+                            direction: ParameterDirection . Output );
                     }
                 }
+                if ( error == true )
+                    return parameters = null;
+
             }
             return pms;
         }

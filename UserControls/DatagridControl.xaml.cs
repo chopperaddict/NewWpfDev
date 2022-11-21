@@ -1475,64 +1475,64 @@ namespace UserControls
                 switch ( counter )
                 {
                     case 1:
-                        maxcol = GenClass . field1 != null ? 0 : counter;
+                        maxcol = GenClass . field1 == null ? 0 : counter;
                         break;
                     case 2:
-                        maxcol = GenClass . field2 != null ? 0 : counter;
+                        maxcol = GenClass . field2 == null ? 0 : counter;
                         break;
                     case 3:
-                        maxcol = GenClass . field3 != null ? 0 : counter;
+                        maxcol = GenClass . field3 == null ? 0 : counter;
                         break;
                     case 4:
-                        maxcol = GenClass . field4 != null ? 0 : counter;
+                        maxcol = GenClass . field4 == null ? 0 : counter;
                         break;
                     case 5:
-                        maxcol = GenClass . field5 != null ? 0 : counter;
+                        maxcol = GenClass . field5 == null ? 0 : counter;
                         break;
                     case 6:
-                        maxcol = GenClass . field6 != null ? 0 : counter;
+                        maxcol = GenClass . field6 == null ? 0 : counter;
                         break;
                     case 7:
-                        maxcol = GenClass . field7 != null ? 0 : counter;
+                        maxcol = GenClass . field7 == null ? 0 : counter;
                         break;
                     case 8:
-                        maxcol = GenClass . field8 != null ? 0 : counter;
+                        maxcol = GenClass . field8 == null ? 0 : counter;
                         break;
                     case 9:
-                        maxcol = GenClass . field9 != null ? 0 : counter;
+                        maxcol = GenClass . field9 == null ? 0 : counter;
                         break;
                     case 10:
-                        maxcol = GenClass . field10 != null ? 0 : counter;
+                        maxcol = GenClass . field10 == null ? 0 : counter;
                         break;
                     case 11:
-                        maxcol = GenClass . field11 != null ? 0 : counter;
+                        maxcol = GenClass . field11 == null ? 0 : counter;
                         break;
                     case 12:
-                        maxcol = GenClass . field12 != null ? 0 : counter;
+                        maxcol = GenClass . field12 == null ? 0 : counter;
                         break;
                     case 13:
-                        maxcol = GenClass . field13 != null ? 0 : counter;
+                        maxcol = GenClass . field13 == null ? 0 : counter;
                         break;
                     case 14:
-                        maxcol = GenClass . field14 != null ? 0 : counter;
+                        maxcol = GenClass . field14 == null ? 0 : counter;
                         break;
                     case 15:
-                        maxcol = GenClass . field15 != null ? 0 : counter;
+                        maxcol = GenClass . field15 == null ? 0 : counter;
                         break;
                     case 16:
-                        maxcol = GenClass . field16 != null ? 0 : counter;
+                        maxcol = GenClass . field16 == null ? 0 : counter;
                         break;
                     case 17:
-                        maxcol = GenClass . field17 != null ? 0 : counter;
+                        maxcol = GenClass . field17 == null ? 0 : counter;
                         break;
                     case 18:
-                        maxcol = GenClass . field18 != null ? 0 : counter;
+                        maxcol = GenClass . field18 == null ? 0 : counter;
                         break;
                     case 19:
-                        maxcol = GenClass . field19 != null ? 0 : counter;
+                        maxcol = GenClass . field19 == null ? 0 : counter;
                         break;
                     case 20:
-                        maxcol = GenClass . field20 != null ? 0 : counter;
+                        maxcol = GenClass . field20 == null ? 0 : counter;
                         break;
                 }
                 counter++;
@@ -1541,7 +1541,7 @@ namespace UserControls
             }
             "" . Track ( 1 );
             // Adjust to actual columns count
-            return maxcol - 1;
+            return maxcol;
         }
         public static void ReplaceDataGridFldNames ( ObservableCollection<GenericClass> datagrid , ref DataGrid Grid1 , ref List<DapperGenericsLib . DataGridLayout> dglayoutlist , int colcount )
         {
@@ -2184,24 +2184,26 @@ namespace UserControls
                 if ( indexer <= grid . Columns . Count )
                     dgc . Header = $"Field{indexer++}";
             }
-            //grid . UpdateLayout ( );
-            //grid . Refresh ( );
-            //if ( IsCollapsed ) grid . Visibility = Visibility . Collapsed;
         }
+         /// <summary>
+         /// method using std SQL to return a Datatable containing requested data
+         /// </summary>
+         /// <param name="SqlCommand"></param>
+         /// <param name="connstring"></param>
+         /// <param name="args"></param>
+         /// <returns></returns>
          static public DataTable ProcessSqlCommand ( string SqlCommand , string connstring , string [ ] args = null )
         {
             SqlConnection con;
             DataTable dt = new DataTable ( );
             string filterline = "";
             string ConString = connstring;
-            "" . Track ( );
-            if ( connstring == "" )
+             if ( connstring == "" )
                 ConString = "Data Source=DINO-PC;Initial Catalog=\"IAN1\";Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
 
             con = new SqlConnection ( ConString );
             try
             {
-                //Debug . WriteLine ( $"Using new SQL connection in PROCESSSQLCOMMAND" );
                 using ( con )
                 {
                     if ( args != null )
@@ -2221,8 +2223,7 @@ namespace UserControls
                 Debug . WriteLine ( $" SQL data loaded from SQLCommand [{SqlCommand . ToUpper ( )}]" );
                 con . Close ( );
             }
-            "" . Track ( 1 );
-            return dt;
+             return dt;
         }
         public void GetNewColumnsInfo ( ObservableCollection<GenericClass> collection , string Table )
         {
@@ -3972,7 +3973,9 @@ namespace UserControls
                             }
                         }
                     }
-                    IEnumerable<dynamic> res3 = null;
+                    IEnumerable<dynamic> res3 = null;                   
+                    
+                    
                     if ( method == 0 )
                     {
                         // Executing SQL via Stored procedure

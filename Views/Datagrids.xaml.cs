@@ -531,13 +531,13 @@ namespace NewWpfDev. Views
             {
                 DapperSupport . CreateGenericCollection (
                     ref Generics ,
-                    "spGetSpecificSchema  " ,
+                    "spGetSpecificScript  " ,
                     $"{Storedprocs . SelectedItem . ToString ( )}" ,
                     "" ,
                     "" ,
                     ref genericlist ,
                     ref errormsg );
-                dt = ProcessSqlCommand ( "spGetSpecificSchema  " + spName );
+                dt = ProcessSqlCommand ( "spGetSpecificScript  " + spName );
                 if ( dt . Rows . Count == 0 )
                 {
                     if ( errormsg == "" )

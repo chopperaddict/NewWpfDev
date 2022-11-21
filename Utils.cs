@@ -235,7 +235,7 @@ namespace NewWpfDev
                 //			return t;
             }
         }
-        public static void DoErrorBeep ( int freq = 280 , int count = 100 , int repeat = 3 )
+        public static void DoErrorBeep ( int freq = 280 , int count = 100 , int repeat = 1 )
         {
             //			int x = 0;
             //			Task t = new Task ( ( ) => x = 1 );

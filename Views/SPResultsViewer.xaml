@@ -17,9 +17,9 @@
   	    WindowChrome.ResizeGripDirection="BottomRight"
 	    ResizeMode="CanResizeWithGrip"
         Title="Stored Procedures Results Viewer" 
-        Height="870" Width="950"
+        Height="870" Width="1000"
         MinHeight="500" 
-        MinWidth="850">
+        MinWidth="925">
     <!--MouseUp="ContextMenu_Closed"-->
 
     <Window.Resources>
@@ -157,7 +157,6 @@
                             <ContentPresenter x:Name="Contentpresenter" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
                                                 SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
                                                 VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
-
                         </Border>
                         <ControlTemplate.Triggers>
                             <MultiTrigger>
@@ -552,7 +551,7 @@
         <Grid.RowDefinitions>
             <RowDefinition x:Name="vrow0" Height="35"/>
             <RowDefinition x:Name="vrow1" Height="*"/>
-            <RowDefinition x:Name="hsplit" Height="30"/>
+            <RowDefinition x:Name="hsplit" Height="40"/>
             <RowDefinition  x:Name="vrow2"  Height="*"/>
             <RowDefinition  x:Name="vrow3" Height="115"/>
         </Grid.RowDefinitions>
@@ -627,8 +626,7 @@
                     ToolTipService.InitialShowDelay="500"                  
                     ToolTipService.ShowDuration="2500"
                     ItemContainerStyle="{StaticResource SpStringsStyle}"/>
-            <!--PreviewMouseRightButtonUp="ListResults_MouseRightButtonUp"-->
-
+  
             <TextBlock Grid.Row="0" Grid.Column="1"   
                     Width="270"
                     Height="25"
@@ -651,14 +649,13 @@
                     IsHitTestVisible="True"
                      KeyDown="Spresultsviewer_KeyDown"
                     HorizontalContentAlignment="Left" 
-                    ToolTip="Double Click to Execute the S.P using the Method selected..."
                      PreviewMouseRightButtonDown="ListResults_MouseRightButtonDown"
                    MouseDoubleClick="optype_MouseDoubleClick"
                     ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                    ToolTip="Select the Method required, then Double click, or press Enter, or use the  'Execute' button"
                     ItemContainerStyle="{StaticResource SpMethodsStyle}"
                     FontSize="16"
                      />
-            <!--PreviewMouseRightButtonUp="ListResults_MouseRightButtonUp"-->
         </Grid>
 
         <!--#endregion listboxes-->
@@ -692,13 +689,14 @@
                                Background ="Transparent"
                                 Grid.Row="0"  >
                             <TextBlock Text="Drag Up/Down here to change panel sizes" 
-                                        Height="20" 
-                                        Padding="0 4 4 0" 
+                                        Height="30" 
+                                        Padding="0 6 4 0" 
                                         FontSize="12"                                           
                                         Foreground="Black"
                                         FontWeight="DemiBold"
                                         Background ="Transparent"
-                                        HorizontalAlignment="Left" Margin="30,0,0,0"/>
+                                        HorizontalAlignment="Left" 
+                                       Margin="30,0,0,0"/>
                             <Image x:Name="ImgUp"  Source="\icons\updown arrow red copy.png"  Margin="30 4 0 0"
 										               Height="25" Width="20" HorizontalAlignment="Right"/>
                         </StackPanel>
@@ -718,10 +716,10 @@
             <FlowDocumentScrollViewer x:Name="TextResult" 
                   Width="{Binding ActualWidth, ElementName=Flowdocgrid,
                     Converter={StaticResource ReduceByParamValue},ConverterParameter=20}"
-                    BorderBrush="Red"
+                    BorderBrush="Black"
                      KeyDown="Spresultsviewer_KeyDown"
                     HorizontalAlignment="Left"
-                    Margin="12,7,-75,6"
+                    Margin="12,-8,5,-5"
                     HorizontalScrollBarVisibility="Auto"
                     VerticalScrollBarVisibility="Visible"
                     Background="{StaticResource Black2}"
@@ -748,7 +746,7 @@
                 FontSize="14"
                 Foreground="Black"
                 FontWeight="DemiBold"
-                Content="Show All Stored Procedures"                      
+                Content="Show All S.Procedures"                      
                 IsChecked="{Binding  ShowingAllSPs}"
                 IsHitTestVisible="true"      
                   Panel.ZIndex="300"
@@ -787,7 +785,7 @@
 
             <Grid  x:Name="buttonspanelgrid" 
                 Grid.Row="4" 
-                VerticalAlignment="Center"
+                VerticalAlignment="Bottom"
                 Width="{Binding ActualWidth, ElementName=SpViewerResults,
                     Converter={StaticResource ReduceByParamValue},ConverterParameter=30}"
                 Height="99"
@@ -834,9 +832,21 @@
                                 Background="Transparent"
                                 Foreground="Red"
                                 FontWeight="DemiBold"
-                                ToolTip="Press F1 for detailed information on how to pass parameters"
-                                Text="Select the S.P required, enter any Argument(s) required, choose an Execution Method and Press Enter or Click Execute Button"
-                                Margin="233,0,182,0"/>
+                                ToolTip="Press F1 for detailed information on how to use the parameters prompt line to ensure a successful Execution.... "
+                                Margin="150,0,20,0">
+                        <TextBlock>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="20"/>
+                                    <RowDefinition Height="20"/>
+                                </Grid.RowDefinitions>
+                            <TextBlock x:Name="txt1" Grid.Row="0" FontSize="16" Text="Press  F1 for detailed info on completing these arguments. Then enter any"/>
+                            <TextBlock x:Name="txt2"  Grid.Row="1" FontSize="16" Text="required arguments in the correct format, and choose an Execution Method" />
+                            </Grid>
+                        </TextBlock>
+
+
+                    </TextBlock>
 
                     <TextBox x:Name="SPArguments" 
                                Grid.Row="1"
@@ -869,7 +879,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="35"/>
                         <RowDefinition Height="40"/>
-                    </Grid.RowDefinitions>
+                   </Grid.RowDefinitions>
 
                     <Button x:Name="ExecuteBtn"
                         Grid.Row="1"

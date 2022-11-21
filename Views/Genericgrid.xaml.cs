@@ -29,6 +29,10 @@ using NewWpfDev . ViewModels;
 
 using StoredProcs;
 
+//using StoredProcs;
+
+//using StoredProcs;
+
 using UserControls;
 
 using File = System . IO . File;
@@ -341,6 +345,8 @@ namespace Views
             ///Setup default SP match term
             Searchtext = "@Arg";
 
+            // Finally we load the tables info into the datagrid
+            LoadInitialData ( );
             //test ExpandoObject  
             ExpandoObject expobj2 = new ExpandoObject ( );
             bool success = false;
@@ -365,7 +371,6 @@ namespace Views
                     }
                 }
             }
-            LoadInitialData ( );
         }
 
         private async void LoadInitialData ( )
@@ -1054,7 +1059,7 @@ namespace Views
             GetValidDomain ( );
             SqlCommand = $"{DBprefix}spGetTablesList";
 
-            TablesList = GetListViaSProc . CallStoredProcedure ( list , SqlCommand );
+            TablesList = SProcsDataHandling . CallStoredProcedure ( list , SqlCommand );
             if ( CurrentTableDomain . ToUpper ( ) == "ADVENTUREWORKS2019" )
                 TablesList = ConvertTableNames ( TablesList );
             //// return list of all current SQL tables in current Db
@@ -1063,7 +1068,7 @@ namespace Views
         //public List<string> CallStoredProcedure ( List<string> list , string sqlcommand , string [ ] args = null )
         //{
         //    List<string> splist = new List<string> ( );
-        //    splist = GetListViaSProc . ProcessUniversalQueryStoredProcedure ( "spGetStoredProcs" , args , CurrentTableDomain , out string err );
+        //    splist = GenDapperQueries . ProcessUniversalQueryStoredProcedure ( "spGetStoredProcs" , args , CurrentTableDomain , out string err );
         //    //This call returns us a List<string>
         //    // This method is NOT a dynamic method
         //    return splist;
@@ -2129,7 +2134,7 @@ namespace Views
                 stringresult = output;
                 return stringresult;
             }
-            dt = DatagridControl . ProcessSqlCommand ( $"spGetSpecificSchema  '{spName}'" , Flags . CurrentConnectionString );
+            dt = DatagridControl . ProcessSqlCommand ( $"spGetSpecificScript  '{spName}'" , Flags . CurrentConnectionString );
             List<string> list = new List<string> ( );
             List<string> headeronlylist = new List<string> ( );
             foreach ( DataRow row in dt . Rows )
@@ -2727,7 +2732,7 @@ namespace Views
                     currItem = Splist . SelectedItem . ToString ( );
             }
             List<string> SpList = new List<string> ( );
-            SpList = GetListViaSProc . CallStoredProcedure ( SpList , "spGetStoredProcs" );
+            SpList = SProcsDataHandling . CallStoredProcedure ( SpList , "spGetStoredProcs" );
             Splist . ItemsSource = null;
             Splist . Items . Clear ( );
             Splist . ItemsSource = SpList;
@@ -4821,7 +4826,7 @@ namespace Views
                 {
                     // there is a search text, but showing all
                     spviewer . Bannerline . Text = $"Stored Procedures Helper : ALL ({spviewer . ListResults . Items . Count}) available SP's  shown)";
-                    spviewer . ShowingAllSprocs . Content = $"Show Only SP's matching [{Gengrid . Searchtext}]. ";
+                    spviewer . ShowingAllSprocs . Content = $"Show SP's matching [{Gengrid . Searchtext}]. ";
                 }
             }
             //spviewer . Bannerline . Text = $"Stored Procedures Helper ({Gengrid . Splist . Items . Count}) SP's Matching  [{Searchtext}] shown)";
@@ -5000,7 +5005,7 @@ namespace Views
                 //    // our list is all sp's, so cannot copy it
                 string [ ] args = new string [ 1 ];
                 args [ 0 ] = Searchtext;
-                List<string> list = GetListViaSProc . ProcessUniversalQueryStoredProcedure ( "spGetAllSprocsMatchingsearchterm" , args , CurrentTableDomain , out string err );
+                List<string> list = NewWpfDev . GenDapperQueries . ProcessUniversalQueryStoredProcedure ( "spGetAllSprocsMatchingsearchterm" , args , CurrentTableDomain , out string err );
                 foreach ( var item in list )
                 {
                     spviewer . ListResults . Items . Add ( item );
@@ -5025,11 +5030,12 @@ namespace Views
                 // load matching SP's into ResultsViewer
                 //string [ ] args = new string [ 1 ];
                 //args [ 0 ] = Searchtext;
-                List<string> list = GetListViaSProc . ProcessUniversalQueryStoredProcedure ( "spGetStoredProcs" , null , CurrentTableDomain , out string err );
-                foreach ( var item in list )
-                {
-                    spviewer . ListResults . Items . Add ( item );
-                }
+                List<string> list = NewWpfDev . GenDapperQueries . ProcessUniversalQueryStoredProcedure ( "spGetStoredProcs" , null , CurrentTableDomain , out string err );
+                //foreach ( var item in list )
+                //{
+                //    spviewer . ListResults . Items . Add ( item );
+                //}
+                spviewer . ListResults . ItemsSource = list;
                 spviewer . ListResults . SelectedIndex = 0;
                 for ( int y = 0 ; y < spviewer . ListResults . Items . Count ; y++ )
                 {
@@ -5048,7 +5054,7 @@ namespace Views
                 // gotta reload from disk, cos we only have matching SP's in our list
                 //string [ ] args = new string [ 1 ];
                 //args [ 0] = 
-                List<string> list = GetListViaSProc . ProcessUniversalQueryStoredProcedure ( "spGetStoredProcs" , null , CurrentTableDomain , out string err );
+                List<string> list = NewWpfDev . GenDapperQueries . ProcessUniversalQueryStoredProcedure ( "spGetStoredProcs" , null , CurrentTableDomain , out string err );
                 foreach ( var item in list )
                 {
                     spviewer . ListResults . Items . Add ( item );
@@ -5118,7 +5124,7 @@ namespace Views
 
             args [ 0 ] = srchterm;
             //call SQL method using SP to get all MATCHING SP's (if srchterm != "")
-            List<string> contents = GetListViaSProc . ProcessUniversalQueryStoredProcedure ( spname , args , CurrentTableDomain , out string err );
+            List<string> contents = NewWpfDev . GenDapperQueries . ProcessUniversalQueryStoredProcedure ( spname , args , CurrentTableDomain , out string err );
 
             if ( contents . Count > 0 )
             {
@@ -5219,7 +5225,7 @@ namespace Views
             else
                 args = null;
             // load list of all sp's calling dapper to run an SP that returns  a List<string>
-            NewSplist = GetListViaSProc . CallStoredProcedure ( NewSplist , spCommand , args );
+            NewSplist = SProcsDataHandling . CallStoredProcedure ( NewSplist , spCommand , args );
             Splist . ItemsSource = null;
             Splist . UpdateLayout ( );
             // load list into listbox
@@ -5574,7 +5580,7 @@ namespace Views
         {
             // load full list of SP.s
             List<string> SpList = new List<string> ( );
-            SpList = GetListViaSProc . CallStoredProcedure ( SpList , "spGetStoredProcs" );
+            SpList = SProcsDataHandling . CallStoredProcedure ( SpList , "spGetStoredProcs" );
             Splist . ItemsSource = null;
             Splist . Items . Clear ( );
             Splist . ItemsSource = SpList;

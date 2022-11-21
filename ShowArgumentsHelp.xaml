@@ -11,7 +11,8 @@
         WindowStyle="SingleBorderWindow"
   	    WindowChrome.ResizeGripDirection="BottomRight"
 	    ResizeMode="CanResizeWithGrip"
-        Title="ShowArgumentsHelp" Height="411" Width="900">
+        Title="ShowArgumentsHelp" Height="500" Width="900"
+        MinHeight="300" MinWidth="500">
     <Grid>
         <Border x:Name="bdr" BorderBrush="{StaticResource Green3}" 
                 BorderThickness="3 3 3 10" Background="{StaticResource Blue7}"

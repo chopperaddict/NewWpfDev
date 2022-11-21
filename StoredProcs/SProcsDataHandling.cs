@@ -2,11 +2,15 @@
 using System . Collections . Generic;
 using System . Collections . ObjectModel;
 using System . Diagnostics;
+using System . Linq;
 using System . Printing;
 using System . Text;
 using System . Text . RegularExpressions;
 using System . Windows;
+using System . Windows . Automation . Provider;
 using System . Windows . Media;
+
+using IronPython . Runtime . Operations;
 
 using Microsoft . Scripting . Actions;
 
@@ -36,14 +40,6 @@ namespace StoredProcs
             Arguments = temp . ToUpper ( );
 
             success = false;
-            //int CreatePosition = Arguments . IndexOf ( "CREATE PROCEDURE" );
-            //if ( CreatePosition == -1 )
-            //{
-            //    return "No  Arguments were found in current S.P.......";
-            //}
-            //int line1 = arguments . IndexOf ( "\n" );
-            //Arguments = Arguments . Substring ( CreatePosition + line1 );
-            ////          string [ ] strings = Arguments . Split ( "\n" );
             tmpbuff = Arguments . ToUpper ( );
             if ( tmpbuff . Length == 0 )
                 return "";
@@ -198,6 +194,315 @@ namespace StoredProcs
             return Output;
         }
 
+        /// <summary>
+        /// Method called when a ddifferent SProc is selected in the listbox
+        /// and it parses the header block and provides indicators for the required 
+        /// parameters in  the arguments entry field.....
+        /// </summary>
+        /// <param name="Arguments">The entire S.Proc text</param>
+        /// <param name="procname">the name of the S.Procedure</param>
+        /// <param name="success">return bool value</param>
+        /// <returns></returns>
+        public static string CreateSProcArgsList ( string Arguments , string procname , out bool success )
+        {
+            // save orignal string for testing use only
+            string original = Arguments;
+            Arguments = original;
+            // get stripped down header block
+            string arguments = Arguments;
+            string sizeprompt = "";
+            string Output = "";
+            // massage input buffer
+            string tmpbuff = "";
+            string temp = Arguments;
+            temp = temp . Trim ( ) . TrimStart ( );
+            Arguments = temp . ToUpper ( );
+
+            success = false;
+            tmpbuff = Arguments . ToUpper ( );
+            if ( tmpbuff . Length == 0 )
+                return "";
+            temp = tmpbuff . ToUpper ( );
+            int stringlen = 0;
+            if ( temp . Contains ( "IT CONTAINS INVALID SYNTAX" ) )
+            {
+                Output = "WARNING - Header/Script appears to be invalid or corrupted...";
+                return Output;
+            }
+            //string stringlenbuff = "";
+            try
+            {
+                bool invalid = false;
+                // First get any  items length argument
+                string [ ] items = temp . Split ( ')' );
+                if ( items . Length > 0 )
+                {
+                    if ( items . Length == 1 )
+                    {
+                        if ( items [ 0 ] . Contains ( "CREATE PROCEDURE" ) == false )
+                        {
+                            Output = "WARNING - Header block appears to be invalid or corrupted...";
+                            invalid = true;
+                        }
+                    }
+                    if ( invalid == false )
+                    {
+                        if ( items . Length > 1 )
+                        {
+                            bool found = true;
+                            // Check for a valid size clause
+                            if ( items [ 1 ] . Contains ( ')' ) )
+                            {
+                                string test = items [ 1 ] . Substring ( 0 , items [ 1 ] . IndexOf ( ')' ) );
+                                if ( test == "MAX" )
+                                {
+                                    sizeprompt = "(MAX argument size)";
+                                    temp = items [ 0 ];
+                                }
+                                else
+                                {
+                                    string valid = "0123456789";
+
+                                    // check for double/float size
+                                    if ( test != "" && test . Contains ( ',' ) == true )
+                                    {
+                                        // got ( xx.yy ) value
+                                        sizeprompt = $"Double or Float value : {test}";
+                                    }
+                                    else
+                                    {
+                                        //it seems it may be an int type value
+                                        // See if it contains all digits
+                                        for ( int y = 0 ; y < test . Length ; y++ )
+                                        {
+                                            char validchar = test [ y ];
+                                            if ( valid . Contains ( validchar ) == false )
+                                            {
+                                                found = false;
+                                                break;
+                                            }
+                                        }
+                                        if ( found == true )
+                                            stringlen = Convert . ToInt32 ( test );
+                                        else
+                                            sizeprompt = "(Undefined argument size)";
+                                    }
+                                }
+                            }
+                        }
+                        // We now have a full header block, so parse the strings
+                        string [ ] headerbuff = temp . Split ( '\n' );
+                        Output = "";
+                        for ( int x = 1 ; x < headerbuff . Length ; x++ )
+                        {
+                        bool outflag = false;
+                            // ignore top line (x = 1)
+                            string [ ] parts = headerbuff [ x ] . ToUpper ( ) . Split ( ' ' );
+                            for ( int y = 0 ; y < parts . Length ; y++ )
+                            {
+                                if ( parts [ y ] == ":" || parts [ y ] == "" )
+                                    continue;
+                                if ( parts [ y ] . Contains ( "OUTPUT" ) )
+                                {
+                                    outflag = true;
+                                }
+                                if ( !outflag && parts [ y ] . Contains ( "INPUT" ) )
+                                    continue;
+                                else if ( !outflag && parts [ y ] . Contains ( "@" ) )
+                                {
+                                    if ( Output != "" ) Output += $", {parts [ y ]}";
+                                    else Output += $"{parts [ y ]}";
+                                    continue;
+                                }
+                                else if ( !outflag )
+                                {
+                                    if ( parts [ y ] . Contains ( "VARCHAR" ) )
+                                    {
+                                        string [ ] elements = parts [ y ] . Split ( '(' );
+                                        if ( elements [ 1 ] . Contains ( ')' ) )
+                                        {
+                                            string [ ] splitter = elements [ 1 ] . Split ( ')' );
+                                            Output += $"= <-IN String ({splitter [ 0 ]})";
+                                            if( parts [ y ] . Contains('='))
+                                            {
+                                                int offset = parts [y].IndexOf ( '=' );
+                                                Output += parts [ y ] . Substring ( offset );
+                                            }
+                                        }
+                                        else
+                                            Output += $"=String ({elements [ 1 ]})";
+                                    }
+                                    else
+                                    {
+                                        if ( parts [ y ] . Contains ( "SYSNAME" ) || parts [ y ] . Contains ( "MAX" ) )
+                                        {
+                                            Output += $"= <-IN String";
+                                            if ( parts [ y ] . Contains ( '=' ) )
+                                            {
+                                                int offset = parts [ y ] . IndexOf ( '=' );
+                                                Output += parts [ y ] . Substring ( offset );
+                                            }
+                                            continue;
+                                        }
+                                        if ( parts [y] == "AS" )
+                                            continue;
+                                        else
+                                            Output += $"{parts [ y ]} ";
+                                        //                                        else
+                                        //                                            Output += $", {parts [ y ]} ";
+                                    }
+                                    continue;
+                                }
+                                if ( outflag && parts [ y ] . Contains ( "@" ) )
+                                {
+                                    if ( parts [ y ] . StartsWith ( "," ) || parts [ y ] . Length < 2 )
+                                        continue;
+                                    if(Output.Length > 0) Output += $", {parts [ y ]}";
+                                    else Output += $"{parts [ y ]}";
+                                }
+                                else if ( outflag )
+                                {
+                                    if ( parts [ y ] . Contains ( "VARCHAR" ) )
+                                    {
+                                        string [ ] elements = parts [ y ] . Split ( '(' );
+                                        Output += $" (OUT-String"; // ({elements [ 1 ]})";
+                                        if ( elements .Length >=2 && elements [1] !="" )     
+                                            Output+= $"( {elements[1]} )" ;
+                                        else
+                                            Output += $")";
+                                        //outflag = false;
+                                        break;
+                                    }
+                                    else if ( parts [ y ] . Contains ( "INT" ) )
+                                    {
+                                        string [ ] elements = parts [ y ] . Split ( '(' );
+                                        Output += $" (OUT-Integer"; // ({elements [ 1 ]})";
+                                        if ( elements . Length >= 2 && elements [ 1 ] != "" )
+                                            Output += $"( {elements [ 1 ]} )";
+                                        else
+                                            Output += $")";
+                                        //outflag = false;
+                                        break;
+                                    }
+                                    else if ( parts [ y ] . Contains ( "DATE" ) )
+                                    {
+                                        string [ ] elements = parts [ y ] . Split ( '(' );
+                                        Output += $" (OUT-Date)"; // ({elements [ 1 ]})";
+                                        if ( elements . Length >= 2 && elements [ 1 ] != "" )
+                                            Output += $"( {elements [ 1 ]} )";
+                                        else
+                                            Output += $")";
+                                        //outflag = false;
+                                        //outflag = false;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else if ( Output == "" )
+                        Output = "No arguments required.....";
+                }
+                else
+                {
+                    Output = "WARNING - Header/Script appears to be invalid or corrupted...";
+                }
+                //        if ( temp . Contains ( "VARCHAR" ) )
+                //        {
+                //            // strip VARCHAR off the string
+                //            if ( temp . Contains ( "NVARCHAR" ) )
+                //                tmpbuff = temp . Substring ( 0 , temp . IndexOf ( "NVARCHAR" ) );
+                //            else
+                //                tmpbuff = temp . Substring ( 0 , temp . IndexOf ( "VARCHAR" ) );
+                //            if ( stringlen > 0 )
+                //            {
+                //                sizeprompt = $"(string of maximum length {stringlen})";
+                //            }
+                //        }
+                //        else if ( temp . Contains ( "INT" ) || temp . Contains ( "INTEGER" ) )
+                //        {
+                //            if ( temp . Contains ( "INT" ) )
+                //                tmpbuff = temp . Substring ( 0 , temp . IndexOf ( "INT" ) );
+                //            else if ( temp . Contains ( "INTEGER" ) )
+                //                tmpbuff = temp . Substring ( 0 , temp . IndexOf ( "INTEGER" ) );
+                //            if ( stringlen > 0 )
+                //            {
+                //                sizeprompt = $"(Integer with max size of {stringlen} digits)";
+                //            }
+                //        }
+                //        else if ( temp . Contains ( "DATE" ) )
+                //        {
+                //            tmpbuff = temp . Substring ( 0 , temp . IndexOf ( "DATE" ) );
+                //            if ( stringlen > 0 )
+                //            {
+                //                sizeprompt = $"(Date field [defaullt is 'YYYY/MM/DD'] )";
+                //            }
+                //        }
+                //        else if ( temp . Contains ( "CHAR" ) )
+                //        {
+                //            tmpbuff = temp . Substring ( 0 , temp . IndexOf ( "CHAR" ) );
+                //            if ( stringlen > 0 )
+                //            {
+                //                sizeprompt = $"(Character buffer allowing {stringlen} characters)";
+                //            }
+                //        }
+                //        else if ( temp . Contains ( "TEXT" ) )
+                //        {
+                //            tmpbuff = temp . Substring ( 0 , temp . IndexOf ( "TEXT" ) );
+                //            if ( stringlen > 0 )
+                //            {
+                //                sizeprompt = $"(string buffer allowing {stringlen} characters)";
+                //            }
+                //        }
+                //        else if ( temp . Contains ( "FLOAT" ) )
+                //        {
+                //            tmpbuff = temp . Substring ( 0 , temp . IndexOf ( "FLOAT" ) );
+                //            if ( stringlen > 0 )
+                //            {
+                //                sizeprompt = $"(Float value allowing {stringlenbuff} digits)";
+                //            }
+                //        }
+                //        else if ( temp . Contains ( "DOUBLE" ) )
+                //        {
+                //            tmpbuff = temp . Substring ( 0 , temp . IndexOf ( "DOUBLE" ) );
+                //            if ( stringlen > 0 )
+                //            {
+                //                sizeprompt = $"(Double value allowing {stringlenbuff} digits)";
+                //            }
+                //        }
+                //        else if ( temp . Contains ( "DECIMAL" ) )
+                //        {
+                //            tmpbuff = temp . Substring ( 0 , temp . IndexOf ( "DECIMAL" ) );
+                //            if ( stringlen > 0 )
+                //            {
+                //                sizeprompt = $"(Decimal value allowing {stringlenbuff} digits)";
+                //            }
+                //        }
+                //        else if ( temp . Contains ( "BIT" ) )
+                //        {
+                //            tmpbuff = temp . Substring ( 0 , temp . IndexOf ( "BIT" ) );
+                //            if ( stringlen > 0 )
+                //            {
+                //                sizeprompt = $"(Logical value allowing only Zero or One as the value)";
+                //            }
+                //        }
+                //        if ( sizeprompt != "" )
+                //            tmpbuff += $" {sizeprompt}";
+                //        else
+                //        {
+                //            string val = stringlen > 0 ? stringlen . ToString ( ) : " ";
+                //            tmpbuff += $" {val}" . Trim ( );
+                //        }
+                //    }
+                //    if ( tmpbuff . Length > 2 )
+                //        Output += $"\n{tmpbuff}";
+            }
+            catch ( Exception ex )
+            {
+                Debug . WriteLine ( $"{ex . Message}" );
+            }
+            return Output;
+        }
         public static string GetSpHeaderBlock ( string Arguments )
         {
             string arguments = Arguments;
@@ -232,6 +537,8 @@ namespace StoredProcs
             }
             foreach ( var item in parts )
             {
+                if ( item . Length <= 1 )
+                    continue;
                 string testbuff = "";
                 // Bypass create line
                 if ( argcount == 0 )
@@ -256,7 +563,7 @@ namespace StoredProcs
                         string [ ] buff2 = testbuff . Split ( "--" );
                         testbuff = buff2 [ 0 ];
                     }
-  
+
                     if ( testbuff . Contains ( '\t' ) )
                     {
                         if ( testbuff . StartsWith ( '\t' ) )
@@ -422,8 +729,15 @@ namespace StoredProcs
                 argcount++;
             }
             if ( argcount == 1 )
-                output += $"\nEither this Procedure does NOT require any parameters,\nor possibly it contains iNVALID Syntax.....\n\n\nTo check for the most obvious issue ensure the script\n" +
-                    $"header contains the AS and BEGIN phrases consecutively.\n\nIt may also contain unterminated string default values\nwith only single quote marks ?";
+            {
+                if ( output . Length <= 5 )
+                {
+                    output += $"\nEither this Procedure does NOT require any parameters,\nor possibly it contains iNVALID Syntax.....\n\n\nTo check for the most obvious issue ensure the script\n" +
+                        $"header contains the AS and BEGIN phrases consecutively.\n\nIt may also contain unterminated string default values\nwith only single quote marks ?";
+                }
+                else
+                    output = "No  Arguments were found in current S.P.......";
+            }
             return output;
         }
 
@@ -580,7 +894,15 @@ namespace StoredProcs
                     output = tmp [ 0 ] . Length > tmp [ 1 ] . Length ? tmp [ 0 ] : tmp [ 1 ];
             }
             return output;
-        }  
+        }
+        public static List<string> CallStoredProcedure ( List<string> list , string sqlcommand , string [ ] args = null )
+        {
+            //            List<string> list = new List<string> ( );
+            list = NewWpfDev . GenDapperQueries . ProcessUniversalQueryStoredProcedure ( sqlcommand , args , MainWindow . CurrentSqlTableDomain , out string err );
+            //This call returns us a List<string>
+            // This method is NOT a dynamic method
+            return list;
+        }
 
     }
 }

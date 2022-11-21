@@ -36,15 +36,19 @@
   <ItemGroup>
     <Compile Remove="Configurations\**" />
     <Compile Remove="oldThemes\**" />
+    <Compile Remove="Python\**" />
     <Compile Remove="UserControls\saved older versions\**" />
     <EmbeddedResource Remove="Configurations\**" />
     <EmbeddedResource Remove="oldThemes\**" />
+    <EmbeddedResource Remove="Python\**" />
     <EmbeddedResource Remove="UserControls\saved older versions\**" />
     <None Remove="Configurations\**" />
     <None Remove="oldThemes\**" />
+    <None Remove="Python\**" />
     <None Remove="UserControls\saved older versions\**" />
     <Page Remove="Configurations\**" />
     <Page Remove="oldThemes\**" />
+    <Page Remove="Python\**" />
     <Page Remove="UserControls\saved older versions\**" />
   </ItemGroup>
 
@@ -235,8 +239,6 @@
     <None Remove="Icons\xml.ico" />
     <None Remove="Icons\XSLTFile.ico" />
     <None Remove="Icons\yellow-shriek-icon.png" />
-    <None Remove="Python\PythonHello.py" />
-    <None Remove="Python\pythontest.py" />
   </ItemGroup>
 
   <ItemGroup>
@@ -248,12 +250,6 @@
 
   <ItemGroup>
     <Content Include="docs.ico" />
-    <Content Include="Python\PythonHello.py">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Python\pythontest.py">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 
   <ItemGroup>

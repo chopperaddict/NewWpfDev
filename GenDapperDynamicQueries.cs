@@ -1,23 +1,22 @@
 ﻿using System;
-using System . Collections;
 using System . Collections . Generic;
 using System . Collections . ObjectModel;
 using System . Data;
 using System . Data . SqlClient;
 using System . Diagnostics;
 using System . Linq;
-using System . Text;
 using System . Windows;
-using System . Windows . Documents;
+using System . Windows . Input;
 
 using Dapper;
 
-using GenericSqlLib . Models;
-
 using NewWpfDev . Models;
-using NewWpfDev . Views;
+
+using StoredProcs;
 
 using Views;
+
+using static IronPython . Modules . PythonIterTools;
 
 namespace NewWpfDev
 {
@@ -69,10 +68,6 @@ namespace NewWpfDev
             List<string> stringlist = new List<string> ( );
             ObservableCollection<GenericClass> collection = new ObservableCollection<GenericClass> ( );
 
-            IEnumerable<dynamic> intval;
-            dynamic reslt;
-            IEnumerable<dynamic> IEintval = null;
-            
             #endregion declarations
 
             string Con = CheckSetSqlDomain ( MainWindow . CurrentSqlTableDomain );
@@ -89,59 +84,44 @@ namespace NewWpfDev
                 using ( sqlCon = new SqlConnection ( Con ) )
                 {
                     var parameters = new DynamicParameters ( );
-                    parameters = StoredprocsProcessing . ParseSqlArgs ( parameters , args );
+                    if ( args != null )
+                        parameters = StoredprocsProcessing . ParseSqlArgs ( parameters , args );
                     $"{SqlCommand}" . DapperTrace ( );
 
                     //********************************************************************************************************//                    
-                    // use StoredProcedure version returning IEnumerable<dynamic>
+                    // COLLECTION - STOREDPROC  - use StoredProcedure version returning IEnumerable<dynamic>
                     //********************************************************************************************************//                    
-                    if ( method == 0 )       
+                    if ( method == 0 )
                     {
                         //=================================================================================//
-                        IEintval = sqlCon . Query ( SqlCommand , parameters , commandType: CommandType . StoredProcedure );
+                        var table = sqlCon . Query ( SqlCommand , parameters , commandType: CommandType . StoredProcedure );
                         //=================================================================================//
 
                         int intresult = 0;
-                        string stringresult = "";
-                        List<string> listresult = new List<string> ( );
-                        object objectresult = null;
-                        // parse out the int value from the IEnumerable <dynamic> IEintval  variable returned to us
-                        dynamic newcount = null;
-                        // what are we  expecting back ??
-                        if ( Objtype == typeof ( int ) )
-                            intresult = parameters . Get<int> ( "result" );
-                        else if ( Objtype == typeof ( string ) )
-                            stringresult = parameters . Get<string> ( "result" );
-                        else if ( Objtype == typeof ( object ) )
-                            objectresult = parameters . Get<object> ( "result" );
-                        else if ( Objtype == typeof ( List<string> ) )
-                            listresult = parameters . Get<List<string>> ( "result" );
+                        count = table . Count ( );
 
-                        newcount = intresult;
-                        foreach ( var item in IEintval )
-                        {
-                            // set (ref) parameters  to be  returned
-                            GetReturnString ( newcount , out count , out resultstring );
-                            obj = ( object ) -1;
-                            Objtype = typeof ( int );
-                        }
+                        // this gets total rows returned by query
+                        count = table . Count ( );
+                        Debug . WriteLine ( $"total rows returned GENDAPPERQUERIES . GET_DYNAMICVALUEVIADAPPER() line 224 = {count}" );
+                        Objtype = typeof ( IEnumerable<dynamic> );
+                        obj = ( object ) table;
+                        resultstring = "SUCCESS";
+                        // return IEnumerable<dynamic>
                         return obj;
+
                     }
+
+                    //**************************************************************************************************************************************************//
+                    // INT - TEXT - using Text command version returning IEnumerable<dynamic> (for int results)
+                    //**************************************************************************************************************************************************//
                     else if ( method == 1 )
                     {
-                        //string [ ] splitter = args [ 1 ] . Split ( ' ' );
-                        //SqlCommand += $" {args [ 0 ]}, {splitter [ 1 ]}";
-
-                        //**************************************************************************************************************************************************//
-                        // using Text command version returning IEnumerable<dynamic> (for int results)
-                        //**************************************************************************************************************************************************//
 
                         //=================================================================================//
-                        IEintval = sqlCon . Query ( SqlCommand , null , commandType: CommandType . Text );
+                        var IEintval = sqlCon . Query ( SqlCommand , null , commandType: CommandType . Text );
                         //=================================================================================//
 
                         // parse out the int value from the IEnumerable <dynamic> IEintval  variable returned to us
-                        //dynamic newcount = null;
 
                         Objtype = typeof ( int );
                         obj = ( object ) IEintval;
@@ -149,53 +129,54 @@ namespace NewWpfDev
                         resultstring = "SUCCESS";
                         return obj;
                     }
+
+                    //**************************************************************************************************************************************************//
+                    // STRING - STOREDPROC using SP to get a string from an output variable such as '@result' 
+                    //**************************************************************************************************************************************************//
                     else if ( method == 2 )
                     {
                         Debug . WriteLine ( $"ProcessUniversalQueryStoredProcedure() : [ {SqlCommand . ToUpper ( )} ]" );
 
-                        //**************************************************************************************************************************************************//
-                        // using SP to get a string from an output  variable '@result' 
-                        //**************************************************************************************************************************************************//
 
                         //=================================================================================//
-                        IEnumerable<dynamic> result = sqlCon . Query ( SqlCommand , parameters , commandType: CommandType . StoredProcedure );
+                        var strresult = sqlCon . Query<string> ( SqlCommand , parameters , commandType: CommandType . StoredProcedure );
                         //=================================================================================//
 
-                        Debug . WriteLine ( $"ProcessUniversalQueryStoredProcedure() : {SqlCommand} returned  RESULT = {result}" );
-                        string restring = parameters . Get<string> ( "result" );
-                        foreach ( var item in result )
+                        Debug . WriteLine ( $"ProcessUniversalQueryStoredProcedure() : {SqlCommand} returned  RESULT = {strresult}" );
+                        //string restring = parameters . Get<string> ( "result" );
+                        //foreach ( var item in strresult )
+                        //{
+                        // set (ref) parameters  to be  returned
+                        Objtype = typeof ( string );
+                        if ( strresult != null )
                         {
-                            // set (ref) parameters  to be  returned
+                            //int tryintresult = 0;
+                            //int . TryParse ( restring , out int tryintresult );
+                            //if ( tryintresult > 0 )
+                            //count = tryintresult;
+                            obj = ( object ) strresult;
                             Objtype = typeof ( string );
-                            if ( result != null )
-                            {
-                                //int tryintresult = 0;
-                                int . TryParse ( restring , out int tryintresult );
-                                if ( tryintresult > 0 )
-                                    count = tryintresult;
-                                obj = ( object ) restring;
-                                Objtype = typeof ( string );
-                                resultstring = "SUCCESS";
-                            }
-                            else
-                            {
-                                obj = null;
-                                count = -1;
-                                resultstring = "FAIL";
-                            }
-                            if ( result . ToList ( ) . Count == 0 )
-                                return null;
-                            return obj;
+                            resultstring = "SUCCESS";
                         }
+                        else
+                        {
+                            obj = null;
+                            count = -1;
+                            resultstring = "FAIL";
+                        }
+                        //if ( strresult . ToList ( ) . Count == 0 )
+                        //    return null;
+                        return obj;
+                        //}
                     }
+
+                    //**************************************************************************************************************************************************//
+                    // COLLECTION - TEXT -  using Text command to get an IEnumerable  collection 
+                    //**************************************************************************************************************************************************//
                     else if ( method == 3 )
                     {
-                        //**************************************************************************************************************************************************//
-                        // using Text command to get an Ienumerable  collection 
-                        //**************************************************************************************************************************************************//
-
                         //=================================================================================//
-                        IEnumerable<dynamic> IEList = sqlCon . Query<dynamic> ( SqlCommand , parameters , commandType: CommandType . Text );
+                        var IEList = sqlCon . Query<dynamic> ( SqlCommand , parameters , commandType: CommandType . Text );
                         //=================================================================================//
 
                         Debug . WriteLine ( $"ProcessUniversalQueryStoredProcedure() (method=4): {SqlCommand} returned  RESULT = {IEList}" );
@@ -208,29 +189,69 @@ namespace NewWpfDev
                             newtable . Add ( fields as GenericClass );
                             // ...
                         }
+                        Objtype = typeof ( IEnumerable<dynamic> );
+                        obj = ( object ) IEList;
+                        count = IEList . Count ( );
+                        resultstring = "SUCCESS";
                         return IEList;
                     }
+ 
+
+                    //**************************************************************************************************************************************************//
+                    // INT - TEXT using Text command version to return a dynamic (int )
+                    // ACTUALLY BLOODY WORKING 18/11/2022
+                    //**************************************************************************************************************************************************//
                     else if ( method == 4 )
                     {
-                        Debug . WriteLine ( $"ProcessUniversalQueryStoredProcedure() : [ {SqlCommand . ToUpper ( )} ]" );
-
-                        //**************************************************************************************************************************************************//
-                        // using SP to get a generic <GenericClass>collection 
-                        // SP should normally be [spLoadTableAsGeneric]
-                        //**************************************************************************************************************************************************//
-
-                        Dictionary<string , object> dictionary = new Dictionary<string , object> ( );
-                        dictionary . Add ("Arg1", args [0]  );
-                        //dictionary . Add ( "output" , "output" );
                         //=================================================================================//
-                        IEnumerable<dynamic> table = sqlCon . Query<dynamic> ( SqlCommand , new DynamicParameters (dictionary), commandType: CommandType . StoredProcedure );
-//                        IEnumerable<dynamic> table = sqlCon . Query<dynamic> ( SqlCommand , parameters , commandType: CommandType . StoredProcedure );
+                        var reslt = sqlCon . Query<int> ( SqlCommand , parameters , commandType: CommandType . Text );
                         //=================================================================================//
 
-                        // should have a dynamic list  by here 
-                        Debug . WriteLine ( $"ProcessUniversalQueryStoredProcedure() (method=4): {SqlCommand} returned  RESULT = {table}" );
-                        return table;
+                        // this is how to parse the int value out of the dynamic 'reslt' variable returned to us
+                        //int intresult = reslt [ 0 ];
+                        Objtype = typeof ( int );
+                        obj = ( object ) reslt;
+                        count = 1;
+                        resultstring = "SUCCESS";
+                        return obj;
                     }
+
+                    //**************************************************************************************************************************************************//
+                    // LIST<STRING> - STOREDPPROC - using   Stord Procedure version to return a dynamic List<string>
+                    //**************************************************************************************************************************************************//
+                    else if ( method == 5 )
+                    {
+                        $" calling {SqlCommand} ()" . CW ( );
+                        //**************************************************************************************************************************************************//
+                        var queryresults = sqlCon . Query<string> ( SqlCommand , parameters , commandType: CommandType . StoredProcedure ) . ToList ( );
+                        //**************************************************************************************************************************************************//
+                        //result = sqlCon . Execute ( SqlCommand , parameters , commandType: CommandType . StoredProcedure );
+                        Debug . WriteLine ( $"{SqlCommand} returned  RESULT = {queryresults . Count}" );
+                        Objtype = typeof ( List<string> );
+                        obj = ( object ) queryresults;
+                        count = queryresults . Count;
+                        resultstring = "SUCCESS";
+                        return obj;
+                    }
+                    //**************************************************************************************************************************************************//
+                    // INT - STORED PPROC - using Text command version to return a dynamic (int )
+                    // ACTUALLY BLOODY WORKING 18/11/2022
+                    //**************************************************************************************************************************************************//
+                    else if ( method == 6 )
+                    {
+                        //=================================================================================//
+                        var reslt = sqlCon . Query<int> ( SqlCommand , parameters , commandType: CommandType . StoredProcedure );
+                        //=================================================================================//
+
+                        // this is how to parse the int value out of the dynamic 'reslt' variable returned to us
+                        //int intresult = reslt [ 0 ];
+                        Objtype = typeof ( int );
+                        obj = ( object ) reslt;
+                        count = 1;
+                        resultstring = "SUCCESS";
+                        return obj;
+                    }
+
                 }
             }
             catch ( Exception ex )
@@ -628,6 +649,82 @@ namespace NewWpfDev
             }
             return;
         }
+        public static List<string> CallStoredProcedure ( List<string> list , string sqlcommand , string [ ] args = null )
+        {
+            //            List<string> list = new List<string> ( );
+            list = GenDapperQueries . ProcessUniversalQueryStoredProcedure ( sqlcommand , args , MainWindow . CurrentSqlTableDomain , out string err );
+            //This call returns us a List<string>
+            // This method is NOT a dynamic method
+            return list;
+        }
+
+        ///************************************************************************************************///
+        /// <summary>
+        /// Class to handle calls via Dapper that returns a list<string> by calling Dapper
+        /// </summary>
+        /// <param name="spCommand">The SP to be run</param>
+        /// <param name="args">whatever arguments the SP requires</param>
+        /// <param name="CurrentTableDomain">Current Db Domain</param>
+        /// <param name="err">out string to hold any error messages that may occur</param>
+        /// <returns>List<string></string></returns>
+        ///************************************************************************************************///
+        static public List<string> ProcessUniversalQueryStoredProcedure ( string spCommand , string [ ] args , string CurrentTableDomain , out string err )
+        {
+            int result = -1;
+            string Con = "";
+            err = "";
+            //if ( MainWindow . SqlCurrentConstring != CurrentTableDomain )
+            //    MainWindow . SqlCurrentConstring = CurrentTableDomain;
+            Con = GenericDbUtilities . CheckSetSqlDomain ( CurrentTableDomain );
+            if ( Con == "" )
+            {
+                // set to our local definition
+                Con = MainWindow . CurrentSqlTableDomain;
+                MessageBox . Show ( $"It was not possible to Identify a valid Sql Connection string for \nthe Database [ {CurrentTableDomain . ToUpper ( )} ]\n\n Please report  this error to DB Technical Support" , "Connection Error" );
+                return null;
+            }
+
+            SqlConnection sqlCon = new SqlConnection ( );
+            List<string> queryresults = new List<string> ( );
+
+            //"" . Track ( );
+            Mouse . OverrideCursor = Cursors . Wait;
+            Debug . WriteLine ( $"Running Stored Procedure {spCommand}" );
+            using ( sqlCon = new SqlConnection ( Con ) )
+            {
+                sqlCon . Open ( );
+                // Now add record  to SQL table
+                bool hasoutput = false;
+                bool hasretval = false;
+                var parameters = new DynamicParameters ( );
+                parameters = SProcsSupport . ParseSqlArguments ( parameters , args , ref hasoutput , ref hasretval );
+                try
+                {
+                    $" calling {spCommand} ()" . CW ( );
+
+                    Debug . WriteLine ( $"ProcessUniversalQueryStoredProcedure() : [ {spCommand . ToUpper ( )} ]" );
+
+                    //***********************************************************************************************************************************************//
+                    // returns a list<string>
+                    queryresults = sqlCon . Query<string> ( spCommand , parameters , commandType: CommandType . StoredProcedure ) . ToList ( );
+                    //***********************************************************************************************************************************************//
+
+                    //result = sqlCon . Execute ( spCommand , parameters , commandType: CommandType . StoredProcedure );
+                    Debug . WriteLine ( $"{spCommand} returned  RESULT = {queryresults . Count}" );
+                }
+                catch ( Exception ex )
+                {
+                    Utils . DoErrorBeep ( );
+                    Debug . WriteLine ( $"{ex . Message}" );
+                    result = -1;
+                    err = ex . Message;
+                }
+                Mouse . OverrideCursor = Cursors . Arrow;
+                //"" . Track ( 1 );
+                return queryresults;
+            }
+        }
+
         //#####################################################################################//
 
     }

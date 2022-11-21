@@ -8,13 +8,16 @@
         mc:Ignorable="d"
         x:Name="ExecuteResults"
         Topmost="true"
-        Title="Stored Procedure Execution Results" Height="580" Width="725"
+        Title="Stored Procedure Execution Results" 
         WindowStyle="SingleBorderWindow"
   	    WindowChrome.ResizeGripDirection="BottomRight"
 	    ResizeMode="CanResizeWithGrip"
-        MinHeight="250" MinWidth="725">
-        <!--MaxHeight="580" MaxWidth="725"-->
-    
+        Loaded="ExecuteResults_Loaded"
+        KeyDown="ExecuteResults_KeyDown"
+        Height="580" Width="840"
+        MinHeight="280" MinWidth="725">
+    <!--MaxHeight="580" MaxWidth="725"-->
+
     <Window.Resources>
         <conv:IncreaseByParamValue x:Key="IncreaseByParamValue" />
         <conv:ReduceByParamValue x:Key="ReduceByParamValue"/>
@@ -83,37 +86,95 @@
             </Style.Triggers>
         </Style>
 
+        <Style x:Key="SpStringsStyle" TargetType="{x:Type ListBoxItem}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                        <Border x:Name="Bd" SnapsToDevicePixels="true">
+
+                            <ContentPresenter x:Name="Contentpresenter" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                                SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="False"/>
+                                    <Condition Property="IsSelected" Value="false"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Black3}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Contentpresenter" Value="{StaticResource White0}"/>
+                                <Setter Property="Padding" TargetName="Bd" Value="10,0,0,0"/>
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="true"/>
+                                    <Condition Property="IsSelected" Value="true"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Yellow0}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{StaticResource Red0}"/>
+                                <Setter Property="Padding" TargetName="Bd" Value="10,0,0,0"/>
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="False"/>
+                                    <Condition Property="IsSelected" Value="true"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Red5}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Contentpresenter" Value="{StaticResource White0}"/>
+                                <Setter Property="Padding" TargetName="Bd" Value="10,0,0,0"/>
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="true"/>
+                                    <Condition Property="IsSelected" Value="false"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Orange4}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Contentpresenter" Value="{StaticResource Black0}"/>
+                                <Setter Property="Padding" TargetName="Bd" Value="10,0,0,0"/>
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                        <!--more ....-->
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
 
     </Window.Resources>
-    
+
     <Grid x:Name="OperationResults" 
-          Margin="0,0,0,0" >
+          Margin="-12,0,80,7" >
 
         <Border 
             BorderBrush="{StaticResource Orange1}" 
+            Background="{StaticResource Blue1}"
             BorderThickness="3 5 3 10" 
-            Margin="0 0 0 0"
-            Height="{Binding ActualHeight, ElementName=ExecuteResults, Converter={StaticResource ReduceByParamValue},
-            ConverterParameter=15}">
+            Margin="8,0,-84,-8"
+            Height="{Binding ActualHeight, ElementName=ExecuteResults, 
+            Converter={StaticResource ReduceByParamValue}, ConverterParameter=0}"
+            Width="{Binding ActualWidth, ElementName=ExecuteResults,
+                                Converter={StaticResource ReduceByParamValue},ConverterParameter=0}"
+        >
 
             <Grid x:Name="innerresultscontainer"
-                   Height="{Binding ActualHeight, ElementName=ExecuteResults,
-                            Converter={StaticResource ReduceByParamValue},ConverterParameter=0}"
                   Background="{StaticResource Blue5}"
-                  Panel.ZIndex="0">
-                
+                  Panel.ZIndex="0" Margin="2,0,3,-1">
+
                 <Grid.RowDefinitions>
-                    <RowDefinition x:Name="rw1" Height="120"/>
+                    <RowDefinition x:Name="rw1" Height="150"/>
                     <RowDefinition  x:Name="rw2" Height="*"/>
                     <RowDefinition  x:Name="rw3" Height="100"/>
                 </Grid.RowDefinitions>
 
+                <!--//main information top info panel (of fixed height)-->
                 <FlowDocumentScrollViewer x:Name="CollectionTextresults" Grid.Row="0"
-                    BorderBrush="Blue"
+                    BorderBrush="LightGreen"
+                    BorderThickness="2"
                      HorizontalAlignment="Stretch"                                      
                     VerticalAlignment="Top"
                     Panel.ZIndex="0"                        
-                    Margin="10 10 10 0" 
+                    Margin="10 5 15 5" 
                     Height="150"
                     HorizontalScrollBarVisibility="Auto"
                     VerticalScrollBarVisibility="Visible"
@@ -124,14 +185,34 @@
                     TextOptions.TextFormattingMode="Ideal"
                     TextOptions.TextRenderingMode="ClearType"
                     VerticalContentAlignment="Stretch"
-                    Visibility="Visible"/>
+                    Visibility="Collapsed"/>
 
-                        <!--Height="{Binding ActualHeight, ElementName=rw2,
+                <!--Height="{Binding ActualHeight, ElementName=rw2,
                             Converter={StaticResource ReduceByParamValue},ConverterParameter=10}"-->
+                
+                <!--/// lower scrollviewer to display long text values-->
+                <FlowDocumentScrollViewer x:Name="TextResultsDocument" Grid.Row="1"
+                    BorderBrush="{StaticResource Orange1}"
+                    BorderThickness="2"
+                     HorizontalAlignment="Stretch"                                      
+                    VerticalAlignment="Stretch"
+                    Panel.ZIndex="0"                        
+                    Margin="10 5 15 5" 
+                    HorizontalScrollBarVisibility="Auto"
+                    VerticalScrollBarVisibility="Visible"
+                    Background="{StaticResource Black2}"
+                    Foreground="{StaticResource White0}"                                              
+                    PreviewKeyDown="Arguments_KeyDown"
+                    PreviewMouseRightButtonDown="TextResult_PreviewMouseRightButtonDown"
+                    TextOptions.TextFormattingMode="Ideal"
+                    TextOptions.TextRenderingMode="ClearType"
+                    VerticalContentAlignment="Top"
+                    Visibility="Collapsed"/>
+
                 <DataGrid x:Name="CollectionGridresults" Grid.Row="1"
                         Panel.ZIndex="20"
                         Margin="10 10 10 5" 
-                        VerticalAlignment="Top" 
+                        VerticalAlignment="Stretch" 
                         RowHeight="24"
                         Foreground="Black"
                         HorizontalContentAlignment="Center" 
@@ -139,54 +220,76 @@
                         FontWeight="DemiBold"
                         ItemContainerStyle="{StaticResource drwstyle}"
                         Visibility="Collapsed">
+                        <!--Height="{Binding ActualHeight, ElementName=rw2, 
+                            Converter={StaticResource ReduceByParamValue}, ConverterParameter=5}"-->
                 </DataGrid>
 
-                        <!--Height="{Binding ActualHeight, ElementName=rw2,
-                            Converter={StaticResource ReduceByParamValue},ConverterParameter=10}"-->
-                <ListBox x:Name="CollectionListboxresults" Grid.Row="1"
+                  <ListBox x:Name="CollectionListboxresults" Grid.Row="1"
                         Panel.ZIndex="20"
-                        Margin="10 10 10 5" 
-                        VerticalAlignment="Top" 
-                          Foreground="Red"
-                        HorizontalContentAlignment="Center" 
+                        Margin="10 10 10 0" 
+                        VerticalAlignment="Stretch" 
+                        HorizontalContentAlignment="left" 
+                        Padding="0 0 0 0"
                         FontSize="16"
                         FontWeight="DemiBold"
-                        ItemContainerStyle="{StaticResource drwstyle}"
-                        Visibility="Collapsed">
+                        ItemContainerStyle="{StaticResource SpStringsStyle}"
+                      Visibility="Collapsed">
+                    <ListBoxItem>
+                        <TextBlock Text="{Binding}"
+                                   Padding="10 0 0 0"
+                                   Background="{StaticResource Black4}"
+                                   Foreground="White"
+                                   />
+                    </ListBoxItem>
                 </ListBox>
 
                 <Grid Grid.Row="2" Height="60" 
-                        Margin="0 0 0 40"
+                        Margin="0 0 0 32"
                         VerticalAlignment="Bottom"
                         Background="{StaticResource Blue5}">
-                    
+
                     <TextBlock x:Name="ExecutionInfo"
                            Height="50"  
                            VerticalAlignment="Top"
                            HorizontalAlignment="Left" 
-                           Margin="10,0,5,0"
+                           Margin="100,0,5,0"
                            Background="{StaticResource Red2}"
                            Foreground="White"
                            Text="Information panel"
                            TextAlignment="Center"
                            ScrollViewer.VerticalScrollBarVisibility="Visible"
                            FontSize="15"
-                           Padding="0 5 0 5"
+                           Padding="10 5 0 5"
                            TextWrapping="Wrap"
                            Width="{Binding ActualWidth, ElementName=innerresultscontainer,
-                                Converter={StaticResource ReduceByParamValue},ConverterParameter=130}"/>
+                                Converter={StaticResource ReduceByParamValue},ConverterParameter=220}"/>
 
+                    <TextBlock x:Name="CountResult"
+                           Height="50"  
+                           VerticalAlignment="Top"
+                           HorizontalAlignment="Left" 
+                           Margin="5 0,5,0"
+                           Background="{StaticResource Blue2}"
+                           Foreground="White"
+                           Text="12345"
+                           TextAlignment="Center"
+                           ScrollViewer.VerticalScrollBarVisibility="Visible"
+                           FontSize="22"
+                           Padding="0 11 0 5"
+                           TextWrapping="Wrap"
+                           Width="85"/>
                     <Button x:Name="CloseViewer" 
                         Click="showExecuteresults_Click"
-                        Height="35" 
+                        Height="50" 
                         Width="100" 
                         Background="{StaticResource Green4}"
                         FontSize="18"
                         FontWeight="Bold"
+                            Style="{StaticResource BtnStyle1}"
                         Content="Close" 
                         VerticalAlignment="Top" 
                         HorizontalAlignment="Right" 
-                        Margin="0 10 10 0"/>
+                        Margin="0 0 10 0"/>
                 </Grid>
             </Grid>
             <!--#endregion  popup processing type selection-->

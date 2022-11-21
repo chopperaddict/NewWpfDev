@@ -2518,7 +2518,9 @@
                                                 PreviewMouseRightButtonDown="Splist_PreviewMouseRightButtonDown"
                                                 PreviewMouseRightButtonUp="Splist_PreviewMouseRightButtonUp"
                                                 PreviewMouseDoubleClick="Splist_PreviewMouseDoubleClick"
-                                                FontWeight="DemiBold"                                 
+                                                FontWeight="DemiBold"     
+                                                ToolTipService.InitialShowDelay="1000"
+                                                ToolTipService.ShowDuration="1500"
                                                 Foreground="Black"                                                
                                                 ItemContainerStyle="{StaticResource SpStringsStyle}">
                                 <ListBox.ToolTip  >
