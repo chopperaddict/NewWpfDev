@@ -16,6 +16,7 @@ using System . Linq;
 using System . Windows . Documents;
 using System . Reflection;
 using System . Reflection . Metadata;
+using static IronPython . Modules . PythonSocket;
 
 namespace Views
 {
@@ -141,6 +142,7 @@ namespace Views
             //Debug . WriteLine ( $"Current Domain confirmed as {DbDomain} ..." );
             return constring;
         }
+
         static public DynamicParameters ParseSqlArgs ( DynamicParameters parameters , string [ ] args )
         {
             bool error = false;
@@ -149,68 +151,109 @@ namespace Views
             if ( args != null && args . Length > 0 && args [ 0 ] != "-" )
             {
                 // pms . AddDynamicParams ( args );
-                for ( int x = 0 ; x < args . Length ; x++ )
+                int counter = 1;
+                for ( int x = 0 ; x < args . Length ; x+=4 )
                 {
                     if ( args [ x ] == "" ) break;
 
+                    string name = "";
+                    string type = "";
+                    string size = "";
+                    string returntype = "";
                     string valid = "0123456789";
-                    string [ ] splitter = args [ x ] . Split ( " " );
-                    string name = splitter [ 0 ] . Trim ( ) . ToUpper ( );
-                    string type = splitter [ 1 ] . Trim ( ) . ToUpper ( );
-                    string size = splitter [ 2 ] . Trim ( ) . ToUpper ( );
-                    string returntype = splitter [ 3 ] . Trim ( ) . ToUpper ( );
+                    string arg = "";
+                    int index = 0;
+                    // foreach ( var argument in args )
+                    // {
+                    //     args[index] = argument . Trim ( ) . ToUpper ( );
+                    //}
+                    // string [ ] splitter = args [ x ] . Split ( " " );
+                    // if ( args . Length >= 1 ) name = splitter [ 0 ] . Trim ( ) . ToUpper ( );
+                    // if ( args . Length >= 2 ) type = splitter [ 1 ] . Trim ( ) . ToUpper ( );
 
-                    if ( name == "" )
-                    { error = true; break; }
-                    if ( type == "" )
-                    { error = true; break; }
-                    if ( size == "" )
-                    { error = true; break; }
-                    if ( returntype != "" && ( returntype != "OUTPUT" && returntype != "RETURN" && returntype != "OUT" ) )
-                    { error = true; break; }
+                    // if ( args . Length >= 3 ) size = splitter [ 2 ] . Trim ( ) . ToUpper ( );
+                    // else if ( type == "STRING" ) size = default;
+                    // else if ( type == "INT" ) size = "10";
+                    // else if ( type == "DECIMAL" || type == "FLOAT" || type == "DOUBLE" || type == "CURRENCY" ) size = default;
 
-                    // process size buffer in case there are () around it
-                    string size2 = "";
-                    for ( int z = 0 ; z < size . Length ; z++ )
-                    {
-                        string test = size [ z ] . ToString ( );
-                        if ( size . Contains ( test ) )
-                            size2 += size [ z ];
-                    }
-                    int intsize = Convert . ToInt32 ( size2 );
-                    if ( intsize <= 0 )
-                    { error = true; break; }
+                    // if ( args . Length >= 4 ) returntype = splitter [ 3 ] . Trim ( ) . ToUpper ( );
+
+                    // if ( name == "" )
+                    // { error = true; break; }
+                    // if ( type == "" )
+                    // { error = true; break; }
+                    // //if ( size == "" )
+                    // //{ error = true; break; }
+                    // //if ( returntype != "" && ( returntype != "OUTPUT" && returntype != "RETURN" && returntype != "OUT" ) )
+                    // //{ error = true; break; }
+
+                    // // process size buffer in case there are () around it
+                    // string size2 = "";
+                    // for ( int z = 0 ; z < size . Length ; z++ )
+                    // {
+                    //     string test = size [ z ] . ToString ( );
+                    //     if ( size . Contains ( test ) )
+                    //         size2 += size [ z ];
+                    // }
+                    // int intsize = Convert . ToInt32 ( size2 );
+                    // if ( intsize <= 0 )
+                    // { error = true; break; }
 
                     // Now set them to values passed to us
-                    var fulltype = DbType . String;
- 
-                    if ( splitter [ 3 ] != "" )
+                    string validstrings = "STRINGNVARCHAR VARCHAR";
+                    string validnumbers = "INT DOUBLE FLOAT CURRENCY REAL DATE DATETIME";
+
+                    //if ( validnumbers. Contains ( args [ 1 ] )
+
+
+                    //if ( splitter [ 3 ] != "" )
+                    //{
+                    //    returntype = splitter [ 3 ] . Trim ( ) . ToUpper ( );
+                    //    // breakout on first unused array element
+                    //    if ( returntype == "OUTPUT" )
+                    //        returntype = "OUT";
+                    //    else if ( returntype == "RETURN" )
+                    //        returntype = "RETURN";
+                    //}
+                    if ( args [3] == "INPUT" )
                     {
-                        returntype = splitter [ 3 ] . Trim ( ) . ToUpper ( );
-                        // breakout on first unused array element
-                        if ( returntype == "OUTPUT" )
-                            returntype = "OUT";
-                        else if ( returntype == "RETURN" )
-                            returntype = "RETURN";
-                    }
-                    if ( returntype == "" )
-                    {
-                        pms . Add ( name ,
-                            dbType: fulltype ,
-                            size: intsize ,
+                        if ( args [ 1 ].ToUpper() == "STRING" )
+                        {
+                            pms . Add ( $"Arg{counter}" , args [0],
+                             dbType: DbType . String ,
+                            size:  Convert.ToInt32(args [ 0 ].Length),
                             direction: ParameterDirection . Input );
+                        }
+                        else if ( args [ 1 ] == "INT" )
+                        {
+                            pms . Add ( $"Arg{counter}" , args [ 0 ] ,
+                             dbType: DbType . Int32 ,
+                            size: Convert . ToInt32 ( args [ 2 ] ) ,
+                            direction: ParameterDirection . Input );
+                        }
                     }
                     else
                     {
-                        pms . Add ( name ,
-                            dbType: fulltype ,
-                            size: intsize ,
+                        // Output args
+                        if ( args [ 1 ] == "STRING" )
+                        {
+                            pms . Add ( $"Arg{counter}" , args [ 0 ] ,
+                             dbType: DbType . String ,
+                            size: Convert . ToInt32 ( args [ 2 ] ) ,
                             direction: ParameterDirection . Output );
+                        }
+                        else if ( args [ 1 ] == "INT" )
+                        {
+                            pms . Add ( $"Arg{counter}" , args [ 0 ] ,
+                             dbType: DbType . Int32 ,
+                            size: Convert . ToInt32 ( args [ 2 ] ) ,
+                            direction: ParameterDirection . Output );
+                        }
                     }
+                    if ( error == true )
+                        return parameters = null;
                 }
-                if ( error == true )
-                    return parameters = null;
-
+                counter++;
             }
             return pms;
         }

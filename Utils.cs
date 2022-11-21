@@ -257,9 +257,9 @@ namespace NewWpfDev
                 for ( int i = 0 ; i < repeat ; i++ )
                 {
                     Console . Beep ( 370 , 150 );
-                    Console . Beep ( 370 , 150 );
-                    Console . Beep ( 370 , 250 );
-                    Console . Beep ( 300 , 800 );
+                    //Console . Beep ( 370 , 150 );
+                    Console . Beep ( 420 , 550 );
+                    //Console . Beep ( 300 , 800 );
                 }
             }
             return;
@@ -271,7 +271,7 @@ namespace NewWpfDev
                 Console . Beep ( 320 , 300 );
                 Console . Beep ( 260 , 800 );
             }
-            Thread . Sleep ( 100 );
+            //Thread . Sleep ( 100 );
             return;
         }
 

@@ -4,8 +4,11 @@ using System . Collections . ObjectModel;
 using System . ComponentModel;
 using System . ComponentModel . DataAnnotations;
 using System . Diagnostics;
+//using System . Drawing;
 using System . Printing;
 using System . Reflection . Metadata;
+using System . Runtime . CompilerServices;
+using System . Security . Policy;
 using System . Text . RegularExpressions;
 using System . Threading;
 using System . Threading . Tasks;
@@ -21,15 +24,13 @@ using Expandos;
 using IronPython . Compiler . Ast;
 using IronPython . Runtime;
 
-using Microsoft . VisualBasic;
+using Microsoft . Data . SqlClient;
+using Microsoft . Win32;
 
 using NewWpfDev;
 
-//using StoredProcs;
-
 using UserControls;
 
-using static Community . CsharpSqlite . Sqlite3;
 using static IronPython . Modules . _ast;
 
 namespace Views
@@ -355,14 +356,14 @@ namespace Views
             if ( err != "" )
             {
                 Mouse . OverrideCursor = Cursors . Arrow;
-//                return;
+                //                return;
             }
             if ( dynvar == null || objtype == null )
             {
                 Mouse . OverrideCursor = Cursors . Arrow;
                 //WpfLib1 . Utils . DoErrorBeep ( );
                 //MessageBox . Show ( $"Your request failed with no error information being returned.\nTry a different Execution Method" , "SQL Error" );
-                //return;
+                return;
             }
             try
             {
@@ -389,15 +390,16 @@ namespace Views
                 {
                     // setup results dialog, but hide it
                     newtype = objtype;
-                    if( err=="")
-                    err = $"An undetermined error occured during Execution of [ {ListResults . SelectedItem . ToString ( )}.  Check that any required arguments were passed "+
-                            $"correctly to the enquiry, and failing that try using a diferent Execution Method ";
+                    if ( err == "" )
+                        err = $"An undetermined error occured during Execution of [ {ListResults . SelectedItem . ToString ( )}.  Check that any required arguments were passed " +
+                                $"correctly to the enquiry, and failing that try using a diferent Execution Method ";
                 }
-            }catch(Exception ex)
+            }
+            catch ( Exception ex )
             {
-                Console . WriteLine ($"Error occurred parsing return types from SLQ  Execution request\nError was {ex. Message}");
+                Console . WriteLine ( $"Error occurred parsing return types from SLQ  Execution request\nError was {ex . Message}" );
                 Mouse . OverrideCursor = Cursors . Arrow;
-                return ;
+                return;
             }
             //GengridExecutionResults
             GenResults = new GengridExecutionResults ( this , this . Topmost );
@@ -441,14 +443,14 @@ namespace Views
                     if ( newtype == typeof ( string ) )
                     //-------------------------------------------------------------------------------------------------//
                     {
-                        if ( dynvar . Count == 0 )
-                        {
-                            NewWpfDev . Utils . DoErrorBeep ( );
-                            Mouse . OverrideCursor = Cursors . Arrow;
-                            MessageBox . Show ( "Your request for a string value completed, BUT it failed to return any value. \n\nCheck that you have passed any expected Arguments, and that they are correct, as this can often cause this type of error" , "S.P Execution system" );
-                            return;
-                        }
-
+                        //if ( dynvar . Count == 0 )
+                        //{
+                        //    NewWpfDev . Utils . DoErrorBeep ( );
+                        //    Mouse . OverrideCursor = Cursors . Arrow;
+                        //    MessageBox . Show ( "Your request for a string value completed, BUT it failed to return any value. \n\nCheck that you have passed any expected Arguments, and that they are correct, as this can often cause this type of error" , "S.P Execution system" );
+                        //    return;
+                        //}
+                        int listcount = 0;
                         string outputstring = "";
                         List<string> list = new List<string> ( );
 
@@ -456,12 +458,15 @@ namespace Views
                         {
                             list . Add ( str );
                             outputstring += $"{str}, ";
+                            listcount++;
                         }
+                        if ( list . Count == 0 )
+                            listcount = 0;
                         outputstring = outputstring . Trim ( );
-                        outputstring = outputstring . Substring ( 0 , outputstring . Length - 1 );
+                        if ( outputstring != "" ) outputstring = outputstring . Substring ( 0 , outputstring . Length - 1 );
                         // return value from SP String return method
                         // Go   ahead & Show our results  dialog popup
-                        if ( list . Count == 0 )
+                        if ( listcount == 0 )
                         {
                             GenResults . ExecutionInfo . Visibility = Visibility . Visible;
                             GenResults . CollectionTextresults . Visibility = Visibility . Visible;
@@ -472,8 +477,10 @@ namespace Views
                                  FindResource ( "Black3" ) as SolidColorBrush ,
                             $"Execution of S.P [{ListResults . SelectedItem . ToString ( )}] using [{optype . SelectedItem . ToString ( )}] appears to have failed !\n\nThe data returned was {resultstring}.\n\nPerhaps using a different Execution Method will provide a better result ?" );
                             GenResults . CollectionTextresults . Document . Blocks . FirstBlock . FontSize = 18;
+                            GenResults . Height = 280;
+                            GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Pixel );
                             GenResults . CountResult . Text = $"ZERO";
-                            NewWpfDev . Utils . DoSuccessBeep ( );
+                            NewWpfDev . Utils . DoErrorBeep ( );
                             GenResults . ShowDialog ( );
                             GenResults . Refresh ( );
                             Mouse . OverrideCursor = Cursors . Arrow;
@@ -615,7 +622,7 @@ namespace Views
                             GenResults . TextResultsDocument . Document = Gengrid . LoadFlowDoc ( GenResults . TextResultsDocument ,
                                  FindResource ( "Black3" ) as SolidColorBrush ,
                                 $"{outputstring}" );
-                            GenResults . CountResult . Text = $"1";
+                            GenResults . CountResult . Text = $"";
                             NewWpfDev . Utils . DoSuccessBeep ( );
                             GenResults . Show ( );
                             GenResults . Topmost = true;
@@ -655,24 +662,24 @@ namespace Views
                         // got an observable collection in Dynamic collection, so display it
                         int colcount = 0;
                         string outline = "";
-                       ObservableCollection <GenericClass> genclass = new ObservableCollection<GenericClass> ( );
+                        ObservableCollection<GenericClass> genclass = new ObservableCollection<GenericClass> ( );
                         ObservableCollection<GenericClass> output = new ObservableCollection<GenericClass> ( );
                         genclass = GenDapperQueries . ParseDynamicToCollection (
                                      dynvar ,
                                      out string errormsg ,
                                      out int reccount ,
                                      out List<string> genericlist );
-                        if( genclass .Count == 1)
+                        if ( genclass . Count == 1 )
                         {
                             GenericClass gc = new GenericClass ( );
                             gc = genclass [ 0 ];
                             outline = gc . field1 . ToString ( );
-                            colcount = DatagridControl . GetColumnsCount ( genclass, null);
+                            colcount = DatagridControl . GetColumnsCount ( genclass , null );
                         }
                         if ( colcount == 1 )
                         {
                             // show single string result in Scrollviewer Document
-                           
+
 
                             GenResults . CollectionTextresults . Visibility = Visibility . Visible;
                             GenResults . TextResultsDocument . Visibility = Visibility . Visible;
@@ -680,7 +687,7 @@ namespace Views
                             //                            GenResults . innerresultscontainer . RowDefinitions [ 0 ] . Height = new GridLength ( 3.9 , GridUnitType . Star );
                             GenResults . CollectionTextresults . Document = Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
                              FindResource ( "Black3" ) as SolidColorBrush ,
-                            $"Execution of S.P [{ListResults . SelectedItem . ToString ( )}] using [{optype . SelectedItem . ToString ( )}] completed successfully, BUT only returned "+
+                            $"Execution of S.P [{ListResults . SelectedItem . ToString ( )}] using [{optype . SelectedItem . ToString ( )}] completed successfully, BUT only returned " +
                             $"a single row with just one Column, so this column's content is shown in the text viewer below." );
                             GenResults . TextResultsDocument . Document =
                                 Gengrid . LoadFlowDoc ( GenResults . TextResultsDocument ,
@@ -746,7 +753,7 @@ namespace Views
             catch ( Exception ex )
             {
                 Utils . DoErrorBeep ( );
-//                NewWpfDev . Utils . PlayErrorBeep ( );
+                //                NewWpfDev . Utils . PlayErrorBeep ( );
                 Debug . WriteLine ( $"SQL error encountered ...\n {ex . Message}, [{ex . Data}]" );
             }
             Mouse . OverrideCursor = Cursors . Arrow;
@@ -759,376 +766,432 @@ namespace Views
             string operationtype = optype . SelectedItem as string;
             string [ ] args1 = null;
             string [ ] args = new string [ 0 ];
-
+            string SqlCommand = "";
             // Initiaize ref variables
 
+            Count = 0;
+            string Resultstring = "";
+            Objtype = null;
+            Err = "";
+
+            if ( operationtype == null )
             {
-                Count = 0;
-                string Resultstring = "";
-                Objtype = null;
-                Err = "";
-
-                if ( operationtype == null )
-                {
-                    MessageBox . Show ( "You MUST select an Execution Method before the selected S.P can be executed !" , "Execution processing error" );
-                    return null;
-                }
-
-                Searchtext = SPArguments . Text;
-                if ( Searchtext == "Argument(s) required ?" )
-                    Searchtext = "";
-
-                if ( Searchtext != "" )
-                {
-                    // sort out arguments   1st of all
-                    args1 = Searchtext . Trim ( ) . Split ( ',' );
-                }
-                if ( args1 != null && args1 . Length > 0 )
-                {
-                    //Check for output args 1st
-                    int cnt = args1 . Length;
-                    if ( cnt > 0 )
-                    {
-                        args = new string [ cnt ];
-                        for ( int x = 0 ; x < cnt ; x++ )
-                        {
-                            args [ x ] = args1 [ x ] . Trim ( );
-                        }
-                    }
-                }
-                else
-                    args = null;
+                MessageBox . Show ( "You MUST select an Execution Method before the selected S.P can be executed !" , "Execution processing error" );
+                return null;
             }
 
-            int innercount = Count;
-            string innerresultstring = ResultString;
-            object innerobj = Obj;
-            string innerrerr = Err;
-
-            string SqlCommand = $"{ListResults . SelectedItem . ToString ( )}";
-            try
+            Searchtext = SPArguments . Text;
+            if ( Searchtext == "Argument(s) required ?" )
             {
-                string output = "";
-               // string SqlCommand = "";
-                // Now find out what method we are going to use
-                if ( operationtype == "SP returning an INT value" )
+                MessageBox . Show ( "You MUST enter at least the name of the S.P to be processed before it can be executed !" , "Execution processing error" );
+                return null;
+            }
+            // PARSE THE ARGUMENTS ENTERED BY  OUR  USER
+            int cnt = 0;
+            string [ ] fullargs = new string [ 1 ];
+            string [ ] argparts = new string [ 1 ];
+            string [ ] parts;
+            string valid = "0123456789";
+            string validstrings = "STRING NVARCHAR VARCHAR";
+            string validnumerics = "INT DOUBLE FLOAT CURRENCY REAL DATE DATETIME ";
+            bool GotCommas = false;
+            if ( Searchtext != "" )
+            {
+                fullargs = Searchtext . Trim ( ) . ToUpper ( ) . Split ( ':' );
+                cnt = fullargs . Length;
+                if ( cnt == 1 )
                 {
-                    if ( args == null || args . Length == 0 )
+                    // only got a single argumernt set
+                    int namesplit = fullargs [ 0 ] . IndexOf ( "," );
+                    if ( namesplit < 4 )
                     {
-                        string buffer = "";
-                        string [ ] buff;
-                        string [ ] items;
-                        int offset = 0;
-                        string argstring = SPArguments . Text . Trim ( );
-                        while ( true )
+                        // did not find any comma seperators in argument string
+                        argparts = fullargs [ 0 ] . Split ( " " );
+                        if ( argparts . Length < 4 )
                         {
-                            if ( argstring . Contains ( ' ' ) )
-                            {
-                                items = argstring . Split ( ' ' );
-                                for ( int x = 0 ; x < items . Length ; x++ )
-                                {
-                                    buffer += $"{items [ x ] . TrimStart ( ) . TrimEnd ( )}/";
-                                }
-                                //buffer += $":{args [ 1 ]}";
-                                argstring = buffer;
-                                buffer = "";
-                            }
-                            buff = argstring . Split ( '/' );
-                            items = null;
-                            items = new string [ buff . Length ];
-                            for ( int x = 0 ; x < buff . Length ; x++ )
-                            {
-                                if ( buff [ x ] != "=" )
-                                    items [ offset++ ] = buff [ x ] . TrimStart ( ) . TrimEnd ( );
-                            }
-                            buffer = "";
-                            for ( int x = 0 ; x < items . Length ; x++ )
-                            {
-                                if ( items [ x ] == "" || items [ x ] == null )
-                                    break;
-                                buffer += items [ x ];
-                                if ( x % 2 == 0 )
-                                {
-                                    if ( items [ x ] . Contains ( '=' ) == false )
-                                        buffer += "=";
-                                }
-
-                                if ( x % 2 == 1 )
-
-                                    buffer += " ";
-                            }
-                            break;
+                            Err = "Arguments received are not valid, there should be  4 seperate items, seperated by spaces or commas....";
+                            return null;
                         }
-                        output = buffer;
-                        //SqlCommand = $"{ListResults . SelectedItem . ToString ( )} {output}";
+                        argparts [ 0 ] = argparts [ 0 ] . Trim ( ) . ToUpper ( );
                     }
-                    //else
-                    //    SpCommand = this . ListResults . SelectedItem . ToString ( );
-                    // tell method what we are expecting back
-                    Objtype = typeof ( int );
-
-                    //********************************************************************************//
-                    dynamic intresult = GenDapperQueries . Get_DynamicValue_ViaDapper ( SqlCommand ,
-                        args ,
-                        ref innerresultstring ,
-                        ref innerobj ,
-                        ref Objtype ,
-                        ref innercount ,
-                        ref Err ,
-                        6 );
-                    //********************************************************************************//
-
-                    if ( intresult != null )
-                    {
-                        // TODO Maybe wrong  8/11/2022
-                        ResultString = innerresultstring;
-                        Obj = ( object ) intresult;
-                        Objtype = typeof ( Int32 );
-                        Count = innercount;
-                        return ( dynamic ) innerobj;
-                    }
-                    if ( Err != "" && innerresultstring == "" )
-                    {
-                        //if ( ReturnProcedureHeader ( SqlCommand , ListResults . SelectedItem . ToString ( ) ) == "DONE" )
-                        //    return ( dynamic ) null;
-                        //ShowError ( operationtype , Err );
-                        return ( dynamic ) null;
-                    }
+                    else GotCommas = true;
+                    SqlCommand = argparts [ 0 ] . ToUpper ( ) . TrimStart ( ) . TrimEnd ( );
+//                    fullargs [ 0 ] = argparts [ 0 ];
                 }
-                else if ( operationtype == "SP returning a String" )
+                else return null;
+            }
+            // cnt is how many seperate arguments we have recieved
+            if ( cnt == 0 )
+            {
+                Err = "No argument(s) have been provided....";
+                return null;
+            }
+            //Check each argument part (in collection of fullargs[])
+            for ( int x = 0 ; x < cnt ; x++ )
+            {
+                // fullargs[] contains each individual argument from command line
+                // process each one and split to its constituent parts (name, type, size, direction)
+                // based on spaces between sections of the argument
+                if(GotCommas)
+                    parts = fullargs [ x ] . Split ( ',' );
+                else
+                    parts = fullargs [ x ] . Split ( ' ' );
+                
+                if ( parts . Length < 4 )
                 {
-                    //Use storedprocedure  version
-                    SqlCommand = $"{ListResults . SelectedItem . ToString ( )}";
-
-                    // tell method what we are expecting back
-                    Objtype = typeof ( string );
-
-                    //********************************************************************************//
-                    dynamic stringresult = GenDapperQueries . Get_DynamicValue_ViaDapper (
-                        SqlCommand , args ,
-                        ref innerresultstring ,
-                        ref innerobj ,
-                        ref Objtype ,
-                        ref innercount ,
-                        ref Err ,
-                        2 );
-                    //********************************************************************************//
-                    // Working 8/11/2022
-                    if ( Err != "" )
+                    parts = fullargs [ x ] . Split ( ' ' );
+                    if ( parts [ 0 ] == "" )
                     {
-                        if ( ReturnProcedureHeader ( SqlCommand , ListResults . SelectedItem . ToString ( ) ) == "DONE" )
-                            return ( dynamic ) null;
-                        ShowError ( operationtype , Err );
-                    }
-                    ResultString = innerresultstring;
-                    Obj = ( object ) stringresult;
-                    Objtype = typeof ( string );
-                    Count = innercount;
-
-                    if ( Objtype == typeof ( string ) )
-                        return stringresult;
-                    else
-                        return stringresult . ToString ( );
-                }
-                else if ( operationtype == "SP returning a List<string>" )
-                {
-                    SqlCommand = $"{ListResults . SelectedItem . ToString ( )}";
-
-                    // tell method what we are expecting back
-                    Objtype = typeof ( List<string> );
-
-                    //********************************************************************************//
-                    dynamic stringlist = GenDapperQueries . Get_DynamicValue_ViaDapper (
-                        SqlCommand , args ,
-                        ref innerresultstring ,
-                        ref innerobj ,
-                        ref Objtype ,
-                        ref innercount ,
-                        ref Err ,
-                        5 );
-
-                    ResultString = innerresultstring;
-                    Obj = ( object ) stringlist;
-                    Objtype = typeof ( List<string> );
-
-                    if ( Objtype == typeof ( List<string> ) )
-                        return ( dynamic ) stringlist;
-                    else
-                        return ( dynamic ) null;
-
-                    ////********************************************************************************//
-                    //list = StoredprocsProcessing . ProcessGenericDapperStoredProcedure (
-                    //     ListResults . SelectedItem . ToString ( ) ,
-                    //    args ,
-                    //    Genericgrid . CurrentTableDomain ,
-                    //    ref innerresultstring ,
-                    //    ref innerobj ,
-                    //    ref Objtype ,
-                    //    ref innercount ,
-                    //    ref Err );
-                    ////********************************************************************************//
-
-                    //ResultString = innerresultstring;
-                    //Obj = ( object ) list;
-                    //Objtype = typeof ( List<string> );
-                    //if ( list != null )
-                    //{
-                    //    Count = list . Count;
-                    //}
-                    //if ( Objtype == typeof ( List<string> ) )
-                    //    return ( dynamic ) list;
-                    //else
-                    //    return ( dynamic ) null;
-
-                    ////    return ( dynamic ) null;
-                }
-                else if ( operationtype == "SP returning a Table as ObservableCollection" )
-                {
-                    DatagridControl dgc = new ( );
-
-                    // tell method what we are expecting back
-                    Objtype = typeof ( ObservableCollection<GenericClass> );
-
-                    //********************************************************************************//
-                    // Should normally  be  '[spLoadTableAsGeneric]' but can be any SP that wants a collection back
-                    IEnumerable<dynamic> tableresult = GenDapperQueries . Get_DynamicValue_ViaDapper (
-                     ListResults . SelectedItem . ToString ( ) ,
-                     args ,
-                     ref innerresultstring ,
-                     ref innerobj ,
-                     ref Objtype ,
-                     ref innercount ,
-                     ref Err ,
-                     0 );
-
-                    ResultString = innerresultstring;
-                    Obj = ( object ) tableresult;
-                    Objtype = typeof ( IEnumerable<dynamic> );
-
-                    if ( Objtype == typeof ( IEnumerable<dynamic> ) )
-                        return ( dynamic ) tableresult;
-                    else
-                        return ( dynamic ) null;
-
-
-                    //********************************************************************************//
-
-                    if ( Err != "" )
-                    {
-                        if ( ReturnProcedureHeader ( ListResults . SelectedItem . ToString ( ) , ListResults . SelectedItem . ToString ( ) ) == "DONE" )
-                            return ( dynamic ) null;
-                        ShowError ( operationtype , Err );
-                    }
-                    else return tableresult;
-                }
-                //---------------------------------------------------------------------------------------------------//
-                else if ( operationtype == "SP returning a 'Pot Luck' result" )
-                //---------------------------------------------------------------------------------------------------//
-                {
-                    DatagridControl dgc = new ( );
-                    int recordcount = 0;
-
-                    // tell method what we are expecting back ??????
-                    //Objtype = typeof ( ObservableCollection<GenericClass> );
-
-                    //********************************************************************************//
-                    ObservableCollection<GenericClass>
-                       rescollection = dgc . GetDataFromStoredProcedure (
-                         ListResults . SelectedItem . ToString ( ) ,
-                        args ,
-                        Genericgrid . CurrentTableDomain ,
-                        out Err ,
-                        out recordcount );
-                    //********************************************************************************//
-
-                    if ( Err == "" && rescollection . Count > 0 )
-                    {
-                        string output2 = "";
-                        int returnedcount = rescollection . Count;
-                        innercount = returnedcount;
-                        if ( returnedcount > 0 )
+                        string [ ] tmp = new string [ 4 ];
+                        tmp [ 0 ] = SqlCommand;
+                        for ( int y = 1 ; y < 4 ; y++ )
                         {
-                            output2 = $"Results of the {optype . SelectedItem . ToString ( )} request is shown below\n\n";
-                            foreach ( var item in rescollection )
-                            {
-                                output2 += $"{item . field1 . ToString ( )}\n";
-                            }
-                            Obj = output2;
-                            ResultString = "SUCCESS";
-                            return ( dynamic ) Obj;
+                            tmp [ y ] = parts [ y ];
                         }
-
+                        parts = tmp;
+                    }
+                }
+                if ( x == 0 )
+                {
+                    // correct the offset in arg[0] cos it contains the SP name as well at args[0]
+                    // so all indexes are +1
+                    args = new string [ 4 ];
+                    string [ ] tmp = new string [ parts . Length ];
+                    for ( int y = 0 ; y < parts . Length ; y++ )
+                    {
+                        if ( y + 1 < 4 )
+                            tmp [ y ] = parts [ y ];
                         else
+                            tmp [ y ] = "INPUT";
+                        if ( y == 3 )
+                            args [ y ] = tmp [ y ] . Trim ( );
+                        else
+                            args [ y ] = tmp [ y ] . Trim ( );
+                    }
+                    if ( args [ 3 ] == null || args [ 3 ] == "" )
+                        args [ 3 ] = "INPUT";
+                }
+                else
+                {
+                    // process all subsequent data into args[] after first one
+                    args = new string [ 4 ];
+                    SqlCommand = parts [ 0 ];
+                    string [ ] tmp = new string [ parts . Length ];
+                    for ( int y = 0 ; y < parts . Length ; y++ )
+                    {
+                        args [ y ] = parts [ y ] . Trim ( );
+                    }
+                }
+
+                //***********************************************************************//
+
+                // now we have exactly one complete argument from 'n
+                // lets  check their validity
+                argparts = new string [ 4 ];
+
+                // PARSE THE DATA TYPE STRING into args[2]
+                //if ( validstrings . Contains ( args [ 2 ] ) == true )
+                //{
+                //    string validstring = validstrings . Substring ( validstrings . IndexOf ( args [ 2 ] ) );
+                //    validstring = validstrings . Substring ( 0 , validstrings . IndexOf ( ' ' ) );
+                //    args [ 2 ] = validstring . Trim ( );
+                //}
+
+                // Now sort out  the  data Type
+                args [ 1 ] = ValidateDataType ( args [ 1 ] );
+
+                // PARSE THE DATA SIZE
+                // check for & parse the size argument into ags[2]
+                args [ 2 ] = ValidateSizeParam ( args [ 2 ] );
+
+                // parse the direction
+                if ( args [ 3 ] != "" && args [ 3 ] != "INPUT" && args [ 3 ] != "OUTPUT" && args [ 3 ] != "RETURN" )
+                    args [ 3 ] = "INPUT";   //Default to "INPUT"
+
+                //*************************************************//
+                // WE have now
+                // finished parsing the FIRST argument
+                // WE have @argname, data type, size as integer,
+                // and direction as INPUT, OUTPUT or RETURN
+                //*************************************************//
+                int innercount = Count;
+                string innerresultstring = ResultString;
+                object innerobj = Obj;
+                string innerrerr = Err;
+
+                try
+                {
+                    string output = "";
+                    // string SqlCommand = "";
+                    // Now find out what method we are going to use
+                    if ( operationtype == "SP returning an INT value" )
+                    {
+                        //// tell method what we are expecting back
+                        Objtype = typeof ( int );
+
+                        //********************************************************************************//
+                        dynamic intresult = GenDapperQueries . Get_DynamicValue_ViaDapper ( SqlCommand ,
+                            args ,
+                            ref innerresultstring ,
+                            ref innerobj ,
+                            ref Objtype ,
+                            ref innercount ,
+                            ref Err ,
+                            6 );
+                        //********************************************************************************//
+
+                        if ( intresult != null )
                         {
-                            Err = $"No usable values were returned";
-                            Obj = ( object ) Err;
-                            ResultString = "FAILURE";
-                            return ( dynamic ) Obj;
+                            // TODO Maybe wrong  8/11/2022
+                            ResultString = innerresultstring;
+                            Obj = ( object ) intresult;
+                            Objtype = typeof ( Int32 );
+                            Count = innercount;
+                            return ( dynamic ) innerobj;
+                        }
+                        if ( Err != "" && innerresultstring == "" )
+                        {
+                            //if ( ReturnProcedureHeader ( SqlCommand , ListResults . SelectedItem . ToString ( ) ) == "DONE" )
+                            //    return ( dynamic ) null;
+                            //ShowError ( operationtype , Err );
+                            return ( dynamic ) null;
                         }
                     }
-                    else if ( rescollection . Count == 0 && Err == "" )
+                    else if ( operationtype == "SP returning a String" )
                     {
-                        DatagridControl dg = new DatagridControl ( );
+                        //Use storedprocedure  version
+                        SqlCommand = $"{ListResults . SelectedItem . ToString ( )}";
+
+                        // tell method what we are expecting back
+                        Objtype = typeof ( string );
 
                         //********************************************************************************//
-//                        var result = dg . GetDataFromStoredProcedure ( "Select columncount from countreturnvalue" , null , "" , out Err , out recordcount , 1 );
+                        dynamic stringresult = GenDapperQueries . Get_DynamicValue_ViaDapper (
+                            SqlCommand , args ,
+                            ref innerresultstring ,
+                            ref innerobj ,
+                            ref Objtype ,
+                            ref innercount ,
+                            ref Err ,
+                            2 );
+                        //********************************************************************************//
+                        // Working 8/11/2022
+                        if ( Err != "" )
+                        {
+                            if ( ReturnProcedureHeader ( SqlCommand , ListResults . SelectedItem . ToString ( ) ) == "DONE" )
+                                return ( dynamic ) null;
+                            ShowError ( operationtype , Err );
+                        }
+                        ResultString = innerresultstring;
+                        Obj = ( object ) stringresult;
+                        Objtype = typeof ( string );
+                        Count = innercount;
+
+                        if ( Objtype == typeof ( string ) )
+                            return stringresult;
+                        else
+                            return stringresult . ToString ( );
+                    }
+                    else if ( operationtype == "SP returning a List<string>" )
+                    {
+                        SqlCommand = $"{ListResults . SelectedItem . ToString ( )}";
+
+                        // tell method what we are expecting back
+                        Objtype = typeof ( List<string> );
+
+                        //********************************************************************************//
+                        dynamic stringlist = GenDapperQueries . Get_DynamicValue_ViaDapper (
+                            SqlCommand , args ,
+                            ref innerresultstring ,
+                            ref innerobj ,
+                            ref Objtype ,
+                            ref innercount ,
+                            ref Err ,
+                            5 );
+
+                        ResultString = innerresultstring;
+                        Obj = ( object ) stringlist;
+                        Objtype = typeof ( List<string> );
+
+                        if ( Objtype == typeof ( List<string> ) )
+                            return ( dynamic ) stringlist;
+                        else
+                            return ( dynamic ) null;
+
+                        ////********************************************************************************//
+                        //list = StoredprocsProcessing . ProcessGenericDapperStoredProcedure (
+                        //     ListResults . SelectedItem . ToString ( ) ,
+                        //    args ,
+                        //    Genericgrid . CurrentTableDomain ,
+                        //    ref innerresultstring ,
+                        //    ref innerobj ,
+                        //    ref Objtype ,
+                        //    ref innercount ,
+                        //    ref Err );
+                        ////********************************************************************************//
+
+                        //ResultString = innerresultstring;
+                        //Obj = ( object ) list;
+                        //Objtype = typeof ( List<string> );
+                        //if ( list != null )
+                        //{
+                        //    Count = list . Count;
+                        //}
+                        //if ( Objtype == typeof ( List<string> ) )
+                        //    return ( dynamic ) list;
+                        //else
+                        //    return ( dynamic ) null;
+
+                        ////    return ( dynamic ) null;
+                    }
+                    else if ( operationtype == "SP returning a Table as ObservableCollection" )
+                    {
+                        DatagridControl dgc = new ( );
+
+                        // tell method what we are expecting back
+                        Objtype = typeof ( ObservableCollection<GenericClass> );
+
+                        //********************************************************************************//
+                        // Should normally  be  '[spLoadTableAsGeneric]' but can be any SP that wants a collection back
+                        IEnumerable<dynamic> tableresult = GenDapperQueries . Get_DynamicValue_ViaDapper (
+                         ListResults . SelectedItem . ToString ( ) ,
+                         args ,
+                         ref innerresultstring ,
+                         ref innerobj ,
+                         ref Objtype ,
+                         ref innercount ,
+                         ref Err ,
+                         0 );
+
+                        ResultString = innerresultstring;
+                        Obj = ( object ) tableresult;
+                        Objtype = typeof ( IEnumerable<dynamic> );
+
+                        if ( Objtype == typeof ( IEnumerable<dynamic> ) )
+                            return ( dynamic ) tableresult;
+                        else
+                            return ( dynamic ) null;
+
+
                         //********************************************************************************//
 
-   //                     if ( result . Count == 0 )
+                        if ( Err != "" )
+                        {
+                            if ( ReturnProcedureHeader ( ListResults . SelectedItem . ToString ( ) , ListResults . SelectedItem . ToString ( ) ) == "DONE" )
+                                return ( dynamic ) null;
+                            ShowError ( operationtype , Err );
+                        }
+                        else return tableresult;
+                    }
+                    //---------------------------------------------------------------------------------------------------//
+                    else if ( operationtype == "SP returning a 'Pot Luck' result" )
+                    //---------------------------------------------------------------------------------------------------//
+                    {
+                        DatagridControl dgc = new ( );
+                        int recordcount = 0;
+
+                        // tell method what we are expecting back ??????
+                        //Objtype = typeof ( ObservableCollection<GenericClass> );
+
+                        //********************************************************************************//
+                        ObservableCollection<GenericClass>
+                           rescollection = dgc . GetDataFromStoredProcedure (
+                             ListResults . SelectedItem . ToString ( ) ,
+                            args ,
+                            Genericgrid . CurrentTableDomain ,
+                            out Err ,
+                            out recordcount );
+                        //********************************************************************************//
+
+                        if ( Err == "" && rescollection . Count > 0 )
+                        {
+                            string output2 = "";
+                            int returnedcount = rescollection . Count;
+                            innercount = returnedcount;
+                            if ( returnedcount > 0 )
+                            {
+                                output2 = $"Results of the {optype . SelectedItem . ToString ( )} request is shown below\n\n";
+                                foreach ( var item in rescollection )
+                                {
+                                    output2 += $"{item . field1 . ToString ( )}\n";
+                                }
+                                Obj = output2;
+                                ResultString = "SUCCESS";
+                                return ( dynamic ) Obj;
+                            }
+
+                            else
+                            {
+                                Err = $"No usable values were returned";
+                                Obj = ( object ) Err;
+                                ResultString = "FAILURE";
+                                return ( dynamic ) Obj;
+                            }
+                        }
+                        else if ( rescollection . Count == 0 && Err == "" )
+                        {
+                            DatagridControl dg = new DatagridControl ( );
+
+                            //********************************************************************************//
+                            //                        var result = dg . GetDataFromStoredProcedure ( "Select columncount from countreturnvalue" , null , "" , out Err , out recordcount , 1 );
+                            //********************************************************************************//
+
+                            //                     if ( result . Count == 0 )
                             MessageBox . Show ( $"No Error was encountered,  but the request did NOT return any type of value...\n\nPerhaps the processing method that you selected as shown below :-\n" +
                                 $"[{optype . SelectedItem . ToString ( ) . ToUpper ( )}]\n was not the correct processing method type for this Stored.Procedure ?" , "SQL Error" );
-                        //if ( ReturnProcedureHeader ( "Select columncount from countreturnvalue" , "" ) == "DONE" )
-                       
-                        return ( dynamic ) null;
+                            //if ( ReturnProcedureHeader ( "Select columncount from countreturnvalue" , "" ) == "DONE" )
+
+                            return ( dynamic ) null;
+                        }
+                        else
+                        {
+                            string errmsg = $"SQL Error encountered : The error message was \n{Err}\n\nPerhaps a  different Execution method would work more effectively for this Stored.Procedure.?";
+                            Err = errmsg;
+                            return ( dynamic ) null;
+                        }
+                    }
+                    else if ( operationtype == "SP returning No value" )
+                    {
+                        DatagridControl dgc = new ( );
+
+                        //********************************************************************************//
+                        var result = dgc . ExecuteDapperTextCommand ( ListResults . SelectedItem . ToString ( ) , args , out Err );
+                        //********************************************************************************//
+
+                        if ( Err != "" )
+                            ShowError ( operationtype , Err );
+                        else
+                        {
+                            // string argstring = SPArguments . Text == "Argument(s) required ?" ? "" : SPArguments . Text;
+                            // GenResults = new ( this , this . Topmost );
+                            // GenResults . ExecutionInfo . Visibility = Visibility . Visible;
+                            // GenResults . CollectionTextresults . Visibility = Visibility . Visible;
+                            // GenResults . CollectionTextresults . Document = Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
+                            //FindResource ( "Black3" ) as SolidColorBrush ,
+                            // $"The enquiry [{ListResults . SelectedItem . ToString ( )} {argstring}] did not respond with any return values.\n\nPerhaps using a different Execution method will resullt in a better result ??" );
+                            // GenResults . ExecutionInfo . Text = $"Execution of [{optype . SelectedItem?.ToString ( )}] completed but no value was returned...";
+                            // // Showing Scrollviewer Text Only, so reduce height
+                            // // Squeeze unused row so buttons show in our 220 height
+                            // GenResults . Height = 280;
+                            // GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Pixel );
+                            // GenResults . CountResult . Text = $"ZERO";
+                            // GenResults . Show ( );
+                            // GenResults . Refresh ( );
+                            // NewWpfDev . Utils . PlayErrorBeep ( );
+                            // return -9;
+                        }
                     }
                     else
                     {
-                        string errmsg = $"SQL Error encountered : The error message was \n{Err}\n\nPerhaps a  different Execution method would work more effectively for this Stored.Procedure.?";
-                        Err = errmsg;
-                        return ( dynamic ) null;
+                        MessageBox . Show ( "You MUST select one of these options to proceed....." , "Selection Error" );
+                        return -9;
                     }
                 }
-                else if ( operationtype == "SP returning No value" )
+                catch ( Exception ex )
                 {
-                    DatagridControl dgc = new ( );
-
-                    //********************************************************************************//
-                    var result = dgc . ExecuteDapperTextCommand ( ListResults . SelectedItem . ToString ( ) , args , out Err );
-                    //********************************************************************************//
-
-                    if ( Err != "" )
-                        ShowError ( operationtype , Err );
-                    else
-                    {
-                       // string argstring = SPArguments . Text == "Argument(s) required ?" ? "" : SPArguments . Text;
-                       // GenResults = new ( this , this . Topmost );
-                       // GenResults . ExecutionInfo . Visibility = Visibility . Visible;
-                       // GenResults . CollectionTextresults . Visibility = Visibility . Visible;
-                       // GenResults . CollectionTextresults . Document = Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
-                       //FindResource ( "Black3" ) as SolidColorBrush ,
-                       // $"The enquiry [{ListResults . SelectedItem . ToString ( )} {argstring}] did not respond with any return values.\n\nPerhaps using a different Execution method will resullt in a better result ??" );
-                       // GenResults . ExecutionInfo . Text = $"Execution of [{optype . SelectedItem?.ToString ( )}] completed but no value was returned...";
-                       // // Showing Scrollviewer Text Only, so reduce height
-                       // // Squeeze unused row so buttons show in our 220 height
-                       // GenResults . Height = 280;
-                       // GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Pixel );
-                       // GenResults . CountResult . Text = $"ZERO";
-                       // GenResults . Show ( );
-                       // GenResults . Refresh ( );
-                       // NewWpfDev . Utils . PlayErrorBeep ( );
-                       // return -9;
-                    }
+                    Utils . DoErrorBeep ( );
+                    Debug . WriteLine ( $"Execute_Click ERROR : \n{ex . Message}\n{ex . Data}" );
                 }
-                else
-                {
-                    MessageBox . Show ( "You MUST select one of these options to proceed....." , "Selection Error" );
-                    return -9;
-                }
-            }
-            catch ( Exception ex )
-            {
-                Utils . DoErrorBeep ( );
-                Debug . WriteLine ( $"Execute_Click ERROR : \n{ex . Message}\n{ex . Data}" );
             }
             return ( dynamic ) null;
         }
@@ -2089,6 +2152,43 @@ namespace Views
                 DetailedArgsViewer . Visibility = Visibility . Collapsed;
                 e . Handled = true;
             }
+        }
+
+        public string ValidateSizeParam ( string sizearg )
+        {
+            if ( sizearg . Substring ( 0 , 1 ) == "(" )
+            {
+                // parse away any leading parenthesis
+                string tmp = sizearg . Substring ( 1 , sizearg . Length - 1 ) . Trim ( );
+                sizearg = tmp;
+            }
+            // parse away any trailing parenthesis
+            if ( sizearg . Contains ( ')' ) )
+                sizearg = sizearg . Substring ( 0 , sizearg . Length - 1 ) . Trim ( );
+            return sizearg;
+        }
+        public string ValidateDataType ( string datatype )
+        {
+            if ( datatype != "STRING" )
+            {
+                if ( datatype == "INT" )
+                    datatype = "10";
+                if ( datatype != "INT" && datatype != "DECIMAL" && datatype != "FLOAT" && datatype != "DOUBLE" && datatype != "CURRENCY"
+                    && datatype != "BIT" && datatype != "CURRENCY" && datatype != "NUMERIC" && datatype != "REAL" && datatype != "SMALLINT" )
+                {
+                    datatype = "VARCHAR";   // default to varchar
+                }
+            }
+            else
+            {
+                if ( datatype != "STRING" && datatype != "NVARCHAR" && datatype != "VARCHAR" && datatype != "DATE" && datatype != "DATETIME" && datatype != "TIMESTAMP"
+                    && datatype != "YEAR" && datatype != "CHAR" && datatype != "TEXT" && datatype != "NCHAR" && datatype != "NTEXT"
+                    && datatype != "BINARY" && datatype != "VARBINARY" && datatype != "IMAGE" && datatype != "BLOB" && datatype != "JSON" )
+                {
+                    datatype = "INT";
+                }
+            }
+            return datatype;
         }
     }
 }

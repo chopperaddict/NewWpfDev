@@ -86,6 +86,8 @@ namespace NewWpfDev
                     var parameters = new DynamicParameters ( );
                     if ( args != null )
                         parameters = StoredprocsProcessing . ParseSqlArgs ( parameters , args );
+                    if ( parameters == null )
+                        return null;
                     $"{SqlCommand}" . DapperTrace ( );
 
                     //********************************************************************************************************//                    

@@ -292,10 +292,17 @@ namespace StoredProcs
                         }
                         // We now have a full header block, so parse the strings
                         string [ ] headerbuff = temp . Split ( '\n' );
-                        Output = "";
+                        
+                        
+                        // default to being in INPUT mode
+                        bool outflag = false;
+                        Output = "[** The TARGET object **] ";
+
+                        // loop thru each the parameters
                         for ( int x = 1 ; x < headerbuff . Length ; x++ )
                         {
-                        bool outflag = false;
+                            Output += " : ";
+//                            if ( outflag ) Output += " : ";
                             // ignore top line (x = 1)
                             string [ ] parts = headerbuff [ x ] . ToUpper ( ) . Split ( ' ' );
                             for ( int y = 0 ; y < parts . Length ; y++ )
@@ -310,7 +317,11 @@ namespace StoredProcs
                                     continue;
                                 else if ( !outflag && parts [ y ] . Contains ( "@" ) )
                                 {
-                                    if ( Output != "" ) Output += $", {parts [ y ]}";
+                                    if ( Output != "" )
+                                    {
+                                        if ( parts [ y ] [0] == ',')
+                                        Output += $"{parts [ y ].Substring(1, parts [y].Length - 1 )} ";
+                                    }
                                     else Output += $"{parts [ y ]}";
                                     continue;
                                 }
@@ -322,42 +333,36 @@ namespace StoredProcs
                                         if ( elements [ 1 ] . Contains ( ')' ) )
                                         {
                                             string [ ] splitter = elements [ 1 ] . Split ( ')' );
-                                            Output += $"= <-IN String ({splitter [ 0 ]})";
-                                            if( parts [ y ] . Contains('='))
-                                            {
-                                                int offset = parts [y].IndexOf ( '=' );
-                                                Output += parts [ y ] . Substring ( offset );
-                                            }
+                                            if(splitter.Length > 0)
+                                                Output += $"STRING ({splitter [ 0 ]})  INPUT";
+                                            else
+                                                Output += $"STRING ({splitter [ 0 ]})  INPUT";
                                         }
                                         else
-                                            Output += $"=String ({elements [ 1 ]})";
+                                            Output += $" String ({elements [ 1 ]}) INPUT";
                                     }
                                     else
                                     {
                                         if ( parts [ y ] . Contains ( "SYSNAME" ) || parts [ y ] . Contains ( "MAX" ) )
                                         {
-                                            Output += $"= <-IN String";
-                                            if ( parts [ y ] . Contains ( '=' ) )
-                                            {
-                                                int offset = parts [ y ] . IndexOf ( '=' );
-                                                Output += parts [ y ] . Substring ( offset );
-                                            }
-                                            continue;
+                                            Output += $" String MAX INPUT ";
+                                              continue;
                                         }
-                                        if ( parts [y] == "AS" )
+                                        if ( parts [ y ] == "AS" )
                                             continue;
                                         else
                                             Output += $"{parts [ y ]} ";
-                                        //                                        else
-                                        //                                            Output += $", {parts [ y ]} ";
                                     }
                                     continue;
                                 }
                                 if ( outflag && parts [ y ] . Contains ( "@" ) )
                                 {
                                     if ( parts [ y ] . StartsWith ( "," ) || parts [ y ] . Length < 2 )
+                                    {
+                                        Output += $"  :  {parts [ y ] . Substring ( 1 )} ";
                                         continue;
-                                    if(Output.Length > 0) Output += $", {parts [ y ]}";
+                                    }
+                                    if ( Output . Length > 0 ) Output += $", {parts [ y ]}";
                                     else Output += $"{parts [ y ]}";
                                 }
                                 else if ( outflag )
@@ -365,18 +370,18 @@ namespace StoredProcs
                                     if ( parts [ y ] . Contains ( "VARCHAR" ) )
                                     {
                                         string [ ] elements = parts [ y ] . Split ( '(' );
-                                        Output += $" (OUT-String"; // ({elements [ 1 ]})";
-                                        if ( elements .Length >=2 && elements [1] !="" )     
-                                            Output+= $"( {elements[1]} )" ;
+                                        Output += $"String "; 
+                                        // Add in the size !!
+                                        if ( elements . Length >= 2 && elements [ 1 ] != "" )
+                                            Output += $"({elements [ 1 ] . Substring ( 0 , elements . Length )}) OUTPUT";
                                         else
                                             Output += $")";
-                                        //outflag = false;
-                                        break;
+                                         break;
                                     }
                                     else if ( parts [ y ] . Contains ( "INT" ) )
                                     {
                                         string [ ] elements = parts [ y ] . Split ( '(' );
-                                        Output += $" (OUT-Integer"; // ({elements [ 1 ]})";
+                                        Output += $" (Integer OUTPUT"; // ({elements [ 1 ]})";
                                         if ( elements . Length >= 2 && elements [ 1 ] != "" )
                                             Output += $"( {elements [ 1 ]} )";
                                         else
@@ -387,12 +392,11 @@ namespace StoredProcs
                                     else if ( parts [ y ] . Contains ( "DATE" ) )
                                     {
                                         string [ ] elements = parts [ y ] . Split ( '(' );
-                                        Output += $" (OUT-Date)"; // ({elements [ 1 ]})";
+                                        Output += $" (Date OUTPUT)"; // ({elements [ 1 ]})";
                                         if ( elements . Length >= 2 && elements [ 1 ] != "" )
                                             Output += $"( {elements [ 1 ]} )";
                                         else
                                             Output += $")";
-                                        //outflag = false;
                                         //outflag = false;
                                         break;
                                     }
