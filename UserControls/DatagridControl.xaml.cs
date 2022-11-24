@@ -2897,10 +2897,12 @@ namespace UserControls
                 Type Objtype = null;
                 int count = 0;
                 List<Dictionary<string , string>> ColumnTypesList = new List<Dictionary<string , string>> ( );
+                List<string [ ]> argsbuffer = new List<string [ ]> ( );
+                argsbuffer . Add ( args );
                 string SqlCommand = $"select column_name, data_type, character_maximum_length,numeric_precision, numeric_scale from information_schema . columns WHERE upper ( table_name ) = '{spName . ToUpper ( )}'";
                 IEnumerable<dynamic> DynList = GenDapperQueries . Get_DynamicValue_ViaDapper (
                    SqlCommand ,
-                   args ,
+                   argsbuffer ,
                   ref resultstring ,
                   ref obj ,
                   ref Objtype ,

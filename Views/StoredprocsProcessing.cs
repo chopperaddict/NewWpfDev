@@ -17,6 +17,7 @@ using System . Windows . Documents;
 using System . Reflection;
 using System . Reflection . Metadata;
 using static IronPython . Modules . PythonSocket;
+using System . ComponentModel . Design;
 
 namespace Views
 {
@@ -142,7 +143,170 @@ namespace Views
             //Debug . WriteLine ( $"Current Domain confirmed as {DbDomain} ..." );
             return constring;
         }
+        /// <summary>
+        /// Parse a set of string[] to create paramaters.Add(0 statements
+        /// where 
+        /// [0] = data
+        /// [1] = DbType
+        /// [2] = Size
+        /// [3] = ParameterDirection 
+        /// if (direction is INPUT, only args 0-1 are required
+        /// if (direction is OUTPUT, args 0-3 are required
+        /// </summary>
+        /// <param name="parameters"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        static public DynamicParameters ParseNewSqlArgs ( DynamicParameters parameters , List<string [ ]> argsbuffer )
+        {
+            DynamicParameters pms = new DynamicParameters ( );
+            for ( int x = 0 ; x < argsbuffer . Count ; x++ )
+            {
+                string [ ] args = new string [ 5 ];
+                args = argsbuffer [ x ];
+                //string [ ] arg1 = new string [ 4 ];
+                if ( args . Length < 1 ) return null;
+                if ( args [ 4 ] . Contains ( "INPUT" ) )
+                {
+                    if ( args [ 0 ] != "" )
+                    {
+                        // The main input with object specified
+                        pms . Add ( $"{args [ 1 ]}" , args [ 0 ] );
+                    }
+                }
+                else if ( args [ 4 ] == "OUTPUT" && args [ 2 ] == "STRING" )
+                {
+                    int sz = Convert . ToInt32 ( args [ 3 ] );
+                    // we have a string output parameter
+                    pms . Add ( name :$"@{args [ 1 ]}" 
+                        ,value : " "
+                         ,dbType : DbType.String
+                        ,size : sz
+                        ,direction: GetDirection ( args ) );
+                }
+                else if ( args . Length >= 3 )
+                {
+                    if ( args [ 3 ] == "MAX" )
+                    {
+                        // we have a size param
+                        pms . Add ( $"{args [ 1 ]}" ,
+                           dbType: GetArgType ( args ) ,
+                           size: 32000 ,
+                           direction: GetDirection ( args ) );
+                    }
+                    else
+                    {
+                        if ( args [ 3 ] != "" )
+                        {
+                            // Got a size argument
+                            pms . Add ( $"{args [ 1 ]}" ,
+                            dbType: GetArgType ( args ) ,
+                            size: Convert . ToInt32 ( args [ 3 ] ) ,
+                            direction: GetDirection ( args ) );
+                        }
+                        else if ( args [ 3 ] == "" )
+                        {
+                            // No size argument
+                            pms . Add ( $"{args [ 1 ]}" ,
+                               dbType: GetArgType ( args ) ,
+                               direction: GetDirection ( args ) );
+                        }
+                    }
+                }
+                else if ( x > 0 && args [ 4 ] . Contains ( "OUT" ) )
+                {
+                    if ( args . Length >= 3 )
+                    {
+                        if ( args [ 3 ] == "MAX" )
+                        {
+                            // we have a size param of MAX, so set it to 32000
+                            pms . Add ( $"{args [ 1 ]}" ,
+                               dbType: GetArgType ( args ) ,
+                               size: 32000 ,
+                               direction: GetDirection ( args ) );
+                        }
+                        else if ( args [ 3 ] == "" )
+                        {
+                            // OUTPUT with NO size arg (Probably INT)
+                            pms . Add ( $"{args [ 1 ]}" ,
+                                dbType: GetArgType ( args ) ,
+                                direction: GetDirection ( args ) );
+                        }
+                        else
+                        {
+                            // OUTPUT wiith size arg
+                            if ( args [ 2 ] == "STRING" )
+                            {
+                                pms . Add ( $"{args [ 1 ]}" ,
+                                    dbType: GetArgType ( args ) ,
+                                    size: Convert . ToInt32 ( args [ 3 ] ) ,
+                                    direction: GetDirection ( args ) );
+                            }
+                            else
+                            {
+                                pms . Add ( $"{args [ 1 ]}" ,
+                                       dbType: GetArgType ( args ) ,
+                                       size: Convert . ToInt32 ( args [ 3 ] ) ,
+                                       direction: GetDirection ( args ) );
+                            }
+                        }
+                    }
+                }
+                //else
+                //{
+                // working 23//11/22
+                ////if ( args [ 0 ] != "" )
+                ////    pms . Add ( $"{args [ 1 ]}" , args [ 0 ] );
+                ////else
+                ////    pms . Add ( $"{args [ 1 ]}" );
+                //}
+            }
+            return pms;
+        }
 
+        static public DbType GetArgType ( string [ ] type )
+        {
+            if ( type [ 2 ] . Contains ( "STR" ) || type [ 2 ] . Contains ( "STR" ) ) return DbType . String;
+            if ( type [ 2 ] . Contains ( "INT" ) ) return DbType . Int32;
+            if ( type [ 2 ] . Contains ( "FLOAT" ) ) return DbType . Double;
+            if ( type [ 2 ] . Contains ( "VARCHAR" ) ) return DbType . String;
+            if ( type [ 2 ] . Contains ( "VARBIN" ) ) return DbType . Binary;
+            if ( type [ 2 ] . Contains ( "TEXT" ) ) return DbType . String;
+            if ( type [ 2 ] . Contains ( "BIT" ) ) return DbType . Boolean;
+            if ( type [ 2 ] . Contains ( "BOOL" ) ) return DbType . Boolean;
+            if ( type [ 2 ] . Contains ( "SMALLINT" ) ) return DbType . Int16;
+            if ( type [ 2 ] . Contains ( "BIGINT" ) ) return DbType . Int64;
+            if ( type [ 2 ] . Contains ( "DOUBLE" ) ) return DbType . Double;
+            if ( type [ 2 ] . Contains ( "DEC" ) ) return DbType . Decimal;
+            if ( type [ 2 ] . Contains ( "CURR" ) ) return DbType . Currency;
+            if ( type [ 2 ] . Contains ( "DATETIME" ) ) return DbType . DateTime;
+            if ( type [ 2 ] . Contains ( "DATE" ) ) return DbType . Date;
+            if ( type [ 2 ] . Contains ( "TIMESTAMP" ) ) return DbType . Time;
+            if ( type [ 2 ] . Contains ( "TIME" ) ) return DbType . Time;
+
+            return DbType . Object;
+        }
+        static public Size GetArgSize ( string [ ] args )
+        {
+            int size = 0;
+            if ( args [ 3 ] != "" && args [ 3 ] != "MAX" )
+            {
+                size = Convert . ToInt32 ( args [ 3 ] );
+                Size sz = Size . Parse ( size . ToString ( ) );
+                return Size . Parse ( args [ 3 ] );
+            }
+            else if ( args [ 3 ] == "MAX" )
+                return Size . Empty;
+            return Size . Empty;
+        }
+        static public ParameterDirection GetDirection ( string [ ] args )
+        {
+            if ( args [ 4 ] == "" || args [ 4 ] . Contains ( "IN" ) )
+                return ParameterDirection . Input;
+            else if ( args [ 4 ] . Contains ( "OUT" ) )
+                return ParameterDirection . Output;
+
+            return ParameterDirection . Input;
+        }
         static public DynamicParameters ParseSqlArgs ( DynamicParameters parameters , string [ ] args )
         {
             bool error = false;
@@ -152,7 +316,7 @@ namespace Views
             {
                 // pms . AddDynamicParams ( args );
                 int counter = 1;
-                for ( int x = 0 ; x < args . Length ; x+=4 )
+                for ( int x = 0 ; x < args . Length ; x += 4 )
                 {
                     if ( args [ x ] == "" ) break;
 
@@ -163,72 +327,21 @@ namespace Views
                     string valid = "0123456789";
                     string arg = "";
                     int index = 0;
-                    // foreach ( var argument in args )
-                    // {
-                    //     args[index] = argument . Trim ( ) . ToUpper ( );
-                    //}
-                    // string [ ] splitter = args [ x ] . Split ( " " );
-                    // if ( args . Length >= 1 ) name = splitter [ 0 ] . Trim ( ) . ToUpper ( );
-                    // if ( args . Length >= 2 ) type = splitter [ 1 ] . Trim ( ) . ToUpper ( );
-
-                    // if ( args . Length >= 3 ) size = splitter [ 2 ] . Trim ( ) . ToUpper ( );
-                    // else if ( type == "STRING" ) size = default;
-                    // else if ( type == "INT" ) size = "10";
-                    // else if ( type == "DECIMAL" || type == "FLOAT" || type == "DOUBLE" || type == "CURRENCY" ) size = default;
-
-                    // if ( args . Length >= 4 ) returntype = splitter [ 3 ] . Trim ( ) . ToUpper ( );
-
-                    // if ( name == "" )
-                    // { error = true; break; }
-                    // if ( type == "" )
-                    // { error = true; break; }
-                    // //if ( size == "" )
-                    // //{ error = true; break; }
-                    // //if ( returntype != "" && ( returntype != "OUTPUT" && returntype != "RETURN" && returntype != "OUT" ) )
-                    // //{ error = true; break; }
-
-                    // // process size buffer in case there are () around it
-                    // string size2 = "";
-                    // for ( int z = 0 ; z < size . Length ; z++ )
-                    // {
-                    //     string test = size [ z ] . ToString ( );
-                    //     if ( size . Contains ( test ) )
-                    //         size2 += size [ z ];
-                    // }
-                    // int intsize = Convert . ToInt32 ( size2 );
-                    // if ( intsize <= 0 )
-                    // { error = true; break; }
-
-                    // Now set them to values passed to us
-                    string validstrings = "STRINGNVARCHAR VARCHAR";
-                    string validnumbers = "INT DOUBLE FLOAT CURRENCY REAL DATE DATETIME";
-
-                    //if ( validnumbers. Contains ( args [ 1 ] )
-
-
-                    //if ( splitter [ 3 ] != "" )
-                    //{
-                    //    returntype = splitter [ 3 ] . Trim ( ) . ToUpper ( );
-                    //    // breakout on first unused array element
-                    //    if ( returntype == "OUTPUT" )
-                    //        returntype = "OUT";
-                    //    else if ( returntype == "RETURN" )
-                    //        returntype = "RETURN";
-                    //}
-                    if ( args [3] == "INPUT" )
+                    if ( args [ 4 ] == "INPUT" )
                     {
-                        if ( args [ 1 ].ToUpper() == "STRING" )
+                        if ( args [ 2 ] . ToUpper ( ) == "STRING" )
                         {
-                            pms . Add ( $"Arg{counter}" , args [0],
+                            // WORKING 20/11/2022 !!
+                            pms . Add ( $"{args [ 1 ]}" , args [ 0 ] ,
                              dbType: DbType . String ,
-                            size:  Convert.ToInt32(args [ 0 ].Length),
+                            size: Convert . ToInt32 ( args [ 0 ] . Length ) ,
                             direction: ParameterDirection . Input );
                         }
                         else if ( args [ 1 ] == "INT" )
                         {
-                            pms . Add ( $"Arg{counter}" , args [ 0 ] ,
+                            pms . Add ( $"{args [ 1 ]}" , args [ 0 ] ,
                              dbType: DbType . Int32 ,
-                            size: Convert . ToInt32 ( args [ 2 ] ) ,
+                            size: Convert . ToInt32 ( args [ 0 ] . Length ) ,
                             direction: ParameterDirection . Input );
                         }
                     }
@@ -237,16 +350,16 @@ namespace Views
                         // Output args
                         if ( args [ 1 ] == "STRING" )
                         {
-                            pms . Add ( $"Arg{counter}" , args [ 0 ] ,
+                            pms . Add ( $"{args [ 1 ]}" , args [ 0 ] ,
                              dbType: DbType . String ,
-                            size: Convert . ToInt32 ( args [ 2 ] ) ,
+                            size: Convert . ToInt32 ( args [ 0 ] . Length ) ,
                             direction: ParameterDirection . Output );
                         }
                         else if ( args [ 1 ] == "INT" )
                         {
-                            pms . Add ( $"Arg{counter}" , args [ 0 ] ,
+                            pms . Add ( $"{args [ 1 ]}" , args [ 0 ] ,
                              dbType: DbType . Int32 ,
-                            size: Convert . ToInt32 ( args [ 2 ] ) ,
+                            size: Convert . ToInt32 ( args [ 0 ] . Length ) ,
                             direction: ParameterDirection . Output );
                         }
                     }

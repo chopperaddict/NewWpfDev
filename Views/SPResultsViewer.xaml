@@ -31,6 +31,39 @@
             <GradientStop Color="Lime" Offset="0.5"/>
             <GradientStop Color="Black" Offset="0"/>
         </LinearGradientBrush>
+        <Style x:Key="ColumnHeaderStyle" TargetType="{x:Type DataGridColumnHeader}">
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Background" Value="{Binding Path=HeaderBackground, ElementName=dgCtrl}"/>
+            <Setter Property="Foreground" Value="{Binding Path=HeaderForeground, ElementName=dgCtrl}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="DataGridColumnHeader">
+                        <Grid Width="{Binding}">
+                            <Border BorderThickness="1" 
+                                    Width="{Binding}"
+                                    CornerRadius="2" 
+                                    Background="{Binding Path=HeaderBackground, ElementName=dgCtrl}"
+                                    BorderBrush="{StaticResource Red0}">
+
+                                <TextBlock Text="{TemplateBinding  Content}" 
+                                            VerticalAlignment="Center" 
+                                            HorizontalAlignment="Center" 
+                                            TextWrapping="Wrap"
+                                            Width="{Binding}"/>
+                            </Border>
+                            <!--<ContentPresenter />-->
+                            <!--// THIS allows the columns to be resized !!!!!-->
+                            <Thumb x:Name="PART_RightHeaderGripper" Grid.Column="1"
+                                HorizontalAlignment="Right"
+                                Width="2" BorderThickness="1"
+                                BorderBrush="{Binding VerticalGridLinesBrush, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}}"
+                                Cursor="SizeWE"/>
+                        </Grid>
+                        <!--</DataGridHeaderBorder>-->
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
         <Style TargetType="{x:Type Paragraph}">
             <Setter Property="Margin" Value="0" />
@@ -394,6 +427,20 @@
             Background="Orange">
 
             <!--// Show SP's matching Search term only-->
+            <MenuItem   x:Name="gm0" Click="expandprompt">
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                    Text="Expand/Contract Parameters panel" 
+                                    FontSize="16"
+                                     Height="25"
+                                    Padding="20 0 0 0"
+                                    Margin="0 0 0 0"
+                                     Width="375"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+
             <MenuItem   x:Name="gm1" Click="showmatchesonly">
                 <MenuItem.Header>
                     <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
@@ -407,7 +454,7 @@
                     </StackPanel>
                 </MenuItem.Header>
             </MenuItem>
-
+            
             <!--//Show ALL S.P's in panel-->
             <MenuItem   x:Name="gm2"  Click="ShowAllSprocs">
                 <MenuItem.Header>
@@ -844,15 +891,14 @@
                             <TextBlock x:Name="txt2"  Grid.Row="1" FontSize="16" Text="required arguments in the correct format, and choose an Execution Method" />
                             </Grid>
                         </TextBlock>
-
-
                     </TextBlock>
 
                     <TextBox x:Name="SPArguments" 
-                               Grid.Row="1"
-                                Height="35"                         
+                               Grid.Row="0"
+                                Height="40"                         
                                 Text="Argument(s) required ?"
                                 TextAlignment="Center"
+                                TextWrapping="Wrap"
                                 HorizontalContentAlignment="Center"
                                 FontSize="16"
                                 Padding="0 4 0 0"
@@ -867,7 +913,9 @@
                                 ToolTip="Press F1 for detailed information on how to pass parameters"
                                 Visibility="Visible" 
                                  Width="Auto" 
-                                Margin="3,2,0,2" Grid.ColumnSpan="3" />
+                                Margin="3,45,0,2" 
+                                Grid.RowSpan="2"
+                                Grid.ColumnSpan="3" />
 
                 </Grid>
 
@@ -986,27 +1034,20 @@
                         <ListBox x:Name="AllTables"
                                 Grid.Row="1"
                                     Height="{Binding row10}"
-                                    Width="{Binding InnerGrid,
-                                        Converter={StaticResource ReduceByParamValue},ConverterParameter=0}"
+                                    Width="300"
                                     Background="{StaticResource Black5}"
                                     Foreground="White"                                     
                                     SelectionMode="Single"
                                     FontSize="14"
                                     FontWeight="DemiBold"
                                     Margin="11,5,11,5"
-                                    ContextMenu="{StaticResource TableViewerContextMenu}"
                                     ScrollViewer.VerticalScrollBarVisibility="Auto"
                                     ScrollViewer.HorizontalScrollBarVisibility="Auto"
                                     Panel.ZIndex="4"
-                                    ItemContainerStyle="{StaticResource SpStringsStyle}"
-                                    PreviewMouseLeftButtonDown="tableviewer_LButtonDn"
-                                    IsHitTestVisible="True"
-                                    MouseRightButtonDown="TablesViewer_PreviewMouseRightButtonDown"
-                                    MouseMove="tableviewer_Moving"
-                                    PreviewKeyDown="tableviewer_KeyDown"
-                                   Visibility="Visible" />
-                        <!--MouseLeftButtonUp="tableviewer_Ending"-->
-
+                                       IsHitTestVisible="True"
+                                    Visibility="Visible" />
+                                    <!--ItemContainerStyle="{StaticResource SpStringsStyle}"-->
+                        
                         <TextBlock x:Name="reccount" 
                                 Grid.Row="2"
                                 Width="80"
@@ -1256,6 +1297,102 @@
         </Canvas>
 
         <!--#endregion Canvas-->
+
+
+                        <!--ColumnHeaderStyle="{StaticResource ColumnHeaderStyle}"-->
+                        <!--AutoGenerateColumns="false"-->
+                        <!--CanUserAddRows="True"
+                        RowHeight="30"-->
+            <ListBox x:Name="ExecuteEdit"
+                        DataContext="Executedata"
+                        Grid.Row="3"
+                        Height="{Binding row10}"
+                        Width="400"
+                        Background="{StaticResource White4}"
+                        Foreground="Black"   
+                        SelectionMode="Single"
+                        FontSize="16"
+                        FontWeight="DemiBold"
+                        IsEnabled="True"
+                        Margin="0,0,0,0"
+                        IsSynchronizedWithCurrentItem="true"
+                        HorizontalContentAlignment="Center"
+                        ScrollViewer.VerticalScrollBarVisibility="Auto"
+                        ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                        IsHitTestVisible="True"
+                        Panel.ZIndex="4"
+                        KeyDown="TextBlock_KeyDown"
+                        MouseRightButtonDown="ExecuteEdit_PreviewMouseRightButtonDown"
+                        Visibility="Collapsed">
+            <ListBoxItem>
+            <!--<ListBox.ItemTemplate--> 
+                <DataTemplate x:Name="dtemplate">
+                    <Grid>
+                    <TextBlock  x:Name="TBrow" 
+                            Margin="0 0 0 0"
+                            Text="{Binding Path=Text}"  
+                            IsHitTestVisible="True"
+                            Visibility="Visible"/>
+                        
+                    <TextBox x:Name="txboxrow" 
+                            Margin="0 0 0 0"
+                            IsHitTestVisible="true"                             
+                            Foreground="Black" 
+                            Width="380"
+                            Height="30"
+                            Text="{Binding Path=Text}"  
+                            Visibility="Collapsed"
+                            Background="{StaticResource White4}"/>
+                    </Grid>
+                </DataTemplate>
+            <!--</ListBox.ItemTemplate>-->
+            </ListBoxItem>
+            <!--RowBackground="{StaticResource Cyan1}"
+                        RowHeaderWidth="400"-->
+                        <!--ItemsSource="{Binding Executedata}"-->
+            <!--<DataGrid.Columns>
+                <DataGridTemplateColumn Header="Arguments" Width="400">
+                    <DataGridTemplateColumn.CellTemplate>                    
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}" 
+                                       TextAlignment="Center"  
+                                       Foreground="Blue" 
+                                       Background="Cyan" 
+                                       Width="400"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>-->
+            <!--TextBlock.TextAlignment="Center"-->
+                
+                    <!--<DataGrid.Columns>
+                        <DataGridTextColumn  Header="Argument" 
+                                            Width="700"
+                                            Binding="{Binding Argument}"/>
+                        
+                          --><!--<DataGridTemplateColumn Header="Argument">-->
+                            <!--<DataGridTemplateColumn.CellTemplate>-->
+                                <!--<DataTemplate>
+                                    <StackPanel Orientation="Horizontal" Width="700">
+                                <TextBox Text="Binding={Argument}"
+                                                 Foreground="Black"
+                                                 Background="{StaticResource White4}"/>
+                                --><!--<Button Content="Edit" x:Name="BtnEdit" Click="btnEdit_Click"/>--><!--
+                                    </StackPanel>
+                                </DataTemplate>-->
+                            <!--</DataGridTemplateColumn.CellTemplate>-->
+                        <!--</DataGridTemplateColumn>--><!--
+                    
+                    </DataGrid.Columns>-->
+                
+            <!--<DataGridRow>
+                <TextElement.Foreground="Black"
+            </DataGridRow>-->
+                        <!--DataGrid.ColumnHeaderStyle="{StaticResource ColumnHeaderStyle}"-->
+                            <!--ItemContainerStyle="{StaticResource SpStringsStyle}"-->
+        </ListBox>
+                                                        <!--MouseMove="tableviewer_Moving"-->
+
 
     </Grid>
 </Window>

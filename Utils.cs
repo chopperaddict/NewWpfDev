@@ -256,9 +256,10 @@ namespace NewWpfDev
             {
                 for ( int i = 0 ; i < repeat ; i++ )
                 {
-                    Console . Beep ( 370 , 150 );
-                    //Console . Beep ( 370 , 150 );
-                    Console . Beep ( 420 , 550 );
+                    Console . Beep ( 340 , 250 );
+                    Console . Beep ( 410 , 220 );
+                    Console . Beep ( 340 , 250 );
+                    Console . Beep ( 430, 550 );
                     //Console . Beep ( 300 , 800 );
                 }
             }

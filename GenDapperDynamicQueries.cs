@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define USENEWARGS
+//#undef USENEWARGS
+using System;
 using System . Collections . Generic;
 using System . Collections . ObjectModel;
 using System . Data;
@@ -47,7 +49,7 @@ namespace NewWpfDev
         /// <returns></returns>
         public static dynamic Get_DynamicValue_ViaDapper (
             string SqlCommand ,
-            string [ ] args ,
+            List<string [ ] > argsbuffer ,
             ref string resultstring ,
             ref object obj ,
             ref Type Objtype ,
@@ -76,18 +78,27 @@ namespace NewWpfDev
                 // set to our local definition
                 Con = MainWindow . CurrentSqlTableDomain;
                 MessageBox . Show ( $"It was not possible to Identify a valid Sql Connection string for \nthe Database [ {MainWindow . CurrentSqlTableDomain . ToUpper ( )} ]\n\n Please report  this error to DB Technical Support" , "Connection Error" );
+                error = $"Could not get correct SQL initialization string for domain {MainWindow . CurrentSqlTableDomain}";
                 return null;
             }
-
             try
             {
                 using ( sqlCon = new SqlConnection ( Con ) )
                 {
                     var parameters = new DynamicParameters ( );
-                    if ( args != null )
+                    if ( argsbuffer.Count > 0)
+                    {
+#if USENEWARGS
+                            parameters = StoredprocsProcessing . ParseNewSqlArgs ( parameters , argsbuffer );
+#else
                         parameters = StoredprocsProcessing . ParseSqlArgs ( parameters , args );
+#endif
+                    }
                     if ( parameters == null )
+                    {
+                        error = "The Parameters are invalid - Please check them carefully";
                         return null;
+                    }
                     $"{SqlCommand}" . DapperTrace ( );
 
                     //********************************************************************************************************//                    
@@ -139,21 +150,18 @@ namespace NewWpfDev
                     {
                         Debug . WriteLine ( $"ProcessUniversalQueryStoredProcedure() : [ {SqlCommand . ToUpper ( )} ]" );
 
-
                         //=================================================================================//
                         var strresult = sqlCon . Query<string> ( SqlCommand , parameters , commandType: CommandType . StoredProcedure );
                         //=================================================================================//
 
                         Debug . WriteLine ( $"ProcessUniversalQueryStoredProcedure() : {SqlCommand} returned  RESULT = {strresult}" );
-                        //string restring = parameters . Get<string> ( "result" );
-                        //foreach ( var item in strresult )
-                        //{
-                        // set (ref) parameters  to be  returned
+                        //string s = parameters . Get<string> ("returnval");
+                         // set (ref) parameters  to be  returned
                         Objtype = typeof ( string );
                         if ( strresult != null )
                         {
                             //int tryintresult = 0;
-                            //int . TryParse ( restring , out int tryintresult );
+                            //int . TryParse ( strresult , out int tryintresult );
                             //if ( tryintresult > 0 )
                             //count = tryintresult;
                             obj = ( object ) strresult;
@@ -197,7 +205,7 @@ namespace NewWpfDev
                         resultstring = "SUCCESS";
                         return IEList;
                     }
- 
+
 
                     //**************************************************************************************************************************************************//
                     // INT - TEXT using Text command version to return a dynamic (int )
@@ -253,7 +261,6 @@ namespace NewWpfDev
                         resultstring = "SUCCESS";
                         return obj;
                     }
-
                 }
             }
             catch ( Exception ex )
@@ -675,9 +682,7 @@ namespace NewWpfDev
             int result = -1;
             string Con = "";
             err = "";
-            //if ( MainWindow . SqlCurrentConstring != CurrentTableDomain )
-            //    MainWindow . SqlCurrentConstring = CurrentTableDomain;
-            Con = GenericDbUtilities . CheckSetSqlDomain ( CurrentTableDomain );
+             Con = GenericDbUtilities . CheckSetSqlDomain ( CurrentTableDomain );
             if ( Con == "" )
             {
                 // set to our local definition

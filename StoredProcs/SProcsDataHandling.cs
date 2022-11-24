@@ -296,12 +296,13 @@ namespace StoredProcs
                         
                         // default to being in INPUT mode
                         bool outflag = false;
-                        Output = "[** The TARGET object **] ";
+                        Output = "[** Target **] ";
+
 
                         // loop thru each the parameters
                         for ( int x = 1 ; x < headerbuff . Length ; x++ )
                         {
-                            Output += " : ";
+                            if(x > 1) Output += " : ";
 //                            if ( outflag ) Output += " : ";
                             // ignore top line (x = 1)
                             string [ ] parts = headerbuff [ x ] . ToUpper ( ) . Split ( ' ' );
@@ -321,6 +322,8 @@ namespace StoredProcs
                                     {
                                         if ( parts [ y ] [0] == ',')
                                         Output += $"{parts [ y ].Substring(1, parts [y].Length - 1 )} ";
+                                        else
+                                            Output += $"{parts [ y ]} ";
                                     }
                                     else Output += $"{parts [ y ]}";
                                     continue;
@@ -350,8 +353,8 @@ namespace StoredProcs
                                         }
                                         if ( parts [ y ] == "AS" )
                                             continue;
-                                        else
-                                            Output += $"{parts [ y ]} ";
+                                        //else
+                                           // Output += $"{parts [ y ]} ";
                                     }
                                     continue;
                                 }
