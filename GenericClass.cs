@@ -67,7 +67,7 @@ namespace NewWpfDev
         #endregion OnPropertyChanged
 
         #region declare variables for fields
-        private string? _field1;
+        private string _field1;
         public string field1
         {
             get => _field1!;
@@ -76,7 +76,7 @@ namespace NewWpfDev
                 _field1 = value; OnPropertyChanged ( nameof ( field1 ) );
             }
         }
-        private string? _field2;
+        private string _field2;
         public string field2
         {
             get => _field2!;
@@ -85,7 +85,7 @@ namespace NewWpfDev
                 _field2 = value; OnPropertyChanged ( nameof ( field2 ) );
             }
         }
-        private string? _field3;
+        private string _field3;
         public string field3
         {
             get => _field3!;
@@ -94,7 +94,7 @@ namespace NewWpfDev
                 _field3 = value; OnPropertyChanged ( nameof ( field3 ) );
             }
         }
-        private string? _field4;
+        private string _field4;
         public string field4
         {
             get => _field4!;
@@ -103,7 +103,7 @@ namespace NewWpfDev
                 _field4 = value; OnPropertyChanged ( nameof ( field4 ) );
             }
         }
-        private string? _field5;
+        private string _field5;
         public string field5
         {
             get => _field5!;
@@ -112,7 +112,7 @@ namespace NewWpfDev
                 _field5 = value; OnPropertyChanged ( nameof ( field5 ) );
             }
         }
-        private string? _field6;
+        private string _field6;
         public string field6
         {
             get => _field6!;
@@ -121,7 +121,7 @@ namespace NewWpfDev
                 _field6 = value; OnPropertyChanged ( nameof ( field6 ) );
             }
         }
-        private string? _field7;
+        private string _field7;
         public string field7
         {
             get => _field7!;
@@ -130,7 +130,7 @@ namespace NewWpfDev
                 _field7 = value; OnPropertyChanged ( nameof ( field7 ) );
             }
         }
-        private string? _field8;
+        private string _field8;
         public string field8
         {
             get => _field8!;
@@ -139,7 +139,7 @@ namespace NewWpfDev
                 _field8 = value; OnPropertyChanged ( nameof ( field8 ) );
             }
         }
-        private string? _field9;
+        private string _field9;
         public string field9
         {
             get => _field9!;
@@ -148,7 +148,7 @@ namespace NewWpfDev
                 _field9 = value; OnPropertyChanged ( nameof ( field9 ) );
             }
         }
-        private string? _field10;
+        private string _field10;
         public string field10
         {
             get => _field10!;
@@ -157,7 +157,7 @@ namespace NewWpfDev
                 _field10 = value; OnPropertyChanged ( nameof ( field10 ) );
             }
         }
-        private string? _field11;
+        private string _field11;
         public string field11
         {
             get => _field11!;
@@ -166,7 +166,7 @@ namespace NewWpfDev
                 _field11 = value; OnPropertyChanged ( nameof ( field11 ) );
             }
         }
-        private string? _field12;
+        private string _field12;
         public string field12
         {
             get => _field12!;
@@ -175,7 +175,7 @@ namespace NewWpfDev
                 _field12 = value; OnPropertyChanged ( nameof ( field12 ) );
             }
         }
-        private string? _field13;
+        private string _field13;
         public string field13
         {
             get => _field13;
@@ -184,7 +184,7 @@ namespace NewWpfDev
                 _field13 = value; OnPropertyChanged ( nameof ( field13 ) );
             }
         }
-        private string? _field14;
+        private string _field14;
         public string field14
         {
             get => _field14!;
@@ -193,7 +193,7 @@ namespace NewWpfDev
                 _field14 = value; OnPropertyChanged ( nameof ( field14 ) );
             }
         }
-        private string? _field15;
+        private string _field15;
         public string field15
         {
             get => _field15!;
@@ -202,7 +202,7 @@ namespace NewWpfDev
                 _field15 = value; OnPropertyChanged ( nameof ( field15 ) );
             }
         }
-        private string? _field16;
+        private string _field16;
         public string field16
         {
             get => _field16!;
@@ -211,7 +211,7 @@ namespace NewWpfDev
                 _field16 = value; OnPropertyChanged ( nameof ( field16 ) );
             }
         }
-        private string? _field17;
+        private string _field17;
         public string field17
         {
             get => _field17!;
@@ -220,7 +220,7 @@ namespace NewWpfDev
                 _field17 = value; OnPropertyChanged ( nameof ( field17 ) );
             }
         }
-        private string? _field18;
+        private string _field18;
         public string field18
         {
             get => _field18!;
@@ -229,7 +229,7 @@ namespace NewWpfDev
                 _field18 = value; OnPropertyChanged ( nameof ( field18 ) );
             }
         }
-        private string? _field19;
+        private string _field19;
         public string field19
         {
             get => _field19!;
@@ -238,7 +238,7 @@ namespace NewWpfDev
                 _field19 = value; OnPropertyChanged ( nameof ( field19 ) );
             }
         }
-        private string? _field20;
+        private string _field20;
         public string field20
         {
             get => _field20!;
