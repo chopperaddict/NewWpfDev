@@ -108,7 +108,7 @@ namespace NewWpfDev . UserControls
         public static GenericGridControl ThisWin { get; set; }
 
         #endregion normal File Declarations
-
+        //FlowdocLib fdl { get; set; }
         #region Data Models
 
         //Data Collections
@@ -2044,12 +2044,12 @@ namespace NewWpfDev . UserControls
             List<string> genericlist = new List<string> ( );
             try
             {
-                DapperGenLib . CreateGenericCollection (
-                "spGetTableColumnWithSize2" ,
-                $"{spName}" ,
-                "" ,
-                "" ,
-                 ref errormsg );
+                //Generics = DapperGenLib . CreateGenericCollection (
+                //"spGetTableColumnWithSize" ,
+                //$"{spName}" ,
+                //"" ,
+                //"" ,
+                // ref errormsg );
 
                 string ConString = GenericDbUtilities . CheckSetSqlDomain ( "");
                 if ( ConString == "" )
@@ -2058,7 +2058,7 @@ namespace NewWpfDev . UserControls
                     ConString = MainWindow . SqlCurrentConstring;                
                 }
 
-                dt = ProcessSqlCommand ( "spGetTableColumnWithSize2  " + spName , ConString );
+                dt = ProcessSqlCommand ( "spGetTableColumnWithSize  " + spName , ConString );
                 if ( dt . Rows . Count == 0 )
                     columncount = 0;
                 foreach ( var item in dt . Rows )
@@ -2167,7 +2167,8 @@ namespace NewWpfDev . UserControls
                         fdinput += output;
                         fdinput += $"\nPress ESCAPE to close this window...\n";
                         //                    FlowDoc fdl = new FlowDoc ();
-
+                        if ( fdl == null )
+                            fdl = new FlowdocLib ( Flowdoc , canvas );
                         fdl . ShowInfo ( Flowdoc , canvas , line1: fdinput , clr1: "Black0" , line2: "" , clr2: "Black0" , line3: "" , clr3: "Black0" , header: "" , clr4: "Black0" );
                         canvas . Visibility = Visibility . Visible;
                         Flowdoc . Visibility = Visibility . Visible;

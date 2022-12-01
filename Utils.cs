@@ -228,7 +228,7 @@ namespace NewWpfDev
                 for ( int i = 0 ; i < repeat ; i++ )
                 {
                     Console . Beep ( freq , count );
-                    Thread . Sleep ( 200 );
+                    //Thread . Sleep ( 200 );
                 }
                 //else
                 //	t = Task . Factory . StartNew ( ( ) => Debug. WriteLine ( ) );
@@ -246,7 +246,7 @@ namespace NewWpfDev
                     Console . Beep ( 280 , 100 );
                     Console . Beep ( 200 , 500 );
                 }
-                Thread . Sleep ( 100 );
+            //    Thread . Sleep ( 100 );
             }
             return;
         }
@@ -254,24 +254,24 @@ namespace NewWpfDev
         {
             if ( Flags . UseBeeps )
             {
-                for ( int i = 0 ; i < repeat ; i++ )
-                {
-                    Console . Beep ( 340 , 250 );
-                    Console . Beep ( 410 , 220 );
-                    Console . Beep ( 340 , 250 );
-                    Console . Beep ( 430, 550 );
+                //for ( int i = 0 ; i < repeat ; i++ )
+                //{
+                   Console . Beep ( 340 , 150 );
+                    Console . Beep ( 410 , 120 );
+                    Console . Beep ( 340 , 150 );
+                    Console . Beep ( 430, 350 );
                     //Console . Beep ( 300 , 800 );
-                }
+                //
             }
             return;
         }
         public static void PlayErrorBeep ( int freq = 280 , int count = 100 , int repeat = 1 )
         {
-            for ( int i = 0 ; i < repeat ; i++ )
-            {
+            //for ( int i = 0 ; i < repeat ; i++ )
+            //{
                 Console . Beep ( 320 , 300 );
                 Console . Beep ( 260 , 800 );
-            }
+            //}
             //Thread . Sleep ( 100 );
             return;
         }
@@ -3337,6 +3337,13 @@ namespace NewWpfDev
                 }
             }
             return recordcount;
+        }
+        static public ReadOnlySpan <char> SpanTrim(string str, int start, int len)
+        {
+           // string output = "";
+            ReadOnlySpan<char> span = str;
+            span  = span . Slice ( start , len );
+            return span;
         }
 
     }

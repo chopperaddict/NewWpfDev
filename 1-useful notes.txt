@@ -1,4 +1,45 @@
 ﻿=============================================================================================================
+    How to call SPAN for effiicient substring operation
+===============================================================================================================
+                
+				string tmp = NewWpfDev . Utils . SpanTrim ( sizearg , 1 , sizearg . Length - 1 ) . ToString ( );
+
+=============================================================================================================
+    direct SQL yntax for output parameters
+===============================================================================================================
+	USING RETURN STATEMENT :
+	
+	Calling procedure :
+	declare @rows INT
+	exec @rows =[spGetColumns] customer
+	select @rows as Rows
+
+	S.Procedure :
+
+	ALTER PROCEDURE [dbo].[spGetColumns]
+		@Arg1 varchar (200) = ''		--table for the columns to be counted 
+		,@list varchar(max) OUTPUT  --Output table for the columns to be returned
+		,@rowcount INT OUTPUT
+		
+		SELECT @list =column_name, data_type from cols where table_name=UPPER(@arg1)
+
+		// return the INT output parameter
+		set @rows = @@ROWCOUNT
+
+	
+	Calling procedure :
+	declare @columnlist varchar(max) // variable for the data returned
+
+ALTER PROCEDURE [dbo].[spGetColumns]
+(
+@Arg1 varchar (200) = ''		--table for the columns to be counted 
+,@list varchar(max)   --Output table for the columns to be returned
+)
+......
+
+
+ 
+=============================================================================================================
     REGEX  charcters and usages
 ===============================================================================================================
 	when search term e "begin" and we use regex command
@@ -15,12 +56,10 @@
 
 	"begin[adm]" will only match if "begin" is 'begina', 'begind' or 'beginm'
 
-
-
 	".begin." will match "begin with ANY character at start and end
-	"
+	
 =============================================================================================================
-    How to set get return values from SQL requests
+    How to set get return values from Dapper SQL requests
 ===============================================================================================================
 		
 		var p = new DynamicParameters();
@@ -48,6 +87,7 @@
 		   // as we only got one row, we can access it using index [0] .....
 		   // other options can be used of course.
             int colcount = Convert . ToInt32 ( SqlQuerylist [ 0 ] );
+
 =============================================================================================================
     How to convert a Dynamic to an Int (or string or whatever else is needed)
 ===============================================================================================================
@@ -1805,7 +1845,7 @@ SELECT [ ALL | DISTINCT ]
 	into temp FROM customer
 
 ===============================================================================================================
-// PC recovery commands oin Powershell (Admin rights)
+// PC recovery commands in Powershell (Admin rights)
 ===============================================================================================================
 
   sfc /scannow

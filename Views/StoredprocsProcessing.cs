@@ -18,6 +18,7 @@ using System . Reflection;
 using System . Reflection . Metadata;
 using static IronPython . Modules . PythonSocket;
 using System . ComponentModel . Design;
+using System . Linq . Expressions;
 
 namespace Views
 {
@@ -156,115 +157,135 @@ namespace Views
         /// <param name="parameters"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        static public DynamicParameters ParseNewSqlArgs ( DynamicParameters parameters , List<string [ ]> argsbuffer )
+        static public DynamicParameters ParseNewSqlArgs ( DynamicParameters parameters , List<string [ ]> argsbuffer, out string error )
         {
             DynamicParameters pms = new DynamicParameters ( );
-            for ( int x = 0 ; x < argsbuffer . Count ; x++ )
+            error = "";
+            try
             {
-                string [ ] args = new string [ 5 ];
-                args = argsbuffer [ x ];
-                //string [ ] arg1 = new string [ 4 ];
-                if ( args . Length < 1 ) return null;
-                if ( args [ 4 ] . Contains ( "INPUT" ) )
+                /*
+                 order is :
+                @name
+                Argument
+                Type
+                Size
+                Direction
+                 */
+                int argcount = 0;
+                for ( var i = 0 ; i < argsbuffer . Count ; i++ )
                 {
-                    if ( args [ 0 ] != "" )
+                    DbType argtype = DbType . Object;
+                    string [ ] args = new string [ 6 ];
+                    args = argsbuffer [ i ];
+                    args = PadArgsArray ( args );
+                    int y = 0;
+                    int [ ] argindx = new int [ 5 ];
+                    for ( int z = 0 ; z < 5 ; z++ )
                     {
-                        // The main input with object specified
-                        pms . Add ( $"{args [ 1 ]}" , args [ 0 ] );
-                    }
-                }
-                else if ( args [ 4 ] == "OUTPUT" && args [ 2 ] == "STRING" )
-                {
-                    int sz = Convert . ToInt32 ( args [ 3 ] );
-                    // we have a string output parameter
-                    pms . Add ( name :$"@{args [ 1 ]}" 
-                        ,value : " "
-                         ,dbType : DbType.String
-                        ,size : sz
-                        ,direction: GetDirection ( args ) );
-                }
-                else if ( args . Length >= 3 )
-                {
-                    if ( args [ 3 ] == "MAX" )
-                    {
-                        // we have a size param
-                        pms . Add ( $"{args [ 1 ]}" ,
-                           dbType: GetArgType ( args ) ,
-                           size: 32000 ,
-                           direction: GetDirection ( args ) );
-                    }
-                    else
-                    {
-                        if ( args [ 3 ] != "" )
-                        {
-                            // Got a size argument
-                            pms . Add ( $"{args [ 1 ]}" ,
-                            dbType: GetArgType ( args ) ,
-                            size: Convert . ToInt32 ( args [ 3 ] ) ,
-                            direction: GetDirection ( args ) );
-                        }
-                        else if ( args [ 3 ] == "" )
-                        {
-                            // No size argument
-                            pms . Add ( $"{args [ 1 ]}" ,
-                               dbType: GetArgType ( args ) ,
-                               direction: GetDirection ( args ) );
-                        }
-                    }
-                }
-                else if ( x > 0 && args [ 4 ] . Contains ( "OUT" ) )
-                {
-                    if ( args . Length >= 3 )
-                    {
-                        if ( args [ 3 ] == "MAX" )
-                        {
-                            // we have a size param of MAX, so set it to 32000
-                            pms . Add ( $"{args [ 1 ]}" ,
-                               dbType: GetArgType ( args ) ,
-                               size: 32000 ,
-                               direction: GetDirection ( args ) );
-                        }
-                        else if ( args [ 3 ] == "" )
-                        {
-                            // OUTPUT with NO size arg (Probably INT)
-                            pms . Add ( $"{args [ 1 ]}" ,
-                                dbType: GetArgType ( args ) ,
-                                direction: GetDirection ( args ) );
-                        }
+                        if ( args [ z ] != "" )
+                            argindx [ z ] = 1;
                         else
-                        {
-                            // OUTPUT wiith size arg
-                            if ( args [ 2 ] == "STRING" )
-                            {
-                                pms . Add ( $"{args [ 1 ]}" ,
-                                    dbType: GetArgType ( args ) ,
-                                    size: Convert . ToInt32 ( args [ 3 ] ) ,
-                                    direction: GetDirection ( args ) );
-                            }
-                            else
-                            {
-                                pms . Add ( $"{args [ 1 ]}" ,
-                                       dbType: GetArgType ( args ) ,
-                                       size: Convert . ToInt32 ( args [ 3 ] ) ,
-                                       direction: GetDirection ( args ) );
-                            }
-                        }
+                            argindx [ z ] = 0;
+                    }
+                    // Got 1st 2 only (default direction)
+                    if ( argindx [ 0 ] == 1 && argindx [ 1 ] == 0 && argindx [ 2 ] == 0 && argindx [ 3 ] == 0  )
+                    {
+                        pms . Add ( args [ 0 ] );
+                        argcount++;
+                        continue;
+                    }
+                    if ( argindx [ 0 ] == 1 && argindx [ 1 ] == 1 && argindx [ 2 ] == 0 && argindx [ 3 ] == 0 )
+                    {
+                        pms . Add ( args [ 0 ]
+                            , value: args [ 1 ] );
+                        argcount++;
+                        continue;
+                    }
+                    if ( argindx [ 0 ] == 1 && argindx [ 1 ] == 1 && argindx [ 2 ] == 1 && argindx [ 3 ] == 0 && argindx [ 4 ] == 0 )
+                    {
+                        pms . Add ( args [ 0 ]
+                            , value: args [ 1 ]
+                            , dbType: GetArgType ( args ) );
+                        argcount++;
+                        continue;
+                    }
+                    // Got 1st 2 + arg type + arg size only (default direction)
+                    if ( argindx [ 0 ] == 1 && argindx [ 1 ] == 1 && argindx [ 2 ] == 1 && argindx [ 3 ] == 1 && argindx [ 4 ] == 0 )
+                    {
+                        pms . Add ( args [ 0 ]
+                            , value: args [ 1 ]
+                             , size: Convert . ToInt32 ( args [ 3 ] ) );
+                        argcount++;
+                        continue;
+                    }
+                    // Got 1st 2 + arg direction  (default direction)
+                    if ( argindx [ 0 ] == 1 && argindx [ 1 ] == 1 && argindx [ 2 ] == 1 && argindx [ 3 ] == 1 && argindx [ 4 ] == 1 )
+                    {
+                        pms . Add ( args [ 0 ] ,
+                        value: args [ 1 ]
+                        , dbType: GetArgType ( args )
+                        , direction: GetDirection ( args ) );
+                        argcount++;
+                        continue;
+                    }
+                    // Got @ + arg type + direction
+                    if ( argindx [ 0 ] == 1 && argindx [ 1 ] == 0 && argindx [ 2 ] == 1 && argindx [ 3 ] == 0 && argindx [ 4 ] == 1 )
+                    {
+                        pms . Add ( args [ 0 ]
+                        , dbType: GetArgType ( args )
+                        , direction: GetDirection ( args ) );
+                        argcount++;
+                        continue;
+                    }
+                    // Got value only - ILLEGAL
+                    if ( argindx [ 0 ] == 1 && argindx [ 1 ] == 0 && argindx [ 2 ] == 0 && argindx [ 3 ] == 0 && argindx [ 4 ] == 0 )
+                    {
+                        pms . Add ( "" , value: args [ 1 ] );
+                        continue;
+                    }
+                    // Got 1st 2 + size - ILLEGAL
+                    if ( argindx [ 0 ] == 1 && argindx [ 1 ] == 1 && argindx [ 2 ] == 0 && argindx [ 3 ] == 1 && argindx [ 4 ] == 0 )
+                    {
+                        pms . Add ( args [ 0 ]
+                            , value: args [ 1 ]
+                            , size: Convert . ToInt32 ( args [ 3 ] ) );
+                        continue;
+                    }
+                    // Got 1st 2 + size + direction- ILLEGAL
+                    if ( argindx [ 0 ] == 1 && argindx [ 1 ] == 1 && argindx [ 2 ] == 0 && argindx [ 3 ] == 1 && argindx [ 4 ] == 1 )
+                    {
+                        pms . Add ( args [ 0 ]
+                            , value: args [ 1 ]
+                            , size: Convert . ToInt32 ( args [ 3 ] )
+                            , direction: GetDirection ( args ) );
+                        continue;
                     }
                 }
-                //else
-                //{
-                // working 23//11/22
-                ////if ( args [ 0 ] != "" )
-                ////    pms . Add ( $"{args [ 1 ]}" , args [ 0 ] );
-                ////else
-                ////    pms . Add ( $"{args [ 1 ]}" );
-                //}
+                if ( argcount < argsbuffer . Count )
+                    error = "One or more invalid arguments identified";
+            }
+            catch ( Exception ex )
+            {
+                Debug . WriteLine ( ex . Message );
             }
             return pms;
+        }
+        public static string [ ] PadArgsArray ( string [ ] content )
+        {
+            string [ ] tmp = new string [ 6 ];
+            for ( int x = 0 ; x < 6 ; x++ )
+            {
+                if ( content [ x ] != null )
+                    tmp [ x ] = content [ x ];
+                else
+                    tmp [ x ] = "";
+            }
+            return tmp;
         }
 
         static public DbType GetArgType ( string [ ] type )
         {
+            if ( type [ 2 ] == "" ) return DbType . String;
             if ( type [ 2 ] . Contains ( "STR" ) || type [ 2 ] . Contains ( "STR" ) ) return DbType . String;
             if ( type [ 2 ] . Contains ( "INT" ) ) return DbType . Int32;
             if ( type [ 2 ] . Contains ( "FLOAT" ) ) return DbType . Double;

@@ -4,8 +4,13 @@ using System;
 using System . Collections . Generic;
 using System . Collections . ObjectModel;
 using System . ComponentModel;
+using System . Data;
 using System . Diagnostics;
+using System . Drawing . Printing;
+using System . Linq . Expressions;
 using System . Numerics;
+using System . Security . Cryptography;
+using System . ServiceProcess;
 //using System . Drawing;
 using System . Threading . Tasks;
 using System . Windows;
@@ -16,6 +21,7 @@ using System . Windows . Media;
 
 using Expandos;
 
+using IronPython . Compiler . Ast;
 using IronPython . Runtime . Operations;
 
 using NewWpfDev;
@@ -29,6 +35,7 @@ namespace Views
     /// </summary>
     public partial class SpResultsViewer : Window
     {
+        public SpResultsViewer spviewer;
         public ObservableCollection<string> Executedata = new ObservableCollection<string> ( );
         Genericgrid Gengrid { get; set; }
         public string Searchtext { get; set; }
@@ -37,7 +44,7 @@ namespace Views
         public bool ShowTypesInArgsViewer { get; set; } = true;
         public bool ShowParseDetails { get; set; } = false;
         public static FlowDocScrollViewerSupport FdSupport { get; set; }
-        public static string [ ] arguments = new string [ 10 ];
+        public static string [ ] arguments = new string [ DEFAULTARGSSIZE ];
         public GengridExecutionResults GenResults { get; set; }
 
         public static bool IsMoving = false;
@@ -45,7 +52,7 @@ namespace Views
         static public DragCtrlHelper DragCtrl;
         public FrameworkElement ActiveDragControl { get; set; }
         public static dynamic spViewerexpobj { get; private set; }
-
+        public bool IsLoading { get; set; } = true;
         public struct ExecutionResults
         {
             public int resultInt { get; set; }
@@ -56,6 +63,9 @@ namespace Views
         }
         public static ExecutionResults ExecResults;
         public bool IsFlashing { get; set; } = false;
+
+        const int DEFAULTARGSSIZE = 6;
+
 
         #region full props
 
@@ -123,6 +133,7 @@ namespace Views
         {
             InitializeComponent ( );
             WpfLib1 . Utils . SetupWindowDrag ( this );
+            spviewer = this;
             DataContext = this;
             Gengrid = genControl;
             //nResults = Gengrid.
@@ -138,6 +149,8 @@ namespace Views
             this . Topmost = false;
             Gengrid . ExecuteLoaded = true;
             hspltter . Cursor = Cursors . ScrollNS;
+
+            IsLoading = true;
 
             ShowTypesInArgsViewer = ( bool ) MainWindow . GetSystemSetting ( "ShowTypesInSpArgumentsString" );
             CloseArgsViewerOnPaste = ( bool ) MainWindow . GetSystemSetting ( "AutoCloseSpArgumentsViewer" );
@@ -156,8 +169,12 @@ namespace Views
 
             var t = new Dictionary<string , object> ( );
             t . Add ( "asdda" , 4456 );
-
-
+            IsLoading = false;
+            int selitem = ListResults . SelectedIndex;
+            selitem = selitem != -1 ? selitem : 0;
+            ListResults . SelectedIndex = selitem;
+            ListResults . SelectedItem = selitem;
+            //ListResults . SelectedItem = selitem ;
             return;
         }
         private void ListResults_SelectionChanged ( object sender , SelectionChangedEventArgs e )
@@ -177,17 +194,25 @@ namespace Views
                 }
                 string sptext = "";
                 // Update cosmetics
-                bool result = Gengrid . LoadShowMatchingSproc ( this , TextResult , selname , ref sptext );
-                ShowParseDetails = true;
-                if ( ShowParseDetails )
+                if ( IsLoading == false )
                 {
-                    string Arguments = StoredProcs . SProcsDataHandling . GetSpHeaderBlock ( Gengrid . SpTextBuffer );
-                    if ( Arguments . Contains ( "No  Arguments were found" ) == true )
-                        SPArguments . Text = Arguments;
-                    else
+                    bool result = Gengrid . LoadShowMatchingSproc ( this , TextResult , selname , ref sptext );
+                    ShowParseDetails = true;
+                    if ( ShowParseDetails )
                     {
-                        string argsline = StoredProcs . SProcsDataHandling . CreateSProcArgsList ( Arguments , selname , out bool success );
-                        SPArguments . Text = argsline;
+                        string Arguments = StoredProcs . SProcsDataHandling . GetSpHeaderBlock ( sptext , spviewer );
+                        if ( Arguments . Length == 0 || Arguments . Contains ( "No valid Arguments were found" ) == true
+                            || Arguments . Contains ( "Either the \"AS\" or \"BEGIN \" statements are missing" )
+                            || Arguments . StartsWith( "ERROR -" ) )
+                        {
+                            SPArguments . Text = "The Header Block or parameters in the S.Procedure appear to be invalid !";
+                            Parameterstop . Text = Arguments;
+                        }
+                        else
+                        {
+                            SPArguments . Text = Arguments;
+                            //                            string argsline = StoredProcs . SProcsDataHandling . CreateSProcArgsList ( Arguments , selname , out bool success );
+                        }
                     }
                 }
                 else
@@ -341,7 +366,7 @@ namespace Views
             if ( err != "" )
             {
                 Mouse . OverrideCursor = Cursors . Arrow;
-                //                return;
+                MessageBox . Show ( err , "SQL proxcessing error encountered" );
             }
             if ( dynvar == null || objtype == null )
             {
@@ -744,31 +769,110 @@ namespace Views
             }
             Mouse . OverrideCursor = Cursors . Arrow;
         }
-
+        public string [ ] PadArgsArray ( string [ ] content )
+        {
+            string [ ] tmp = new string [ DEFAULTARGSSIZE ];
+            for ( int x = 0 ; x < DEFAULTARGSSIZE ; x++ )
+            {
+                if ( content . Length - 1 >= x )
+                {
+                    if ( content [ x ] != null )
+                        tmp [ x ] = content [ x ];
+                    else
+                        tmp [ x ] = "";
+                }
+                else
+                    tmp [ x ] = "";
+            }
+            return tmp;
+        }
         public string GetFullArgs ( string fullargs , int offset )
         {
 
             return fullargs;
         }
+        static public bool CheckForArgType ( string type )
+        {
+            if ( type == "" ) return false;
+            if ( type == "STR"
+           || type == "INT"
+           || type == "FLOAT"
+           || type == "VARCHAR"
+           || type == "VARBIN"
+           || type == "TEXT"
+           || type == "BIT"
+           || type == "BOOL"
+           || type == "SMALLINT"
+           || type == "BIGINT"
+           || type == "DOUBLE"
+           || type == "DEC"
+           || type == "CURR"
+           || type == "DATETIME"
+           || type == "DATE"
+           || type == "TIMESTAMP"
+           || type . Contains ( "TIME" ) )
+                return true;
+            else
+                return false;
+        }
+
+        static public string GetArgSize ( string args )
+        {
+            int size = 0;
+            bool success = true;
+            string ch = "";
+            string validnumbs = "()0123456789";
+            for ( int x = 0 ; x < args . Length ; x++ )
+            {
+                ch = args . Substring ( x , 1 );
+                if ( validnumbs . Contains ( ch ) == false )
+                {
+                    success = false;
+                    break;
+                }
+                if ( success )
+                    return args;
+                else
+                    return "";
+            }
+            if ( success )
+            {
+                if ( args != "" && args != "MAX" && args != "SYSNAME" )
+                {
+                    size = Convert . ToInt32 ( args );
+                    Size sz = Size . Parse ( size . ToString ( ) );
+                    return sz . ToString ( );
+                }
+                else if ( args == "MAX" || args == "SYSNAME" )
+                    return "32000";
+                else
+                    return args;
+            }
+            else
+                return "";
+        }
+
+        public int CheckForParameterArgCount ( string [ ] args )
+        {
+            int count = 0;
+            for ( int x = 0 ; x < args . Length ; x++ )
+            {
+                if ( args [ x ] != "" ) count++;
+            }
+            return count; ;
+        }
         private dynamic Execute_click ( ref int Count , ref string ResultString , ref Type Objtype , ref object Obj , out string Err )
         {
             // called when executing an SP
-            string operationtype = optype . SelectedItem as string;
+            //string operationtype = optype . SelectedItem as string;
             string [ ] args1 = null;
             string [ ] args = new string [ 0 ];
-            string SqlCommand = "";
             // Initiaize ref variables
 
             Count = 0;
             string Resultstring = "";
             Objtype = null;
             Err = "";
-
-            if ( operationtype == null )
-            {
-                MessageBox . Show ( "You MUST select an Execution Method before the selected S.P can be executed !" , "Execution processing error" );
-                return null;
-            }
 
             Searchtext = SPArguments . Text;
             if ( Searchtext == "Argument(s) required ?" )
@@ -779,96 +883,135 @@ namespace Views
 
             // PARSE THE ARGUMENTS ENTERED BY  OUR  USER
             int cnt = 0;
-            string [ ] fullargs = new string [ 1 ];
-            string [ ] argparts = new string [ 1 ];
-            string [ ] parts = new string [ 1 ];
+            string [ ] fullargs = new string [ DEFAULTARGSSIZE ];
+            string [ ] argparts = new string [ DEFAULTARGSSIZE ];
+            string [ ] parts = new string [ DEFAULTARGSSIZE ];
+            string [ ] tempargs = new string [ 1 ];
+            string [ ] testcontent = new string [ 1 ];
             string valid = "0123456789";
-            string validstrings = "STRING NVARCHAR VARCHAR";
+            string validstrings = "STRING NVARCHAR VARCHAR TEXT";
             string validnumerics = "INT DOUBLE FLOAT CURRENCY REAL DATE DATETIME ";
             bool GotCommas = false;
             List<string [ ]> argsbuffer = new List<string [ ]> ( );
+
             if ( Searchtext != "" )
             {
-                fullargs = Searchtext . Trim ( ) . ToUpper ( ) . Split ( ':' );
-                cnt = fullargs . Length;
-            }
-            // cnt is how many seperate arguments we have recieved
-            if ( cnt == 0 )
-            {
-                Err = "No argument(s) have been provided....";
-                return null;
-            }
-            else
-            {
-                // housekeeping - only include valid argument strings in fullargs[]
-                int indx = 0;
-                string [ ] tempargs = new string [ cnt ];
-                for ( int y = 0 ; y < cnt ; y++ )
+                // splt mutliple args into individual strings
+                tempargs = Searchtext . Trim ( ) . ToUpper ( ) . Split ( ':' );
+                for ( int x = 0 ; x < tempargs . Length ; x++ )
                 {
-                    // trim all buffers for ease of processing
-                    fullargs [ y ] = fullargs [ y ] . TrimStart ( ) . TrimEnd ( );
-                    if ( fullargs [ y ] . Length > 0 )
-                        tempargs [ indx++ ] = fullargs [ y ];
+                    tempargs [ x ] = tempargs [ x ] . TrimStart ( ) . TrimEnd ( );
                 }
-                if ( indx < cnt )
+            }
+            argsbuffer . Clear ( );
+            //Spllit testcontent [ ] string into seperate parts on either comma or space
+            for ( int y = 0 ; y < tempargs . Length ; y++ )
+            {
+                try
                 {
-                    indx = 0;
-                    fullargs = new string [ indx ];
-                    for ( int y = 0 ; y < cnt ; y++ )
+
+                    args = new string [ DEFAULTARGSSIZE ];
+                    args = PadArgsArray ( args );
+                    for ( int z = 0 ; z < tempargs . Length ; z++ )
                     {
-                        if ( tempargs [ y ] . Length > 0 )
-                            fullargs [ indx ] = tempargs [ y ];
+                        /* process each set of arguments we have in testcontent[]  and split to its constituent parts (name, value, type, size, direction)
+                        based on spaces(or comas) between sections of the argument
+                        fill parts  with the processed fields from the current arg string
+
+                        structure used FOR ALL ENTRIES MUST ADHERE TO THESE 5 elements & field offset:-
+                       0 - Target object (in first argument only)
+                       1 - @arg (SP argument name)
+                       2 - data type (Optional)
+                       3 - size (if relevant) (Optional)
+                       4 - direction (INPUT / OUTPUT/ RETURN)
+                        */
+                        if ( tempargs [ z ] == "" )
+                            continue;
+                        if ( tempargs . Length == 0 )
+                            break;
+                        parts = ProcessNextArgSet ( tempargs [ z ] , z , out Err );
+                        // now put whatever args contains into our MAIN set (args[]) in correct position
+                        // and finally add them to Argsbuffer list
+
+                        for ( int x = 0 ; x < parts . Length ; x++ )
+                        {
+                            if ( parts [ x ] == "" )
+                                continue;
+                            if ( CheckForArgType ( parts [ x ] ) )
+                            {
+                                args [ 2 ] = parts [ x ];
+                                continue;
+                            }
+                            if ( GetArgSize ( parts [ x ] ) != "" )
+                            {
+                                // it IS  a numeric or (xxx) string
+                                args [ 3 ] = parts [ x ];
+                                continue;
+                            }
+                            if ( x == 0 )
+                            {
+                                args [ x ] = parts [ x ];
+                                if ( args [ x ] . StartsWith ( "@" ) == false )
+                                {
+                                    args [ x ] = "";
+                                }
+                            }
+                            if ( x == 1 )
+                            {
+                                if ( parts [ x ] != "" && ( parts [ x ] == "INPUT" || parts [ x ] == "OUTPUT" || parts [ x ] == "OUT" || parts [ x ] == "RETURN" ) )
+                                    args [ 4 ] = parts [ x ];
+                                else
+                                    args [ x ] = parts [ x ];
+                            }
+                            if ( x == 2 )
+                            {
+                                if ( parts [ x ] != "" && ( parts [ x ] == "INPUT" || parts [ x ] == "OUTPUT" || parts [ x ] == "OUT" || parts [ x ] == "RETURN" ) )
+                                    args [ 4 ] = parts [ x ];
+                                else
+                                    args [ x ] = parts [ x ];
+                            }
+                            if ( x == 3 )
+                            {
+                                if ( parts [ x ] != "" && ( parts [ x ] == "INPUT" || parts [ x ] == "OUTPUT" || parts [ x ] == "OUT" || parts [ x ] == "RETURN" ) )
+                                    args [ 4 ] = parts [ x ];
+                                else
+                                    args [ x ] = parts [ x ];
+                            }
+
+                            if ( args [ 3 ] != null && args [ 3 ] != "" )
+                            {
+                                if ( parts [ x ] != "" && ( parts [ x ] == "INPUT" || parts [ x ] == "OUTPUT" || parts [ x ] == "OUT" || parts [ x ] == "RETURN" ) )
+                                    args [ 4 ] = parts [ x ];
+                                else
+                                    args [ 3 ] = parts [ x ];
+                                args [ 3 ] = ValidateSizeParam ( args [ 3 ] );
+                            }
+                            if ( x == 4 )
+                            {
+                                if ( parts [ x ] != "" && ( parts [ x ] == "INPUT" || parts [ x ] == "OUTPUT" || parts [ x ] == "OUT" || parts [ x ] == "RETURN" ) )
+                                    args [ 4 ] = parts [ x ];
+                                else
+                                    args [ x ] = parts [ x ];
+                            }
+                        }
                     }
-                }
-                else
-                    fullargs = tempargs;
-            }
-            // fullargs [] is  now cleaned and contains complete arguemnts
-            try
-            {
-                //Check each argument part (in collection of fullargs[])
-                for ( int x = 0 ; x < fullargs . Length ; x++ )
-                {
-                    /* process each one and split to its constituent parts (name, type, size, direction)
-                     based on spaces(or comas) between sections of the argument
-                     fill parts  with the processed fields from the current arg string
-                    
-                     structure used FOR ALL ENTRIES MUST ADHERE TO THESE 5 elements & field offset:-
-                    0 - Target object (in first argument only)
-                    1 - @arg (SP argument name)
-                    2 - data type
-                    3 - size (if relevant)
-                    4 - direction (INPUT / OUTPUT/ RETURN)
-                     */
-
-                    parts = ProcessNextArgSet ( fullargs [ x ] , x );
-                    // put args into our MAIN set (args[]) 
-                    args = new string [ 5 ];
-                    args = parts;
-                    //***********************************************************************//
-                    // args now contains full set of arguments
-                    //***********************************************************************//
-                    // now we have exactly one complete argument from 'n
-                    // lets  check their validity
-                      args [ 2 ] = ValidateDataType ( args [ 2 ] );
-                    // PARSE THE DATA SIZE
-                    // check for & parse the size argument into ags[2]
-                    if ( args [ 3 ] != null && args [ 3 ] != "" )
-                        args [ 3 ] = ValidateSizeParam ( args [ 3 ] );
-
-                    // parse the direction
-                    if ( args [ 4 ] != "" && args [ 4 ] != "INPUT" && args [ 4 ] != "OUTPUT" && args [ 4 ] != "RETURN" )
-                        args [ 4 ] = "INPUT";   //Default to "INPUT"
-
                     // Finally Add this set of now validated args to our outgoing arguments list to pass to the SQL Query
-                    argsbuffer . Add ( args );
+                    if ( CheckForParameterArgCount ( args ) > 0 )
+                        argsbuffer . Add ( args );
+                    PrintSPArgs ( args );
                 }
+                catch ( Exception ex )
+                {
+                    Console . WriteLine ( $"Parsing error : {ex . Message}, {ex . Data}" );
+                    return null;
+                }
+
             }
-            catch ( Exception ex )
-            {
-                Console . WriteLine ( $"Parsing error : {ex . Message}, {ex . Data}" );
-                return null;
-            }
+            dynamic result = ExecuteArgument ( argsbuffer , ref Count , ref ResultString , ref Obj , ref Objtype , ref Err );
+            return result;
+        }
+        public dynamic ExecuteArgument ( List<string [ ]> argsbuffer , ref int Count , ref string ResultString , ref object Obj , ref Type Objtype , ref string Err )
+        {
             //*************************************************//
             // WE have now
             // finished parsing the FIRST argument
@@ -879,7 +1022,20 @@ namespace Views
             string innerresultstring = ResultString;
             object innerobj = Obj;
             string innerrerr = Err;
+            string operationtype = optype . SelectedItem as string;
+            string SqlCommand = ListResults . SelectedItem . ToString ( );
 
+            if ( operationtype == null )
+            {
+                MessageBox . Show ( "You MUST select an Execution Method before the selected S.P can be executed !" , "Execution processing error" );
+                return null;
+            }
+
+            //string [ ] args = new string [ 3 ];
+            //for ( int x = 0 ; x < argsbuffer . Count ; x++ )
+            //{
+            //    args [ x ] = argsbuffer [ x ] [ 0 ];
+            //}
             try
             {
                 string output = "";
@@ -1021,87 +1177,85 @@ namespace Views
                     }
                     else return tableresult;
                 }
-                //---------------------------------------------------------------------------------------------------//
-                else if ( operationtype == "SP returning a 'Pot Luck' result" )
-                //---------------------------------------------------------------------------------------------------//
-                {
-                    DatagridControl dgc = new ( );
-                    int recordcount = 0;
+                ////---------------------------------------------------------------------------------------------------//
+                //else if ( operationtype == "SP returning a 'Pot Luck' result" )
+                ////---------------------------------------------------------------------------------------------------//
+                //{
+                //    DatagridControl dgc = new ( );
+                //    int recordcount = 0;
 
-                    // tell method what we are expecting back ??????
-                    //Objtype = typeof ( ObservableCollection<GenericClass> );
+                //    //********************************************************************************//
+                //    ObservableCollection<GenericClass>
+                //       rescollection = dgc . GetDataFromStoredProcedure (
+                //         ListResults . SelectedItem . ToString ( ) ,
 
-                    //********************************************************************************//
-                    ObservableCollection<GenericClass>
-                       rescollection = dgc . GetDataFromStoredProcedure (
-                         ListResults . SelectedItem . ToString ( ) ,
-                        args ,
-                        Genericgrid . CurrentTableDomain ,
-                        out Err ,
-                        out recordcount );
-                    //********************************************************************************//
+                //        argsbuffer ,
+                //        Genericgrid . CurrentTableDomain ,
+                //        out Err ,
+                //        out recordcount );
+                //    //********************************************************************************//
 
-                    if ( Err == "" && rescollection . Count > 0 )
-                    {
-                        string output2 = "";
-                        int returnedcount = rescollection . Count;
-                        innercount = returnedcount;
-                        if ( returnedcount > 0 )
-                        {
-                            output2 = $"Results of the {optype . SelectedItem . ToString ( )} request is shown below\n\n";
-                            foreach ( var item in rescollection )
-                            {
-                                output2 += $"{item . field1 . ToString ( )}\n";
-                            }
-                            Obj = output2;
-                            ResultString = "SUCCESS";
-                            return ( dynamic ) Obj;
-                        }
+                //    if ( Err == "" && rescollection . Count > 0 )
+                //    {
+                //        string output2 = "";
+                //        int returnedcount = rescollection . Count;
+                //        innercount = returnedcount;
+                //        if ( returnedcount > 0 )
+                //        {
+                //            output2 = $"Results of the {optype . SelectedItem . ToString ( )} request is shown below\n\n";
+                //            foreach ( var item in rescollection )
+                //            {
+                //                output2 += $"{item . field1 . ToString ( )}\n";
+                //            }
+                //            Obj = output2;
+                //            ResultString = "SUCCESS";
+                //            return ( dynamic ) Obj;
+                //        }
 
-                        else
-                        {
-                            Err = $"No usable values were returned";
-                            Obj = ( object ) Err;
-                            ResultString = "FAILURE";
-                            return ( dynamic ) Obj;
-                        }
-                    }
-                    else if ( rescollection . Count == 0 && Err == "" )
-                    {
-                        DatagridControl dg = new DatagridControl ( );
+                //        else
+                //        {
+                //            Err = $"No usable values were returned";
+                //            Obj = ( object ) Err;
+                //            ResultString = "FAILURE";
+                //            return ( dynamic ) Obj;
+                //        }
+                //    }
+                //    else if ( rescollection . Count == 0 && Err == "" )
+                //    {
+                //        DatagridControl dg = new DatagridControl ( );
 
-                        //********************************************************************************//
-                        //                        var result = dg . GetDataFromStoredProcedure ( "Select columncount from countreturnvalue" , null , "" , out Err , out recordcount , 1 );
-                        //********************************************************************************//
+                //        //********************************************************************************//
+                //        //                        var result = dg . GetDataFromStoredProcedure ( "Select columncount from countreturnvalue" , null , "" , out Err , out recordcount , 1 );
+                //        //********************************************************************************//
 
-                        //                     if ( result . Count == 0 )
-                        MessageBox . Show ( $"No Error was encountered,  but the request did NOT return any type of value...\n\nPerhaps the processing method that you selected as shown below :-\n" +
-                            $"[{optype . SelectedItem . ToString ( ) . ToUpper ( )}]\n was not the correct processing method type for this Stored.Procedure ?" , "SQL Error" );
-                        //if ( ReturnProcedureHeader ( "Select columncount from countreturnvalue" , "" ) == "DONE" )
+                //        //                     if ( result . Count == 0 )
+                //        MessageBox . Show ( $"No Error was encountered,  but the request did NOT return any type of value...\n\nPerhaps the processing method that you selected as shown below :-\n" +
+                //            $"[{optype . SelectedItem . ToString ( ) . ToUpper ( )}]\n was not the correct processing method type for this Stored.Procedure ?" , "SQL Error" );
+                //        //if ( ReturnProcedureHeader ( "Select columncount from countreturnvalue" , "" ) == "DONE" )
 
-                        return ( dynamic ) null;
-                    }
-                    else
-                    {
-                        string errmsg = $"SQL Error encountered : The error message was \n{Err}\n\nPerhaps a  different Execution method would work more effectively for this Stored.Procedure.?";
-                        Err = errmsg;
-                        return ( dynamic ) null;
-                    }
-                }
-                else if ( operationtype == "SP returning No value" )
-                {
-                    DatagridControl dgc = new ( );
+                //        return ( dynamic ) null;
+                //    }
+                //    else
+                //    {
+                //        string errmsg = $"SQL Error encountered : The error message was \n{Err}\n\nPerhaps a  different Execution method would work more effectively for this Stored.Procedure.?";
+                //        Err = errmsg;
+                //        return ( dynamic ) null;
+                //    }
+                //}
+                //else if ( operationtype == "SP returning No value" )
+                //{
+                //    DatagridControl dgc = new ( );
 
-                    //********************************************************************************//
-                    var result = dgc . ExecuteDapperTextCommand ( ListResults . SelectedItem . ToString ( ) , args , out Err );
-                    //********************************************************************************//
+                //    //********************************************************************************//
+                //    var result = dgc . ExecuteDapperTextCommand ( ListResults . SelectedItem . ToString ( ) , args , out Err );
+                //    //********************************************************************************//
 
-                    if ( Err != "" )
-                        ShowError ( operationtype , Err );
-                    else
-                    {
-                    }
-                }
+                //    if ( Err != "" )
+                //        ShowError ( operationtype , Err );
+                //    else
+                //    {
+                //    }
+                //}
                 else
                 {
                     MessageBox . Show ( "You MUST select one of these options to proceed....." , "Selection Error" );
@@ -1115,17 +1269,41 @@ namespace Views
             }
             return ( dynamic ) null;
         }
-        static public string [ ] ProcessNextArgSet ( string argstring , int index )
+
+        public void PrintSPArgs ( string [ ] args )
         {
-            string [ ] argset = new string [ 5 ];
-            string [ ] tmp = new string [ 5 ];
+            Debug . WriteLine ( "\n" );
+            for ( int x = 0 ; x < args . Length ; x++ )
+            {
+                Debug . WriteLine ( $"({x})  [{args [ x ]}]" );
+            }
+        }
+        static public string [ ] ProcessNextArgSet ( string argstring , int index , out string Error )
+        {
+            Error = "";
+
+            string [ ] argset = new string [ DEFAULTARGSSIZE ];
+            string [ ] tmp = new string [ DEFAULTARGSSIZE ];
+            for ( int x = 0; x < DEFAULTARGSSIZE ; x++ )
+            {
+                argset [ x ] = "";
+            }
+            if ( argstring == null )
+                return argset;
+
             if ( argstring . Trim ( ) != "" )
             {
-                argset = argstring . Split ( ',' );
-                if ( argset . Length < 5 )
-                    argset = argstring . Split ( ' ' );
-                if ( argset . Length < 3 )
+                argset = argstring . Split ( ' ' );
+                argset = CleanArgumentblanks ( argset );
+                //if ( argset . Length == 1 )
+                //    return argset;
+                //if ( argset . Length < 5 )
+                //    argset = argstring . Split ( ' ' );
+                if ( argset . Length < 2 )
+                {
+                    Error = $"Invalid  arguments set ({argset . Length}) received. There must be an @argument name + it's value";
                     return new string [ 0 ];
+                }
                 int blanks = 0;
 
                 if ( index > 0 ) tmp [ 0 ] = "";
@@ -1133,68 +1311,131 @@ namespace Views
                 bool isnumeric = true;
                 string validnumerics = "0123456789";
 
-                for ( int z = 0 ; z < argset . Length ; z++ )
+                if ( argset . Length >= 1 && argset [ 0 ] != "" )
                 {
-                    isnumeric = true;
-                    if ( (z == 0 && index > 0 ) || z > 0)
-                        insertindx++; 
-                    if ( argset [ z ] == "" )
-                    {
-                        blanks++;
-                        continue;
-                    }
+                    tmp [ 0 ] = argset [ 0 ];
+                }
 
-                    if ( argset [ z ] . Contains ( "MAX" ) )
+                if ( argset . Length >= 2 && argset [ 1 ] != "" )
+                {
+                    // arg name 
+                    tmp [ 1 ] = argset [ 1 ];
+                }
+
+                if ( argset . Length >= 3 && argset [ 2 ] != "" )
+                {
+                    if ( argset [ 2 ] != "" )
                     {
-                        tmp [ ( insertindx ) - blanks ] = "32000";
-                        continue;
+                        // initial argument name
+                        tmp [ 2 ] = argset [ 2 ];
                     }
-                    else if ( argset [ z ] . Contains ( '(' ) && argset [ z ] . Contains ( ')' ) )
-                        argset [ z ] = argset [ z ] . Substring ( 1 , argset [ z ] . Length - 2 );
-                    try
+                    else return null;
+                }
+                if ( argset . Length >= 4 && argset [ 3 ] != "" )
+                {
+                    // 3rd parameter value  (size)
+                    argset [ 3 ] = NewWpfDev . Utils . SpanTrim ( argset [ 3 ] , 1 , argset [ 3 ] . Length - 2 ) . ToString ( );
+                    for ( int y = 0 ; y < argset [ 3 ] . Length ; y++ )
                     {
-                        int val = Convert . ToInt32 ( argset [ z ] );
-                    }
-                    catch ( Exception ex ) { isnumeric = false; }
-                    if ( isnumeric )
-                    {
-                        tmp [ ( insertindx ) - blanks ] = Convert . ToInt32 ( argset [ z ] ) . ToString ( );
-                        continue;
-                    }
-                    else
-                    {
-                        if ( argset [ z ] == "INPUT" || argset [ z ] == "OUTPUT" || argset [ z ] == "RETURN" )
-                            tmp [ 4 ] = argset [ z ];
-                        else
+                        char ch = argset [ 3 ] [ y ];
+                        char char2 = ' ';
+                        for ( int t = 0 ; t < validnumerics . Length ; t++ )
                         {
-                            if ( argset [ z ] . Contains ( "INTEGER" ) )
-                                argset [ z ] = "INT";
-                            //if ( argset [ z ] . Contains ( "STR" ) )
-                            //    argset [ z ] = "STRING";
-
-                            tmp [ ( insertindx ) - blanks ] = argset [ z ];
+                            char2 = ( char ) validnumerics [ t ];
+                            if ( ch == char2 )
+                            {
+                                isnumeric = false;
+                                break;
+                            }
+                            else
+                                isnumeric = false;
+                            break;
                         }
                     }
+                    if ( isnumeric == false && argset [ 3 ] . Contains ( "MAX" ) || argset [ 3 ] . Contains ( "SYSNAME" ) )
+                    {
+                        tmp [ 3 ] = "32000";
+                    }
+                    else if ( isnumeric == true )
+                    {
+                        tmp [ 3 ] = Convert . ToInt32 ( argset [ 3 ] ) . ToString ( );
+                    }
                 }
-                if ( tmp [ 4 ] == null || tmp [ 4 ] == "" )
-                    tmp [ 4 ] = "INPUT";
-                for ( int v = 0 ; v < tmp . Length ; v++ )
+                if ( argset . Length >= 4 && argset [ 3 ] != "" )
                 {
-                    // ensure we have NO NULLS in structure
-                    if ( tmp [ v ] == null )
-                        tmp [ v ] = "";
+                    // 2nd parameter value  (size)
+                    tmp [ 3 ] = argset [ 3 ];
                 }
+                if ( argset . Length >= 5 && argset [ 4 ] != "" )
+                {
+                    // 1st parameter value  (Target/Argument)
+                    try
+                    {
+                        if ( isnumeric )
+                        {
+                            tmp [ ( insertindx ) - blanks ] = Convert . ToInt32 ( argset [ 3 ] ) . ToString ( );
+                            //continue;
+                        }
+                        else
+                        {
+                            if ( argset [ 4 ] == "INPUT" || argset [ 4 ] == "OUTPUT" || argset [ 4 ] == "RETURN" )
+                                tmp [ 4 ] = argset [ 4 ];
+                            else
+                            {
+                                if ( argset [ 4 ] . Contains ( "INTEGER" ) )
+                                    argset [ 4 ] = "INT";
+                                //if ( argset [ z ] . Contains ( "STR" ) )
+                                //    argset [ z ] = "STRING";
+
+                                tmp [ ( insertindx ) - blanks ] = argset [ 4 ];
+                            }
+                        }
+                        int val = Convert . ToInt32 ( argset [ 4 ] );
+                    }
+                    catch ( Exception ex ) { isnumeric = false; }
+                }
+            }
+            if ( tmp [ 3 ] == null || tmp [ 3 ] == "" )
+                tmp [ 3 ] = "INPUT";
+            for ( int v = 0 ; v < tmp . Length ; v++ )
+            {
+                // ensure we have NO NULLS in structure
+                if ( tmp [ v ] == null )
+                    tmp [ v ] = "";
             }
             return tmp;
         }
 
+        static public string [ ] CleanArgumentblanks ( string [ ] argset )
+        {
+            string [ ] data
+        ; int rowcount = 0;
+            for ( int x = 0 ; x < argset . Length ; x++ )
+            {
+                if ( argset [ x ] != "" )
+                    rowcount++;
+            }
+            data = new string [ rowcount ];
+            int indx = 0;
+            for ( int x = 0 ; x < argset . Length ; x++ )
+            {
+                if ( argset [ x ] != "" )
+                {
+                    data [ indx ] = argset [ x ];
+                    indx++;
+                }
+            }
+            return data;
+        }
+
+        // NOT USED
         public static string CleanArgs ( string [ ] args )
         {
             int bufferindex = 0;
             int newargindex = 0;
             int alldone = 0;
             string output = "";
-            string [ ] newarg = new string [ 4 ];
+            string [ ] newarg = new string [ DEFAULTARGSSIZE ];
             string [ ] buffer = new string [ args . Length * 8 ];
             try
             {
@@ -1279,7 +1520,7 @@ namespace Views
             //*********************************//
             // only called  by Resultsviewer
             //*********************************//
-            Parameters . Text = StoredProcs . SProcsDataHandling . GetSpHeaderBlock ( Arguments );
+            Parameters . Text = StoredProcs . SProcsDataHandling . GetSpHeaderBlock ( Arguments , spviewer );
             if ( Parameters . Text == "" )
                 return "";
             //DetailInfo . Visibility = Visibility . Visible;
@@ -1308,8 +1549,10 @@ namespace Views
         }
         private void SPArguments_MouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
         {
+            TextBox tb = sender as TextBox;
             if ( SPArguments . Text == "Argument(s) required ?" )
                 SPArguments . Text = "";
+            ///        int offset = tb . CaretIndex;
         }
         private void SPArguments_GotFocus ( object sender , RoutedEventArgs e )
         {
@@ -1498,7 +1741,12 @@ namespace Views
         {
             if ( ShowingAllSPs == false )
                 ShowingAllSPs = true;
-            //           ShowingAllSprocs . IsChecked = true;
+            IsLoading = false;
+            // only now, get prompt data
+            string sptext = "";
+            bool result = Gengrid . LoadShowMatchingSproc ( this , TextResult , ListResults . SelectedItem . ToString ( ) , ref sptext );
+
+            string Arguments = StoredProcs . SProcsDataHandling . GetSpHeaderBlock ( sptext , spviewer );
         }
         private void hSplitter_MouseEnter ( object sender , MouseEventArgs e )
         {
@@ -1545,7 +1793,7 @@ namespace Views
             else if ( e . Key == Key . F3 )
             {
                 SpArguments sh = new SpArguments ( SPArguments );
-                sh . SPHeaderblock . Text = StoredProcs . SProcsDataHandling . GetSpHeaderBlock ( Gengrid . SpTextBuffer );
+                sh . SPHeaderblock . Text = StoredProcs . SProcsDataHandling . GetSpHeaderBlock ( Gengrid . SpTextBuffer , spviewer );
 
                 if ( sh . SPHeaderblock . Text != "" )
                     sh . Show ( );
@@ -1555,7 +1803,7 @@ namespace Views
         private void ListResults_MouseDoubleClick ( object sender , MouseButtonEventArgs e )
         {
             SpArguments sh = new SpArguments ( SPArguments );
-            sh . SPHeaderblock . Text = StoredProcs . SProcsDataHandling . GetSpHeaderBlock ( Gengrid . SpTextBuffer );
+            sh . SPHeaderblock . Text = StoredProcs . SProcsDataHandling . GetSpHeaderBlock ( Gengrid . SpTextBuffer , spviewer );
             if ( sh . SPHeaderblock . Text != "" )
                 sh . Show ( );
             e . Handled = true;
@@ -2031,7 +2279,7 @@ namespace Views
         {
             //bool sucess = false;
             string Output = "";
-            string buffer = StoredProcs . SProcsDataHandling . GetSpHeaderBlock ( Gengrid . SpTextBuffer );
+            string buffer = StoredProcs . SProcsDataHandling . GetSpHeaderBlock ( Gengrid . SpTextBuffer , spviewer );
             AllArgs . Items . Clear ( );
             string [ ] items;
             string [ ] lines = buffer . Split ( '\n' );
@@ -2149,7 +2397,8 @@ namespace Views
             if ( sizearg . Substring ( 0 , 1 ) == "(" )
             {
                 // parse away any leading parenthesis
-                string tmp = sizearg . Substring ( 1 , sizearg . Length - 1 ) . Trim ( );
+                string tmp = NewWpfDev . Utils . SpanTrim ( sizearg , 1 , sizearg . Length - 1 ) . ToString ( );
+                //string tmp = sizearg . Substring ( 1 , sizearg . Length - 1 ) . Trim ( );
                 sizearg = tmp;
             }
             // parse away any trailing parenthesis
@@ -2166,8 +2415,8 @@ namespace Views
                 {
                     datatype = "STRING";   // default to varchar
                 }
-            //    if ( datatype == "INT" )
-            //        datatype = "10";
+                //    if ( datatype == "INT" )
+                //        datatype = "10";
             }
             else
             {
@@ -2184,27 +2433,29 @@ namespace Views
         private void expandprompt ( object sender , RoutedEventArgs e )
         {
             // show  hide prompt entry field height 
-            TextBox tb = SPArguments;
-            Thickness th = new Thickness ( );
-            if ( tb . Height == 40 )
+            //TextBox tb = SPArguments;
+            //Thickness th = new Thickness ( );
+            if ( Parameterstop . Visibility == Visibility . Collapsed )
             {
+                Parameterstop . Visibility = Visibility . Visible;
                 // Expanded
-                tb . Height = 90;
-                th = tb . Margin;
-                th . Top = 5;
-                tb . Margin = th;
-                tb . TextWrapping = TextWrapping . Wrap;
+                //tb . Height = 90;
+                //th = tb . Margin;
+                //th . Top = 5;
+                //tb . Margin = th;
+                //tb . TextWrapping = TextWrapping . Wrap;
                 ShowingAllSprocs . Visibility = Visibility . Collapsed;
                 OntopCheck . Visibility = Visibility . Collapsed;
             }
             else
             {
+                Parameterstop . Visibility = Visibility . Collapsed;
                 // normal
-                tb . Height = 40;
-                th = tb . Margin;
-                th . Top = 45;
-                tb . Margin = th;
-                tb . TextWrapping = TextWrapping . NoWrap;
+                //tb . Height = 40;
+                //th = tb . Margin;
+                //th . Top = 45;
+                //tb . Margin = th;
+                //tb . TextWrapping = TextWrapping . NoWrap;
                 ShowingAllSprocs . Visibility = Visibility . Visible;
                 OntopCheck . Visibility = Visibility . Visible;
             }
@@ -2306,6 +2557,114 @@ namespace Views
             //          editBox . SelectAll ( );
             //           editBox . KeyPress += new System . Windows . Forms . KeyPressEventHandler ( this . EditOver );
             //editBox . LostFocus += new System . EventHandler ( this . FocusOver );
+        }
+
+        private void CreateCmdLine ( object sender , RoutedEventArgs e )
+        {
+            //string command = "";
+            //string cmdline = SPArguments . Text;
+            //string [ ] cmd = cmdline . Split ( "  " );
+            //string [ ] cmd2 = cmd [ 1 ] . Split ( ":" );
+            //for ( int z = 0 ; z < cmd2 . Length ; z++ )
+            //{
+            //    if ( command != "" )
+            //        command += " : ";
+
+            //    command += cmd [ 2 ] [ z ] . ToString ( );
+            //    string tmp = cmd [ 2 ] [ 1 ].ToString();
+            //    if ( tmp. Contains ( "STRING" ) )
+            //        command += cmd [ 2 ] [ 1 ];
+
+            //    if ( cmd [ 2 ] . Length == 3 )
+            //    {
+            //        command += $" ({cmd [ 2 ] [ 2 ]})";
+            //    }
+            //}
+            //SetValue( SpArguments . ContentProperty , $"{cmd[0]} {command}");
+        }
+
+        private void expandargsentry ( object sender , RoutedEventArgs e )
+        {
+            if ( SPArguments . Height == 40 )
+            {
+                SPArguments . Height = 90;
+                Parameterstop . Visibility = Visibility . Collapsed;
+            }
+            else
+            {
+
+                SPArguments . Height = 40;
+                Parameterstop . Visibility = Visibility . Visible;
+            }
+        }
+
+        private void SPArguments_MouseDoubleClick ( object sender , MouseButtonEventArgs e )
+        {
+            try
+            {
+                TextBox tb = sender as TextBox;
+                string line = tb . Text;
+                string seltext = tb . SelectedText . ToString ( );
+                int caretstart = tb . CaretIndex;
+
+                char [ ] charbuff = new char [ line . Length ];
+                for ( int x = 0 ; x < line . Length ; x++ )
+                {
+                    charbuff [ x ] = line [ x ];
+                }
+                int offsetstart = line . IndexOf ( seltext );
+                int offsetend = offsetstart + seltext . Length;
+                int charsellength = 0;
+                string newselstring = "";
+                int selstart = offsetstart;
+                // Check backwards for start of line or a space
+                int backspaces = 0;
+                for ( int x = offsetstart ; x < line . Length ; x-- )
+                {
+                    if ( x < 0 )
+                    {
+                        selstart = 0;
+                        break;
+                    }
+                    if ( charbuff [ x ] == ' ' )
+                    {
+                        selstart = x;
+                        break;
+                    }
+                    else
+                        backspaces++;
+                }
+                Debug . WriteLine ( $"offsetstart = {offsetstart}, backspaces = {backspaces}" );
+                Console . WriteLine ( $"offsetstart = {offsetstart}, backspaces = {backspaces}" );
+                // Check forwards for end of line or a trailing space
+                for ( int x = ( selstart >= backspaces ? selstart - backspaces : 0 ) + seltext . Length ; x < line . Length ; x++ )
+                {
+                    if ( charbuff [ x ] == ' ' )
+                        break;
+                    else
+                    {
+                        newselstring += charbuff [ x ];
+                        charsellength++;
+                    }
+                }
+                Debug . WriteLine ( $"charsellength = {charsellength}" );
+                string newselectedbuffer = line . Substring ( offsetstart - charsellength , offsetstart + charsellength );
+                tb . Select ( caretstart - charsellength , newselectedbuffer . Length );
+            }
+            catch ( Exception ex ) { Debug . WriteLine ( $"{ex . Message}" ); }
+            e . Handled = true;
+        }
+
+        private void Button_Click ( object sender , RoutedEventArgs e )
+        {
+
+        }
+
+        private void ClearPrompt ( object sender , RoutedEventArgs e )
+        {
+            //TextBox tb = SpArguments as TextBox;
+            SPArguments . Text = "";
+            SPArguments . Focus ( );
         }
     }
 }

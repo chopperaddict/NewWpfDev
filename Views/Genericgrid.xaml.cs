@@ -332,11 +332,11 @@ namespace Views
 
             // This call only loads the list of database Tables 
             LoadDbTables ( MainWindow . CurrentActiveTable );
+            Mouse . OverrideCursor = Cursors . Wait;
             // setup various controls  visibility
             Filtercanvas . Visibility = Visibility . Visible;
-            this . Show ( );
-            //            this . Refresh ( );
             this . UpdateLayout ( );
+            Mouse . OverrideCursor = Cursors . Wait;
 
             FilterStoredprocs = new RelayCommand ( ExecuteFilterStoredprocs , CanExecuteFilterStoredprocs );
             CloseFilterStoredprocs = new RelayCommand ( ExecuteCloseFilterStoredprocs , CanExecuteCloseFilterStoredprocs );
@@ -346,34 +346,42 @@ namespace Views
             Searchtext = "@Arg";
 
             // Finally we load the tables info into the datagrid
-            LoadInitialData ( );
+            LoadInfo ( );
+           //LoadInitialData ( );
             //test ExpandoObject  
-            ExpandoObject expobj2 = new ExpandoObject ( );
-            bool success = false;
-            expobj2 = ExpandoClass . expobjAdd ( expobj2 , "Phone" , "0757 9062440" , out success );
-            expobj2 = ExpandoClass . expobjFind ( expobj2 , "Phone" );
-            ExpandoClass . expobj = expobj2;
-            if ( ExpandoClass . expobj != null )
-            {
-                // returns just the found item
-                expobj2 = ExpandoClass . expobjFind ( ExpandoClass . expobj , "Phone" );
-                if ( expobj2 != null )
-                {
-                    Dictionary<string , object> dict = new Dictionary<string , object> ( );
-                    //var v = expobj2 . ToString ( );
-                    foreach ( KeyValuePair<string , object> item in expobj2 )
-                    {
-                        if ( item . Key == "Phone" )
-                        {
-                            Debug . WriteLine ( $"Expando : Phone =  {item . Value} " );
-                            break;
-                        }
-                    }
-                }
-            }
+            //ExpandoObject expobj2 = new ExpandoObject ( );
+            //bool success = false;
+            //expobj2 = ExpandoClass . expobjAdd ( expobj2 , "Phone" , "0757 9062440" , out success );
+            //expobj2 = ExpandoClass . expobjFind ( expobj2 , "Phone" );
+            //ExpandoClass . expobj = expobj2;
+            //if ( ExpandoClass . expobj != null )
+            //{
+            //    // returns just the found item
+            //    expobj2 = ExpandoClass . expobjFind ( ExpandoClass . expobj , "Phone" );
+            //    if ( expobj2 != null )
+            //    {
+            //        Dictionary<string , object> dict = new Dictionary<string , object> ( );
+            //        //var v = expobj2 . ToString ( );
+            //        foreach ( KeyValuePair<string , object> item in expobj2 )
+            //        {
+            //            if ( item . Key == "Phone" )
+            //            {
+            //                Debug . WriteLine ( $"Expando : Phone =  {item . Value} " );
+            //                break;
+            //            }
+            //        }
+            //    }
+            //}
+            this . Show ( );
+            Mouse . OverrideCursor = Cursors . Arrow;
+            //            this . Refresh ( );
         }
 
-        private async void LoadInitialData ( )
+        public  async Task  LoadInfo ( )
+        {
+            Task.Factory.StartNew( async () =>LoadInitialData ( ));
+        }
+        private   async void LoadInitialData ( )
         {
             Task . Run ( ( ) =>
             {
@@ -4748,6 +4756,7 @@ namespace Views
                 {
                     Resultsviewer . TextResult . Document = null;
                     FlowDocument myFlowDocument = new FlowDocument ( );
+  
                     Resultsviewer . TextResult . Document = myFlowDocument;
                     Resultsviewer . TextResult . Document . Blocks . Clear ( );
                     Resultsviewer . TextResult . Document = CreateBoldString ( myFlowDocument , sptext , Searchtext );
@@ -5124,9 +5133,11 @@ namespace Views
 
             args [ 0 ] = srchterm;
             //call SQL method using SP to get all MATCHING SP's (if srchterm != "")
-            List<string> contents = NewWpfDev . GenDapperQueries . ProcessUniversalQueryStoredProcedure ( spname , args , CurrentTableDomain , out string err );
+            List<string> contents = null; ;
+            if ( spviewer . ListResults . Items . Count == 0 )
+                contents = NewWpfDev . GenDapperQueries . ProcessUniversalQueryStoredProcedure ( spname , args , CurrentTableDomain , out string err );
 
-            if ( contents . Count > 0 )
+            if ( contents != null && contents . Count > 0 )
             {
                 string line = "";
                 string sptext = "";

@@ -85,21 +85,16 @@ namespace NewWpfDev
             {
                 using ( sqlCon = new SqlConnection ( Con ) )
                 {
-                    var parameters = new DynamicParameters ( );
-                    if ( argsbuffer.Count > 0)
+                   var parameters = new DynamicParameters ( );
+                    if ( argsbuffer . Count > 0 )
                     {
 #if USENEWARGS
-                            parameters = StoredprocsProcessing . ParseNewSqlArgs ( parameters , argsbuffer );
+                        parameters = StoredprocsProcessing . ParseNewSqlArgs ( parameters , argsbuffer , out error);
 #else
                         parameters = StoredprocsProcessing . ParseSqlArgs ( parameters , args );
 #endif
                     }
-                    if ( parameters == null )
-                    {
-                        error = "The Parameters are invalid - Please check them carefully";
-                        return null;
-                    }
-                    $"{SqlCommand}" . DapperTrace ( );
+                     $"{SqlCommand}" . DapperTrace ( );
 
                     //********************************************************************************************************//                    
                     // COLLECTION - STOREDPROC  - use StoredProcedure version returning IEnumerable<dynamic>
@@ -225,7 +220,7 @@ namespace NewWpfDev
                         resultstring = "SUCCESS";
                         return obj;
                     }
-
+                    
                     //**************************************************************************************************************************************************//
                     // LIST<STRING> - STOREDPPROC - using   Stord Procedure version to return a dynamic List<string>
                     //**************************************************************************************************************************************************//
@@ -244,20 +239,25 @@ namespace NewWpfDev
                         return obj;
                     }
                     //**************************************************************************************************************************************************//
-                    // INT - STORED PPROC - using Text command version to return a dynamic (int )
-                    // ACTUALLY BLOODY WORKING 18/11/2022
+                    // INT - STORED PPROC - to return a dynamic (int )
+                    // ACTUALLY BLOODY WORKING 29/11/2022
                     //**************************************************************************************************************************************************//
                     else if ( method == 6 )
                     {
                         //=================================================================================//
                         var reslt = sqlCon . Query<int> ( SqlCommand , parameters , commandType: CommandType . StoredProcedure );
                         //=================================================================================//
-
-                        // this is how to parse the int value out of the dynamic 'reslt' variable returned to us
-                        //int intresult = reslt [ 0 ];
+                        // How to retrieve an int from IEnumerable<int>
+                        int result = 0;
+                        foreach ( var item in reslt )
+                        {
+                            result = item;
+                        }
+                        Dictionary<string , object> dict = new Dictionary<string , object> ( );
+                        //dict = reslt . ToDictionary (x => reslt.count);
                         Objtype = typeof ( int );
                         obj = ( object ) reslt;
-                        count = 1;
+                        count = result;
                         resultstring = "SUCCESS";
                         return obj;
                     }
