@@ -358,7 +358,8 @@ namespace UserControls
             //           GenericClass gcc = datagridControl . SelectedItem as GenericClass;
             // Clear list f column info as we are loading a  different table
             //           dglayoutlist . Clear ( );
-            CurrentTable = table;
+            if ( CurrentTable != table)
+                CurrentTable = table;
             //GetNewColumnsInfo ( collection , table );
             //           int colcount = GetGenericColumnCount ( collection , gcc );
 
@@ -1025,7 +1026,7 @@ namespace UserControls
             //GenericClass gc = new GenericClass ();
             //gc = collection [ 0 ];
             //int count = NewWpfDev . Utils.GetCollectionColumnCount ( gc );
-            int colcount = GenericGridSupport . GetTableColumnsCount ( Table , null , CurrentTableDomain );
+           // int colcount = GenericGridSupport . GetTableColumnsCount ( Table , null , CurrentTableDomain );
             //         if(colcount != count )
             //          LoadActiveRowsOnlyInGrid ( grid , collection , colcount );
         }
@@ -1461,7 +1462,7 @@ namespace UserControls
         public static int GetColumnsCount ( ObservableCollection<GenericClass> collection = null , List<GenericClass> list = null )
         {
             int counter = 1;
-            int maxcol = 0;
+            int maxcol = 20;
             dynamic source = null;
             "" . Track ( );
             if ( list != null )
@@ -1478,66 +1479,66 @@ namespace UserControls
                         maxcol = GenClass . field1 == null ? 0 : counter;
                         break;
                     case 2:
-                        maxcol = GenClass . field2 == null ? 0 : counter;
+                        maxcol = GenClass . field2 == null ? 1 : counter;
                         break;
                     case 3:
-                        maxcol = GenClass . field3 == null ? 0 : counter;
+                        maxcol = GenClass . field3 == null ? 2 : counter;
                         break;
                     case 4:
-                        maxcol = GenClass . field4 == null ? 0 : counter;
+                        maxcol = GenClass . field4 == null ? 3 : counter;
                         break;
                     case 5:
-                        maxcol = GenClass . field5 == null ? 0 : counter;
+                        maxcol = GenClass . field5 == null ? 4 : counter;
                         break;
                     case 6:
-                        maxcol = GenClass . field6 == null ? 0 : counter;
+                        maxcol = GenClass . field6 == null ? 5 : counter;
                         break;
                     case 7:
-                        maxcol = GenClass . field7 == null ? 0 : counter;
+                        maxcol = GenClass . field7 == null ? 6 : counter;
                         break;
                     case 8:
-                        maxcol = GenClass . field8 == null ? 0 : counter;
+                        maxcol = GenClass . field8 == null ? 7 : counter;
                         break;
                     case 9:
-                        maxcol = GenClass . field9 == null ? 0 : counter;
+                        maxcol = GenClass . field9 == null ? 8 : counter-1;
                         break;
                     case 10:
-                        maxcol = GenClass . field10 == null ? 0 : counter;
+                        maxcol = GenClass . field10 == null ? 9 : counter;
                         break;
                     case 11:
-                        maxcol = GenClass . field11 == null ? 0 : counter;
+                        maxcol = GenClass . field11 == null ? 10 : counter;
                         break;
                     case 12:
-                        maxcol = GenClass . field12 == null ? 0 : counter;
+                        maxcol = GenClass . field12 == null ? 11 : counter;
                         break;
                     case 13:
-                        maxcol = GenClass . field13 == null ? 0 : counter;
+                        maxcol = GenClass . field13 == null ? 12 : counter;
                         break;
                     case 14:
-                        maxcol = GenClass . field14 == null ? 0 : counter;
+                        maxcol = GenClass . field14 == null ? 13 : counter;
                         break;
                     case 15:
-                        maxcol = GenClass . field15 == null ? 0 : counter;
+                        maxcol = GenClass . field15 == null ? 14 : counter;
                         break;
                     case 16:
-                        maxcol = GenClass . field16 == null ? 0 : counter;
+                        maxcol = GenClass . field16 == null ? 15 : counter;
                         break;
                     case 17:
-                        maxcol = GenClass . field17 == null ? 0 : counter;
+                        maxcol = GenClass . field17 == null ? 16 : counter;
                         break;
                     case 18:
-                        maxcol = GenClass . field18 == null ? 0 : counter;
+                        maxcol = GenClass . field18 == null ? 17 : counter;
                         break;
                     case 19:
-                        maxcol = GenClass . field19 == null ? 0 : counter;
+                        maxcol = GenClass . field19 == null ? 18 : counter;
                         break;
                     case 20:
-                        maxcol = GenClass . field20 == null ? 0 : counter;
+                        maxcol = GenClass . field20 == null ? 19 : counter;
                         break;
                 }
-                counter++;
-                if ( maxcol != 0 )
+                if ( maxcol != counter )
                     break;
+                counter++;
             }
             "" . Track ( 1 );
             // Adjust to actual columns count

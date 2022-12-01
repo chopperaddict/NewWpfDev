@@ -457,20 +457,37 @@ namespace StoredProcs
                     {
                         // Strip out any preamble before the Create Proc line
                         Arguments = Arguments . Substring ( CreatePosition );
+                        int offset3 = Arguments . IndexOf ( "\r\n" );
+                        Arguments = Arguments . Substring ( offset3 );
                     }
                     // remove Create Proc line
-                    int offset3 = Arguments . IndexOf ( "\r\n" );
 
-                    Arguments = Arguments . Substring ( offset3 );
 
                     // split entire data area by \r\n
                     string [ ] test = Arguments . Split ( "\r\n" );
-                    test = Arguments . Split ( "\r\n" );
+                    //                   test = Arguments . Split ( "\r\n" );
 
                     // now get the cleaned up header block alone
                     test = ExtractSpHeaderBlock ( test );
                     if ( test [ 0 ] . StartsWith ( "ERROR -" ) )
                         return test [ 0 ];
+                    if ( test . Length == 1 && test [ 0 ] == "" )
+                    {
+                        spviewer . Parameterstop . Text = $"[No Parameters required]";
+                        output = "No arguments are required, press 'Clear Prompt' button and then select Execute Option.";
+                        return output;
+                    }
+
+                    if ( test [ 0 ] . StartsWith ( "CREATE PROCEDURE" ) && test . Length == 1 )
+                    {
+                        spviewer . Parameterstop . Text = $"[No Parameters required]";
+                        output = "No arguments are required, press 'Clear Prompt' button and then select Execute Option.";
+                        return output;
+                    }
+                    else if ( test [ 0 ] . StartsWith ( "CREATE PROCEDURE" ) && test . Length > 1 )
+                    {
+                        test [ 0 ] = "";
+                    }
 
                     string currentrow = "";
                     // Sanity check , only CREATE line in header with no args
@@ -479,22 +496,43 @@ namespace StoredProcs
                         if ( test [ rows ] . Length <= 1 )
                             continue;
                         // Bypass create line
-                        if ( test [ rows ] == "" )
-                        {
-                            continue;
-                        }
+                        //if ( test [ rows ] == "" )
+                        //{
+                        //    continue;
+                        //}
                         currentrow = test [ rows ];
 
+                        //if ( currentrow . StartsWith ( "CREATE PROCEDURE" ) && test . Length == 1 )
+                        //{
+                        //    // no arguments specified
+                        //    output = "";
+                        //}
+                        //else
+                        //{
                         // chack for commented lines
                         if ( currentrow . StartsWith ( "--" ) )
                             continue;
                         string testbuff = CheckAndRemoveBadCharacters ( currentrow ) . Trim ( );
                         //                    string tempoutput = "";
                         // split string into individual items so we can validate them
+                        if ( testbuff . Contains ( "MAX" ) || testbuff . Contains ( "SYSNAME" ) )
+                        {
+                            string [ ] tmp = testbuff . Split ( " " );
+                            for ( int x = 0 ; x < tmp . Length ; x++ )
+                            {
+                                if ( tmp [ x ] == "MAX" || tmp [ x ] == "SYSNAME" )
+                                    tmp [ x ] = " 32000";
+                            }
+                            if ( tmp . Length > 3 )
+                                testbuff = $"{tmp [ 0 ]} {tmp [ 1 ]}{tmp [ 2 ]} {tmp [ 3 ]}";
+                            else
+                                testbuff = $"{tmp [ 0 ]} {tmp [ 1 ]}{tmp [ 2 ]}";
+                        }
                         if ( output . Length > 0 )
                             output += " : ";
                         output += testbuff;
                     }
+                    //}
                 }
                 catch ( Exception ex )
                 {
@@ -514,6 +552,8 @@ namespace StoredProcs
                 string [ ] str = output . Split ( " " );
                 foreach ( var item in str )
                 {
+                    if ( item == "" )
+                        continue;
                     if ( item . Contains ( "@" ) )
                         count [ 0 ]++;
                     else if ( item . Contains ( "OUTPUT" ) || item . EndsWith ( "OUT" ) )
@@ -580,7 +620,8 @@ namespace StoredProcs
             for ( int z = 0 ; z < cleantest . Length ; z++ )
             {
                 cleantest [ z ] = cleantest [ z ] . Trim ( );
-                if ( cleantest [ z ] == null || cleantest [ z ] == "" ) continue;
+                if ( cleantest [ z ] == null || cleantest [ z ] == "" )
+                    continue;
                 if ( cleantest [ z ] == "AS" )
                 {
                     aspos [ 0 ] = z;
@@ -612,12 +653,17 @@ namespace StoredProcs
                         header [ x ] = "";
                 }
             }
+            if ( header . Length == 1 && header [ 0 ] == "" )
+                return header;
 
-            int blanklines = 0;
+            //int blanklines = 0;
             header = ReplaceNullsWithBlankString ( header );
             // got it - now cleanup the header block
+            //by checking  for leading commas, tabs, comments (--)
+            // and trailing tabs or comments (--) or \r or \n
             for ( int z = 0 ; z < header . Length ; z++ )
             {
+                int blanklines = 0;
                 if ( header [ z ] == "" )
                 {
                     blanklines++;
@@ -677,28 +723,47 @@ namespace StoredProcs
                     if ( header [ z ] == "" )
                         blanklines++;
                 }
+                //check for trailing CR
+                if ( header [ z ] . Contains ( "\r" ) )
+                {
+                    while ( header [ z ] . Contains ( "\r" ) )
+                    {
+                        int offset2 = header [ z ] . IndexOf ( '\r' );
+                        header [ z ] = header [ z ] . Substring ( 0 , 1 );
+                    }
+                    if ( header [ z ] == "" )
+                        blanklines++;
+                }
+                //check for trailing LF
+                if ( header [ z ] . Contains ( "\n" ) )
+                {
+                    while ( header [ z ] . Contains ( "\n" ) )
+                    {
+                        int offset2 = header [ z ] . IndexOf ( '\n' );
+                        header [ z ] = header [ z ] . Substring ( 0 , 1 );
+                    }
+                    if ( header [ z ] == "" )
+                        blanklines++;
+                }
+                if ( blanklines == header . Length )
+                {
+                    string [ ] output = new string [ 1 ];
+                    output [ 0 ] = "ERROR - No valid Arguments were found in the current Stored P.rocedure......";
+                    return output;
+                }
                 header [ z ] = header [ z ] . Trim ( );
             }
             Arguments = "";
             int newcount = 0;
-            if ( blanklines == header . Length )
+            for ( int x = 0 ; x < header . Length ; x++ )
             {
-                string [ ] output = new string [ 1 ];
-                output [ 0 ] = "ERROR - No valid Arguments were found in the current Stored P.rocedure......";
-                return output;
-            }
-            else
-            {
-                for ( int x = 0 ; x < header . Length ; x++ )
+                if ( header [ x ] != "" )
                 {
-                    if ( header [ x ] != "" )
-                    {
-                        Arguments += $"{header [ x ]}:";
-                        newcount++;
-                    }
+                    Arguments += $"{header [ x ]}:";
+                    newcount++;
                 }
-                Arguments = Arguments . Substring ( 0 , Arguments . Length - 1 );
             }
+            Arguments = Arguments . Substring ( 0 , Arguments . Length - 1 );
 
             string [ ] head2 = Arguments . Split ( ":" );
             // we should now have a totally clean string of the entire header block with lines seperated by :
@@ -719,17 +784,21 @@ namespace StoredProcs
             if ( testbuff == null )
                 return "";
             // Test for : '\t'
-            if ( testbuff . Contains ( "\r" ) )
+            if ( testbuff . EndsWith ( "," ) )
+            {
+                testbuff = testbuff . Substring ( 0 , testbuff . Length - 1 );
+            }
+            // Test for : '\n'
+            if ( testbuff . Contains ( "\n" ) )
             {
                 string newbuff = "";
-                string [ ] tmp = testbuff . Split ( '\r' );
+                string [ ] tmp = testbuff . Split ( '\n' );
                 foreach ( var item in tmp )
                 {
                     newbuff += $"{item} ";
                 }
                 testbuff = newbuff;
             }
-            // Test for : '\n'
             if ( testbuff . Contains ( "\n" ) )
             {
                 string newbuff = "";
@@ -781,64 +850,56 @@ namespace StoredProcs
                 }
                 testbuff = newbuff;
             }
-            // Test for : "(xxx)"
-            if ( testbuff . Contains ( '(' ) && testbuff . Contains ( ')' ) )
+
+            //***********************//
+            // now parse what is left
+            //***********************//
+            string [ ] argument = testbuff . Split ( " " );
+            for ( int y = 0 ; y < argument . Length ; y++ )
             {
-                string [ ] args = new string [ 5 ];
-                string [ ] tmp2 = new string [ 5 ];
-                testbuff = testbuff . Trim ( );
-                tmp2 = testbuff . Split ( ' ' );
-                if ( tmp2 [ 0 ] . Contains ( '@' ) )
-                    args [ 0 ] = tmp2 [ 0 ];
-                if ( tmp2 . Length > 2 && tmp2 [ 2 ] . Contains ( "OUTPUT" ) )
-                    args [ 3 ] = tmp2 [ 2 ];
-                ClearStringArray ( tmp2 );
-                string output = "";
-                string tempoutput = "";
-
-                int offset = testbuff . IndexOf ( '(' );
-                // strip out "(xxx)"
-                string [ ] tmp = testbuff . Split ( "(" );
-                tmp2 [ 0 ] = tmp [ 0 ];
-                tempoutput = $"{tmp [ 0 ]} ";
-                offset = tmp [ 1 ] . IndexOf ( ')' );
-                tmp2 [ 1 ] = tmp [ 1 ] . Substring ( 0 , offset );
-                // store size for access later
-                args [ 2 ] = tmp2 [ 1 ];
-
-                tempoutput += tmp2 [ 1 ] . Trim ( );
-                tmp = tempoutput . Split ( ' ' );
-                if ( tmp [ 1 ] . Contains ( "VARCHAR" ) )
+                // Test for : "(xxx)"
+                if ( argument [ y ] . Contains ( '(' ) && argument [ y ] . Contains ( ')' ) )
                 {
-                    args [ 1 ] = "STRING";
-                    tmp [ 1 ] = args [ 1 ];
+
+                    //                   string [ ] args = new string [ 5 ];
+                    string [ ] tmp2 = new string [ 5 ];
+                    tmp2 [ y ] = argument [ y ] . Trim ( );
+                    int offset = tmp2 [ y ] . IndexOf ( '(' );
+                    // strip out "(xxx)"
+                    string [ ] tmp = tmp2 [ y ] . Split ( "(" );
+                    tmp2 [ y ] = tmp [ 1 ];
+                    offset = tmp2 [ y ] . IndexOf ( ')' );
+                    tmp2 [ y ] = tmp2 [ y ] . Substring ( 0 , offset );
+                    if ( tmp2 [ y ] == "MAX" || tmp2 [ y ] == "SYSNAME" )
+                        tmp2 [ y ] = " STRING 32000";
+                    else
+                        tmp2 [ y ] = $"STRING {tmp2 [ y ]}";
+                    argument [ y ] = tmp2 [ y ];
+                }
+                if ( argument [ y ] . Contains ( "VARCHAR" ) )
+                {
+                    argument [ y ] = "STRING";
                 }
                 // Test for : "MAX" for size
-                if ( tmp [ 2 ] == "MAX" || tmp [ 1 ] == "SYSNAME" )
-                    args [ 2 ] = " STRING 32000";
-                else
-                    args [ 2 ] = $"({args [ 2 ]})";
+                if ( argument [ y ] == "MAX" || argument [ y ] == "SYSNAME" )
+                    argument [ y ] = " STRING 32000";
 
-                if ( tmp2 [ 1 ] != "" )
-                    testbuff = $"{args [ 0 ]} {args [ 1 ]} {tmp2 [ 1 ]}";
-                else
-                    testbuff = $"{args [ 0 ]} {args [ 1 ]}{args [ 2 ]} {args [ 3 ]}";
+                // Test for : Sysname as size
+                if ( argument [ y ] . Contains ( "SYSNAME" ) )
+                {
+                    string [ ] args = new string [ 5 ];
+
+                    args = argument [ y ] . Split ( ' ' );
+                    if ( args [ 1 ] . Contains ( "SYSNAME" ) )
+                        argument [ y ] = " STRING 32000";
+                }
             }
-            // Test for : Sysname as size
-            if ( testbuff . Contains ( "SYSNAME" ) )
+            testbuff = "";
+            for ( int z = 0 ; z < argument . Length ; z++ )
             {
-                string [ ] tmp2 = new string [ 5 ];
-                string [ ] args = new string [ 5 ];
-
-                tmp2 = testbuff . Split ( ' ' );
-                if ( tmp2 [ 1 ] . Contains ( "SYSNAME" ) )
-                    tmp2 [ 1 ] = " STRING 32000";
-                testbuff = $"{tmp2 [ 0 ]}{tmp2 [ 1 ]}";
-                if ( tmp2 . Length > 4 && args [ 4 ] != "" )
-                    testbuff += $"=\"{tmp2 [ 4 ] . ToLower ( )}\"";
-
+                testbuff += $"{argument [ z ]} ";
             }
-            return testbuff;
+            return testbuff . Trim ( );
         }
         /// <summary>
         /// Method to strip out the header block of any SP and

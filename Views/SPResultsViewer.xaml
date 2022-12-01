@@ -31,6 +31,7 @@
             <GradientStop Color="Lime" Offset="0.5"/>
             <GradientStop Color="Black" Offset="0"/>
         </LinearGradientBrush>
+      
         <Style x:Key="ColumnHeaderStyle" TargetType="{x:Type DataGridColumnHeader}">
             <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="Background" Value="{Binding Path=HeaderBackground, ElementName=dgCtrl}"/>
@@ -295,6 +296,7 @@
             </Style.Triggers>
         </Style>
         
+       <!--// Style for SP list-->
         <Style x:Key="SpStringsStyle" TargetType="{x:Type ListBoxItem}">
             <Setter Property="Template">
                 <Setter.Value>
@@ -318,10 +320,10 @@
                             <MultiTrigger>
                                 <MultiTrigger.Conditions>
                                     <Condition Property="IsMouseOver" Value="true"/>
-                                    <Condition Property="IsSelected" Value="true"/>
+                                    <Condition Property="IsSelected" Value="false"/>
                                 </MultiTrigger.Conditions>
-                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Yellow0}"/>
-                                <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{StaticResource Red0}"/>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Black3}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{StaticResource Red7}"/>
                                 <Setter Property="Padding" TargetName="Bd" Value="10,0,0,0"/>
                             </MultiTrigger>
                             <MultiTrigger>
@@ -336,10 +338,10 @@
                             <MultiTrigger>
                                 <MultiTrigger.Conditions>
                                     <Condition Property="IsMouseOver" Value="true"/>
-                                    <Condition Property="IsSelected" Value="false"/>
+                                    <Condition Property="IsSelected" Value="true"/>
                                 </MultiTrigger.Conditions>
-                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Orange4}"/>
-                                <Setter Property="TextElement.Foreground" TargetName="Contentpresenter" Value="{StaticResource Black0}"/>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Red5}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Contentpresenter" Value="{StaticResource White0}"/>
                                 <Setter Property="Padding" TargetName="Bd" Value="10,0,0,0"/>
                             </MultiTrigger>
                         </ControlTemplate.Triggers>
@@ -1028,7 +1030,7 @@
 
                         <!--// prompt line-->
                             <TextBlock>                            
-                                <Grid>
+                                <Grid x:Name="promptgrid">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="20"/>
                                         <RowDefinition Height="20"/>
@@ -1071,7 +1073,9 @@
                                         Grid.ColumnSpan="3" />
                                <TextBox x:Name="SPArguments" 
                                        Grid.Row="1"
+                                        Grid.RowSpan="2"
                                         Height="40"                         
+                                        AcceptsReturn="True"
                                         Text="Argument(s) required ?"
                                         TextAlignment="Center"
                                         TextWrapping="Wrap"
@@ -1089,12 +1093,38 @@
                                          GotFocus="SPArguments_GotFocus"
                                         UseLayoutRounding="True"
                                         ToolTip="Press F1 for detailed information on how to pass parameters"
-                                        Visibility="Visible" 
                                          Width="Auto" 
-                                        Margin="110,0,0,2" 
+                                        Margin="110,0,0,0" 
+                                        Grid.ColumnSpan="3" 
+                                        Visibility="Visible"/>
+                               <TextBox x:Name="SPArgumentsFull" 
+                                       Grid.Row="0"
                                         Grid.RowSpan="2"
+                                        Height="110"                         
+                                        Text="Argument(s) required ?"
+                                        AcceptsReturn="True"
+                                        TextAlignment="Center"
+                                        TextWrapping="Wrap"
+                                        HorizontalContentAlignment="Center"
+                                         HorizontalAlignment="Stretch"
+                                        FontSize="16"
+                                        Padding="0 4 0 0"
+                                         KeyDown="Arguments_KeyDown"
+                                           FontWeight="DemiBold"
+                                           Background="{StaticResource White3}"
+                                        Foreground="{StaticResource Black1}"
+                                        MouseEnter="SPArguments_MouseEnter"
+                                         MouseLeftButtonDown="SPArguments_MouseLeftButtonDown"
+                                        MouseDoubleClick="SPArguments_MouseDoubleClick"
+                                         GotFocus="SPArguments_GotFocus"
+                                        UseLayoutRounding="True"
+                                        ToolTip="Press F1 for detailed information on how to pass parameters"
+                                        Visibility="Collapsed" 
+                                         Width="Auto" 
+                                        Margin="110,0,0,0" 
                                         Grid.ColumnSpan="3" />
-                        <!--</Grid>-->
+
+                    <!--</Grid>-->
                     <Button Grid.Row="1" 
                             Grid.ColumnSpan="3"
                             Style="{StaticResource BtnDefault}"

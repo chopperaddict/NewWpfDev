@@ -2587,12 +2587,28 @@ namespace Views
         {
             if ( SPArguments . Height == 40 )
             {
+                // Expanding height
+                SPArgumentsFull . Text = SPArguments . Text;
+                SPArguments . Visibility = Visibility . Collapsed;
+                SPArgumentsFull . Visibility = Visibility . Visible;
+                Thickness th = new Thickness ( );
+                th = SPArguments . Margin;
+                th . Top = 0;
+                th . Bottom = 0;
+                SPArguments . Margin = th;
                 SPArguments . Height = 90;
                 Parameterstop . Visibility = Visibility . Collapsed;
             }
             else
             {
-
+                // Reducing height
+                SPArguments . Text = SPArgumentsFull . Text;
+                SPArgumentsFull . Visibility = Visibility . Collapsed;
+                SPArguments . Visibility = Visibility . Visible;
+                Thickness th = new Thickness ( );
+                th = SPArguments . Margin;
+                th . Top= 50;
+                th . Bottom = 0;
                 SPArguments . Height = 40;
                 Parameterstop . Visibility = Visibility . Visible;
             }

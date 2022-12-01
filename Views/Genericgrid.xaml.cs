@@ -77,9 +77,11 @@ namespace Views
         //public static DragCtrlHelper dch;
         public static Paragraph para1 = new Paragraph ( );
         public List<Dictionary<string , string>> ColumntypesList = new List<Dictionary<string , string>> ( );
-        List<DapperGenericsLib . DataGridLayout> dglayoutlist = new List<DapperGenericsLib . DataGridLayout> ( );
+        public List<DapperGenericsLib . DataGridLayout> dglayoutlist = new List<DapperGenericsLib . DataGridLayout> ( );
+        public List<DapperGenericsLib . DataGridLayout> DGLAYOUTLIST = new List<DapperGenericsLib . DataGridLayout> ( );
         public ObservableCollection<Database> DatabasesCollection = new ObservableCollection<Database> ( );
         public static dynamic Gengridexpobj { get; set; }
+        public Dictionary<string , List<DapperGenericsLib . DataGridLayout>> TableLayoutDict = new Dictionary<string , List<DapperGenericsLib . DataGridLayout>> ( );
         #endregion global object initialization 
 
         #region static Domain variables        
@@ -347,7 +349,7 @@ namespace Views
 
             // Finally we load the tables info into the datagrid
             LoadInfo ( );
-           //LoadInitialData ( );
+            //LoadInitialData ( );
             //test ExpandoObject  
             //ExpandoObject expobj2 = new ExpandoObject ( );
             //bool success = false;
@@ -377,11 +379,11 @@ namespace Views
             //            this . Refresh ( );
         }
 
-        public  async Task  LoadInfo ( )
+        public async Task LoadInfo ( )
         {
-            Task.Factory.StartNew( async () =>LoadInitialData ( ));
+            Task . Factory . StartNew ( async ( ) => LoadInitialData ( ) );
         }
-        private   async void LoadInitialData ( )
+        private async void LoadInitialData ( )
         {
             Task . Run ( ( ) =>
             {
@@ -599,6 +601,10 @@ namespace Views
                     $"Calling LoadGenericDb() {selection}" . Track ( );
                     string [ ] args = new string [ 1 ];
                     args [ 0 ] = selection;
+
+                    //***********************************************************************//
+                    // THIS IS THE CALL THAT LOADS THE INITIAL DATA FOR GENERICGRID
+                    //***********************************************************************//
                     temp = dgControl . LoadGenericData ( $"spLoadTableAsGeneric" , args , true , MainWindow . SqlCurrentConstring );
 
                     // TEMP ONLY
@@ -667,7 +673,18 @@ namespace Views
                     // These data  items are specific  to currentTable, and can there be used anywhere else without needing to update them
                     //*****************************************************************************************************************************************//
 
-                    dglayoutlist = GetNewColumnsLayout ( selection , this . GridData , out colcount );
+                    if ( TableLayoutDict . Count == 0 || TableLayoutDict . TryGetValue ( CurrentTable , out dglayoutlist ) == false )
+                    {
+                        // save structure for general access when this table is still the active table
+                        // & Create new entry in control dictionary 
+                        DGLAYOUTLIST = dglayoutlist;
+                        int columncount = 0;
+                        dglayoutlist = GetNewColumnsLayout ( CurrentTable , GridData , out columncount );
+                        DGLAYOUTLIST = dglayoutlist;
+                        TableLayoutDict . Clear ( );
+                        TableLayoutDict . Add ( CurrentTable , DGLAYOUTLIST );
+                    }
+
                     if ( dglayoutlist . Count > 20 )
                     {
                         StdError ( );
@@ -693,6 +710,8 @@ namespace Views
                         return;
                     }
                     // TODO URGENT These are  SLOW SLOW SLOW
+
+                    colcount = DatagridControl . GetColumnsCount ( GridData );
                     DatagridControl . LoadActiveRowsOnlyInGrid ( dgControl . datagridControl , GridData , colcount );
                     DatagridControl . ReplaceDataGridFldNames ( GridData , ref dgControl . datagridControl , ref dglayoutlist , colcount );
                     Reccount . Text = GridData . Count . ToString ( );
@@ -1126,7 +1145,21 @@ namespace Views
         {
             //popup the column info in a FlowDoc viewer
             int columncount = 0;
-            dglayoutlist = GetNewColumnsLayout ( CurrentTable , GridData , out columncount );
+            if ( TableLayoutDict . ContainsKey ( CurrentTable ) == false )
+            {
+                dglayoutlist = GetNewColumnsLayout ( CurrentTable , GridData , out columncount );
+            }
+            else
+            {
+                if ( TableLayoutDict . TryGetValue ( CurrentTable , out dglayoutlist ) == false )
+                {
+                    // nope, so load it and save it to  control dict
+                    dglayoutlist = GetNewColumnsLayout ( CurrentTable , GridData , out columncount );
+                    DGLAYOUTLIST = dglayoutlist;
+                    TableLayoutDict . Clear ( );
+                    TableLayoutDict . Add ( CurrentTable , DGLAYOUTLIST );
+                }
+            }
 
             string ConString = GenericDbUtilities . CheckSetSqlDomain ( "" );
             if ( ConString == "" )
@@ -4756,7 +4789,7 @@ namespace Views
                 {
                     Resultsviewer . TextResult . Document = null;
                     FlowDocument myFlowDocument = new FlowDocument ( );
-  
+
                     Resultsviewer . TextResult . Document = myFlowDocument;
                     Resultsviewer . TextResult . Document . Blocks . Clear ( );
                     Resultsviewer . TextResult . Document = CreateBoldString ( myFlowDocument , sptext , Searchtext );
