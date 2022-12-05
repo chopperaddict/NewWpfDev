@@ -1125,8 +1125,7 @@
                                         Margin="110,0,0,0" 
                                         Grid.ColumnSpan="3" />
 
-                    <!--</Grid>-->
-                    <Button Grid.Row="1" 
+                     <Button Grid.Row="1" 
                             Grid.ColumnSpan="3"
                             Style="{StaticResource BtnDefault}"
                             Content="Clear Prompt" 
@@ -1207,8 +1206,6 @@
                     MouseMove="tableviewer_Moving"
                     PreviewKeyDown="tableviewer_KeyDown"
                     Visibility="Collapsed" >
-                <!--MouseLeftButtonUp="tableviewer_Ending"-->
-                <!--ContextMenu="{StaticResource ResultsViewerContextMenu}"-->
 
                 <Border x:Name="innerresultsborder"
                         BorderThickness="5" 

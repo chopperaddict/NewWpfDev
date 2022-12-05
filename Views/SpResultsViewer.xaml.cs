@@ -1138,7 +1138,6 @@ namespace Views
             }
             else
             {
-                //argsx [ 1 ] = SPArguments . Text . Substring ( 3 ) . Trim ( );
                 for ( int y = 0 ; y < tempargs . Length ; y++ )
                 {
                     try
@@ -1292,7 +1291,7 @@ namespace Views
                     else if ( sprocCmd [ x ] != "" )
                         args [ x - 1 ] = sprocCmd [ x ];
                 }
-                argsbuffer . Add ( sprocCmd );
+                argsbuffer . Add ( args );
             }
             if ( operationtype == null )
             {
@@ -1307,7 +1306,7 @@ namespace Views
                 if ( operationtype == "SP Execute command or returning an INT value" )
                 {
                     //METHOD 6
-                    if ( IsCmd == false )
+                    if ( IsCmd == false && IsSproc == false )
                         SqlCommand = $"{ListResults . SelectedItem . ToString ( )}";
 
                     //// tell method what we are expecting back
@@ -3016,54 +3015,54 @@ namespace Views
         {
             try
             {
-                TextBox tb = sender as TextBox;
-                string line = tb . Text;
-                string seltext = tb . SelectedText . ToString ( );
-                int caretstart = tb . CaretIndex;
+            //    TextBox tb = sender as TextBox;
+            //    string line = tb . Text;
+            //    string seltext = tb . SelectedText . ToString ( );
+            //    int caretstart = tb . CaretIndex;
 
-                char [ ] charbuff = new char [ line . Length ];
-                for ( int x = 0 ; x < line . Length ; x++ )
-                {
-                    charbuff [ x ] = line [ x ];
-                }
-                int offsetstart = line . IndexOf ( seltext );
-                int offsetend = offsetstart + seltext . Length;
-                int charsellength = 0;
-                string newselstring = "";
-                int selstart = offsetstart;
-                // Check backwards for start of line or a space
-                int backspaces = 0;
-                for ( int x = offsetstart ; x < line . Length ; x-- )
-                {
-                    if ( x < 0 )
-                    {
-                        selstart = 0;
-                        break;
-                    }
-                    if ( charbuff [ x ] == ' ' )
-                    {
-                        selstart = x;
-                        break;
-                    }
-                    else
-                        backspaces++;
-                }
-                Debug . WriteLine ( $"offsetstart = {offsetstart}, backspaces = {backspaces}" );
-                Console . WriteLine ( $"offsetstart = {offsetstart}, backspaces = {backspaces}" );
-                // Check forwards for end of line or a trailing space
-                for ( int x = ( selstart >= backspaces ? selstart - backspaces : 0 ) + seltext . Length ; x < line . Length ; x++ )
-                {
-                    if ( charbuff [ x ] == ' ' )
-                        break;
-                    else
-                    {
-                        newselstring += charbuff [ x ];
-                        charsellength++;
-                    }
-                }
-                Debug . WriteLine ( $"charsellength = {charsellength}" );
-                string newselectedbuffer = line . Substring ( offsetstart - charsellength , offsetstart + charsellength );
-                tb . Select ( caretstart - charsellength , newselectedbuffer . Length );
+            //    char [ ] charbuff = new char [ line . Length ];
+            //    for ( int x = 0 ; x < line . Length ; x++ )
+            //    {
+            //        charbuff [ x ] = line [ x ];
+            //    }
+            //    int offsetstart = line . IndexOf ( seltext );
+            //    int offsetend = offsetstart + seltext . Length;
+            //    int charsellength = 0;
+            //    string newselstring = "";
+            //    int selstart = offsetstart;
+            //    // Check backwards for start of line or a space
+            //    int backspaces = 0;
+            //    for ( int x = offsetstart ; x < line . Length ; x-- )
+            //    {
+            //        if ( x < 0 )
+            //        {
+            //            selstart = 0;
+            //            break;
+            //        }
+            //        if ( charbuff [ x ] == ' ' )
+            //        {
+            //            selstart = x;
+            //            break;
+            //        }
+            //        else
+            //            backspaces++;
+            //    }
+            //    Debug . WriteLine ( $"offsetstart = {offsetstart}, backspaces = {backspaces}" );
+            //    Console . WriteLine ( $"offsetstart = {offsetstart}, backspaces = {backspaces}" );
+            //    // Check forwards for end of line or a trailing space
+            //    for ( int x = ( selstart >= backspaces ? selstart - backspaces : 0 ) + seltext . Length ; x < line . Length ; x++ )
+            //    {
+            //        if ( charbuff [ x ] == ' ' )
+            //            break;
+            //        else
+            //        {
+            //            newselstring += charbuff [ x ];
+            //            charsellength++;
+            //        }
+            //    }
+            //    Debug . WriteLine ( $"charsellength = {charsellength}" );
+            //    string newselectedbuffer = line . Substring ( offsetstart - charsellength , offsetstart + charsellength );
+            //    tb . Select ( caretstart - charsellength , newselectedbuffer . Length );
             }
             catch ( Exception ex ) { Debug . WriteLine ( $"{ex . Message}" ); }
             e . Handled = true;

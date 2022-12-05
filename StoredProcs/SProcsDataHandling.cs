@@ -453,19 +453,72 @@ namespace StoredProcs
                 try
                 {
                     CreatePosition = Arguments . IndexOf ( "CREATE PROCEDURE" );
-                    if ( CreatePosition > 0 )
+                    if ( CreatePosition == -1 )
+                    {
+                        string [ ] tmp = Arguments . Split ( "CREATE " );
+                        if ( tmp . Length == 2 )
+                        {
+                            string [ ] tmp2 = tmp [ 1 ] . Split ( " PROCEDURE " );
+                            if ( tmp2 . Length == 2 )
+                            {
+                                if ( tmp2 [ 1 ] . IndexOf ( "\r\n" ) + 2 > 0 )
+                                    Arguments = tmp2 [ 1 ] . Substring ( tmp2 [ 1 ] . IndexOf ( "\r\n" ) + 2 );
+                            }
+                            else
+                                Arguments = tmp [ 1 ];
+                        }
+                    }
+                    //else if ( CreatePosition == 0 )
+                    //{
+                    //    // Strip out any preamble before the Create Proc line
+                    //    int offset3 = Arguments . IndexOf ( "\r\n" );
+                    //    Arguments = Arguments . Substring ( offset3 + 2 );
+                    //}
+                    else if ( CreatePosition > 0 )
                     {
                         // Strip out any preamble before the Create Proc line
                         Arguments = Arguments . Substring ( CreatePosition );
                         int offset3 = Arguments . IndexOf ( "\r\n" );
-                        Arguments = Arguments . Substring ( offset3 );
+                        Arguments = Arguments . Substring ( offset3 + 2 );
                     }
-                    // remove Create Proc line
-
-
-                    // split entire data area by \r\n
+                    // we should ave now removed the Create Proc line
+                    // split the remaining script down to individual lines
                     string [ ] test = Arguments . Split ( "\r\n" );
-                    //                   test = Arguments . Split ( "\r\n" );
+
+                    // clean up rows of spuriouslines/ trailin comments etc
+                    for ( int x = 0 ; x < test . Length ; x++ )
+                    {
+                        if ( test [ x ] . StartsWith ( "--" ) )
+                        {
+                            test [ x ] = "";
+                            continue;
+                        }
+                        if ( test [ x ] . Contains ( "--" ) )
+                        {
+                            test [ x ] = test [ x ] . Substring ( 0 , test [ x ] . IndexOf ( "--" ) );
+                            continue;
+                        }
+                        if ( test [ x ] . StartsWith ( "\t" ) )
+                        {
+                            while ( test [ x ] . StartsWith ( "\t" ) )
+                            {
+                                test [ x ] = test [ x ] . Substring ( 1 );
+                            }
+                        }
+                        // remove anything after a trailing \t
+                        if ( test [ x ] . Contains ( "\t" ) )
+                            test [ x ] = test [ x ] . Substring ( 0 , test [ x ] . IndexOf ( "\t" ) );
+                        if ( test [ x ] . StartsWith ( "," ) )
+                        {
+                            test [ x ] = test [ x ] . Substring ( 1 );
+                            continue;
+                        }
+                        if ( test [ x ] . StartsWith ( "\r\n" ) )
+                        {
+                            test [ x ] = test [ x ] . Substring ( 2 );
+                            continue;
+                        }
+                    }
 
                     // now get the cleaned up header block alone
                     test = ExtractSpHeaderBlock ( test );
@@ -497,19 +550,38 @@ namespace StoredProcs
                             continue;
 
                         // remove/ignore any full comment lines
-                        if ( test [ rows ] . StartsWith ( "/*") || test [rows].StartsWith ( "*" ) )
+                        if ( test [ rows ] . StartsWith ( "/*" ) || test [ rows ] . StartsWith ( "*" ) || test [ rows ] . EndsWith ( "*/" ) )
                             continue;
-                       
+
                         currentrow = test [ rows ];
 
                         // check for commented lines
                         if ( currentrow . StartsWith ( "--" ) )
                             continue;
+                        if ( currentrow . Contains ( "--" ) )
+                        {
+                            currentrow = currentrow . Substring ( 0 , currentrow . IndexOf ( "--" ) );
+                            continue;
+                        }
+                        // MAIN TESTING METHOD for cleaning the various rows up.
                         string testbuff = CheckAndRemoveBadCharacters ( currentrow ) . Trim ( );
-                          // split string into individual items so we can validate them
+                        // split string into individual items so we can validate them
                         if ( testbuff . Contains ( "MAX" ) || testbuff . Contains ( "SYSNAME" ) )
                         {
                             string [ ] tmp = testbuff . Split ( " " );
+                            for ( int x = 0 ; x < tmp . Length ; x++ )
+                            {
+                                if ( tmp [ x ] == "MAX" || tmp [ x ] == "SYSNAME" )
+                                    tmp [ x ] = " 32000";
+                            }
+                            if ( tmp . Length > 3 )
+                                testbuff = $"{tmp [ 0 ]} {tmp [ 1 ]}{tmp [ 2 ]} {tmp [ 3 ]}";
+                            else
+                                testbuff = $"{tmp [ 0 ]} {tmp [ 1 ]}{tmp [ 2 ]}";
+                        }
+                        if ( testbuff . Contains ( "=''" ) || testbuff . Contains ( "= '" ) )
+                        {
+                            string [ ] tmp = testbuff . Split ( "= ' " );
                             for ( int x = 0 ; x < tmp . Length ; x++ )
                             {
                                 if ( tmp [ x ] == "MAX" || tmp [ x ] == "SYSNAME" )
@@ -524,81 +596,80 @@ namespace StoredProcs
                             output += " : ";
                         output += testbuff;
                     }
-                    //}
                 }
                 catch ( Exception ex )
                 {
                     Console . WriteLine ( $"Parsing error {ex . Message}" );
                     return "";
                 }
-            }
 
-            if ( output == "" )
-            {
-                spviewer . Parameterstop . Text = $"[No Parameters/Arguments required]";
-                output = "No arguments are required, press 'Clear Prompt' button and then select Execute Option.";
-            }
-            else
-            {
-                int [ ] count = new int [ 3 ];
-                string [ ] str = output . Split ( " " );
-                foreach ( var item in str )
+                if ( output == "" )
                 {
-                    if ( item == "" )
-                        continue;
-                    if ( item . Contains ( "@" ) )
-                        count [ 0 ]++;
-                    else if ( item . Contains ( "OUTPUT" ) || item . EndsWith ( "OUT" ) )
-                    {
-                        count [ 1 ]++;
-                        count [ 2 ] = count [ 1 ];
-                    }
+                    spviewer . Parameterstop . Text = $"[No Parameters/Arguments required]";
+                    output = "No arguments are required, press 'Clear Prompt' button and then select Execute Option.";
                 }
-
-                if ( count [ 0 ] == 0 && count [ 1 ] == 1 )
-                    spviewer . Parameterstop . Text = $"[No Parameters but Single Output parameter]";
-                else if ( count [ 0 ] == 1 && count [ 1 ] == 0 )
-                    spviewer . Parameterstop . Text = $"[Single Target or Input parameter only]";
-                else if ( count [ 0 ] == 1 && count [ 1 ] == 1 )
-                {
-                    if ( count [ 2 ] > 0 )
-                        spviewer . Parameterstop . Text = $"[Single Output parameter only]";
-                    else
-                        spviewer . Parameterstop . Text = $"[Single Target and/or Multiple Input parameters + Single Output parameter]";
-                }
-                else if ( count [ 0 ] > 1 && count [ 1 ] == 0 && str . Length == 1 )
-                    spviewer . Parameterstop . Text = @$"[Single Target plus one input or Multiple Inputs]";
-                else if ( count [ 0 ] > 1 && count [ 1 ] == 0 && str . Length > 1 )
-                    spviewer . Parameterstop . Text = @$"[Single Target and/or Multiple Inputs]";
-                else if ( count [ 0 ] == 1 && count [ 1 ] == 0 && str . Length > 1 )
-                    spviewer . Parameterstop . Text = @$"[Single Target or Input parameter]";
-                else if ( count [ 0 ] == 0 && count [ 1 ] == 1 )
-                    spviewer . Parameterstop . Text = @$"[Single Output parameter only]";
-                else if ( count [ 0 ] > 1 && count [ 1 ] == 1 )
-                {
-                    if ( output . Contains ( ":" ) == false )
-                        spviewer . Parameterstop . Text = $"[Single Output parameter only]";
-                    else if ( count [ 0 ] - count [ 1 ] == 1 )
-                        spviewer . Parameterstop . Text = $"[Single Target or Single Input parameter + Single Output parameter]";
-                    else
-                        spviewer . Parameterstop . Text = $"[Single Target and/or Multiple Input parameters + Single Output parameter]";
-                }
-                else if ( count [ 0 ] > 1 && count [ 1 ] >= 1 )
-                {
-                    if ( count [ 2 ] == count [ 0 ] - 1 )
-                        spviewer . Parameterstop . Text = @$"[Single Target or Input + Multiple Output parameters]";
-                    else
-                        spviewer . Parameterstop . Text = @$"[Single Target and/or Multiple Inputs + Multiple Output parameters]";
-                }
-                else if ( count [ 0 ] == 0 && count [ 1 ] == 0 )
-                {
-                    spviewer . SPArguments . Text = @$"[No parameters/Arguments are required]";
-                    spviewer . Parameterstop . Text = @$"[No parameters required (or allowed)]";
-                    output = "No parameters are required";
-                }
-                // Single input, single output
                 else
-                    spviewer . Parameterstop . Text = $"[Input parameter(s) Only ]";
+                {
+                    int [ ] count = new int [ 3 ];
+                    string [ ] str = output . Split ( " " );
+                    foreach ( var item in str )
+                    {
+                        if ( item == "" )
+                            continue;
+                        if ( item . Contains ( "@" ) )
+                            count [ 0 ]++;
+                        else if ( item . Contains ( "OUTPUT" ) || item . EndsWith ( "OUT" ) )
+                        {
+                            count [ 1 ]++;
+                            count [ 2 ] = count [ 1 ];
+                        }
+                    }
+
+                    if ( count [ 0 ] == 0 && count [ 1 ] == 1 )
+                        spviewer . Parameterstop . Text = $"[No Parameters but Single Output parameter]";
+                    else if ( count [ 0 ] == 1 && count [ 1 ] == 0 )
+                        spviewer . Parameterstop . Text = $"[Single Target or Input parameter only]";
+                    else if ( count [ 0 ] == 1 && count [ 1 ] == 1 )
+                    {
+                        if ( count [ 2 ] > 0 )
+                            spviewer . Parameterstop . Text = $"[Single Output parameter only]";
+                        else
+                            spviewer . Parameterstop . Text = $"[Single Target and/or Multiple Input parameters + Single Output parameter]";
+                    }
+                    else if ( count [ 0 ] > 1 && count [ 1 ] == 0 && str . Length == 1 )
+                        spviewer . Parameterstop . Text = @$"[Single Target plus one input or Multiple Inputs]";
+                    else if ( count [ 0 ] > 1 && count [ 1 ] == 0 && str . Length > 1 )
+                        spviewer . Parameterstop . Text = @$"[Single Target and/or Multiple Inputs]";
+                    else if ( count [ 0 ] == 1 && count [ 1 ] == 0 && str . Length > 1 )
+                        spviewer . Parameterstop . Text = @$"[Single Target or Input parameter]";
+                    else if ( count [ 0 ] == 0 && count [ 1 ] == 1 )
+                        spviewer . Parameterstop . Text = @$"[Single Output parameter only]";
+                    else if ( count [ 0 ] > 1 && count [ 1 ] == 1 )
+                    {
+                        if ( output . Contains ( ":" ) == false )
+                            spviewer . Parameterstop . Text = $"[Single Output parameter only]";
+                        else if ( count [ 0 ] - count [ 1 ] == 1 )
+                            spviewer . Parameterstop . Text = $"[Single Target or Single Input parameter + Single Output parameter]";
+                        else
+                            spviewer . Parameterstop . Text = $"[Single Target and/or Multiple Input parameters + Single Output parameter]";
+                    }
+                    else if ( count [ 0 ] > 1 && count [ 1 ] >= 1 )
+                    {
+                        if ( count [ 2 ] == count [ 0 ] - 1 )
+                            spviewer . Parameterstop . Text = @$"[Single Target or Input + Multiple Output parameters]";
+                        else
+                            spviewer . Parameterstop . Text = @$"[Single Target and/or Multiple Inputs + Multiple Output parameters]";
+                    }
+                    else if ( count [ 0 ] == 0 && count [ 1 ] == 0 )
+                    {
+                        spviewer . SPArguments . Text = @$"[No parameters/Arguments are required]";
+                        spviewer . Parameterstop . Text = @$"[No parameters required (or allowed)]";
+                        output = "No parameters are required";
+                    }
+                    // Single input, single output
+                    else
+                        spviewer . Parameterstop . Text = $"[Input parameter(s) Only ]";
+                }
             }
             return output;
         }
@@ -762,7 +833,6 @@ namespace StoredProcs
             return head2;
         }
 
-
         public static string [ ] ClearStringArray ( string [ ] arry )
         {
             for ( int x = 0 ; x < arry . Length ; x++ )
@@ -831,31 +901,32 @@ namespace StoredProcs
                 newbuff = tmp [ 0 ];
                 testbuff = newbuff;
             }
-            if ( testbuff . Contains ( "''") || testbuff . Contains ( "' '" ))
+            if ( testbuff . Contains ( "''" ) || testbuff . Contains ( "' '" ) )
             {
                 int offset = 0;
                 string newbuff = "";
-                if ( testbuff . Contains ( "''" ))
+                if ( testbuff . Contains ( "''" ) )
                     offset = testbuff . IndexOf ( "''" );
-                if(offset == 0)
+                if ( offset == 0 )
                     offset = testbuff . IndexOf ( "' '" );
                 if ( offset > 0 )
                 {
                     testbuff = testbuff . Substring ( 0 , offset );
-                    if ( testbuff [testbuff.Length-1] == '=' )
-                        testbuff = testbuff . Substring ( 0 , testbuff.Length - 1);
-                }//int[] qpos = new int[2];
-                 //int q = 0;
-                 //for ( int x = 0 ; x < tmp . Length ; x++ )
-                 //{
-                 //    if ( tmp [ x ] =="" || tmp [x]== " " )
-                 //        qpos [ q++] = x;
-                 //    if ( tmp [ x ] != "" && tmp [ x ] != " " )
-                 //        newbuff += tmp [ x ];
-                 //}
-                 //if ( qpos [ 0 ] != 0 && qpos [ 1 ] != 0 && qpos [ 1 ]- qpos [ 0 ] >= 1 )
-                 //    testbuff = testbuff . Substring ( 0 , qpos [ 0 ] );
-                 // testbuff = newbuff;
+                    if ( testbuff [ testbuff . Length - 1 ] == '=' )
+                        testbuff = testbuff . Substring ( 0 , testbuff . Length - 1 );
+                }
+                //int[] qpos = new int[2];
+                //int q = 0;
+                //for ( int x = 0 ; x < tmp . Length ; x++ )
+                //{
+                //    if ( tmp [ x ] =="" || tmp [x]== " " )
+                //        qpos [ q++] = x;
+                //    if ( tmp [ x ] != "" && tmp [ x ] != " " )
+                //        newbuff += tmp [ x ];
+                //}
+                //if ( qpos [ 0 ] != 0 && qpos [ 1 ] != 0 && qpos [ 1 ]- qpos [ 0 ] >= 1 )
+                //    testbuff = testbuff . Substring ( 0 , qpos [ 0 ] );
+                // testbuff = newbuff;
             }
 
             //***********************//
@@ -899,6 +970,13 @@ namespace StoredProcs
                     args = argument [ y ] . Split ( ' ' );
                     if ( args [ 1 ] . Contains ( "SYSNAME" ) )
                         argument [ y ] = " STRING 32000";
+                }
+                if ( testbuff . Contains ( "=" ) )
+                {
+                    // discard it
+                    argument = new string [ 5 ];
+                    for ( int x = 0 ; x < 5 ; x++ )
+                        argument [ x ] = "";
                 }
             }
             testbuff = "";
