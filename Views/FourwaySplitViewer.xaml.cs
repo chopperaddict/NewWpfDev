@@ -1266,7 +1266,7 @@ namespace NewWpfDev . Views {
             List<string> list = new List<string> ( );
             List<string> fldnameslist = new List<string> ( );
             string output = "";
-            SqlCommand = $"spGetTableColumnWithSize2 {dbName . SelectedItem . ToString ( )}";
+            SqlCommand = $"spGetTableColumnWithSizes {dbName . SelectedItem . ToString ( )}";
             //SqlCommand = SqlCommand = $"spGetTableColumns";
             fldnameslist = Datagrids . CallStoredProcedureWithSizes ( list , SqlCommand );
             output = Utils . ParseTableColumnData ( fldnameslist );
@@ -1458,7 +1458,7 @@ namespace NewWpfDev . Views {
 #pragma warning restore CS0219 // The variable 'count' is assigned but its value is never used
             List<string> list = new List<string> ( );
             List<string> fldnameslist = new List<string> ( );
-            SqlCommand = $"spGetTableColumnWithSize2 {dbName . SelectedItem . ToString ( )}";
+            SqlCommand = $"spGetTableColumnWithSizes {dbName . SelectedItem . ToString ( )}";
             //SqlCommand = SqlCommand = $"spGetTableColumns";
             fldnameslist = Datagrids . CallStoredProcedureWithSizes ( list , SqlCommand );
             output = Utils . ParseTableColumnData ( fldnameslist );

@@ -6,6 +6,7 @@ using System . Collections . ObjectModel;
 using System . ComponentModel;
 using System . Data;
 using System . Diagnostics;
+using System . Diagnostics . Eventing . Reader;
 using System . Drawing . Printing;
 using System . Linq . Expressions;
 using System . Numerics;
@@ -15,18 +16,27 @@ using System . ServiceProcess;
 using System . Threading . Tasks;
 using System . Windows;
 using System . Windows . Controls;
+using System . Windows . Controls . Primitives;
 using System . Windows . Documents;
 using System . Windows . Input;
 using System . Windows . Media;
-
+using StoredProcs;
 using Expandos;
-
+using System . IO;
 using IronPython . Compiler . Ast;
 using IronPython . Runtime . Operations;
 
 using NewWpfDev;
 
 using UserControls;
+using System . Printing;
+using System . Threading;
+using System . Windows . Threading;
+using Microsoft . Data . SqlClient;
+using System . Net;
+using static IronPython . Modules . _ast;
+using Microsoft . VisualBasic;
+using IronPython . Runtime;
 
 namespace Views
 {
@@ -40,19 +50,22 @@ namespace Views
         Genericgrid Gengrid { get; set; }
         public string Searchtext { get; set; }
         public string Searchterm { get; set; }
-        public bool CloseArgsViewerOnPaste { get; set; } = false;
+        public bool CloseArgsViewerOnPaste { get; set; }
         public bool ShowTypesInArgsViewer { get; set; } = true;
-        public bool ShowParseDetails { get; set; } = false;
-        public static FlowDocScrollViewerSupport FdSupport { get; set; }
-        public static string [ ] arguments = new string [ DEFAULTARGSSIZE ];
+        public bool ShowParseDetails { get; set; }
+        public static FlowDocScrollViewerSupport? FdSupport { get; set; }
+        private static string [ ] arguments = new string [ DEFAULTARGSSIZE ];
         public GengridExecutionResults GenResults { get; set; }
 
         public static bool IsMoving = false;
         public ObservableCollection<GenericClass> DataGrid = new ObservableCollection<GenericClass> ( );
-        static public DragCtrlHelper DragCtrl;
+        static private DragCtrlHelper? DragCtrl;
         public FrameworkElement ActiveDragControl { get; set; }
-        public static dynamic spViewerexpobj { get; private set; }
+        public static dynamic? spViewerexpobj { get; private set; }
         public bool IsLoading { get; set; } = true;
+        public bool ShowOptionsPanel { get; set; } = true;
+        public bool ShowCheckboxes { get; set; } = true;
+
         public struct ExecutionResults
         {
             public int resultInt { get; set; }
@@ -61,11 +74,10 @@ namespace Views
             public double resultDouble { get; set; }
             public ObservableCollection<GenericClass> resultCollection { get; set; }
         }
-        public static ExecutionResults ExecResults;
+        //        public static ExecutionResults ExecResults;
         public bool IsFlashing { get; set; } = false;
 
         const int DEFAULTARGSSIZE = 6;
-
 
         #region full props
 
@@ -126,6 +138,27 @@ namespace Views
         }
         public static readonly DependencyProperty UsingMatchesProperty =
             DependencyProperty . Register ( "UsingMatches" , typeof ( bool ) , typeof ( SpResultsViewer ) , new PropertyMetadata ( ( bool ) false ) );
+        public string gm41Text
+        {
+            get { return ( string ) GetValue ( gm41TextProperty ); }
+            set { SetValue ( gm41TextProperty , value ); }
+        }
+        public static readonly DependencyProperty gm41TextProperty =
+            DependencyProperty . Register ( "gm41Text" , typeof ( string ) , typeof ( SpResultsViewer ) , new PropertyMetadata ( "Expand Arguments entry panel" ) );
+        public string TooltipText
+        {
+            get { return ( string ) GetValue ( TooltipTextProperty ); }
+            set { SetValue ( TooltipTextProperty , value ); }
+        }
+        public static readonly DependencyProperty TooltipTextProperty =
+            DependencyProperty . Register ( "TooltipText" , typeof ( string ) , typeof ( SpResultsViewer ) , new PropertyMetadata ( "" ) );
+        //public ToolTip ExecTooltip
+        //{
+        //    get { return ( ToolTip ) GetValue ( ExecTooltipProperty ); }
+        //    set { SetValue ( ExecTooltipProperty , value ); }
+        //}
+        //public static readonly DependencyProperty ExecTooltipProperty =
+        //    DependencyProperty . Register ( "ExecTooltip" , typeof ( ToolTip ) , typeof ( SpResultsViewer ) , new PropertyMetadata ( "" ) );
 
         #endregion Dependecy properties
 
@@ -136,12 +169,11 @@ namespace Views
             spviewer = this;
             DataContext = this;
             Gengrid = genControl;
-            //nResults = Gengrid.
             FdSupport = new FlowDocScrollViewerSupport ( );
             DragCtrl = new DragCtrlHelper ( SqlTablesViewer );
             Genericgrid . Resultsviewer = this;
             string spname = Gengrid . SpName . Text;
-            Searchtext = spname;
+            Searchtext = Gengrid . Searchtext;
             string [ ] args = new string [ 1 ];
             Mouse . OverrideCursor = Cursors . Wait;
             canvas . Visibility = Visibility . Visible;
@@ -174,8 +206,12 @@ namespace Views
             selitem = selitem != -1 ? selitem : 0;
             ListResults . SelectedIndex = selitem;
             ListResults . SelectedItem = selitem;
-            //ListResults . SelectedItem = selitem ;
             return;
+        }
+        public string checklbitem ( )
+        {
+            string output = "";
+            return output;
         }
         private void ListResults_SelectionChanged ( object sender , SelectionChangedEventArgs e )
         {
@@ -203,22 +239,25 @@ namespace Views
                         string Arguments = StoredProcs . SProcsDataHandling . GetSpHeaderBlock ( sptext , spviewer );
                         if ( Arguments . Length == 0 || Arguments . Contains ( "No valid Arguments were found" ) == true
                             || Arguments . Contains ( "Either the \"AS\" or \"BEGIN \" statements are missing" )
-                            || Arguments . StartsWith( "ERROR -" ) )
+                            || Arguments . StartsWith ( "ERROR -" ) )
                         {
                             SPArguments . Text = "The Header Block or parameters in the S.Procedure appear to be invalid !";
+                            SPArgumentsFull . Text = SPArguments . Text;
                             Parameterstop . Text = Arguments;
                         }
                         else
                         {
                             SPArguments . Text = Arguments;
-                            //                            string argsline = StoredProcs . SProcsDataHandling . CreateSProcArgsList ( Arguments , selname , out bool success );
+                            SPArgumentsFull . Text = SPArguments . Text;
                         }
                     }
+                    e . Handled = true;
                 }
                 else
                 {
                     //Reset arguments panel
                     SPArguments . Text = "Argument(s) required ?";
+                    SPArgumentsFull . Text = SPArguments . Text;
                     optype . SelectedIndex = -1;    // unselect selection of S.P listbox
                     optype . SelectedItem = null;    // unselect method listbox
                 }
@@ -337,13 +376,15 @@ namespace Views
         {
             DoExecute_Click ( null , null );
         }
+
         private void DoExecute_Click ( object sender , RoutedEventArgs e )
         {
             Type newtype;
             string arguments = "";
             int v = 0;
-            //            string [ ] args = new string [ 1 ];
             string err = "";
+            bool IsCmd = false;
+            bool IsSproc = false;
 
             if ( optype . SelectedItem == null )
             {
@@ -351,28 +392,38 @@ namespace Views
                 return;
             }
             int count = 0;
-            ///////============================///////
             string ResultString = "";
             Type objtype = null;
             object obj = new object ( );
             int testint = 0;
+            if ( SPArguments . Text . ToUpper ( ) . StartsWith ( "CMD" ) )
+                IsCmd = true;
+            else if ( SPArguments . Text . ToUpper ( ) . StartsWith ( "SP" ) )
+                IsSproc = true;
 
+            ///////==================================================================///////
             dynamic dynvar = Execute_click ( ref count , ref ResultString , ref objtype , ref obj , out err );
-            ///////===========================///////
-            // see if we have received a specific type (from objtype)
+            ///////==================================================================///////
 
+            // see if we have received a specific type (from objtype)
             string resultstring = ResultString;
             // Failures will always return NULL
             if ( err != "" )
             {
-                Mouse . OverrideCursor = Cursors . Arrow;
-                MessageBox . Show ( err , "SQL proxcessing error encountered" );
+                if ( err == "SUCCESS" )
+                {
+                    Mouse . OverrideCursor = Cursors . Arrow;
+                    MessageBox . Show ( err , $"SQL processing of the command execuuted has been reported as successful" );
+                }
+                else
+                {
+                    Mouse . OverrideCursor = Cursors . Arrow;
+                    MessageBox . Show ( err , "SQL processing error encountered" );
+                }
             }
             if ( dynvar == null || objtype == null )
             {
                 Mouse . OverrideCursor = Cursors . Arrow;
-                //WpfLib1 . Utils . DoErrorBeep ( );
-                //MessageBox . Show ( $"Your request failed with no error information being returned.\nTry a different Execution Method" , "SQL Error" );
                 return;
             }
             try
@@ -401,8 +452,10 @@ namespace Views
                     // setup results dialog, but hide it
                     newtype = objtype;
                     if ( err == "" )
+                    {
                         err = $"An undetermined error occured during Execution of [ {ListResults . SelectedItem . ToString ( )}.  Check that any required arguments were passed " +
                                 $"correctly to the enquiry, and failing that try using a diferent Execution Method ";
+                    }
                 }
             }
             catch ( Exception ex )
@@ -453,13 +506,6 @@ namespace Views
                     if ( newtype == typeof ( string ) )
                     //-------------------------------------------------------------------------------------------------//
                     {
-                        //if ( dynvar . Count == 0 )
-                        //{
-                        //    NewWpfDev . Utils . DoErrorBeep ( );
-                        //    Mouse . OverrideCursor = Cursors . Arrow;
-                        //    MessageBox . Show ( "Your request for a string value completed, BUT it failed to return any value. \n\nCheck that you have passed any expected Arguments, and that they are correct, as this can often cause this type of error" , "S.P Execution system" );
-                        //    return;
-                        //}
                         int listcount = 0;
                         string outputstring = "";
                         List<string> list = new List<string> ( );
@@ -481,7 +527,6 @@ namespace Views
                         {
                             GenResults . ExecutionInfo . Visibility = Visibility . Visible;
                             GenResults . CollectionTextresults . Visibility = Visibility . Visible;
-                            //GenResults . innerresultscontainer . RowDefinitions [ 0 ] . Height = new GridLength ( 3.9 , GridUnitType . Star );
                             GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Star );
                             GenResults . CollectionTextresults . Document =
                                 Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
@@ -556,6 +601,7 @@ namespace Views
                     {
                         // Got an INT value in returned (ref value count ) variable
                         string argstring = SPArguments . Text == "Argument(s) required ?" ? "" : SPArguments . Text;
+                        SPArgumentsFull . Text = SPArguments . Text;
                         GenResults . CollectionTextresults . Visibility = Visibility . Visible;
                         GenResults . CollectionTextresults . Document =
                             Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
@@ -585,24 +631,158 @@ namespace Views
                         // Got a List<string>
                         // Go  ahead & Show our results  dialog popup
                         string outputstring = "";
-                        List<string> list = new List<string> ( );
+                        string errormsg = "";
+                        int dictcount = 0;
+                        int recordcount = 0;
+                        List<string> newlist;//= new List<string> ( );
                         ObservableCollection<GenericClass> gengrid = new ObservableCollection<GenericClass> ( );
                         if ( dynvar . Count > 1 )
                         {
-                            list = dynvar;
-                            GenResults . CollectionListboxresults . Items . Clear ( );
+                            int colcount = 0;
+                            string result = "";
+                            System . Collections . Generic . List<System . Collections . Generic . List<string>> varlist = null;
+                            //List<string> varlist = null;
+                            //if ( IsCmd )
+                            //{
+                            Dictionary<string , object> dict = new Dictionary<string , object> ( );
+                            Dictionary<string , string> outdict = new Dictionary<string , string> ( );
+
+                            foreach ( var item in dynvar )
+                            {
+                                try
+                                {
+                                    // we need to create a dictionary for each row of data then add it to a GenericClass row then add row to Generics Db
+                                    string buffer = "";
+                                    List<int> VarcharList = new List<int> ( );
+                                    DatagridControl . ParseDapperRow ( item , dict , out colcount );
+                                    GenericClass gc = new GenericClass ( );
+                                    dictcount = 1;
+                                    int index = 1;
+                                    int fldcount = dict . Count;
+                                    string tmp = "";
+
+                                    // Parse reslt.item into  single Dictionary record
+                                    foreach ( var pair in dict )
+                                    {
+                                        try
+                                        {
+                                            if ( pair . Key != null && pair . Value != null )
+                                            {
+                                                DatagridControl . AddDictPairToGeneric ( gc , pair , dictcount++ );
+                                                tmp = $"field{index++} = {pair . Value . ToString ( )}";
+                                                buffer += tmp + ",";
+                                                outdict . Add ( pair . Key , pair . Value . ToString ( ) );
+                                            }
+                                        }
+                                        catch ( Exception ex )
+                                        {
+                                            $"Dictionary ERROR : {ex . Message}" . cwerror ( );
+                                            result = ex . Message;
+                                        }
+                                    }
+
+                                    //remove trailing comma
+                                    string s = buffer . Substring ( 0 , buffer . Length - 1 );
+                                    buffer = s;
+                                    // We now  have ONE sinlge record, but need to add this  to a GenericClass structure 
+                                    int reccount = 1;
+                                    foreach ( KeyValuePair<string , string> val in outdict )
+                                    {  //
+                                        switch ( reccount )
+                                        {
+                                            case 1:
+                                                gc . field1 = val . Value . ToString ( );
+                                                break;
+                                            case 2:
+                                                gc . field2 = val . Value . ToString ( );
+                                                break;
+                                            case 3:
+                                                gc . field3 = val . Value . ToString ( );
+                                                break;
+                                            case 4:
+                                                gc . field4 = val . Value . ToString ( );
+                                                break;
+                                            case 5:
+                                                gc . field5 = val . Value . ToString ( );
+                                                break;
+                                            case 6:
+                                                gc . field6 = val . Value . ToString ( );
+                                                break;
+                                            case 7:
+                                                gc . field7 = val . Value . ToString ( );
+                                                break;
+                                            case 8:
+                                                gc . field8 = val . Value . ToString ( );
+                                                break;
+                                            case 9:
+                                                gc . field9 = val . Value . ToString ( );
+                                                break;
+                                            case 10:
+                                                gc . field10 = val . Value . ToString ( );
+                                                break;
+                                            case 11:
+                                                gc . field11 = val . Value . ToString ( );
+                                                break;
+                                            case 12:
+                                                gc . field12 = val . Value . ToString ( );
+                                                break;
+                                            case 13:
+                                                gc . field13 = val . Value . ToString ( );
+                                                break;
+                                            case 14:
+                                                gc . field14 = val . Value . ToString ( );
+                                                break;
+                                            case 15:
+                                                gc . field15 = val . Value . ToString ( );
+                                                break;
+                                            case 16:
+                                                gc . field16 = val . Value . ToString ( );
+                                                break;
+                                            case 17:
+                                                gc . field17 = val . Value . ToString ( );
+                                                break;
+                                            case 18:
+                                                gc . field18 = val . Value . ToString ( );
+                                                break;
+                                            case 19:
+                                                gc . field19 = val . Value . ToString ( );
+                                                break;
+                                            case 20:
+                                                gc . field20 = val . Value . ToString ( );
+                                                break;
+                                        }
+                                        reccount += 1;
+                                    }
+                                    gengrid . Add ( gc );
+                                }
+                                catch ( Exception ex )
+                                {
+                                    result = $"SQLERROR : {ex . Message}";
+                                    errormsg = result;
+                                    result . cwerror ( );
+                                }
+                                dict . Clear ( );
+                                outdict . Clear ( );
+                                dictcount = 1;
+                            }
+
+                            // Massage  data from dynamic collection into list<string>
+                            List<string> list = SProcsDataHandling . CreateListFromGenericClass ( gengrid );
+
                             GenResults . CollectionListboxresults . ItemsSource = null;
+                            GenResults . CollectionListboxresults . Items . Clear ( );
                             GenResults . CollectionListboxresults . ItemsSource = list;
+                            recordcount = gengrid . Count;
                             GenResults . CollectionListboxresults . Visibility = Visibility . Visible;
                             GenResults . CollectionTextresults . Visibility = Visibility . Visible;
                             GenResults . OperationResults . Visibility = Visibility . Visible;
                             GenResults . CollectionTextresults . Document = Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
                                 FindResource ( "Black3" ) as SolidColorBrush ,
                                $"Execution of [{ListResults . SelectedItem . ToString ( )}] using [{optype . SelectedItem . ToString ( )}] completed successfully. \n" +
-                               $"with a total of {list . Count} items returned. \nThe results are shown below... " );
+                               $"with a total of {recordcount} items returned. \nThe results are shown below... " );
                             GenResults . CollectionTextresults . Document . Blocks . FirstBlock . FontSize = 18;
                             GenResults . ExecutionInfo . Text = $"Execution of [{optype . SelectedItem . ToString ( )}]\ncompleted successfully, the results are listed above...";
-                            GenResults . CountResult . Text = $"{list . Count}";
+                            GenResults . CountResult . Text = $"{recordcount}";
                             GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Star );
 
                             // Showing Scrollviewer Text AND DataGrid, so we stay full height
@@ -619,6 +799,7 @@ namespace Views
                             outputstring = dynvar [ 0 ] . ToString ( );
                             int stringlen = outputstring . Length;
                             string argstring = SPArguments . Text == "Argument(s) required ?" ? "" : SPArguments . Text;
+                            SPArgumentsFull . Text = SPArguments . Text;
 
                             GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Star );
                             GenResults . TextResultsDocument . Visibility = Visibility . Visible;
@@ -649,6 +830,7 @@ namespace Views
                                 data += $"{item . ToString ( )}\n";
                             }
                             string argstring = SPArguments . Text == "Argument(s) required ?" ? "" : SPArguments . Text;
+                            SPArgumentsFull . Text = SPArguments . Text;
                             GenResults . CollectionTextresults . Document = Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
                                 FindResource ( "Black3" ) as SolidColorBrush ,
                                $"The enquiry [{ListResults . SelectedItem . ToString ( )} {argstring}] responded with the following values\n\n[{data}]" );
@@ -691,11 +873,9 @@ namespace Views
                         {
                             // show single string result in Scrollviewer Document
 
-
                             GenResults . CollectionTextresults . Visibility = Visibility . Visible;
                             GenResults . TextResultsDocument . Visibility = Visibility . Visible;
                             GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Star );
-                            //                            GenResults . innerresultscontainer . RowDefinitions [ 0 ] . Height = new GridLength ( 3.9 , GridUnitType . Star );
                             GenResults . CollectionTextresults . Document = Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
                              FindResource ( "Black3" ) as SolidColorBrush ,
                             $"Execution of S.P [{ListResults . SelectedItem . ToString ( )}] using [{optype . SelectedItem . ToString ( )}] completed successfully, BUT only returned " +
@@ -715,11 +895,11 @@ namespace Views
                             GenResults . CollectionGridresults . Visibility = Visibility . Visible;
                             GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Star );
                             string argstring = SPArguments . Text == "Argument(s) required ?" ? "" : SPArguments . Text;
+                            SPArgumentsFull . Text = SPArguments . Text;
                             string [ ] parts = SPArguments . Text . Split ( ',' );
                             count = genclass . Count;
                             GenResults . CountResult . Text = $"{count}";
                             GenResults . CollectionGridresults . ItemsSource = genclass;
-                            //GenResults . CollectionGridresults . ItemsSource = dynvar;
                             GenResults . CollectionTextresults . Document = Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
                             FindResource ( "Black3" ) as SolidColorBrush ,
                                 $"Execution of [{ListResults . SelectedItem . ToString ( )} using [{optype . SelectedItem . ToString ( )}] was processed successfully \nand returned a value of [{count}] records..." );
@@ -736,10 +916,11 @@ namespace Views
                     {
                         // Unknown result
                         string argstring = SPArguments . Text == "Argument(s) required ?" ? "" : SPArguments . Text;
+                        SPArgumentsFull . Text = SPArguments . Text;
                         GenResults . CollectionTextresults . Visibility = Visibility . Visible;
                         GenResults . CollectionTextresults . Document = Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
-                     FindResource ( "Black3" ) as SolidColorBrush ,
-                   $"Execution of [{ListResults . SelectedItem . ToString ( )} using {optype . SelectedItem . ToString ( )}] completed successfully \nbut failed to return any type of value ...\n\nTry a different Method of Execution !" );
+                             FindResource ( "Black3" ) as SolidColorBrush ,
+                           $"Execution of [{ListResults . SelectedItem . ToString ( )} using {optype . SelectedItem . ToString ( )}] completed successfully \nbut failed to return any type of value ...\n\nTry a different Method of Execution !" );
                         GenResults . ExecutionInfo . Text = $"Execution of [{optype . SelectedItem . ToString ( )}] completed successfully, but see notes above...";
                         GenResults . CollectionTextresults . Document . Blocks . FirstBlock . FontSize = 18;
                         // Showing Scrollviewer Text Only, so reduce height
@@ -754,22 +935,20 @@ namespace Views
                         Mouse . OverrideCursor = Cursors . Arrow;
                         return;
                     }
-
-                    //              NewWpfDev . Utils . DoSuccessBeep ( );
                     Mouse . OverrideCursor = Cursors . Arrow;
                     return;
-
                 }
             }
             catch ( Exception ex )
             {
                 Utils . DoErrorBeep ( );
-                //                NewWpfDev . Utils . PlayErrorBeep ( );
                 Debug . WriteLine ( $"SQL error encountered ...\n {ex . Message}, [{ex . Data}]" );
             }
             Mouse . OverrideCursor = Cursors . Arrow;
         }
-        public string [ ] PadArgsArray ( string [ ] content )
+
+
+        public static string [ ] PadArgsArray ( string [ ] content )
         {
             string [ ] tmp = new string [ DEFAULTARGSSIZE ];
             for ( int x = 0 ; x < DEFAULTARGSSIZE ; x++ )
@@ -786,7 +965,7 @@ namespace Views
             }
             return tmp;
         }
-        public string GetFullArgs ( string fullargs , int offset )
+        public static string GetFullArgs ( string fullargs , int offset )
         {
 
             return fullargs;
@@ -861,12 +1040,15 @@ namespace Views
             }
             return count; ;
         }
+
         private dynamic Execute_click ( ref int Count , ref string ResultString , ref Type Objtype , ref object Obj , out string Err )
         {
             // called when executing an SP
             //string operationtype = optype . SelectedItem as string;
             string [ ] args1 = null;
             string [ ] args = new string [ 0 ];
+            bool UsingCmd = false;
+            bool UsingSproc = false;
             // Initiaize ref variables
 
             Count = 0;
@@ -879,6 +1061,10 @@ namespace Views
             {
                 MessageBox . Show ( "You MUST enter at least the name of the S.P to be processed before it can be executed !" , "Execution processing error" );
                 return null;
+            }
+            else if ( Searchtext . Contains ( "Clear Prompt" ) || Searchtext . Contains ( "No parameters are required" ) )
+            {
+                Searchtext = "";
             }
 
             // PARSE THE ARGUMENTS ENTERED BY  OUR  USER
@@ -894,7 +1080,17 @@ namespace Views
             bool GotCommas = false;
             List<string [ ]> argsbuffer = new List<string [ ]> ( );
 
-            if ( Searchtext != "" )
+            if ( Searchtext . ToUpper ( ) . StartsWith ( "CMD" ) )
+            {
+                // user entered Select statement (or similar)
+                UsingCmd = true;
+            }
+            else if ( SPArguments . Text . ToUpper ( ) . StartsWith ( "SP" ) )
+            {
+                UsingSproc = true;
+            }
+
+            else if ( Searchtext != "" )
             {
                 // splt mutliple args into individual strings
                 tempargs = Searchtext . Trim ( ) . ToUpper ( ) . Split ( ':' );
@@ -905,111 +1101,152 @@ namespace Views
             }
             argsbuffer . Clear ( );
             //Spllit testcontent [ ] string into seperate parts on either comma or space
-            for ( int y = 0 ; y < tempargs . Length ; y++ )
+            if ( UsingCmd == true )
             {
-                try
+                argsbuffer . Clear ( );
+                string [ ] argsx = new string [ 2 ];
+                argsx [ 0 ] = "CMD";
+                argsx [ 1 ] = SPArguments . Text . Substring ( 3 ) . Trim ( );
+                argsbuffer . Add ( argsx );
+                dynamic result = ExecuteArgument ( argsbuffer , ref Count , ref ResultString , ref Obj , ref Objtype , ref Err );
+                return result;
+            }
+            else if ( UsingSproc == true )
+            {
+                argsbuffer . Clear ( );
+                string [ ] sprocs = SPArguments . Text . ToUpper ( ) . Split ( " " );
+                if ( sprocs . Length >= 1 )
                 {
-
-                    args = new string [ DEFAULTARGSSIZE ];
-                    args = PadArgsArray ( args );
-                    for ( int z = 0 ; z < tempargs . Length ; z++ )
+                    int max = 0;
+                    string [ ] argsx = new string [ sprocs . Length ];
+                    for ( int x = 0 ; x < sprocs . Length ; x++ )
                     {
-                        /* process each set of arguments we have in testcontent[]  and split to its constituent parts (name, value, type, size, direction)
-                        based on spaces(or comas) between sections of the argument
-                        fill parts  with the processed fields from the current arg string
+                        if ( sprocs [ x ] != "" )
+                            max++;
+                    }
+                    argsx = new string [ max ];
+                    int index = 0;
+                    for ( int x = 0 ; x < sprocs . Length ; x++ )
+                    {
+                        if ( sprocs [ x ] != "" )
+                            argsx [ index++ ] = sprocs [ x ];
+                    }
+                    argsbuffer . Add ( argsx );
+                }
+                dynamic result = ExecuteArgument ( argsbuffer , ref Count , ref ResultString , ref Obj , ref Objtype , ref Err );
+                return result;
+            }
+            else
+            {
+                //argsx [ 1 ] = SPArguments . Text . Substring ( 3 ) . Trim ( );
+                for ( int y = 0 ; y < tempargs . Length ; y++ )
+                {
+                    try
+                    {
 
-                        structure used FOR ALL ENTRIES MUST ADHERE TO THESE 5 elements & field offset:-
-                       0 - Target object (in first argument only)
-                       1 - @arg (SP argument name)
-                       2 - data type (Optional)
-                       3 - size (if relevant) (Optional)
-                       4 - direction (INPUT / OUTPUT/ RETURN)
-                        */
-                        if ( tempargs [ z ] == "" )
-                            continue;
-                        if ( tempargs . Length == 0 )
-                            break;
-                        parts = ProcessNextArgSet ( tempargs [ z ] , z , out Err );
-                        // now put whatever args contains into our MAIN set (args[]) in correct position
-                        // and finally add them to Argsbuffer list
-
-                        for ( int x = 0 ; x < parts . Length ; x++ )
+                        for ( int z = 0 ; z < tempargs . Length ; z++ )
                         {
-                            if ( parts [ x ] == "" )
+                            args = new string [ DEFAULTARGSSIZE ];
+                            args = PadArgsArray ( args );
+                            /* process each set of arguments we have in testcontent[]  and split to its constituent parts (name, value, type, size, direction)
+                            based on spaces(or comas) between sections of the argument
+                            fill parts  with the processed fields from the current arg string
+
+                            structure used FOR ALL ENTRIES MUST ADHERE TO THESE 5 elements & field offset:-
+                           0 - Target object (in first argument only)
+                           1 - @arg (SP argument name)
+                           2 - data type (Optional)
+                           3 - size (if relevant) (Optional)
+                           4 - direction (INPUT / OUTPUT/ RETURN)
+                            */
+                            if ( tempargs [ z ] == "" )
                                 continue;
-                            if ( CheckForArgType ( parts [ x ] ) )
+                            if ( tempargs . Length == 0 )
+                                break;
+                            parts = ProcessNextArgSet ( tempargs [ z ] , z , out Err );
+                            // now put whatever args contains into our MAIN set (args[]) in correct position
+                            // and finally add them to Argsbuffer list
+
+                            for ( int x = 0 ; x < parts . Length ; x++ )
                             {
-                                args [ 2 ] = parts [ x ];
-                                continue;
-                            }
-                            if ( GetArgSize ( parts [ x ] ) != "" )
-                            {
-                                // it IS  a numeric or (xxx) string
-                                args [ 3 ] = parts [ x ];
-                                continue;
-                            }
-                            if ( x == 0 )
-                            {
-                                args [ x ] = parts [ x ];
-                                if ( args [ x ] . StartsWith ( "@" ) == false )
+                                if ( parts [ x ] == "" )
+                                    continue;
+                                if ( CheckForArgType ( parts [ x ] ) )
                                 {
-                                    args [ x ] = "";
+                                    args [ 2 ] = parts [ x ];
+                                    continue;
+                                }
+                                if ( x != 1 && GetArgSize ( parts [ x ] ) != "" )
+                                {
+                                    // it IS  a numeric or (xxx) string
+                                    args [ 3 ] = parts [ x ];
+                                    continue;
+                                }
+                                if ( x == 0 )
+                                {
+                                    args [ x ] = parts [ x ];
+                                    if ( args [ x ] . StartsWith ( "@" ) == false )
+                                    {
+                                        args [ x ] = "";
+                                    }
+                                }
+                                if ( x == 1 )
+                                {
+                                    if ( parts [ x ] != "" && ( parts [ x ] == "INPUT" || parts [ x ] == "OUTPUT" || parts [ x ] == "OUT" || parts [ x ] == "RETURN" ) )
+                                        args [ 4 ] = parts [ x ];
+                                    else
+                                        args [ x ] = parts [ x ];
+                                }
+                                if ( x == 2 )
+                                {
+                                    if ( parts [ x ] != "" && ( parts [ x ] == "INPUT" || parts [ x ] == "OUTPUT" || parts [ x ] == "OUT" || parts [ x ] == "RETURN" ) )
+                                        args [ 4 ] = parts [ x ];
+                                    else
+                                        args [ x ] = parts [ x ];
+                                }
+                                if ( x == 3 )
+                                {
+                                    if ( parts [ x ] != "" && ( parts [ x ] == "INPUT" || parts [ x ] == "OUTPUT" || parts [ x ] == "OUT" || parts [ x ] == "RETURN" ) )
+                                        args [ 4 ] = parts [ x ];
+                                    else
+                                        args [ x ] = parts [ x ];
+                                }
+
+                                if ( args [ 3 ] != null && args [ 3 ] != "" )
+                                {
+                                    if ( parts [ x ] != "" && ( parts [ x ] == "INPUT" || parts [ x ] == "OUTPUT" || parts [ x ] == "OUT" || parts [ x ] == "RETURN" ) )
+                                        args [ 4 ] = parts [ x ];
+                                    else if ( args [ 1 ] != parts [ x ] )
+                                    {
+                                        args [ 3 ] = parts [ x ];
+                                        args [ 3 ] = ValidateSizeParam ( args [ 3 ] );
+                                    }
+                                }
+                                if ( x == 4 )
+                                {
+                                    if ( parts [ x ] != "" && ( parts [ x ] == "INPUT" || parts [ x ] == "OUTPUT" || parts [ x ] == "OUT" || parts [ x ] == "RETURN" ) )
+                                        args [ 4 ] = parts [ x ];
+                                    else
+                                        args [ x ] = parts [ x ];
                                 }
                             }
-                            if ( x == 1 )
-                            {
-                                if ( parts [ x ] != "" && ( parts [ x ] == "INPUT" || parts [ x ] == "OUTPUT" || parts [ x ] == "OUT" || parts [ x ] == "RETURN" ) )
-                                    args [ 4 ] = parts [ x ];
-                                else
-                                    args [ x ] = parts [ x ];
-                            }
-                            if ( x == 2 )
-                            {
-                                if ( parts [ x ] != "" && ( parts [ x ] == "INPUT" || parts [ x ] == "OUTPUT" || parts [ x ] == "OUT" || parts [ x ] == "RETURN" ) )
-                                    args [ 4 ] = parts [ x ];
-                                else
-                                    args [ x ] = parts [ x ];
-                            }
-                            if ( x == 3 )
-                            {
-                                if ( parts [ x ] != "" && ( parts [ x ] == "INPUT" || parts [ x ] == "OUTPUT" || parts [ x ] == "OUT" || parts [ x ] == "RETURN" ) )
-                                    args [ 4 ] = parts [ x ];
-                                else
-                                    args [ x ] = parts [ x ];
-                            }
-
-                            if ( args [ 3 ] != null && args [ 3 ] != "" )
-                            {
-                                if ( parts [ x ] != "" && ( parts [ x ] == "INPUT" || parts [ x ] == "OUTPUT" || parts [ x ] == "OUT" || parts [ x ] == "RETURN" ) )
-                                    args [ 4 ] = parts [ x ];
-                                else
-                                    args [ 3 ] = parts [ x ];
-                                args [ 3 ] = ValidateSizeParam ( args [ 3 ] );
-                            }
-                            if ( x == 4 )
-                            {
-                                if ( parts [ x ] != "" && ( parts [ x ] == "INPUT" || parts [ x ] == "OUTPUT" || parts [ x ] == "OUT" || parts [ x ] == "RETURN" ) )
-                                    args [ 4 ] = parts [ x ];
-                                else
-                                    args [ x ] = parts [ x ];
-                            }
+                            // Finally Add this set of now validated args to our outgoing arguments list to pass to the SQL Query
+                            if ( CheckForParameterArgCount ( args ) > 0 )
+                                argsbuffer . Add ( args );
+                            PrintSPArgs ( args );
                         }
                     }
-                    // Finally Add this set of now validated args to our outgoing arguments list to pass to the SQL Query
-                    if ( CheckForParameterArgCount ( args ) > 0 )
-                        argsbuffer . Add ( args );
-                    PrintSPArgs ( args );
+                    catch ( Exception ex )
+                    {
+                        Console . WriteLine ( $"Parsing error : {ex . Message}, {ex . Data}" );
+                        return null;
+                    }
                 }
-                catch ( Exception ex )
-                {
-                    Console . WriteLine ( $"Parsing error : {ex . Message}, {ex . Data}" );
-                    return null;
-                }
-
+                dynamic result = ExecuteArgument ( argsbuffer , ref Count , ref ResultString , ref Obj , ref Objtype , ref Err );
+                return result;
             }
-            dynamic result = ExecuteArgument ( argsbuffer , ref Count , ref ResultString , ref Obj , ref Objtype , ref Err );
-            return result;
         }
+
         public dynamic ExecuteArgument ( List<string [ ]> argsbuffer , ref int Count , ref string ResultString , ref object Obj , ref Type Objtype , ref string Err )
         {
             //*************************************************//
@@ -1024,25 +1261,55 @@ namespace Views
             string innerrerr = Err;
             string operationtype = optype . SelectedItem as string;
             string SqlCommand = ListResults . SelectedItem . ToString ( );
-
+            string [ ] sprocCmd = null;
+            bool IsCmd = false;
+            bool IsSproc = false;
+            int indx = 0;
+            foreach ( string [ ] item in argsbuffer )
+            {
+                if ( item [ 0 ] . Contains ( "CMD" ) )
+                {
+                    IsCmd = true;
+                    SqlCommand = item [ 1 ];
+                    break;
+                }
+                else if ( item [ 0 ] . ToUpper ( ) . StartsWith ( "SP" ) )
+                {
+                    IsSproc = true;
+                    sprocCmd = new string [ item . Length ];
+                    sprocCmd = item;
+                    break;
+                }
+            }
+            if ( IsSproc )
+            {
+                argsbuffer = new List<string[]>( );
+                string [ ] args = new string [ sprocCmd . Length-1 ];
+                for ( int x = 0 ; x < sprocCmd . Length ; x++ )
+                {
+                    if ( x == 0 )
+                        SqlCommand = sprocCmd [ 0 ];
+                    else if ( sprocCmd [ x ] != "" )
+                        args [ x - 1 ] = sprocCmd [ x ];
+                }
+                argsbuffer . Add ( sprocCmd );
+            }
             if ( operationtype == null )
             {
                 MessageBox . Show ( "You MUST select an Execution Method before the selected S.P can be executed !" , "Execution processing error" );
                 return null;
             }
 
-            //string [ ] args = new string [ 3 ];
-            //for ( int x = 0 ; x < argsbuffer . Count ; x++ )
-            //{
-            //    args [ x ] = argsbuffer [ x ] [ 0 ];
-            //}
             try
             {
                 string output = "";
-                // string SqlCommand = "";
                 // Now find out what method we are going to use
-                if ( operationtype == "SP returning an INT value" )
+                if ( operationtype == "SP Execute command or returning an INT value" )
                 {
+                    //METHOD 6
+                    if ( IsCmd == false )
+                        SqlCommand = $"{ListResults . SelectedItem . ToString ( )}";
+
                     //// tell method what we are expecting back
                     Objtype = typeof ( int );
 
@@ -1076,8 +1343,11 @@ namespace Views
                 }
                 else if ( operationtype == "SP returning a String" )
                 {
+                    //METHOD 2
+
                     //Use storedprocedure  version
-                    SqlCommand = $"{ListResults . SelectedItem . ToString ( )}";
+                    if ( IsCmd == false )
+                        SqlCommand = $"{ListResults . SelectedItem . ToString ( )}";
 
                     // tell method what we are expecting back
                     Objtype = typeof ( string );
@@ -1112,7 +1382,9 @@ namespace Views
                 }
                 else if ( operationtype == "SP returning a List<string>" )
                 {
-                    SqlCommand = $"{ListResults . SelectedItem . ToString ( )}";
+                    //METHOD 5
+                    if ( IsCmd == false )
+                        SqlCommand = $"{ListResults . SelectedItem . ToString ( )}";
 
                     // tell method what we are expecting back
                     Objtype = typeof ( List<string> );
@@ -1140,6 +1412,9 @@ namespace Views
                 }
                 else if ( operationtype == "SP returning a Table as ObservableCollection" )
                 {
+                    //METHOD 0
+                    if ( IsCmd == false )
+                        SqlCommand = $"{ListResults . SelectedItem . ToString ( )}";
                     DatagridControl dgc = new ( );
 
                     // tell method what we are expecting back
@@ -1148,7 +1423,7 @@ namespace Views
                     //********************************************************************************//
                     // Should normally  be  '[spLoadTableAsGeneric]' but can be any SP that wants a collection back
                     IEnumerable<dynamic> tableresult = GenDapperQueries . Get_DynamicValue_ViaDapper (
-                     ListResults . SelectedItem . ToString ( ) ,
+                     SqlCommand ,
                     argsbuffer ,
                      ref innerresultstring ,
                      ref innerobj ,
@@ -1178,71 +1453,64 @@ namespace Views
                     else return tableresult;
                 }
                 ////---------------------------------------------------------------------------------------------------//
-                //else if ( operationtype == "SP returning a 'Pot Luck' result" )
+                else if ( operationtype == $"Execute SQL (text) command with No return value" )
+                //---------------------------------------------------------------------------------------------------//
+                {
+                    string error = "";
+                    //string [ ] argsbuff = new string [ 0 ];
+                    SqlCommand = SPArguments . Text . Trim ( );
+                    //********************************************************************************//
+                    // call Execute procedure for TEXT command (0)
+                    GenDapperQueries . ExecuteSqlCommandWithNoReturnValue ( 0 , SqlCommand , argsbuffer , out error );
+                    if ( error != "" && error != "SUCCESS" && error . Contains ( "has completed successfully" ) == false )
+                        MessageBox . Show ( $"The command {SqlCommand} failed wiith  the following \nerror message\n[{error}]" , "SQL Execution error" );
+                    else
+                    {
+                        if ( error == "SUCCESS" )
+                            error = $"The command just executed [{SqlCommand . ToUpper ( )}] has been completed successfuly.";
+                    }
+                    Err = error;
+                }
                 ////---------------------------------------------------------------------------------------------------//
+                else if ( operationtype == $"Execute (S.Proc) command with No return value" )
+                //---------------------------------------------------------------------------------------------------//
+                {
+                    string error = "";
+                    //string [ ] argsbuff = string [ 1 ];
+                    //int [ ] args = new int [ 2 ];
+                    //args [ 0] = 
+                    //********************************************************************************//
+                    // call Execute procedure for TEXT command (0)
+                    GenDapperQueries . ExecuteSqlCommandWithNoReturnValue ( 1 , SqlCommand , argsbuffer , out error );
+                    if ( error != "" )
+                        MessageBox . Show ( $"The command {SqlCommand} failed wiith  the following error message\n[{error}]" , "SQL Execution error" );
+                    else
+                        error = "SUCCESS";
+                    Err = error;
+                }
+                //else if ( rescollection . Count == 0 && Err == "" )
                 //{
-                //    DatagridControl dgc = new ( );
-                //    int recordcount = 0;
+                //    DatagridControl dg = new DatagridControl ( );
 
                 //    //********************************************************************************//
-                //    ObservableCollection<GenericClass>
-                //       rescollection = dgc . GetDataFromStoredProcedure (
-                //         ListResults . SelectedItem . ToString ( ) ,
-
-                //        argsbuffer ,
-                //        Genericgrid . CurrentTableDomain ,
-                //        out Err ,
-                //        out recordcount );
+                //    //                        var result = dg . GetDataFromStoredProcedure ( "Select columncount from countreturnvalue" , null , "" , out Err , out recordcount , 1 );
                 //    //********************************************************************************//
 
-                //    if ( Err == "" && rescollection . Count > 0 )
-                //    {
-                //        string output2 = "";
-                //        int returnedcount = rescollection . Count;
-                //        innercount = returnedcount;
-                //        if ( returnedcount > 0 )
-                //        {
-                //            output2 = $"Results of the {optype . SelectedItem . ToString ( )} request is shown below\n\n";
-                //            foreach ( var item in rescollection )
-                //            {
-                //                output2 += $"{item . field1 . ToString ( )}\n";
-                //            }
-                //            Obj = output2;
-                //            ResultString = "SUCCESS";
-                //            return ( dynamic ) Obj;
-                //        }
+                //    //                     if ( result . Count == 0 )
+                //    MessageBox . Show ( $"No Error was encountered,  but the request did NOT return any type of value...\n\nPerhaps the processing method that you selected as shown below :-\n" +
+                //        $"[{optype . SelectedItem . ToString ( ) . ToUpper ( )}]\n was not the correct processing method type for this Stored.Procedure ?" , "SQL Error" );
+                //    //if ( ReturnProcedureHeader ( "Select columncount from countreturnvalue" , "" ) == "DONE" )
 
-                //        else
-                //        {
-                //            Err = $"No usable values were returned";
-                //            Obj = ( object ) Err;
-                //            ResultString = "FAILURE";
-                //            return ( dynamic ) Obj;
-                //        }
-                //    }
-                //    else if ( rescollection . Count == 0 && Err == "" )
-                //    {
-                //        DatagridControl dg = new DatagridControl ( );
-
-                //        //********************************************************************************//
-                //        //                        var result = dg . GetDataFromStoredProcedure ( "Select columncount from countreturnvalue" , null , "" , out Err , out recordcount , 1 );
-                //        //********************************************************************************//
-
-                //        //                     if ( result . Count == 0 )
-                //        MessageBox . Show ( $"No Error was encountered,  but the request did NOT return any type of value...\n\nPerhaps the processing method that you selected as shown below :-\n" +
-                //            $"[{optype . SelectedItem . ToString ( ) . ToUpper ( )}]\n was not the correct processing method type for this Stored.Procedure ?" , "SQL Error" );
-                //        //if ( ReturnProcedureHeader ( "Select columncount from countreturnvalue" , "" ) == "DONE" )
-
-                //        return ( dynamic ) null;
-                //    }
-                //    else
-                //    {
-                //        string errmsg = $"SQL Error encountered : The error message was \n{Err}\n\nPerhaps a  different Execution method would work more effectively for this Stored.Procedure.?";
-                //        Err = errmsg;
-                //        return ( dynamic ) null;
-                //    }
+                //    return ( dynamic ) null;
                 //}
-                //else if ( operationtype == "SP returning No value" )
+                else
+                {
+                    string errmsg = $"SQL Error encountered : The error message was \n{Err}\n\nPerhaps a  different Execution method would work more effectively for this Stored.Procedure.?";
+                    Err = errmsg;
+                    return ( dynamic ) null;
+                }
+                //}
+                //else if ( operationtype == $"Execute SQL (text) command with No return value" )
                 //{
                 //    DatagridControl dgc = new ( );
 
@@ -1256,11 +1524,11 @@ namespace Views
                 //    {
                 //    }
                 //}
-                else
-                {
-                    MessageBox . Show ( "You MUST select one of these options to proceed....." , "Selection Error" );
-                    return -9;
-                }
+                //else
+                //{
+                //    MessageBox . Show ( "You MUST select one of these options to proceed....." , "Selection Error" );
+                //    return -9;
+                //}
             }
             catch ( Exception ex )
             {
@@ -1278,13 +1546,14 @@ namespace Views
                 Debug . WriteLine ( $"({x})  [{args [ x ]}]" );
             }
         }
+
         static public string [ ] ProcessNextArgSet ( string argstring , int index , out string Error )
         {
             Error = "";
 
             string [ ] argset = new string [ DEFAULTARGSSIZE ];
             string [ ] tmp = new string [ DEFAULTARGSSIZE ];
-            for ( int x = 0; x < DEFAULTARGSSIZE ; x++ )
+            for ( int x = 0 ; x < DEFAULTARGSSIZE ; x++ )
             {
                 argset [ x ] = "";
             }
@@ -1395,7 +1664,9 @@ namespace Views
                     catch ( Exception ex ) { isnumeric = false; }
                 }
             }
-            if ( tmp [ 3 ] == null || tmp [ 3 ] == "" )
+            if ( tmp [ 2 ] == "OUT" || tmp [ 2 ] == "OUTPUT" )
+                tmp [ 3 ] = "OUTPUT";
+            else if ( tmp [ 3 ] == null || tmp [ 3 ] == "" )
                 tmp [ 3 ] = "INPUT";
             for ( int v = 0 ; v < tmp . Length ; v++ )
             {
@@ -1491,6 +1762,7 @@ namespace Views
             //output = buffer;
             return output;
         }
+
         public string ExecuteSelectedStoredproc ( string spname , string Searchtext )
         {
             //Show popup optype selection dialog
@@ -1506,15 +1778,19 @@ namespace Views
             //optype . UpdateLayout ( );
             return "";
         }
+
         public void createoptypes ( )
         {
-            optype . Items . Add ( $"SP returning an INT value" );
+            optype . Items . Add ( $"SP Execute command or returning an INT value" );
             optype . Items . Add ( $"SP returning a String" );
             optype . Items . Add ( $"SP returning a List<string>" );
             optype . Items . Add ( $"SP returning a Table as ObservableCollection" );
             optype . Items . Add ( $"SP returning a 'Pot Luck' result" );
-            optype . Items . Add ( $"SP returning No value" );
+            optype . Items . Add ( $"Execute SQL (text) command with No return value" );
+            optype . Items . Add ( $"Execute (S.Proc) command with No return value" );
+
         }
+
         private string ReturnProcedureHeader ( string commandline , string Arguments )
         {
             //*********************************//
@@ -1527,6 +1803,7 @@ namespace Views
             operationtype3 . Text = $"Stored Procedure {commandline . ToUpper ( )} Header Details :-\n\n{Parameters . Text}";
             return "Done";
         }
+
         //private void Hidepanel_Click ( object sender , RoutedEventArgs e )
         //{
         //    OperationSelection . Visibility = Visibility . Collapsed;
@@ -1543,53 +1820,63 @@ namespace Views
             //        $"The help window just opened shows you the parameter types required by this S.P?" , "SQL Error" );
 
         }
+
         private void SPArguments_MouseEnter ( object sender , MouseEventArgs e )
         {
             SPArguments . SelectAll ( );
         }
+
         private void SPArguments_MouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
         {
             TextBox tb = sender as TextBox;
             if ( SPArguments . Text == "Argument(s) required ?" )
                 SPArguments . Text = "";
-            ///        int offset = tb . CaretIndex;
+            SPArgumentsFull . Text = SPArguments . Text;
         }
+
         private void SPArguments_GotFocus ( object sender , RoutedEventArgs e )
         {
             if ( SPArguments . Text == "Argument(s) required ?" )
                 SPArguments . Text = "";
+            SPArgumentsFull . Text = SPArguments . Text;
         }
+
         private void TextResult_PreviewKeyDown ( object sender , KeyEventArgs e )
         {
 
         }
+
         private void Closepanel_Click ( object sender , RoutedEventArgs e )
         {
             DetailInfo . Visibility = Visibility . Collapsed;
         }
+
         private void optype_MouseDoubleClick ( object sender , MouseButtonEventArgs e )
         {
             DoExecute_Click ( null , null );
         }
+
         private void Exec_Click ( object sender , RoutedEventArgs e )
         {
             Gengrid . RunExecute_Click ( this );
-            ProcessExecResults ( );
+            //ProcessExecResults ( );
         }
-        public void ProcessExecResults ( )
-        {
-            if ( ExecResults . resultInt != 0 )
-            { }
-            if ( ExecResults . resultString != "" )
-            { }
-            if ( ExecResults . resultDouble != 0.0 )
-            { }
-            if ( ExecResults . resultCollection != null )
-            { }
-            if ( ExecResults . resultStringList . Count > 0 )
-            { }
 
-        }
+        //public void ProcessExecResults ( )
+        //{
+        //    if ( ExecResults . resultInt != 0 )
+        //    { }
+        //    if ( ExecResults . resultString != "" )
+        //    { }
+        //    if ( ExecResults . resultDouble != 0.0 )
+        //    { }
+        //    if ( ExecResults . resultCollection != null )
+        //    { }
+        //    if ( ExecResults . resultStringList . Count > 0 )
+        //    { }
+
+        //}
+
         private void ListResults_MouseRightButtonDown ( object sender , MouseButtonEventArgs e )
         {
             ContextMenu cm = FindResource ( "ResultsViewerContextMenu" ) as ContextMenu;
@@ -1619,11 +1906,13 @@ namespace Views
             e . Handled = true;
             menu . IsOpen = true;
         }
+
         private void Spresultsviewer_Closing ( object sender , System . ComponentModel . CancelEventArgs e )
         {
             Genericgrid . Resultsviewer = null;
             MainWindow . SaveSystemSetting ( "SpResultsViewerOnTop" , OntopCheck . IsChecked );
         }
+
         private void OntopCheck_Click ( object sender , RoutedEventArgs e )
         {
             CheckBox cb = sender as CheckBox; ;
@@ -1638,6 +1927,7 @@ namespace Views
                 Spresultsviewer . Topmost = false;
             }
         }
+
         private void ShowingAllSps_Checked ( object sender , RoutedEventArgs e )
         {
             // Checkbox clicked to change SP's shown
@@ -1661,6 +1951,7 @@ namespace Views
             e . Handled = true;
 
         }
+
         /// <summary>
         /// Stub to allow Genericgrid to call ShowAllSps (Private Click event handler)
         /// </summary>
@@ -1679,8 +1970,9 @@ namespace Views
         private void ShowAllSps ( object sender , RoutedEventArgs e )
         {
             CheckBox cb = sender as CheckBox;
+            List<string> SpList = new List<string> ( );
             string srchterm = "";
-            srchterm = Searchtext;
+            srchterm = Searchterm;
             string curritem = "";
             int currindex = 0;
             if ( ListResults . SelectedIndex != -1 )
@@ -1692,11 +1984,16 @@ namespace Views
             SpResultsViewer Target = sender as SpResultsViewer;
 
             // We get back here after loading matching SP's ?????????????????????????'
-            if ( ShowingAllSPs == true )
+            if ( ShowingAllSprocs . IsChecked == true )
             {
                 ShowingAllSprocs . UpdateLayout ( );
+                Mouse . OverrideCursor = Cursors . Wait;
                 // Update cosmetics
-                if ( Gengrid . LoadShowMatchingSproc ( this , TextResult , curritem , ref srchterm ) == false )
+                string [ ] args = new string [ 1 ];
+                args [ 0 ] = Searchtext;
+                SpList = SProcsDataHandling . CallStoredProcedure ( SpList , "spGetAllMatchingSprocs" , args );
+                ListResults . ItemsSource = SpList;
+                if ( ListResults . Items . Count == 0 )
                 {
                     Debug . WriteLine ( $"Failed  to load SP's" );
                     NewWpfDev . Utils . PlayErrorBeep ( );
@@ -1705,20 +2002,25 @@ namespace Views
                 else
                 {
                     // Update  checkbox prompt
-                    ShowingAllSprocs . Content = $"Show ALL available Stored Procedures .";
+                    ShowingAllSprocs . Content = $"Click to Show ALL S.Procs .";
                     ShowingAllSprocs . UpdateLayout ( );
                     // reset flag as we are now showing matches only
                     ShowingAllSPs = true;
                     UsingMatches = true;
                     // Load SP into ScrollViewer
-                    Gengrid . SetSpWindowInfoText ( this , this , Gengrid . Searchtext );
+                    Bannerline . Text = $"Stored Procedures Helper ({ListResults . Items . Count}) SP's Matching  [{Searchtext}] for Db [{MainWindow . CurrentSqlTableDomain}] are shown)";
+                    Mouse . OverrideCursor = Cursors . Arrow;
                 }
             }
             else
             {
                 ShowingAllSprocs . UpdateLayout ( );
                 // Update cosmetics
-                if ( Gengrid . LoadShowMatchingSproc ( this , TextResult , curritem , ref srchterm ) == false )
+
+                //working  correctly
+                SpList = SProcsDataHandling . CallStoredProcedure ( SpList , "spGetStoredProcs" );
+                ListResults . ItemsSource = SpList;
+                if ( ListResults . Items . Count == 0 )
                 {
                     Debug . WriteLine ( $"Failed  to load SP's" );
                     NewWpfDev . Utils . PlayErrorBeep ( );
@@ -1727,27 +2029,30 @@ namespace Views
                 }
                 else
                 {
-                    ShowingAllSprocs . Content = $"Show ONLY Stored Procedures matching [{Searchtext}].";
+                    ShowingAllSprocs . Content = $"Click to Show Matching S.Procs .";
+                    //                    ShowingAllSprocs . Content = $"Show ALL Stored Procedures.";
                     ShowingAllSprocs . UpdateLayout ( );
                     // Load SP into ScrollViewer
-                    Gengrid . SetSpWindowInfoText ( this , this , srchterm );
+                    Bannerline . Text = $"Stored Procedures Helper (ALL {ListResults . Items . Count} SP's for Db [{MainWindow . CurrentSqlTableDomain}] are shown)";
                     ShowingAllSPs = true;
                 }
             }
             // sort out the layout, but pass  a blank search term as we are loading ALL SP's
             Mouse . OverrideCursor = Cursors . Arrow;
         }
+
         private void Spresultsviewer_Loaded ( object sender , RoutedEventArgs e )
         {
             if ( ShowingAllSPs == false )
                 ShowingAllSPs = true;
             IsLoading = false;
             // only now, get prompt data
-            string sptext = "";
-            bool result = Gengrid . LoadShowMatchingSproc ( this , TextResult , ListResults . SelectedItem . ToString ( ) , ref sptext );
+            //string sptext = "";
+            //bool result = Gengrid . LoadShowMatchingSproc ( this , TextResult , ListResults . SelectedItem . ToString ( ) , ref sptext );
 
-            string Arguments = StoredProcs . SProcsDataHandling . GetSpHeaderBlock ( sptext , spviewer );
+            // string Arguments = StoredProcs . SProcsDataHandling . GetSpHeaderBlock ( sptext , spviewer );
         }
+
         private void hSplitter_MouseEnter ( object sender , MouseEventArgs e )
         {
             GridSplitter gs = sender as GridSplitter;
@@ -1761,16 +2066,19 @@ namespace Views
             gs . Cursor = Cursors . Arrow;
             Mouse . OverrideCursor = Cursors . Arrow;
         }
+
         private void Hsplitter_MouseMove ( object sender , MouseEventArgs e )
         {
             GridSplitter gs = sender as GridSplitter;
             gs . Cursor = Cursors . ScrollNS;
             Mouse . OverrideCursor = Cursors . SizeNS;
         }
+
         private void Spresultsviewer_FocusableChanged ( object sender , DependencyPropertyChangedEventArgs e )
         {
             Debug . WriteLine ( $"Ontop status = {this . Topmost}" );
         }
+
         private void Spresultsviewer_KeyDown ( object sender , KeyEventArgs e )
         {
             if ( e . Key == Key . F1 )
@@ -1800,6 +2108,7 @@ namespace Views
                 e . Handled = true;
             }
         }
+
         private void ListResults_MouseDoubleClick ( object sender , MouseButtonEventArgs e )
         {
             SpArguments sh = new SpArguments ( SPArguments );
@@ -1821,6 +2130,7 @@ namespace Views
             SqlTablesViewer . Visibility = Visibility . Visible;
             reccount . Text = AllTables . Items . Count . ToString ( );
         }
+
         private void tableviewer_LButtonDn ( object sender , MouseButtonEventArgs e )
         {
             ListBox senderlb;
@@ -1867,6 +2177,7 @@ namespace Views
                 }
             }
         }
+
         private void tableviewer_Ending ( object sender , MouseButtonEventArgs e )
         {
             ActiveDragControl = SqlTablesViewer;
@@ -2038,10 +2349,12 @@ namespace Views
         {
             SqlTablesViewer . Visibility = Visibility . Collapsed;
         }
+
         private void closeviewer ( object sender , RoutedEventArgs e )
         {
             SqlTablesViewer . Visibility = Visibility . Collapsed;
         }
+
         private void Viewer_PreviewMouseRightButtonDown ( object sender , MouseButtonEventArgs e )
         {
             ContextMenu cm = FindResource ( "ResultsViewerContextMenu" ) as ContextMenu;
@@ -2059,6 +2372,7 @@ namespace Views
             menu . IsOpen = true;
             e . Handled = true;
         }
+
         public ContextMenu RemoveMenuItems ( string menuname , string singleton = "" , List<string> delItems = null )
         {
             // Collapse visibility on one or more context menu items
@@ -2103,6 +2417,7 @@ namespace Views
             }
             return menu;
         }
+
         public ContextMenu AddMenuItem ( string menuname , string entry )
         {
             SolidColorBrush sbrush = null;
@@ -2174,6 +2489,26 @@ namespace Views
             }
             return menu;
         }
+
+        public ContextMenu UpdateMenuItem ( string menuname , string menuitemname )
+        {
+            var menu = FindResource ( menuname ) as ContextMenu;
+
+            if ( menuitemname != "" )
+            {
+                // show menu item(s)
+                foreach ( MenuItem item in menu . Items )
+                {
+                    if ( item . Name == menuitemname )
+                    {
+                        item . UpdateLayout ( );
+                        break;
+                    }
+                }
+            }
+            return menu;
+        }
+
         private void ContextMenu_Closed ( object sender , RoutedEventArgs e )
         {
             //Restore Popup to full contents
@@ -2406,6 +2741,7 @@ namespace Views
                 sizearg = sizearg . Substring ( 0 , sizearg . Length - 1 ) . Trim ( );
             return sizearg;
         }
+
         public string ValidateDataType ( string datatype )
         {
             if ( datatype != "STRING" )
@@ -2430,41 +2766,11 @@ namespace Views
             return datatype;
         }
 
-        private void expandprompt ( object sender , RoutedEventArgs e )
-        {
-            // show  hide prompt entry field height 
-            //TextBox tb = SPArguments;
-            //Thickness th = new Thickness ( );
-            if ( Parameterstop . Visibility == Visibility . Collapsed )
-            {
-                Parameterstop . Visibility = Visibility . Visible;
-                // Expanded
-                //tb . Height = 90;
-                //th = tb . Margin;
-                //th . Top = 5;
-                //tb . Margin = th;
-                //tb . TextWrapping = TextWrapping . Wrap;
-                ShowingAllSprocs . Visibility = Visibility . Collapsed;
-                OntopCheck . Visibility = Visibility . Collapsed;
-            }
-            else
-            {
-                Parameterstop . Visibility = Visibility . Collapsed;
-                // normal
-                //tb . Height = 40;
-                //th = tb . Margin;
-                //th . Top = 45;
-                //tb . Margin = th;
-                //tb . TextWrapping = TextWrapping . NoWrap;
-                ShowingAllSprocs . Visibility = Visibility . Visible;
-                OntopCheck . Visibility = Visibility . Visible;
-            }
-        }
-
         private void ExecuteEdit_PreviewMouseRightButtonDown ( object sender , MouseButtonEventArgs e )
         {
 
         }
+
         public void LoadExecuteEditor ( )
         {
             Executedata . Clear ( );
@@ -2597,20 +2903,112 @@ namespace Views
                 th . Bottom = 0;
                 SPArguments . Margin = th;
                 SPArguments . Height = 90;
-                Parameterstop . Visibility = Visibility . Collapsed;
+                TogglepromptPanel ( false );
             }
             else
             {
                 // Reducing height
                 SPArguments . Text = SPArgumentsFull . Text;
+                SPArgumentsFull . Text = SPArguments . Text;
                 SPArgumentsFull . Visibility = Visibility . Collapsed;
                 SPArguments . Visibility = Visibility . Visible;
                 Thickness th = new Thickness ( );
                 th = SPArguments . Margin;
-                th . Top= 50;
+                th . Top = 50;
                 th . Bottom = 0;
                 SPArguments . Height = 40;
-                Parameterstop . Visibility = Visibility . Visible;
+                TogglepromptPanel ( true );
+            }
+        }
+
+        private void expandprompt ( object sender , RoutedEventArgs e )
+        {
+            // show hide blue prompt entry field  
+            if ( Parameterstop . Visibility == Visibility . Visible )
+            {
+                ShowOptionsPanel = false;
+                TogglepromptPanel ( false );
+            }
+            else
+            {
+                ShowOptionsPanel = true;
+                TogglepromptPanel ( true );
+            }
+        }
+
+        public void TogglepromptPanel ( bool show )
+        {
+            // show hide blue prompt entry field  
+            if ( show )
+            {
+                // show blue panel
+                if ( SPArguments . Height == 40 && ShowOptionsPanel == true )
+                {
+                    Parameterstop . Visibility = Visibility . Visible;
+                    ShowCboxes ( false );
+                }
+                else if ( SPArguments . Height == 40 && ShowOptionsPanel == false )
+                {
+                    Parameterstop . Visibility = Visibility . Collapsed;
+                    ShowCboxes ( true );
+                }
+                else if ( SPArguments . Height == 90 )
+                {
+                    Parameterstop . Visibility = Visibility . Collapsed;
+                    ShowCboxes ( false );
+                }
+            }
+            else
+            {
+                // Hide blue panel so show checkboxes
+                if ( SPArguments . Height == 40 && ShowOptionsPanel == true )
+                {
+                    Parameterstop . Visibility = Visibility . Visible;
+                    ShowCboxes ( false );
+                }
+                else if ( SPArguments . Height == 40 && ShowOptionsPanel == false )
+                {
+                    Parameterstop . Visibility = Visibility . Collapsed;
+                    ShowCboxes ( true );
+                }
+                else if ( SPArguments . Height == 90 && ShowOptionsPanel == false )
+                {
+                    Parameterstop . Visibility = Visibility . Collapsed;
+                    ShowCboxes ( false );
+                }
+                else if ( SPArguments . Height == 90 && ShowOptionsPanel == true )
+                {
+                    Parameterstop . Visibility = Visibility . Collapsed;
+                    ShowCboxes ( false );
+                }
+            }
+            if ( SPArguments . Height == 90 )
+            {
+                gm41Text = "Contract Arguments entry panel";
+                UpdateMenuItem ( "ResultsViewerContextMenu" , "gm41" );
+            }
+            else
+            {
+                gm41Text = "Expand Arguments entry panel";
+                UpdateMenuItem ( "ResultsViewerContextMenu" , "gm41" );
+            }
+        }
+
+        private void ShowCboxes ( bool show )
+        {
+            // show  hide check boxes
+            // Called  by other Methods that effect prompt area
+            if ( show )
+            {
+                ShowingAllSprocs . Visibility = Visibility . Visible;
+                OntopCheck . Visibility = Visibility . Visible;
+                ShowCheckboxes = true;
+            }
+            else
+            {
+                ShowingAllSprocs . Visibility = Visibility . Collapsed;
+                OntopCheck . Visibility = Visibility . Collapsed;
+                ShowCheckboxes = false;
             }
         }
 
@@ -2680,7 +3078,139 @@ namespace Views
         {
             //TextBox tb = SpArguments as TextBox;
             SPArguments . Text = "";
+            SPArgumentsFull . Text = SPArguments . Text;
             SPArguments . Focus ( );
+        }
+
+        //public ToolTip _tooltip = "No Tooltip";
+        private void optype_Select ( object sender , SelectionChangedEventArgs e )
+        {
+            //var lb = sender as ListBox;
+            //var output = lb . SelectedItem . ToString ( );
+            //var toolTip = new ToolTip ( );
+            //_tooltip = toolTip;
+            //toolTip . IsOpen = false;
+            //if ( output != null )
+            //{
+            //    if ( lb . ToolTip != null )
+            //    {
+            //        if ( lb . ToolTip is ToolTip )
+            //        {
+            //            var castToolTip = ( ToolTip ) lb . ToolTip;
+            //            castToolTip . IsOpen = true;
+            //        }
+            //        else
+            //        {
+            //            GetTooltipPrompt ( output );
+            //            toolTip . Content = GetTooltipPrompt ( output );
+            //            toolTip . StaysOpen = false;
+            //            toolTip . IsOpen = true;
+            //            DispatcherTimer dt = new DispatcherTimer ( );
+            //            TimeSpan ts = new TimeSpan ( 0 , 0 , 3 );
+            //            toolTip . UpdateLayout ( );
+            //            dt . Interval = ts;
+            //            dt . Tick += Dt_Tick;
+            //            dt . Start ( );
+            //        }
+            //    }
+            //}
+        }
+
+        //private string GetTooltipPrompt ( string output )
+        //{
+        //    if ( output . ToUpper ( ) . Contains ( "EXECUTE COMMAND" ) )
+        //    {
+        //        TooltipText = "Use this option to execute any SP that does not return a value, \nor returns an INT value";
+        //        return TooltipText;
+        //    }
+        //    else if ( output . ToUpper ( ) . Contains ( "EXECUTE COMMAND" ) )
+        //    {
+        //        TooltipText = "Use this option to execute any SP that does not return a value, \nor returns an INT value";
+        //        return TooltipText;
+        //    }
+        //    else if ( output . ToUpper ( ) . Contains ( "RETURNING A STRING" ) )
+        //    {
+        //        TooltipText = "Use this option to execute any SP that returns a string of any type,\nor even lists, as  these are displayed in a ListBox";
+        //        return TooltipText;
+        //    }
+        //    else if ( output . ToUpper ( ) . Contains ( "RETURNING A LIST" ) )
+        //    {
+        //        TooltipText = "Use this option to execute any SP that returns a list \nof data, as  these are displayed in a ListBox";
+        //        return TooltipText;
+        //    }
+        //    else if ( output . ToUpper ( ) . Contains ( "RETURNING A TABLE" ) )
+        //    {
+        //        TooltipText = "Use this option to execute any SP that does returns a full \nset of data from a table directly, and displays it in a datagrid";
+        //        return TooltipText;
+        //    }
+        //    else if ( output . ToUpper ( ) . Contains ( "POT LUCK" ) )
+        //    {
+        //        TooltipText = "Use this option to execute any SP that does not fit into any other Execution types";
+        //        return TooltipText;
+        //    }
+        //    else if ( output . ToUpper ( ) . Contains ( "NO VALUE" ) )
+        //    {
+        //        TooltipText = "Use this option to execute any SP that does not return a value";
+        //        return TooltipText;
+        //    }
+        //    else if ( output . ToUpper ( ) . Contains ( "EXECUTE SQL (TEXT)" ) )
+        //    {
+        //        TooltipText = "Use this option to execute any SQL command you enter in the \nprompt line that that does not return any value";
+        //        return TooltipText;
+        //    }
+        //    else if ( output . ToUpper ( ) . Contains ( "EXECUTE (S.PROC)" ) )
+        //    {
+        //        TooltipText = "Use this option to execute any S.Proc that does not return \na value, whether currently selected or typed in to prompt line";
+        //        return TooltipText;
+        //    }
+        //    return "No Tooltip";
+        //}
+        //private void Dt_Tick ( object? sender , EventArgs e )
+        //{
+        //    //DispatcherTimer dt = sender as DispatcherTimer;
+        //    //if ( _tooltip != null ) _tooltip . IsOpen = false;
+        //    //dt . Stop ( );
+        //    //if(dt._due)
+        //}
+
+        private void optype_MouseMove ( object sender , MouseEventArgs e )
+        {
+            //            if ( _tooltip != null ) _tooltip . IsOpen = false;
+        }
+
+        private void optype_Selectmove ( object sender , MouseEventArgs e )
+        {
+            //            ListBox lb = sender as ListBox;
+            //            if ( _tooltip != null ) _tooltip . Content = GetTooltipPrompt ( lb . SelectedItem . ToString ( ) );
+            //           lb . Focus ( );
+        }
+
+        private void optype_Selection ( object sender , MouseButtonEventArgs e )
+        {
+            Debug . WriteLine ( "optype selection hit...." );
+        }
+
+        private void showtooltip ( object sender , RoutedEventArgs e )
+        {
+            ListBox lb = optype as ListBox;
+            //ToolTip tt = lb . ToolTip as ToolTip;
+            //tt. IsOpen = true;
+        }
+
+        public void ShowExecutionHints ( object sender , RoutedEventArgs e )
+        {
+            string infotext = File . ReadAllText ( @$"C:\users\ianch\documents\Execution Methods Info.Txt" );
+            //ExecInfo . Content = infotext;
+            execinf . Text = "";
+            execinf . Text = infotext;
+            execinf . UpdateLayout ( );
+            Executeinfo . Visibility = Visibility . Visible;
+
+        }
+
+        private void CloseWin ( object sender , RoutedEventArgs e )
+        {
+            Executeinfo . Visibility = Visibility . Collapsed;
         }
     }
 }

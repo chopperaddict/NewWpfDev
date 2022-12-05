@@ -2045,7 +2045,7 @@ namespace NewWpfDev . UserControls
             try
             {
                 //Generics = DapperGenLib . CreateGenericCollection (
-                //"spGetTableColumnWithSize" ,
+                //"spGetTableColumnWithSizes" ,
                 //$"{spName}" ,
                 //"" ,
                 //"" ,
@@ -2058,7 +2058,7 @@ namespace NewWpfDev . UserControls
                     ConString = MainWindow . SqlCurrentConstring;                
                 }
 
-                dt = ProcessSqlCommand ( "spGetTableColumnWithSize  " + spName , ConString );
+                dt = ProcessSqlCommand ( "spGetTableColumnWithSizes" + spName , ConString );
                 if ( dt . Rows . Count == 0 )
                     columncount = 0;
                 foreach ( var item in dt . Rows )

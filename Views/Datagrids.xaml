@@ -184,7 +184,6 @@
 
         <!--#region Canvas / FlowDoc-->
 
-        <!--SelectionChanged="sp_SelectionChanged"-->
         <Canvas x:Name="canvas" 
 			  Grid.Row="0"
 			  Grid.Column="0"

@@ -1,8 +1,26 @@
-﻿=============================================================================================================
+﻿ =============================================================================================================
+ // How to have vertical scrolling on TextBlock
+ =============================================================================================================
+ 
+ use TextBox and set the following:
+            ScrollViewer.CanContentScroll="True"
+            ScrollViewer.VerticalScrollBarVisibility="Auto"
+            TextWrapping="Wrap"
+            IsReadOnly="True"
+            IsReadOnlyCaretVisible="True"
+ 
+ =============================================================================================================
+ // How to Convert IEnumerable list<string> to C# usable version - WORKS TO!
+ =============================================================================================================
+ 
+ System . Collections . Generic . List<System . Collections . Generic . List<string>> reslist = queryresults .ToList ( ) as System.Collections.Generic.List<System . Collections . Generic . List<string>>;
+ 
+ =============================================================================================================
     How to call SPAN for effiicient substring operation
 ===============================================================================================================
                 
-				string tmp = NewWpfDev . Utils . SpanTrim ( sizearg , 1 , sizearg . Length - 1 ) . ToString ( );
+	string tmp = NewWpfDev . Utils . SpanTrim ( sizearg , 1 , sizearg . Length - 1 ) . ToString ( );
+	// NB SpanTrim() MUST return a Span to allow it to be efficient
 
 =============================================================================================================
     direct SQL yntax for output parameters
@@ -16,7 +34,7 @@
 
 	S.Procedure :
 
-	ALTER PROCEDURE [dbo].[spGetColumns]
+	ALTER PROCEDURE [dbo].[olscountumns]
 		@Arg1 varchar (200) = ''		--table for the columns to be counted 
 		,@list varchar(max) OUTPUT  --Output table for the columns to be returned
 		,@rowcount INT OUTPUT

@@ -1060,7 +1060,7 @@ namespace NewWpfDev. Dapper
 							sql_cmnd = new SqlCommand ( SqlCommand , sqlCon );
 						else
 						{
-							sql_cmnd = new SqlCommand ( "dbo.spLoadBankAccountComplex " , sqlCon );
+							sql_cmnd = new SqlCommand ( "dbo.spLoadMultiBankAccountsOnly" , sqlCon );
 
 							sql_cmnd . CommandType = CommandType . StoredProcedure;
 							// Now handle parameters
@@ -1128,7 +1128,7 @@ namespace NewWpfDev. Dapper
 							{
 								Orderby = Orderby . Contains ( "Order by" ) ? Orderby . Substring ( 9 ) : Orderby;
 								Conditions = Conditions . Contains ( "where " ) ? Conditions . Substring ( 6 ) : Conditions;
-								SqlCommand = $"spLoadBankAccountComplex";
+								SqlCommand = $"spLoadMultiBankAccountsOnly";
 								var Args = new { Arg1 = "" , Arg2 = " " , Arg3= "" , Arg4= "" };
 								if ( args [ 2 ] == 0 )
 									Args = new { Arg1 = $"{DbNameToLoad}" , Arg2 = $"" , Arg3 = $"{Conditions}" , Arg4 = $"{ Orderby}" };
@@ -1325,7 +1325,7 @@ namespace NewWpfDev. Dapper
 							sql_cmnd = new SqlCommand ( SqlCommand , sqlCon );
 						else
 						{
-							sql_cmnd = new SqlCommand ( "dbo.spLoadBankAccountComplex " , sqlCon );
+							sql_cmnd = new SqlCommand ( "dbo.spLoadMultiBankAccountsOnly" , sqlCon );
 							sql_cmnd . CommandType = CommandType . StoredProcedure;
 							// Now handle parameters
 							sql_cmnd . Parameters . AddWithValue ( "@Arg1" , SqlDbType . NVarChar ) . Value = DbNameToLoad;
@@ -1399,7 +1399,7 @@ namespace NewWpfDev. Dapper
 							try
 							{
 								var Args = new { Arg1 = "" , Arg2 = " " , Arg3= "" , Arg4= "" };
-								SqlCommand = $"spLoadBankAccountComplex";
+								SqlCommand = $"spLoadMultiBankAccountsOnly";
 								if ( args [ 2 ] == 0 )
 									Args = new { Arg1 = $"{DbNameToLoad}" , Arg2 = $"" , Arg3 = $"{Conditions}" , Arg4 = $"{ Orderby}" };
 								else if ( args [ 2 ] > 0 )
@@ -3608,7 +3608,7 @@ namespace NewWpfDev. Dapper
                 }
                 string [ ] args = new string [ 1 ];
                 args [ 0 ] = spName;
-                dt = DatagridControl . ProcessSqlCommand ( "spGetTableColumnWithSize2" , ConString , args );
+                dt = DatagridControl . ProcessSqlCommand ( "spGetTableColumnWithSizes" , ConString , args );
             }
             catch ( Exception ex )
             {

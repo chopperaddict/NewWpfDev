@@ -1558,10 +1558,12 @@ namespace UserControls
                     int max = dglayoutlist . Count;
                     // use the list to get the correct column header info
                     // and replace the column headers in our grid
-                    string [ ] colnames = new string [ colcount ];
+                    string [ ] colnames = new string [ max ];
                     //More efficient than accessing dglayoutlist every column
                     foreach ( var item in dglayoutlist )
                     {
+                        if ( index >= dglayoutlist . Count )
+                            break;
                         colnames [ index++ ] = item . Fieldname;
                     }
                     try
@@ -1617,8 +1619,8 @@ namespace UserControls
                 {
                     string [ ] args = new string [ 1 ];
                     args [ 0 ] = $"'{dbName}'";
-                    $"Calling SPGETTABLECOLUMNWITHSIZE()" . CW ( );
-                    TableColumnsCollection = LoadDbAsGenericData ( $"spGetTableColumnWithSize" , Gencollection , ref ColumntypesList , dbName , DbDomain , ref dglayoutlist , ref err , true );
+                    $"Calling SPGETTABLECOLUMNWITHSIZES()" . CW ( );
+                    TableColumnsCollection = LoadDbAsGenericData ( $"spGetTableColumnWithSizes" , Gencollection , ref ColumntypesList , dbName , DbDomain , ref dglayoutlist , ref err , true );
                     // we now have a collection containing ALL column info
 
                 }
@@ -3357,7 +3359,7 @@ namespace UserControls
                                 DbType . String ,
                                 ParameterDirection . Input ,
                                 SqlInsertCommand . Length );
-                            string cmd = $"spExecuteFullStoredProcedureCommand";
+                            string cmd = $"spExecuteStoredProcedureCommand";
 
                             //****************************************************************************************************************//
                             gresult = sqlCon . Execute ( cmd , parameters , commandType: CommandType . StoredProcedure );
@@ -4284,7 +4286,7 @@ namespace UserControls
                 }
                 string [ ] args = new string [ 1 ];
                 args [ 0 ] = spName;
-                dt = ProcessSqlCommand ( "spGetTableColumnWithSize2" , ConString , args );
+                dt = ProcessSqlCommand ( "spGetTableColumnWithSizes" , ConString , args );
             }
             catch ( Exception ex )
             {

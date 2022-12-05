@@ -1038,12 +1038,9 @@ namespace Views
         {   //task to load list of Db Tables
             CurrentTable = currentTable;
             // Add domain to command
-            // string Domain = $"{CurrentTableDomain}.dbo.";
-
+  
             List<string> TablesList = GetDbTablesList ( CurrentTableDomain );
-            //Application . Current . Dispatcher . BeginInvoke ( ( ) =>
-            //{
-            SqlTables . ItemsSource = null;
+              SqlTables . ItemsSource = null;
             SqlTables . Items . Clear ( );
             SqlTables . ItemsSource = TablesList;
             int index = 0;
@@ -1168,9 +1165,20 @@ namespace Views
                 ConString = MainWindow . CurrentSqlTableDomain;
             }
             GridData = DapperSupport . CreateFullColumnInfo ( CurrentTable , ConString , true );
+            string output = GenerateTableStructuretext ( GridData );
             Mouse . OverrideCursor = Cursors . Arrow;
+            fdl . ShowInfo ( Flowdoc , Filtercanvas , line1: output , clr1: "Black0" , line2: "" , clr2: "Black0" , line3: "" , clr3: "Black0" , header: "" , clr4: "Black0" );
 
             return;
+        }
+        public static string GenerateTableStructuretext ( ObservableCollection<GenericClass> GridData )
+        {
+            string output = "";
+            foreach ( var item in GridData )
+            {
+                output += $"{item . field1.ToString().PadRight(25)}{item.field2}\n";
+            }
+            return output;
         }
         private void Close_Click ( object sender , RoutedEventArgs e )
         {
@@ -2764,6 +2772,10 @@ namespace Views
 
         private void LoadAllSPs_Click ( object sender , RoutedEventArgs e )
         {
+            LoadAllSPs ( );
+        }
+        public void  LoadAllSPs ( )
+        {
             string currItem = "";
             if ( Splist . Items . Count > 0 )
             {
@@ -2796,8 +2808,7 @@ namespace Views
             if ( gl . Value < 5 )
                 ViewerGrid . ColumnDefinitions [ 0 ] . Width = new GridLength ( 200 , GridUnitType . Pixel );
         }
-
-        private void Fontsizeup_Click ( object sender , RoutedEventArgs e )
+            private void Fontsizeup_Click ( object sender , RoutedEventArgs e )
         {
             para1 . FontSize += 1;
         }
@@ -4008,7 +4019,7 @@ namespace Views
                             DbType . String ,
                             ParameterDirection . Input ,
                             SqlInsertCommand . Length );
-                        string cmd = $"spExecuteFullStoredProcedureCommand";
+                        string cmd = $"spExecuteStoredProcedureCommand";
                         Debug . WriteLine ( $"Processing SQL command\n{SqlInsertCommand}" );
                         // save data (Insert)
                         //*********************************************************************************************************************************//

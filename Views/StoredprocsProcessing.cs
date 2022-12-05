@@ -29,7 +29,7 @@ namespace Views
         //    throw new NotImplementedException ( );
         //}
 
-        public static dynamic ProcessGenericDapperStoredProcedure (
+        public  dynamic ProcessGenericDapperStoredProcedure (
             string spCommand ,
             string [ ] args ,
             string CurrDomain ,
@@ -275,6 +275,11 @@ namespace Views
             string [ ] tmp = new string [ 6 ];
             for ( int x = 0 ; x < 6 ; x++ )
             {
+                if ( x >= content . Length )
+                {
+                    tmp [ x ] = "";
+                    continue;
+                }
                 if ( content [ x ] != null )
                     tmp [ x ] = content [ x ];
                 else

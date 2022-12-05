@@ -2406,7 +2406,7 @@ namespace NewWpfDev . Views
             List<string> list = new List<string> ( );
             List<string> fldnameslist = new List<string> ( );
             string output = "";
-            SqlCommand = $"spGetTableColumnWithSize {dbNameLb . SelectedItem . ToString ( )}";
+            SqlCommand = $"spGetTableColumnWithSizes {dbNameLb . SelectedItem . ToString ( )}";
             //SqlCommand = SqlCommand = $"spGetTableColumns";
             fldnameslist = Datagrids . CallStoredProcedureWithSizes ( list , SqlCommand );
 
@@ -2437,7 +2437,7 @@ namespace NewWpfDev . Views
             List<string> list = new List<string> ( );
             string output = "";
 
-             SqlCommand = $"spGetTableColumnWithSize {dbNameLv . SelectedItem . ToString ( )}";
+             SqlCommand = $"spGetTableColumnWithSizes {dbNameLv . SelectedItem . ToString ( )}";
 
             bool UseMethod1 = true;
             // TWO different methods that give the SAME result

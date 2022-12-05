@@ -389,6 +389,7 @@ namespace NewWpfDev
             {
                 foreach ( var item in data )
                 {
+
                     GenericClass gc = new GenericClass ( );
                     try
                     {

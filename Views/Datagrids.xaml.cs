@@ -1266,7 +1266,7 @@ namespace NewWpfDev. Views
             List<string> list = new List<string> ( );
             List<string> fldnameslist = new List<string> ( );
             string output = "";
-            SqlCommand = $"spGetTableColumnWithSize {dbName . SelectedItem . ToString ( )}";
+            SqlCommand = $"spGetTableColumnWithSizes {dbName . SelectedItem . ToString ( )}";
             //SqlCommand = SqlCommand = $"spGetTableColumns";
             fldnameslist = Datagrids . CallStoredProcedureWithSizes ( list , SqlCommand );
 

@@ -2263,7 +2263,7 @@
 				PreviewMouseLeftButtonDown="Flowdoc_PreviewMouseLeftButtonDown"
 
 				Opacity="1"
-				Panel.ZIndex="22"
+				Panel.ZIndex="322"
 				Visibility="Hidden"
 				Width="520" />
 

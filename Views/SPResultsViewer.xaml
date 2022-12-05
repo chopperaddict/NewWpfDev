@@ -31,7 +31,7 @@
             <GradientStop Color="Lime" Offset="0.5"/>
             <GradientStop Color="Black" Offset="0"/>
         </LinearGradientBrush>
-      
+
         <Style x:Key="ColumnHeaderStyle" TargetType="{x:Type DataGridColumnHeader}">
             <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="Background" Value="{Binding Path=HeaderBackground, ElementName=dgCtrl}"/>
@@ -295,8 +295,8 @@
                 </MultiTrigger>
             </Style.Triggers>
         </Style>
-        
-       <!--// Style for SP list-->
+
+        <!--// Style for SP list-->
         <Style x:Key="SpStringsStyle" TargetType="{x:Type ListBoxItem}">
             <Setter Property="Template">
                 <Setter.Value>
@@ -371,7 +371,8 @@
                                 <Setter Property="Background" TargetName="Bd" Value="{StaticResource Black3}"/>
                                 <Setter Property="TextElement.Foreground" TargetName="Contentpresenter" Value="{StaticResource Yellow2}"/>
                                 <Setter Property="TextElement.FontWeight" TargetName="Contentpresenter" Value="Normal"/>
-                                <Setter Property="Padding" TargetName="Bd" Value="10,0,0,0"/>
+                                <!--<Setter Property="ToolTip.IsOpen" Value="true"/>-->
+                                <Setter Property="Padding" TargetName="Bd" Value="10,0,10,0"/>
                             </MultiTrigger>
                             <MultiTrigger>
                                 <MultiTrigger.Conditions>
@@ -381,17 +382,19 @@
                                 <Setter Property="Background" TargetName="Bd" Value="{StaticResource Yellow0}"/>
                                 <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{StaticResource Red0}"/>
                                 <Setter Property="TextElement.FontWeight" TargetName="Contentpresenter" Value="Normal"/>
-                                <Setter Property="Padding" TargetName="Bd" Value="10,0,0,0"/>
+                                <!--<Setter Property="ToolTip.IsOpen" Value="true"/>-->
+                                <Setter Property="Padding" TargetName="Bd" Value="10,0,10,0"/>
                             </MultiTrigger>
                             <MultiTrigger>
                                 <MultiTrigger.Conditions>
                                     <Condition Property="IsMouseOver" Value="False"/>
                                     <Condition Property="IsSelected" Value="true"/>
                                 </MultiTrigger.Conditions>
-                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource Black7}"/>
-                                <Setter Property="TextElement.Foreground" TargetName="Contentpresenter" Value="{StaticResource Red5}"/>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource {StaticResource Red1}}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="Contentpresenter" Value="{StaticResource White0}"/>
                                 <Setter Property="TextElement.FontWeight" TargetName="Contentpresenter" Value="DemiBold"/>
-                                <Setter Property="Padding" TargetName="Bd" Value="10,0,0,0"/>
+                                <!--<Setter Property="ToolTip.IsOpen" Value="true"/>-->
+                                <Setter Property="Padding" TargetName="Bd" Value="10,0,10,0"/>
                             </MultiTrigger>
                             <MultiTrigger>
                                 <MultiTrigger.Conditions>
@@ -401,7 +404,8 @@
                                 <Setter Property="Background" TargetName="Bd" Value="{StaticResource Orange4}"/>
                                 <Setter Property="TextElement.Foreground" TargetName="Contentpresenter" Value="{StaticResource Black0}"/>
                                 <Setter Property="TextElement.FontWeight" TargetName="Contentpresenter" Value="Normal"/>
-                                <Setter Property="Padding" TargetName="Bd" Value="10,0,0,0"/>
+                                <!--<Setter Property="ToolTip.IsOpen" Value="true"/>-->
+                                <Setter Property="Padding" TargetName="Bd" Value="10,0,10,0"/>
                             </MultiTrigger>
                         </ControlTemplate.Triggers>
                         <!--more ....-->
@@ -543,11 +547,25 @@
             Background="Orange">
 
             <!--// Show SP's matching Search term only-->
+            <MenuItem   x:Name="gmTips" Click="ShowExecutionHints">
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                    Text="How to best select an Execution Method" 
+                                    FontSize="16"
+                                     Height="25"
+                                    Padding="20 0 0 0"
+                                    Margin="0 0 0 0"
+                                     Width="375"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+
             <MenuItem   x:Name="gm0" Click="expandprompt">
                 <MenuItem.Header>
                     <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
                         <TextBlock 
-                                    Text="Show/Hide Parameters Info panel" 
+                                    Text="Toggle Parameters/Options panels" 
                                     FontSize="16"
                                      Height="25"
                                     Padding="20 0 0 0"
@@ -559,9 +577,9 @@
 
             <MenuItem   x:Name="gm41" Click="expandargsentry">
                 <MenuItem.Header>
-                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
-                        <TextBlock 
-                                    Text="Expand.Collapse Parameters entry panel" 
+                    <StackPanel x:Name="sp41" Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock x:Name="gm41Text"
+                                    Text="{Binding gm41Text}" 
                                     FontSize="16"
                                      Height="25"
                                     Padding="20 0 0 0"
@@ -598,7 +616,7 @@
                     </StackPanel>
                 </MenuItem.Header>
             </MenuItem>
-            
+
             <!--//Show ALL S.P's in panel-->
             <MenuItem   x:Name="gm2"  Click="ShowAllSprocs">
                 <MenuItem.Header>
@@ -694,35 +712,6 @@
                 </MenuItem.Header>
             </MenuItem>
 
-            <!--//not in use-->
-            <!--<MenuItem   x:Name="gm8"  Click="ShowMatchingSprocs">
-                <MenuItem.Header>
-                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
-                        <TextBlock 
-                                    Text="Show only S.P's matching Search term"
-                                    FontSize="16"
-                                     Height="25"
-                                    Padding="20 0 0 0"
-                                    Margin="0 0 0 0"
-                                     Width="375"/>
-                    </StackPanel>
-                </MenuItem.Header>
-            </MenuItem>-->
-            <!--//not in use-->
-            <!--<MenuItem   x:Name="gm9"  >  
-                <MenuItem.Header>
-                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
-                        <TextBlock 
-                                    Text="Filter current table to new table" 
-                                    FontSize="16"
-                                     Height="25"
-                                    Padding="20 0 0 0"
-                                    Margin="0 0 0 0"
-                                     Width="375"/>
-                    </StackPanel>
-                </MenuItem.Header>
-            </MenuItem>-->
-
         </ContextMenu>
 
         <!--#endregion ContextMenu-->
@@ -787,7 +776,7 @@
         <Grid  x:Name="Listboxesgrid" Grid.Row="1" VerticalAlignment="Stretch">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="370"/>
+                <ColumnDefinition Width="400"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="25"/>
@@ -796,7 +785,7 @@
 
             <ListBox x:Name="ListResults" Grid.Row="0" Grid.RowSpan="2" Grid.Column="0"
                     Width="{Binding ActualWidth, ElementName=Listboxesgrid,
-                        Converter={StaticResource ReduceByParamValue},ConverterParameter=375}"
+                        Converter={StaticResource ReduceByParamValue},ConverterParameter=420}"
                     Background="{StaticResource Black7}"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"
@@ -817,36 +806,49 @@
                     ToolTipService.InitialShowDelay="500"                  
                     ToolTipService.ShowDuration="2500"
                     ItemContainerStyle="{StaticResource SpStringsStyle}"/>
-  
+
             <TextBlock Grid.Row="0" Grid.Column="1"   
-                    Width="270"
+                    Width="410"
                     Height="25"
                     Margin="0 3 0 0 "
                     IsHitTestVisible="True"
                     KeyDown="Spresultsviewer_KeyDown"
                     VerticalAlignment="Top"
-                    Background="{StaticResource Green2}"
+                    Background="{StaticResource Red5}"
                     Foreground="{StaticResource White0}"
                     FontSize="16"
                     TextAlignment="Center"
                     Text="Select Execution method"/>
 
             <ListBox x:Name="optype"  Grid.Row="1" Grid.Column="1"
-                    Width="345" 
-                    Height="280" 
-                    Margin="0 4 0 0" 
+                    Width="410" 
+                    Height="285" 
+                     BorderBrush="White"
+                     BorderThickness="0"
+                    Margin="0 4 30 0" 
                     Background="Black"
                     VerticalAlignment="Top" 
                     IsHitTestVisible="True"
+                     Foreground="AntiqueWhite"
                      KeyDown="Spresultsviewer_KeyDown"
                     HorizontalContentAlignment="Left" 
                      PreviewMouseRightButtonDown="ListResults_MouseRightButtonDown"
-                   MouseDoubleClick="optype_MouseDoubleClick"
-                    ScrollViewer.VerticalScrollBarVisibility="Hidden"
-                    ToolTip="Select the Method required, then Double click, or press Enter, or use the  'Execute' button"
-                    ItemContainerStyle="{StaticResource SpMethodsStyle}"
-                    FontSize="16"
-                     />
+                    MouseDoubleClick="optype_MouseDoubleClick"
+                     ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                    
+                    FontSize="16">
+                <ListBoxItem  Style="{StaticResource SpStringsStyle}"/>
+                <!--SelectionChanged="optype_Select"-->
+                <!--MouseLeave="optype_MouseMove"-->
+                <!--ToolTipService.ShowDuration="5000"
+                    ToolTip="{Binding TooltipText}"-->
+                <!--ToolTipService.BetweenShowDelay="1"
+                     ToolTipService.InitialShowDelay="1"-->
+                <!--MouseDown="optype_Selection"
+                     MouseMove="optype_Selectmove"-->
+                <!--<ListBoxItem MouseLeave="optype_MouseMove"/>-->
+            </ListBox>
+
         </Grid>
 
         <!--#endregion listboxes-->
@@ -921,25 +923,24 @@
                     PreviewMouseRightButtonDown="ListResults_MouseRightButtonDown"
                     TextOptions.TextFormattingMode="Ideal"
                     TextOptions.TextRenderingMode="ClearType"/>
-            <!--PreviewMouseRightButtonUp="ListResults_MouseRightButtonUp"-->
-            <!--PreviewMouseRightButtonDown="TextResult_PreviewMouseRightButtonDown"-->
         </Grid>
 
         <!--#endregion Scrolldocument-->
 
         <!--#region Checkboxes-->
 
+        <!--IsChecked="{Binding  ShowingAllSPs}"-->
         <CheckBox x:Name="ShowingAllSprocs"
                 Grid.Row="4"
                 Grid.Column="0"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
-                Background="{StaticResource Red5}"
+                Background="{StaticResource Yellow2}"
                 FontSize="14"
                 Foreground="Black"
                 FontWeight="DemiBold"
                 Content="Show All S.Procedures"                      
-                IsChecked="{Binding  ShowingAllSPs}"
+                  
                 IsHitTestVisible="true"      
                   Panel.ZIndex="300"
                 Click="ShowAllSps"
@@ -1147,7 +1148,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="35"/>
                         <RowDefinition Height="40"/>
-                   </Grid.RowDefinitions>
+                    </Grid.RowDefinitions>
 
                     <Button x:Name="ExecuteBtn"
                         Grid.Row="1"
@@ -1188,6 +1189,7 @@
                     Converter={StaticResource ReduceByParamValue},ConverterParameter=0}"
                 Panel.ZIndex="15"
                 Visibility="Visible">
+
             <!--#region SqlTablesViewer-->
 
             <!--// This is a dialog that list all tables for current Db-->
@@ -1265,8 +1267,8 @@
                                     Panel.ZIndex="4"
                                        IsHitTestVisible="True"
                                     Visibility="Visible" />
-                                    <!--ItemContainerStyle="{StaticResource SpStringsStyle}"-->
-                        
+                        <!--ItemContainerStyle="{StaticResource SpStringsStyle}"-->
+
                         <TextBlock x:Name="reccount" 
                                 Grid.Row="2"
                                 Width="80"
@@ -1321,20 +1323,21 @@
 
                     <Grid x:Name="innercontainer2">
 
-                        <TextBlock x:Name="operationtype3" 
-                                    Height="230" 
-                                    Width="580" 
-                                    Background="{StaticResource White3}"
-                                    Foreground="{StaticResource Red2}"
-                                    Margin="5 10 5 0" 
-                                    Padding="10 10 10 0"
-                                    IsHitTestVisible="True"
-                                    KeyDown="Spresultsviewer_KeyDown"
-                                  TextWrapping="Wrap"
-                                    VerticalAlignment="Top" 
-                                    ScrollViewer.VerticalScrollBarVisibility="Visible"
-                                    FontSize="16"/>
-                              <TextBox x:Name="Parameters"
+                     <TextBlock x:Name="operationtype3" 
+                            Height="230" 
+                            Width="580" 
+                            Background="{StaticResource White3}"
+                            Foreground="{StaticResource Red2}"
+                            Margin="5 10 5 0" 
+                            Padding="10 10 10 0"
+                            IsHitTestVisible="True"
+                            KeyDown="Spresultsviewer_KeyDown"
+                            TextWrapping="Wrap"
+                            VerticalAlignment="Top" 
+                            ScrollViewer.VerticalScrollBarVisibility="Visible"
+                            FontSize="16"/>
+
+                        <TextBox x:Name="Parameters"
                                       Height="30" 
                                     Width="370" 
                                     Background="{StaticResource White3}"
@@ -1350,7 +1353,7 @@
                                     TextWrapping="NoWrap"
                                     VerticalAlignment="Center" 
                                     FontSize="16"/>
-                         <Button x:Name="closepanel" 
+                        <Button x:Name="closepanel" 
                                     Click="Closepanel_Click"
                                     Height="35" 
                                     Width="100" 
@@ -1372,7 +1375,6 @@
             <!--#region DetailedArgsViewer-->
 
             <!--// This is a dialog that list all tables for current Db-->
-            <!--Background="{StaticResource Black3}"-->
             <Grid x:Name="DetailedArgsViewer" 
                     Height="317" 
                     Width="600"
@@ -1386,8 +1388,6 @@
                     MouseMove="tableviewer_Moving"
                     PreviewKeyDown="detailsviewer_KeyDown"
                     Visibility="Collapsed" >
-                <!--MouseLeftButtonUp="tableviewer_Ending"-->
-                <!--ContextMenu="{StaticResource ResultsViewerContextMenu}"-->
 
                 <Border x:Name="innerresultsborder1"
                         BorderThickness="3" 
@@ -1407,8 +1407,7 @@
                             IsHitTestVisible="True"
                             PreviewMouseRightButtonDown="TablesViewer_PreviewMouseRightButtonDown"
                             Visibility="Visible">
-                        <!--Background="{StaticResource Black2}"-->
-
+ 
                         <Grid.RowDefinitions>
                             <RowDefinition x:Name="row20" Height="35"/>
                             <RowDefinition x:Name="row22" Height="220"/>
@@ -1474,7 +1473,6 @@
                                 </ListBoxItem>
                             </ListBox>
                         </Border>
-                        <!--MouseLeftButtonUp="tableviewer_Ending"-->
 
                         <Button x:Name="TablesviewerBtn1"                                 
                                     Grid.Row="2"
@@ -1515,16 +1513,80 @@
                 </Border>
             </Grid>
 
-        </Canvas>
-
+ 
         <!--#endregion Canvas-->
+            
+            <!--#region infoviewer-->
+            <Border x:Name="Executeinfo" 
+                    Height="600"
+                    Width="800"
+                Canvas.Top="100"
+                Canvas.Left="100"
+                  Background="Black"
+                Panel.ZIndex="200"                
+                Visibility ="Collapsed">
+                
+                <Grid x:Name="execgrid"
+                          Height="{Binding ActualHeight, ElementName=executeinfo,
+                                Converter={StaticResource ReduceByParamValue},ConverterParameter=40}"
+                          Width="{Binding ActualWidth, ElementName=executeinfo,
+                                Converter={StaticResource ReduceByParamValue},ConverterParameter=30}"
+                                 Background="{StaticResource Red0}"
+                        Panel.ZIndex="200"                
+                        Visibility ="Visible">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="40"/>
+                    </Grid.RowDefinitions>
 
-
-                        <!--ColumnHeaderStyle="{StaticResource ColumnHeaderStyle}"-->
-                        <!--AutoGenerateColumns="false"-->
-                        <!--CanUserAddRows="True"
-                        RowHeight="30"-->
-            <ListBox x:Name="ExecuteEdit"
+                          <TextBox x:Name="execinf"
+                                Height="{Binding ActualHeight, ElementName=execgrid,
+                                Converter={StaticResource ReduceByParamValue},ConverterParameter=0}"
+                                Width="{Binding ActualWidth, ElementName=execgrid,
+                                Converter={StaticResource ReduceByParamValue},ConverterParameter=30}"
+                                VerticalAlignment="Top"
+                                IsHitTestVisible="true"
+                                HorizontalAlignment="Center"
+                                Background="{StaticResource Red0}"
+                                FontSize="17"
+                                Margin="0 10 0 10"
+                                ScrollViewer.CanContentScroll="True"
+                                ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                TextWrapping="Wrap"
+                                IsReadOnly="True"
+                                IsReadOnlyCaretVisible="True"
+                                Foreground="White"
+                                Padding="10 10 0 40"
+                                Panel.ZIndex="201"
+                                Visibility="Visible" />
+                    
+                        <StackPanel 
+                            Grid.Row="1"
+                            Height="40"
+                            Background="{StaticResource Orange3}"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Right"
+                            Width="{Binding ActualWidth, ElementName=execgrid,
+                                Converter={StaticResource ReduceByParamValue},ConverterParameter=0}">
+        
+                            <Button x:Name="CloseExecinfo"
+                                    Click="CloseWin"
+                                    Width="100"
+                                    Height="30"
+                                    HorizontalAlignment="Right"
+                                    FontSize="18"
+                                    Background="{StaticResource Green4}"
+                                    Foreground="Black"
+                                    Style="{StaticResource BtnDefault}"
+                                    Margin="680 0 0 0"
+                                    Content="Close"/>
+                    </StackPanel>                        
+                </Grid>
+            </Border>
+            <!--#endregion infoviewer-->
+        </Canvas>
+    
+          <ListBox x:Name="ExecuteEdit"
                         DataContext="Executedata"
                         Grid.Row="3"
                         Height="{Binding row10}"
@@ -1546,16 +1608,16 @@
                         MouseRightButtonDown="ExecuteEdit_PreviewMouseRightButtonDown"
                         Visibility="Collapsed">
             <ListBoxItem>
-            <!--<ListBox.ItemTemplate--> 
+                <!--<ListBox.ItemTemplate-->
                 <DataTemplate x:Name="dtemplate">
                     <Grid>
-                    <TextBlock  x:Name="TBrow" 
+                        <TextBlock  x:Name="TBrow" 
                             Margin="0 0 0 0"
                             Text="{Binding Path=Text}"  
                             IsHitTestVisible="True"
                             Visibility="Visible"/>
-                        
-                    <TextBox x:Name="txboxrow" 
+
+                        <TextBox x:Name="txboxrow" 
                             Margin="0 0 0 0"
                             IsHitTestVisible="true"                             
                             Foreground="Black" 
@@ -1566,54 +1628,7 @@
                             Background="{StaticResource White4}"/>
                     </Grid>
                 </DataTemplate>
-            <!--</ListBox.ItemTemplate>-->
             </ListBoxItem>
-            <!--RowBackground="{StaticResource Cyan1}"
-                        RowHeaderWidth="400"-->
-                        <!--ItemsSource="{Binding Executedata}"-->
-            <!--<DataGrid.Columns>
-                <DataGridTemplateColumn Header="Arguments" Width="400">
-                    <DataGridTemplateColumn.CellTemplate>                    
-                        <DataTemplate>
-                            <TextBlock Text="{Binding}" 
-                                       TextAlignment="Center"  
-                                       Foreground="Blue" 
-                                       Background="Cyan" 
-                                       Width="400"/>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-            </DataGrid.Columns>-->
-            <!--TextBlock.TextAlignment="Center"-->
-                
-                    <!--<DataGrid.Columns>
-                        <DataGridTextColumn  Header="Argument" 
-                                            Width="700"
-                                            Binding="{Binding Argument}"/>
-                        
-                          --><!--<DataGridTemplateColumn Header="Argument">-->
-                            <!--<DataGridTemplateColumn.CellTemplate>-->
-                                <!--<DataTemplate>
-                                    <StackPanel Orientation="Horizontal" Width="700">
-                                <TextBox Text="Binding={Argument}"
-                                                 Foreground="Black"
-                                                 Background="{StaticResource White4}"/>
-                                --><!--<Button Content="Edit" x:Name="BtnEdit" Click="btnEdit_Click"/>--><!--
-                                    </StackPanel>
-                                </DataTemplate>-->
-                            <!--</DataGridTemplateColumn.CellTemplate>-->
-                        <!--</DataGridTemplateColumn>--><!--
-                    
-                    </DataGrid.Columns>-->
-                
-            <!--<DataGridRow>
-                <TextElement.Foreground="Black"
-            </DataGridRow>-->
-                        <!--DataGrid.ColumnHeaderStyle="{StaticResource ColumnHeaderStyle}"-->
-                            <!--ItemContainerStyle="{StaticResource SpStringsStyle}"-->
         </ListBox>
-                                                        <!--MouseMove="tableviewer_Moving"-->
-
-
     </Grid>
 </Window>

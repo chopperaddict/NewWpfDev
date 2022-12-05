@@ -111,7 +111,7 @@ namespace NewWpfDev. SQL
                         sql_cmnd = new SqlCommand ( SqlCommand , sqlCon );
                     else
                     {
-                        sql_cmnd = new SqlCommand ( "dbo.spLoadBankAccountComplex " , sqlCon );
+                        sql_cmnd = new SqlCommand ( "dbo.spLoadMultiBankAccountsOnly" , sqlCon );
                         sql_cmnd . CommandType = CommandType . StoredProcedure;
                         // Now handle parameters
                         sql_cmnd . Parameters . AddWithValue ( "@Arg1" , SqlDbType . NVarChar ) . Value = DbNameToLoad;
@@ -249,7 +249,7 @@ namespace NewWpfDev. SQL
 						sql_cmnd = new SqlCommand ( SqlCommand , sqlCon );
 					else
 					{
-						sql_cmnd = new SqlCommand ( "dbo.spLoadBankAccountComplex " , sqlCon );
+						sql_cmnd = new SqlCommand ( "dbo.spLoadMultiBankAccountsOnly " , sqlCon );
 						sql_cmnd . CommandType = CommandType . StoredProcedure;
 						// Now handle parameters
 						sql_cmnd . Parameters . AddWithValue ( "@Arg1" , SqlDbType . NVarChar ) . Value = DbNameToLoad;

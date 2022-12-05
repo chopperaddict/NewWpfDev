@@ -473,14 +473,14 @@ namespace StoredProcs
                         return test [ 0 ];
                     if ( test . Length == 1 && test [ 0 ] == "" )
                     {
-                        spviewer . Parameterstop . Text = $"[No Parameters required]";
-                        output = "No arguments are required, press 'Clear Prompt' button and then select Execute Option.";
+                        spviewer . Parameterstop . Text = $"[No Parameters/Arguments required]";
+                        output = "No arguments required, press 'Clear Prompt' button and then select Execute Option.";
                         return output;
                     }
 
                     if ( test [ 0 ] . StartsWith ( "CREATE PROCEDURE" ) && test . Length == 1 )
                     {
-                        spviewer . Parameterstop . Text = $"[No Parameters required]";
+                        spviewer . Parameterstop . Text = $"[No Parameters/Arguments required]";
                         output = "No arguments are required, press 'Clear Prompt' button and then select Execute Option.";
                         return output;
                     }
@@ -495,26 +495,18 @@ namespace StoredProcs
                     {
                         if ( test [ rows ] . Length <= 1 )
                             continue;
-                        // Bypass create line
-                        //if ( test [ rows ] == "" )
-                        //{
-                        //    continue;
-                        //}
+
+                        // remove/ignore any full comment lines
+                        if ( test [ rows ] . StartsWith ( "/*") || test [rows].StartsWith ( "*" ) )
+                            continue;
+                       
                         currentrow = test [ rows ];
 
-                        //if ( currentrow . StartsWith ( "CREATE PROCEDURE" ) && test . Length == 1 )
-                        //{
-                        //    // no arguments specified
-                        //    output = "";
-                        //}
-                        //else
-                        //{
-                        // chack for commented lines
+                        // check for commented lines
                         if ( currentrow . StartsWith ( "--" ) )
                             continue;
                         string testbuff = CheckAndRemoveBadCharacters ( currentrow ) . Trim ( );
-                        //                    string tempoutput = "";
-                        // split string into individual items so we can validate them
+                          // split string into individual items so we can validate them
                         if ( testbuff . Contains ( "MAX" ) || testbuff . Contains ( "SYSNAME" ) )
                         {
                             string [ ] tmp = testbuff . Split ( " " );
@@ -543,7 +535,7 @@ namespace StoredProcs
 
             if ( output == "" )
             {
-                spviewer . Parameterstop . Text = $"[No Parameters required]";
+                spviewer . Parameterstop . Text = $"[No Parameters/Arguments required]";
                 output = "No arguments are required, press 'Clear Prompt' button and then select Execute Option.";
             }
             else
@@ -600,7 +592,7 @@ namespace StoredProcs
                 }
                 else if ( count [ 0 ] == 0 && count [ 1 ] == 0 )
                 {
-                    spviewer . SPArguments . Text = @$"[No parameters are required]";
+                    spviewer . SPArguments . Text = @$"[No parameters/Arguments are required]";
                     spviewer . Parameterstop . Text = @$"[No parameters required (or allowed)]";
                     output = "No parameters are required";
                 }
@@ -839,16 +831,31 @@ namespace StoredProcs
                 newbuff = tmp [ 0 ];
                 testbuff = newbuff;
             }
-            if ( testbuff . Contains ( "'" ) )
+            if ( testbuff . Contains ( "''") || testbuff . Contains ( "' '" ))
             {
+                int offset = 0;
                 string newbuff = "";
-                string [ ] tmp = testbuff . Split ( "'" );
-                for ( int x = 0 ; x < tmp . Length ; x++ )
+                if ( testbuff . Contains ( "''" ))
+                    offset = testbuff . IndexOf ( "''" );
+                if(offset == 0)
+                    offset = testbuff . IndexOf ( "' '" );
+                if ( offset > 0 )
                 {
-                    if ( tmp [ x ] != "" )
-                        newbuff += tmp [ x ];
-                }
-                testbuff = newbuff;
+                    testbuff = testbuff . Substring ( 0 , offset );
+                    if ( testbuff [testbuff.Length-1] == '=' )
+                        testbuff = testbuff . Substring ( 0 , testbuff.Length - 1);
+                }//int[] qpos = new int[2];
+                 //int q = 0;
+                 //for ( int x = 0 ; x < tmp . Length ; x++ )
+                 //{
+                 //    if ( tmp [ x ] =="" || tmp [x]== " " )
+                 //        qpos [ q++] = x;
+                 //    if ( tmp [ x ] != "" && tmp [ x ] != " " )
+                 //        newbuff += tmp [ x ];
+                 //}
+                 //if ( qpos [ 0 ] != 0 && qpos [ 1 ] != 0 && qpos [ 1 ]- qpos [ 0 ] >= 1 )
+                 //    testbuff = testbuff . Substring ( 0 , qpos [ 0 ] );
+                 // testbuff = newbuff;
             }
 
             //***********************//
@@ -1062,6 +1069,79 @@ namespace StoredProcs
             //This call returns us a List<string>
             // This method is NOT a dynamic method
             return list;
+        }
+        static public List<string> CreateListFromGenericClass ( ObservableCollection<GenericClass> gengrid )
+        {
+            // ceate List<string> from Generic Collection
+            // Each field is padded  to max of 25 chars in length
+            List<string> newlist = new List<string> ( );
+            string output = "";
+            int paddingsize = 30;
+            bool Finished = false;
+            foreach ( GenericClass gen in gengrid )
+            {
+                while ( Finished == false )
+                {
+                    if ( gen . field1 != null )
+                        output = $"{gen . field1 . ToString ( ) . PadRight ( 5 )}";
+                    if ( gen . field2 != null && gen . field2 . Length < paddingsize )
+                        output += $"{gen . field2 . ToString ( ) . PadRight ( paddingsize - gen . field2 . ToString ( ) . Length )}";
+                    else break;
+                    if ( gen . field3 != null )
+                        output += $"{gen . field3 . ToString ( ) . PadRight ( paddingsize - gen . field3 . ToString ( ) . Length )}";
+                    else break;
+                    if ( gen . field4 != null )
+                        output += $"{gen . field4 . ToString ( ) . PadRight ( paddingsize - gen . field4 . ToString ( ) . Length )}";
+                    else break;
+                    if ( gen . field5 != null )
+                        output += $"{gen . field5 . ToString ( ) . PadRight ( paddingsize - gen . field5 . ToString ( ) . Length )}";
+                    else break;
+                    if ( gen . field6 != null )
+                        output += $"{gen . field6 . ToString ( ) . PadRight ( paddingsize - gen . field6 . ToString ( ) . Length )}";
+                    else break;
+                    if ( gen . field7 != null )
+                        output += $"{gen . field7 . ToString ( ) . PadRight ( paddingsize - gen . field7 . ToString ( ) . Length )}";
+                    else break;
+                    if ( gen . field8 != null )
+                        output += $"{gen . field8 . ToString ( ) . PadRight ( paddingsize - gen . field8 . ToString ( ) . Length )}";
+                    else break;
+                    if ( gen . field9 != null )
+                        output += $"{gen . field9 . ToString ( ) . PadRight ( paddingsize - gen . field9 . ToString ( ) . Length )}";
+                    else break;
+                    if ( gen . field10 != null )
+                        output += $"{gen . field10 . ToString ( ) . PadRight ( paddingsize - gen . field10 . ToString ( ) . Length )}";
+                    else break;
+                    if ( gen . field11 != null )
+                        output += $"{gen . field11 . ToString ( ) . PadRight ( paddingsize - gen . field11 . ToString ( ) . Length )}";
+                    else break;
+                    if ( gen . field12 != null )
+                        output += $"{gen . field12 . ToString ( ) . PadRight ( paddingsize - gen . field12 . ToString ( ) . Length )}";
+                    else break;
+                    if ( gen . field13 != null )
+                        output += $"{gen . field13 . ToString ( ) . PadRight ( paddingsize - gen . field13 . ToString ( ) . Length )}";
+                    else break;
+                    if ( gen . field14 != null )
+                        output += $"{gen . field14 . ToString ( ) . PadRight ( paddingsize - gen . field14 . ToString ( ) . Length )}";
+                    else break;
+                    if ( gen . field15 != null )
+                        output += $"{gen . field15 . ToString ( ) . PadRight ( paddingsize - gen . field15 . ToString ( ) . Length )}";
+                    else break;
+                    if ( gen . field16 != null )
+                        output += $"{gen . field16 . ToString ( ) . PadRight ( paddingsize - gen . field16 . ToString ( ) . Length )}";
+                    else break;
+                    if ( gen . field17 != null )
+                        output += $"{gen . field17 . ToString ( ) . PadRight ( paddingsize - gen . field17 . ToString ( ) . Length )}";
+                    else break;
+                    if ( gen . field18 != null )
+                        output += $"{gen . field18 . ToString ( ) . PadRight ( paddingsize - gen . field18 . ToString ( ) . Length )}";
+                    else break;
+                    if ( gen . field19 != null )
+                        output += $"{gen . field19 . ToString ( ) . PadRight ( paddingsize - gen . field19 . ToString ( ) . Length )}";
+                    else break;
+                }
+                newlist . Add ( output );
+            }
+            return newlist;
         }
 
     }
