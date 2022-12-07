@@ -73,8 +73,7 @@ namespace Views
                         //**************************************************************************************************************************************************//
                         queryresults = sqlCon . Query<string> ( spCommand , parameters , commandType: CommandType . StoredProcedure ) . ToList ( );
                         //**************************************************************************************************************************************************//
-                        //result = sqlCon . Execute ( spCommand , parameters , commandType: CommandType . StoredProcedure );
-                        Debug . WriteLine ( $"{spCommand} returned  RESULT = {queryresults . Count}" );
+                       Debug . WriteLine ( $"{spCommand} returned  RESULT = {queryresults . Count}" );
                         ResultString = "SUCCESS";
                         Obj = ( object ) queryresults;
                         Objtype = typeof ( List<string> );
@@ -138,11 +137,9 @@ namespace Views
             if ( DbDomain == "" )
                 DbDomain = MainWindow . CurrentSqlTableDomain;
             Utils . CheckResetDbConnection ( DbDomain , out string constring );
-            //         ConnString = constring;
-            Flags . CurrentConnectionString = constring;
+             Flags . CurrentConnectionString = constring;
             MainWindow . SqlCurrentConstring = constring;
-            //Debug . WriteLine ( $"Current Domain confirmed as {DbDomain} ..." );
-            return constring;
+             return constring;
         }
         /// <summary>
         /// Parse a set of string[] to create paramaters.Add(0 statements

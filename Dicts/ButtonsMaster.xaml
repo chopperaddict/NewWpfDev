@@ -313,7 +313,6 @@
 				<!--Handles Click event-->
 				<Setter Property="Button.Background" TargetName="border" Value="{StaticResource Green3}"/>
 				<Setter Property="Button.Foreground" TargetName="border" Value="{StaticResource Red0}"/>
-				<!--<Setter Property="Button.BorderBrush" TargetName="border" Value="Red"/>-->
 			</Trigger>
 
 			<Trigger Property="IsEnabled" Value="False">
@@ -327,7 +326,6 @@
 			<Trigger Property="Button.IsMouseOver" Value="false">
 				<!--Handles Click event-->
 				<Setter Property="Button.Background" TargetName="border" Value="{StaticResource HeaderBrushBlue}"/>
-				<!--<Setter Property="Button.BorderBrush" TargetName="border" Value="Red"/>-->
 			</Trigger>
 
 			<!--// MouseOver settings-->
@@ -335,15 +333,6 @@
 				<!--MouseOver handling-->
 				<Setter Property="Button.FontWeight" Value="Bold"/>
 				<Setter Property="Button.Background" TargetName="border" Value="{StaticResource HeaderBorderBrushBlue}"/> 
-				<!--<Setter Property="Button.BorderBrush" TargetName="border" Value="Red"/>-->
-				<!--<Setter Property="Button.Background" TargetName="border">
-					<Setter.Value>
-						<LinearGradientBrush StartPoint="1,0" EndPoint="0,1" >
-							<GradientStop Color="red" Offset="0"/>
-							<GradientStop Color="DarkOrange" Offset="1"/>
-						</LinearGradientBrush>
-					</Setter.Value>
-				</Setter>-->
 			</Trigger>
 			<Trigger Property="IsEnabled" Value="False">
 				<!--Handles disabled status-->
@@ -354,8 +343,71 @@
 		</ControlTemplate.Triggers>
 	</ControlTemplate>
 
+    <ControlTemplate x:Key="GradientButtonTemplateGreen" TargetType="{x:Type ButtonBase}">
+        <!-- NB - it is the Border that controls the buttons default colors
+			which lets us set Back/Foreground and border colors in the button itself
+			but still have mouseover etc working correctly, but still have our text "Content" display-->
+        <Border x:Name="border" BorderBrush="{TemplateBinding BorderBrush}" 
+				   BorderThickness="{TemplateBinding BorderThickness}" 
+				   Background="{TemplateBinding Background}" 
+				   CornerRadius="15"
+				   SnapsToDevicePixels="True">
+            <ContentPresenter x:Name="contentPresenter" 
+						ContentTemplate="{TemplateBinding ContentTemplate}" 
+						Content="{TemplateBinding Content}" 
+						ContentStringFormat="{TemplateBinding ContentStringFormat}" 
+						Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+						TextElement.Foreground="{TemplateBinding Foreground}"
+						Margin="{TemplateBinding Padding}" 
+						RecognizesAccessKey="True" 
+						SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+						VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+        </Border>
+        <ControlTemplate.Triggers>
+            <!--This handles the button being set as IsDefault=true-->
+            <Trigger Property="Button.Tag" Value="True">
+                <!--<Setter Property="Button.BorderBrush" TargetName="border" Value="{StaticResource Red0}"/>-->
+                <Setter Property="Button.Background" TargetName="border" Value="{StaticResource HeaderBrushGreen}"/>
+                <Setter Property="Button.Foreground" TargetName="border" Value="{StaticResource Black1}"/>
+            </Trigger>
 
-	<!--We would probably use this at App level to standardize all our "std" buttons as we can always overwrite it
+            <Trigger Property="IsPressed" Value="True">
+                <!--Handles Click event-->
+                <Setter Property="Button.Background" TargetName="border" Value="{StaticResource Green3}"/>
+                <Setter Property="Button.Foreground" TargetName="border" Value="{StaticResource Red0}"/>
+            </Trigger>
+
+            <Trigger Property="IsEnabled" Value="False">
+                <!--Handles disabled status-->
+                <Setter Property="Button.Background" TargetName="border" Value="#698596"/>
+                <Setter Property="Button.BorderBrush" TargetName="border" Value="Black"/>
+                <Setter Property="Button.Foreground" TargetName="border" Value="Gray"/>
+            </Trigger>
+
+            <!--// Defaullt settings-->
+            <Trigger Property="Button.IsMouseOver" Value="false">
+                <!--Handles Click event-->
+                <Setter Property="Button.Background" TargetName="border" Value="{StaticResource HeaderBrushGreen}"/>
+                <Setter Property="Button.Foreground" TargetName="border" Value="{StaticResource Black1}"/>
+            </Trigger>
+
+            <!--// MouseOver settings-->
+            <Trigger Property="Button.IsMouseOver" Value="True">
+                <!--MouseOver handling-->
+                <Setter Property="Button.FontWeight" Value="Bold"/>
+                <Setter Property="Button.Background" TargetName="border" Value="{StaticResource HeaderBorderBrushGreen}"/>
+                <Setter Property="Button.Foreground" TargetName="border" Value="{StaticResource Red3}"/>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <!--Handles disabled status-->
+                <Setter Property="Button.Background" TargetName="border" Value="#698596"/>
+                <Setter Property="Button.BorderBrush" TargetName="border" Value="Black"/>
+                <Setter Property="Button.Foreground" TargetName="border" Value="#555555"/>
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <!--We would probably use this at App level to standardize all our "std" buttons as we can always overwrite it
 		inside other files if required-->
 
 	<ControlTemplate x:Key="ButtonBaseControlTemplate1" TargetType="{x:Type ButtonBase}">
@@ -393,8 +445,8 @@
                 <Setter Property="Background" TargetName="border">
                     <Setter.Value>
                         <LinearGradientBrush StartPoint="1,0" EndPoint="0,1" >
-                            <GradientStop Color="Blue" Offset="0"/>
-                            <GradientStop Color="Cyan" Offset="1"/>
+                            <GradientStop Color="White" Offset="0"/>
+                            <GradientStop Color="Green" Offset="1"/>
                         </LinearGradientBrush>
                     </Setter.Value>
                 </Setter>

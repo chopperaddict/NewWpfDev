@@ -108,7 +108,6 @@ namespace NewWpfDev . UserControls
         public static GenericGridControl ThisWin { get; set; }
 
         #endregion normal File Declarations
-        //FlowdocLib fdl { get; set; }
         #region Data Models
 
         //Data Collections
@@ -185,7 +184,7 @@ namespace NewWpfDev . UserControls
             Mouse . SetCursor ( Cursors . Wait );
             this . UpdateLayout ( );
             ThisWin = this;
-            FlowdocLib fdl = new FlowdocLib ( Flowdoc , canvas );
+            fdl = new FlowdocLib ( Flowdoc , canvas );
 
             splithandler = new ExtendSplitter ( this );
             //          this . DataContext = this;  // DO NOT SET CONTEXT HERE !!!!!!  Do it in XAML code !
@@ -2172,10 +2171,7 @@ namespace NewWpfDev . UserControls
                         fdl . ShowInfo ( Flowdoc , canvas , line1: fdinput , clr1: "Black0" , line2: "" , clr2: "Black0" , line3: "" , clr3: "Black0" , header: "" , clr4: "Black0" );
                         canvas . Visibility = Visibility . Visible;
                         Flowdoc . Visibility = Visibility . Visible;
-                        //GridData_Display . Visibility = Visibility . Visible;
-                        //SetViewButtons ( 2 , ( GridData_Display . Visibility == Visibility . Visible ? true : false ) , ( DisplayGrid . Visibility == Visibility . Visible ? true : false ) );
-                        //GridData_Display . Focus ( );
-                    }
+                      }
                     else
                     {
                         Mouse . OverrideCursor = Cursors . Arrow;
@@ -2183,7 +2179,6 @@ namespace NewWpfDev . UserControls
                         //               fdl . ShowInfo ( Flowdoc , canvas , line1: $"Procedure [{Storedprocs . SelectedItem . ToString ( ) . ToUpper ( )}] \ndoes not Support / Require any arguments" , clr1: "Black0" , line2: "" , clr2: "Black0" , line3: "" , clr3: "Black0" , header: "" , clr4: "Black0" );
                     }
                 }
-                //       ShowLoadtime ( );
                 return output;
                 {
                     if ( errormsg == "" )
@@ -2335,12 +2330,11 @@ namespace NewWpfDev . UserControls
                 output += names [ index ] . PadRight ( 20 - names [ index ] . Length ) + " = " + vals [ 1 ] + "\n";
                 index++;
             }
-            //            FdMsg ( FlowDoc Flowdoc , Canvas canvas , string line1 = "" , string line2 = "" , string line3 = "" , bool beep = false )
+            if ( fdl == null ) fdl = new FlowdocLib(Flowdoc, canvas);
             fdl . FdMsg ( Flowdoc , canvas , line1: "Current Record Data is :\n" + output , line2: "" , line3: "" , true );
             canvas . Visibility = Visibility . Visible;
             Flowdoc . Visibility = Visibility . Visible;
 
-            //output = output . TrimEnd ( );
             output = output . Substring ( 0 , output . Length - 3 ) + "\nPress Escape to close viewer...";
         }
 

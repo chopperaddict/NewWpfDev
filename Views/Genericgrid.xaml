@@ -1254,7 +1254,7 @@
 
     <!--<Grid x:Name="maingrid" Background="{StaticResource DiagonalRainbow}"-->
     <Grid x:Name="maingrid" Background="{StaticResource Black2OrangeSlant}"
-          LostFocus="FieldSelectionGrid_LostFocus" Opacity="0.9">
+          LostFocus="FieldSelectionGrid_LostFocus" Opacity="0.9" Panel.ZIndex="0">
         <Grid.RowDefinitions>
             <RowDefinition  x:Name="row1" Height="1"/>
             <RowDefinition x:Name="row2" Height="*"/>
@@ -1266,7 +1266,7 @@
         <!--#region Canvas  / Splitters etc-->
         <!--****************-->
         <Canvas x:Name="Filtercanvas"
-                Panel.ZIndex="11" 
+                Panel.ZIndex="255" 
                 Margin="0,1,0,120"
                 Width="{Binding ActualWidth, ElementName=maingrid}"
                 Height="{Binding ActualHeight, ElementName=maingrid, Converter={StaticResource ReduceByParamValue},ConverterParameter=175}"
@@ -1276,7 +1276,7 @@
 
             <Grid x:Name="FieldSelectionGrid" 
                     Grid.Row="1" Grid.RowSpan="3" Width="450"
-                    Panel.ZIndex="72"  
+                    Panel.ZIndex="256"  
                     LostFocus="FieldSelectionGrid_LostFocus"
                     Background="{StaticResource Cyan4}"
                     HorizontalAlignment="Center" 
@@ -1369,7 +1369,7 @@
                 PreviewMouseLeftButtonUp="Filtering_DragDialog_Ending"
                 PreviewMouseMove="Filtering_DragDialog_Moving"
                 LostFocus="FieldSelectionGrid_LostFocus"
-                Panel.ZIndex="255"
+                Panel.ZIndex="256"
                 Canvas.Left="213"
                 Canvas.Top ="46"
                 KeyDown="Filtering_KeyDown"
@@ -1391,7 +1391,6 @@
                     LostFocus="FieldSelectionGrid_LostFocus"
                     Height="{Binding ActualHeight, ElementName=Filtering}"
                     Width="{Binding ActualWidth, ElementName=Filtering}"
-                    Panel.ZIndex="256"
                     Visibility="Visible">
                     <StackPanel>
 
@@ -1407,7 +1406,6 @@
                             Background="{StaticResource Orange4}" 
                             LostFocus="FieldSelectionGrid_LostFocus"
                             TextAlignment="Center"
-                            Panel.ZIndex="256"
                             Foreground="Black" 
                             Visibility="Visible"/>
 
@@ -1428,7 +1426,6 @@
                                     Background="Transparent" 
                                     LostFocus="FieldSelectionGrid_LostFocus"
                                     TextAlignment="Center"
-                                    Panel.ZIndex="256"
                                     Foreground="Black" 
                                     Visibility="Visible"/>
 
@@ -1458,7 +1455,6 @@
                                         Margin="78,57,0,0" 
                                         LostFocus="FieldSelectionGrid_LostFocus"     
                                         Padding="5 1 5 0" 
-                                        Panel.ZIndex="256"
                                         FontSize="16" 
                                         Text="Enter SQL filtering code here ...."
                                         Visibility="Visible" TabIndex="1"/>
@@ -1473,7 +1469,6 @@
                                         Margin="85,112,0,0" 
                                         LostFocus="FieldSelectionGrid_LostFocus"     
                                         Padding="5 1 5 0" 
-                                        Panel.ZIndex="256"
                                         FontSize="18" 
                                        FontWeight="DemiBold"
                                         Text="Press ENTER to apply the filter entered , or Escape to cancel...."
@@ -1485,7 +1480,6 @@
                                         Foreground="White" 
                                         Content="Apply Filter" 
                                         Margin="0,0,10,-46" 
-                                        Panel.ZIndex="256"                                    
                                          LostFocus="FieldSelectionGrid_LostFocus"
                                         HorizontalAlignment="Right"
                                         VerticalAlignment="Bottom"
@@ -1498,7 +1492,6 @@
                                         Content="Cancel" 
                                         Margin="0,0,140,-46" 
                                     KeyDown="Button_KeyDown"
-                                        Panel.ZIndex="256"
                                         LostFocus="FieldSelectionGrid_LostFocus"
                                         HorizontalAlignment="Right"
                                         VerticalAlignment="Bottom"
@@ -1518,7 +1511,7 @@
                 Width="379"
                 Canvas.Top="31" 
                 Canvas.Left="211"    
-                Panel.ZIndex="255"  
+                Panel.ZIndex="256"  
                 PreviewMouseRightButtonDown="closeSearchDlg"
                MouseLeftButtonDown="Search2_DragDialog_LButtonDn"
                MouseLeftButtonUp="Search2_DragDialog_Ending"
@@ -1528,7 +1521,7 @@
                 HorizontalAlignment="Center" 
                 VerticalAlignment="Top" >
 
-                <Border 
+                <Border x:Name="StringSelectionBorder"
                         BorderThickness="5" 
                         BorderBrush="Purple"
                         KeyDown="SpStringsSelection_KeyDown"
@@ -1538,13 +1531,14 @@
                         MouseLeftButtonUp="Search2_DragDialog_Ending"
                         MouseMove="Search2_DragDialog_Moving"
                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center" Height="240">
+                        VerticalAlignment="Center" 
+                        Visibility="Visible"
+                    Height="240">
                     <Grid 
                             Grid.Row="1" 
                             Height="230" 
                             Width="375"
                            LostFocus="FieldSelectionGrid_LostFocus"
-                            Panel.ZIndex="255"  
                             MouseLeftButtonDown="Search2_DragDialog_LButtonDn"
                             MouseLeftButtonUp="Search2_DragDialog_Ending"
                             MouseMove="Search2_DragDialog_Moving"
@@ -1601,7 +1595,6 @@
                                 Margin="11,90,9,133"
                                 Text="Enter Search term here ..."
                                 TextAlignment="Center"                                 
-                                Panel.ZIndex="12"
                                 Focusable="True"
                                 Padding="0 4 0 0"
                                 FontWeight="Bold"
@@ -1675,20 +1668,18 @@
                 Canvas.Top="30" 
                 Canvas.Left="250"
                 Focusable="True"
-                Panel.ZIndex="252"  
+                Panel.ZIndex="256"  
                 LostFocus="FieldSelectionGrid_LostFocus"
                 Visibility="Collapsed">
 
                 <Border 
                     BorderThickness="3" BorderBrush="Red"
-                    Panel.ZIndex="72"
                     Visibility="Visible">
 
                     <Grid x:Name="FilterInnerGrid"
                             Grid.Row="1" 
                             Height="{Binding ActualHeight, ElementName=SpStringsSelector}" 
                             Width="{Binding ActualWidth, ElementName=SpStringsSelector}"                         
-                            Panel.ZIndex="253"  
                             Margin="0 0 0 0"
                             PreviewMouseLeftButtonDown="DragDialog_LButtonDn"
                             PreviewMouseMove="DragDialog_Moving"
@@ -1778,7 +1769,7 @@
                 Width="563"
                 Canvas.Top="38" 
                 Canvas.Left="85"    
-                Panel.ZIndex="255"  
+                Panel.ZIndex="256"  
                 MouseLeftButtonDown="ExecDragDialog_LButtonDn"
                 MouseMove="ExecDragDialog_Moving"
                 MouseLeftButtonUp="ExecDragDialog_Ending"
@@ -1805,7 +1796,6 @@
                             Grid.Row="1" 
                             Height="{Binding ActualHeight, ElementName=innerborder}" 
                             Width="{Binding ActualWidth, ElementName=innerborder}"
-                            Panel.ZIndex="255"  
                             Background="{StaticResource Cyan3}"
                            KeyDown="Execsp_KeyDown"
                             PreviewMouseRightButtonDown="closeSearchDlg"
@@ -1827,7 +1817,6 @@
                                        Height="33"
                                        Text="Active S.P is : "
                                        TextAlignment="Center"
-                                        Panel.ZIndex="255"  
                                        FontSize="18"
                                        Padding="0 0 0 0"
                                        Background="Red" 
@@ -1840,7 +1829,6 @@
                                 Margin="33,5,22,0"     
                                 Foreground="Black"
                                 FontSize="16"
-                                Panel.ZIndex="257"  
                                 KeyDown="Execsp_KeyDown"
                                 TextWrapping="Wrap"
                                 UseLayoutRounding="True" 
@@ -1866,7 +1854,6 @@
                             Margin="12,240,13,82"
                             Text="Enter Arguments here ..."
                             TextAlignment="Center"
-                            Panel.ZIndex="12"
                             Focusable="True"
                             Padding="0 4 0 0"
                             FontWeight="Bold"
@@ -1923,7 +1910,7 @@
                     Canvas.Left="325"
                     Background="{StaticResource Black2}"
                     Focusable="True"
-                    Panel.ZIndex="20"  
+                    Panel.ZIndex="256"  
                     HorizontalAlignment="Center" 
                     VerticalAlignment="Top"
                    MouseLeftButtonDown="tableviewer_LButtonDn"
@@ -1935,7 +1922,6 @@
                 <Border x:Name="innerresultsborder"
                         BorderThickness="5" 
                         BorderBrush="Red"
-                        Panel.ZIndex="22"
                         Visibility="Visible">
 
                     <Grid x:Name="InnerGrid"
@@ -1943,7 +1929,6 @@
                                 Converter={StaticResource ReduceByParamValue},ConverterParameter=0}"
                           Width="{Binding ActualWidth, ElementName=innerresultsborder,
                                 Converter={StaticResource ReduceByParamValue},ConverterParameter=0}"
-                            Panel.ZIndex="23"
                             HorizontalAlignment="Center" 
                             Background="{StaticResource Black2}"
                             VerticalAlignment="Center"
@@ -1962,7 +1947,6 @@
                                 Height="35"
                                 Text="All Tables in current Database"
                                 TextAlignment="Center"
-                                Panel.ZIndex="294"
                                 Padding="0 4 0 0"
                                 Margin="0,0,0,0"
                                 Background="Red"
@@ -1983,7 +1967,6 @@
                                     IsHitTestVisible="True"
                                     ScrollViewer.VerticalScrollBarVisibility="Auto"
                                     ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                                    Panel.ZIndex="4"
                                     ItemContainerStyle="{StaticResource SpStringsStyle}"
                                     MouseLeftButtonDown="tableviewer_LButtonDn"
                                     MouseMove="tableviewer_Moving"
@@ -1999,7 +1982,6 @@
                                     VerticalAlignment="Bottom"
                                     FontSize="14"
                                     Style="{StaticResource ButtonSlant}"
-                                    Panel.ZIndex="24"
                                     Content="Close Tables Viewer"
                                     Click="closeviewer_Click"
                                     Visibility="Visible"
@@ -2255,6 +2237,7 @@
 				Canvas.Left="45"
 				Canvas.Top="64"
 				Height="300"
+                Width="520"
 				Margin="0 0 0 0"
 				
 				LostFocus="Flowdoc_LostFocus"
@@ -2263,9 +2246,8 @@
 				PreviewMouseLeftButtonDown="Flowdoc_PreviewMouseLeftButtonDown"
 
 				Opacity="1"
-				Panel.ZIndex="322"
-				Visibility="Hidden"
-				Width="520" />
+				Panel.ZIndex="260"
+				Visibility="Visible"/>
 
 
         <!--</Canvas>-->
@@ -2324,7 +2306,7 @@
                         ToolTipService.HasDropShadow="True"
                         ToolTipService.BetweenShowDelay="5"
                         ToolTipService.ShowDuration="5000"
-                        Panel.ZIndex="300"
+                        Panel.ZIndex="265"
                         VerticalAlignment="Stretch">
                 <GridSplitter.Template>
                     <ControlTemplate>
@@ -2368,7 +2350,6 @@
                     Canvas.Top="5"
                     Canvas.Left="10"
                     Background="Transparent"  
-                    Panel.ZIndex="250"
                     Width="{Binding ActualWidth, ElementName=GenGridCtrl, Converter={StaticResource ReduceByParamValue},ConverterParameter=0}"      
                     IsVisibleChanged="InfoGrid_IsVisibleChanged"
                     Visibility="Visible" >
@@ -2381,8 +2362,7 @@
                             Opacity="1"
                             BorderThickness="5 5 5 15" 
                             VerticalAlignment="Top" 
-                            Panel.ZIndex="251"
-                            Height="{Binding ActualHeight, ElementName=InfoGrid}" 
+                           Height="{Binding ActualHeight, ElementName=InfoGrid}" 
                             Width="{Binding ActualWidth, ElementName=InfoGrid}"
                             Visibility="Visible">
 
@@ -2392,8 +2372,7 @@
                                 Grid.RowSpan="1"
                                 VerticalAlignment="Top"
                                 HorizontalAlignment="Left"
-                                Panel.ZIndex="251"
-                                Height="{Binding ActualHeight, ElementName=InfoBorder, Converter={StaticResource IncreaseByParamValue},ConverterParameter=5}"      
+                               Height="{Binding ActualHeight, ElementName=InfoBorder, Converter={StaticResource IncreaseByParamValue},ConverterParameter=5}"      
                                 Width="{Binding ActualWidth, ElementName=InfoGrid}"
                                 Visibility="Visible">
 
@@ -2413,8 +2392,7 @@
                                            Grid.Row="2" 
                                            Grid.RowSpan="1" 
                                            Width="15"
-                                           Panel.ZIndex="251"
-                                           Grid.Column="1"
+                                             Grid.Column="1"
                                            Focusable="True"
                                            Cursor="SizeWE"
                                            MouseEnter="GridSplitter_MouseEnter" 
@@ -2441,25 +2419,23 @@
                             </Grid.ColumnDefinitions>
 
                             <TextBlock x:Name="InfoHeaderPanel" Grid.Column="0" Grid.ColumnSpan="1"
-                                                        Margin="0 0 0 0"                                            
-                                                        HorizontalAlignment="Stretch"
-                                                        VerticalAlignment="Top" 
-                                                        Height="35"
-                                                         FontSize="16"
-                                                        FontWeight="DemiBold"
-                                                        Foreground="Red"
-                                                        Background="Cyan"
-                                                        TextAlignment="Center"
-                                                        Text="Press Escape, Dbl-Click in viewer or Click 'Close' icon on this panel to close it...."
-                                                        Panel.ZIndex="251"/>
+                                    Margin="0 0 0 0"                                            
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Top" 
+                                    Height="35"
+                                        FontSize="16"
+                                    FontWeight="DemiBold"
+                                    Foreground="Red"
+                                    Background="Cyan"
+                                    TextAlignment="Center"
+                                    Text="Press Escape, Dbl-Click in viewer or Click 'Close' icon on this panel to close it...."/>
 
                             <Border Background="Cyan" Grid.Column="1" Grid.ColumnSpan="1">
                                 <Image
                                                                 x:Name="CloseIcon" Source="\icons\red-cross-icon.png"
                                                                 Grid.Column="1"                           
                                                                 Height="25" Width="25"
-                                                                Panel.ZIndex="252"
-                                                                HorizontalAlignment="Right"
+                                                              HorizontalAlignment="Right"
                                                                 MouseLeftButtonDown="CloseIcon_MouseLeftButtonDown"
                                                                 Margin="0,-1,6,0" Grid.RowSpan="1"/>
                             </Border>
@@ -2551,8 +2527,7 @@
                                             BorderThickness="2"
                                             Height="{Binding Height, ElementName=ViewerGrid, Converter={StaticResource ReduceByParamValue},ConverterParameter=85}"      
                                             Width="{Binding Width, ElementName=ViewerGrid, Converter={StaticResource ReduceByParamValue},ConverterParameter=40}"      
-                                            Panel.ZIndex="302"                                           
-                                            Margin="0 0,0,5"
+                                             Margin="0 0,0,5"
                                             HorizontalScrollBarVisibility="Auto"
                                             VerticalScrollBarVisibility="Visible"
                                             Background="{StaticResource Black0}"
@@ -2613,7 +2588,6 @@
                HorizontalAlignment="Left"               
                Foreground="White"  
                Width="116"
-               Panel.ZIndex="300"
                FontSize="14"
                  Margin="15,7,0,47" />
 
@@ -2630,8 +2604,7 @@
                   Grid.Row="3"
                   Width="132" 
                   RenderTransformOrigin="0.5,0.5"
-                  Panel.ZIndex="5"
-                  Visibility="Collapsed"/>
+                   Visibility="Collapsed"/>
 
             <Button x:Name="CloseApp" Width="87" 
                 Grid.Row="1"
@@ -2656,8 +2629,7 @@
                 Foreground="White"
                 Background="Transparent"
                 FontSize="15"
-                Panel.ZIndex="300"
-                Text="Use Dropdown below to select available processing options"
+                 Text="Use Dropdown below to select available processing options"
                 HorizontalAlignment="Left" 
                 Width="403" Height="26"  
                 Margin="360,14,0,0" 
@@ -2670,8 +2642,7 @@
                     Height="30"  
                     FontSize="18"
                     Margin="403,0,0,14" 
-                    Panel.ZIndex="300"
-                    DropDownOpened="OptionsList_DropDownOpened"
+                     DropDownOpened="OptionsList_DropDownOpened"
                       DropDownClosed="OptionsList_DropDownClosed"
                     SelectionChanged="OptionsList_Selected"
                     VerticalAlignment="Bottom"
@@ -2725,8 +2696,7 @@
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
                    Margin="0 0 5 47"
-               Panel.ZIndex="300"
-                   Background="Orange"
+                    Background="Orange"
                    Foreground="Black"/>
 
             <Label Content="Save New Table As : " 
@@ -2734,8 +2704,7 @@
                     HorizontalAlignment="Left"
                     Foreground="White"  
                     Width="130"
-                    Panel.ZIndex="300"
-                    FontSize="14"
+                     FontSize="14"
                     Margin="1,46,0,8"/>
 
             <TextBox x:Name="NewTableName" 
@@ -2748,7 +2717,6 @@
                  Text="Enter New Table Name ...." 
                  Padding="0 1 0 0"
                 KeyDown="statusbar_KeyDown"
-                Panel.ZIndex="300"
                 Margin="132,45,0,10" 
                  GotKeyboardFocus="NewTableName_GotKeyboardFocus"
                  />

@@ -115,6 +115,7 @@ namespace Views
         static public bool UsingMatches { get; set; }
         static public string ResultsListLoadType { get; set; }
         double RTwidth { get; set; }
+        int Fontsize { get; set; } = 14;
         #endregion Properties
 
         //This is Updated by my Grid Control whenever it loads a different table
@@ -319,7 +320,7 @@ namespace Views
             bStartup = false;
             DatagridControl . SetParent ( ( Control ) this );
             Flags . UseScrollView = false;
-            //            fdl = new FlowdocLib ( Flowdoc , Filtercanvas );
+            fdl = new FlowdocLib ( Flowdoc , Filtercanvas );
             NewTableName . Text = "qwerty";
             OptionsList . SelectedIndex = 0;
             ViewerGrid . ColumnDefinitions [ 0 ] . Width = new GridLength ( 1 , GridUnitType . Pixel );
@@ -426,8 +427,8 @@ namespace Views
 
             if ( Splist . SelectedIndex == -1 )
                 Splist . SelectedIndex = 0;
-
-            fdl = new FlowdocLib ( Flowdoc , Filtercanvas );
+            if ( fdl == null )
+                fdl = new FlowdocLib ( Flowdoc , Filtercanvas );
 
             //TestExpando ( );
 
@@ -926,73 +927,75 @@ namespace Views
                                 buffer = s;
                                 // We now  have ONE sinlge record, but need to add this  to a GenericClass structure 
                                 int reccount = 1;
-                                foreach ( KeyValuePair<string , string> val in outdict )
-                                {  //
-                                    switch ( reccount )
-                                    {
-                                        case 1:
-                                            gc . field1 = val . Value . ToString ( );
-                                            break;
-                                        case 2:
-                                            gc . field2 = val . Value . ToString ( );
-                                            break;
-                                        case 3:
-                                            gc . field3 = val . Value . ToString ( );
-                                            break;
-                                        case 4:
-                                            gc . field4 = val . Value . ToString ( );
-                                            break;
-                                        case 5:
-                                            gc . field5 = val . Value . ToString ( );
-                                            break;
-                                        case 6:
-                                            gc . field6 = val . Value . ToString ( );
-                                            break;
-                                        case 7:
-                                            gc . field7 = val . Value . ToString ( );
-                                            break;
-                                        case 8:
-                                            gc . field8 = val . Value . ToString ( );
-                                            break;
-                                        case 9:
-                                            gc . field9 = val . Value . ToString ( );
-                                            break;
-                                        case 10:
-                                            gc . field10 = val . Value . ToString ( );
-                                            break;
-                                        case 11:
-                                            gc . field11 = val . Value . ToString ( );
-                                            break;
-                                        case 12:
-                                            gc . field12 = val . Value . ToString ( );
-                                            break;
-                                        case 13:
-                                            gc . field13 = val . Value . ToString ( );
-                                            break;
-                                        case 14:
-                                            gc . field14 = val . Value . ToString ( );
-                                            break;
-                                        case 15:
-                                            gc . field15 = val . Value . ToString ( );
-                                            break;
-                                        case 16:
-                                            gc . field16 = val . Value . ToString ( );
-                                            break;
-                                        case 17:
-                                            gc . field17 = val . Value . ToString ( );
-                                            break;
-                                        case 18:
-                                            gc . field18 = val . Value . ToString ( );
-                                            break;
-                                        case 19:
-                                            gc . field19 = val . Value . ToString ( );
-                                            break;
-                                        case 20:
-                                            gc . field20 = val . Value . ToString ( );
-                                            break;
-                                    }
-                                    reccount += 1;
-                                }
+                                Utils.ParseDictIntoGenericClass ( outdict , reccount , ref gc );
+
+                                //foreach ( KeyValuePair<string , string> val in outdict )
+                                //{  //
+                                //    switch ( reccount )
+                                //    {
+                                //        case 1:
+                                //            gc . field1 = val . Value . ToString ( );
+                                //            break;
+                                //        case 2:
+                                //            gc . field2 = val . Value . ToString ( );
+                                //            break;
+                                //        case 3:
+                                //            gc . field3 = val . Value . ToString ( );
+                                //            break;
+                                //        case 4:
+                                //            gc . field4 = val . Value . ToString ( );
+                                //            break;
+                                //        case 5:
+                                //            gc . field5 = val . Value . ToString ( );
+                                //            break;
+                                //        case 6:
+                                //            gc . field6 = val . Value . ToString ( );
+                                //            break;
+                                //        case 7:
+                                //            gc . field7 = val . Value . ToString ( );
+                                //            break;
+                                //        case 8:
+                                //            gc . field8 = val . Value . ToString ( );
+                                //            break;
+                                //        case 9:
+                                //            gc . field9 = val . Value . ToString ( );
+                                //            break;
+                                //        case 10:
+                                //            gc . field10 = val . Value . ToString ( );
+                                //            break;
+                                //        case 11:
+                                //            gc . field11 = val . Value . ToString ( );
+                                //            break;
+                                //        case 12:
+                                //            gc . field12 = val . Value . ToString ( );
+                                //            break;
+                                //        case 13:
+                                //            gc . field13 = val . Value . ToString ( );
+                                //            break;
+                                //        case 14:
+                                //            gc . field14 = val . Value . ToString ( );
+                                //            break;
+                                //        case 15:
+                                //            gc . field15 = val . Value . ToString ( );
+                                //            break;
+                                //        case 16:
+                                //            gc . field16 = val . Value . ToString ( );
+                                //            break;
+                                //        case 17:
+                                //            gc . field17 = val . Value . ToString ( );
+                                //            break;
+                                //        case 18:
+                                //            gc . field18 = val . Value . ToString ( );
+                                //            break;
+                                //        case 19:
+                                //            gc . field19 = val . Value . ToString ( );
+                                //            break;
+                                //        case 20:
+                                //            gc . field20 = val . Value . ToString ( );
+                                //            break;
+                                //    }
+                                //    reccount += 1;
+                                //}
                                 //genericlist.Add(buffer);
                                 collection . Add ( gc );
                             }
@@ -1038,9 +1041,9 @@ namespace Views
         {   //task to load list of Db Tables
             CurrentTable = currentTable;
             // Add domain to command
-  
+
             List<string> TablesList = GetDbTablesList ( CurrentTableDomain );
-              SqlTables . ItemsSource = null;
+            SqlTables . ItemsSource = null;
             SqlTables . Items . Clear ( );
             SqlTables . ItemsSource = TablesList;
             int index = 0;
@@ -1176,7 +1179,7 @@ namespace Views
             string output = "";
             foreach ( var item in GridData )
             {
-                output += $"{item . field1.ToString().PadRight(25)}{item.field2}\n";
+                output += $"{item . field1 . ToString ( ) . PadRight ( 25 )}{item . field2}, {item . field3}, {item . field4}, {item . field5}\n";
             }
             return output;
         }
@@ -1800,40 +1803,61 @@ namespace Views
         private void DragDialog_LButtonDn ( object sender , MouseButtonEventArgs e )
         {
             // Working 3/10/22
-            Grid sendergrid = sender as Grid;
-            string Sendername = sendergrid . Name;
-            DoPanelDragInit ( sender , e , Sendername );
-
-            Control activegrid = null;
-            Grid filtergrid = new Grid ( );
-            FrameworkElement parent = null;
             FrameworkElement fwelement = new FrameworkElement ( );
+            FrameworkElement parent = null;
+            Grid sendergrid = null;
             Type type = sender . GetType ( );
-            // Finds the parent immediately above the Canvas,
-            // which is what we are dragging
             if ( type == typeof ( Button ) )
-            {
                 return;
-            }
             if ( type != typeof ( Grid ) )
             {
-                parent = ( Grid ) GetControlDragParent ( sender , "Execsp" );
+                // Finds the parent immediately above the Canvas,
+                // which is what we are dragging
+                if ( type != typeof ( Grid ) )
+                    parent = ( Grid ) GetControlDragParent ( sender , "SpStringsSelection" );
                 type = parent . GetType ( );
                 if ( parent == null )
                     fwelement = ( FrameworkElement ) parent;
                 else
                 {
-                    DragCtrl . InitializeMovement ( parent );
-                    DragCtrl . MovementStart ( parent , e );
-                    DragDialog_Moving ( parent , e );
+                    if ( parent . Name == "" )
+                    {
+                        while ( parent . Name == "" )
+                        {
+                            parent = ( Grid ) GetControlDragParent ( parent , "SpStringsSelection" );
+                            type = parent . GetType ( );
+                            if ( type != typeof ( Grid ) )
+                                break;
+
+                        }
+                    }
+                    sendergrid = parent as Grid;
                 }
             }
-            else
-            {
-                DragCtrl . InitializeMovement ( ( FrameworkElement ) sender );
-                DragCtrl . MovementStart ( sender , e );
-                DragDialog_Moving ( sender , e );
-            }
+            if ( sendergrid == null ) return;
+            string Sendername = sendergrid . Name;
+            DoPanelDragInit ( sender , e , Sendername );
+
+            //Control activegrid = null;
+            //Grid filtergrid = new Grid ( );
+            //{
+            //    parent = ( Grid ) GetControlDragParent ( sender , "SpStringsSelection" );
+            //    type = parent . GetType ( );
+            //    if ( parent == null )
+            //        fwelement = ( FrameworkElement ) parent;
+            //    else
+            //    {
+            //        DragCtrl . InitializeMovement ( parent );
+            //        DragCtrl . MovementStart ( parent , e );
+            //        DragDialog_Moving ( parent , e );
+            //    }
+            //}
+            //else
+            //{
+            //    DragCtrl . InitializeMovement ( ( FrameworkElement ) sender );
+            //    DragCtrl . MovementStart ( sender , e );
+            //    DragDialog_Moving ( sender , e );
+            //}
         }
 
         private void DragDialog_Moving ( object sender , MouseEventArgs e )
@@ -2120,8 +2144,6 @@ namespace Views
                 string stringresult = "";
                 Gengrid . FetchStoredProcedureCode ( Splist . SelectedItem . ToString ( ) , ref sptext );
                 //} );
-                //string stringresult = "";
-                //string sptext = FetchStoredProcedureCode ( ProcNames . SelectedItem . ToString ( ) , ref stringresult );
                 if ( sptext == "" )
                 {
                     Debug . WriteLine ( $"ERROR - no SP file   was returned ????" );
@@ -2142,21 +2164,11 @@ namespace Views
                 RTBox . Visibility = Visibility . Visible;
                 InfoGrid . Visibility = Visibility . Visible;
 
-                //                dgControl . datagridControl . Visibility = Visibility . Collapsed;
-
-                // Load FULL list of ALL SP's that match searchterm 
+                 // Load FULL list of ALL SP's that match searchterm 
                 // into left column of  our viewer panel of our Viewergrid
                 if ( Splist . Items . Count == 0 )
                 {
                     list = LoadMatchingStoredProcs ( Splist , Searchtext );
-                    //Splist . ItemsSource = null;
-                    //Splist . ItemsSource = list;
-                    // // default to 1st  entry in list
-                    //Splist . SelectedIndex = 0;
-                    //InfoHeaderPanel . Text = SpInfo . Text;
-                    //SpInfo . Text = $"All  Matching S.P's";
-                    //SpInfo2 . Text = $"{Splist . Items . Count} match [{Searchtext}]";
-                    //InfoHeaderPanel . Text = $"All ({Splist . Items . Count}) Stored Procedures matching Search Term [ {Searchtext} ] are displayed";
                     CurrentSpList = "MATCH";
 
                     // open splitter
@@ -2284,7 +2296,7 @@ namespace Views
             myFlowDocument . Blocks . Add ( para1 );
             return myFlowDocument;
         }
-        public FlowDocument CreateBoldString ( FlowDocument myFlowDocument , string SpText , string SrchTerm )
+        public FlowDocument CreateBoldString ( FlowDocument myFlowDocument , string SpText , string SrchTerm , int Fontsize = 14 )
         {
             string original = SpText;
             string originalSearchterm = "";
@@ -2316,34 +2328,35 @@ namespace Views
 
             for ( int x = 0 ; x < NonCapitlisedString . Count ; x++ )
             {
-                Run run1 = AddStdNewDocumentParagraph ( NonCapitlisedString [ x ] , SrchTerm );
+                Run run1 = AddStdNewDocumentParagraph ( NonCapitlisedString [ x ] , SrchTerm , Fontsize );
                 tmppara . Inlines . Add ( run1 );
-                Run run2 = AddDecoratedNewDocumentParagraph ( NonCapitlisedString [ x ] , SrchTerm );
+                Run run2 = AddDecoratedNewDocumentParagraph ( NonCapitlisedString [ x ] , SrchTerm , Fontsize );
 
                 if ( x < NonCapitlisedString . Count - 1 )
                     tmppara . Inlines . Add ( run2 );
+                tmppara . FontSize = Fontsize;
             }
-            para1 = tmppara;
             // build  document by adding all blocks to Document
-            myFlowDocument . Blocks . Add ( para1 );
+            //para1 . FontSize = Fontsize;
+            myFlowDocument . Blocks . Add ( tmppara );
             return myFlowDocument;
         }
 
-        public Run AddStdNewDocumentParagraph ( string textstring , string SearchText )
+        public Run AddStdNewDocumentParagraph ( string textstring , string SearchText , int fontsize = 16 )
         {
             // Main text
             Run run1 = new Run ( textstring );
-            run1 . FontSize = 16;
+            run1 . FontSize = fontsize;
             run1 . FontFamily = new FontFamily ( "Arial" );
             run1 . FontWeight = FontWeights . Normal;
             run1 . Background = FindResource ( "Black3" ) as SolidColorBrush;
             run1 . Foreground = FindResource ( "White0" ) as SolidColorBrush;
             return run1;
         }
-        public Run AddDecoratedNewDocumentParagraph ( string textstring , string SearchText )
+        public Run AddDecoratedNewDocumentParagraph ( string textstring , string SearchText , int fontsize = 18 )
         {
             Run run2 = new Run ( SearchText );
-            run2 . FontSize = 18;
+            run2 . FontSize = fontsize;
             run2 . FontFamily = new FontFamily ( "Arial" );
             run2 . FontWeight = FontWeights . Bold;
             run2 . Foreground = FindResource ( "Green5" ) as SolidColorBrush;
@@ -2406,6 +2419,7 @@ namespace Views
             ViewerGrid . Visibility = Visibility . Visible;
             DisplayInformationViewer ( true );
             SpStringsSelection . Visibility = Visibility . Collapsed;
+            StringSelectionBorder . Visibility = Visibility . Collapsed;
             Splist . SelectedIndex = 0;
             ReloadInfo ( sender , e );
             Mouse . OverrideCursor = Cursors . Arrow;
@@ -2488,8 +2502,11 @@ namespace Views
 
         private void SearchStoredProc ( object sender , RoutedEventArgs e )
         {
+            SpStringsSelection . Visibility = Visibility . Collapsed;
             SpStringsSelection . Visibility = Visibility . Visible;
-            selectedSp . Focus ( );
+            StringSelectionBorder . Visibility = Visibility . Visible;
+            SpStringsSelection . Focus ( );
+            SpStringsSelection . BringIntoView ( );
             DragCtrl . InitializeMovement ( SpStringsSelection as FrameworkElement );
             selectedSp . SelectAll ( );
         }
@@ -2506,7 +2523,10 @@ namespace Views
         private void stopBtn1_KeyDown ( object sender , KeyEventArgs e )
         {
             if ( e . Key == Key . Escape )
+            {
                 SpStringsSelection . Visibility = Visibility . Collapsed;
+                StringSelectionBorder . Visibility = Visibility . Collapsed;
+            }
         }
         private void RTBox_MouseDblClick ( object sender , MouseButtonEventArgs e )
         {
@@ -2545,9 +2565,8 @@ namespace Views
             //string stringresult = "";
             SplistRightclick = false;
 
-
             // load a matching SP and show it in ScrolFlowDocument
-            bool result = LoadShowMatchingSproc ( this , RTBox , spfilename , ref sptext );
+            bool result = LoadShowMatchingSproc ( this , RTBox , spfilename , ref sptext , 14 );
             {
                 //Gengrid . FetchStoredProcedureCode ( spfilename , ref sptext );
                 //if ( sptext == "" )
@@ -2749,20 +2768,22 @@ namespace Views
                     Genericgrid . UsingMatches = true;
                     SetSpWindowInfoText ( Gengrid , Gengrid , Searchtext );
                     // update Genericgrid's Scroll viewer panel and headers with SP contents
-                    bool success = LoadShowMatchingSproc ( GenGrid , RTBox , lbox . SelectedItem . ToString ( ) , ref srchterm );
+                    bool success = LoadShowMatchingSproc ( GenGrid , RTBox , lbox . SelectedItem . ToString ( ) , ref srchterm , Fontsize );
                 }
                 else
                 {
                     spviewer . UsingMatches = true;
                     SetSpWindowInfoText ( spviewer , spviewer , Searchtext );
                     // update Genericgrid's Scroll viewer panel and headers with SP contents
-                    bool success = LoadShowMatchingSproc ( spviewer , spviewer . TextResult , lbox . SelectedItem . ToString ( ) , ref srchterm );
+                    bool success = LoadShowMatchingSproc ( spviewer , spviewer . TextResult , lbox . SelectedItem . ToString ( ) , ref srchterm , Fontsize );
                 }
                 CurrentSpList = "MATCH";
             }
             else
+            {
                 SpStringsSelection . Visibility = Visibility . Visible;
-
+                StringSelectionBorder . Visibility = Visibility . Visible;
+            }
             GridLength gl = new GridLength ( );
             gl = ViewerGrid . ColumnDefinitions [ 0 ] . Width;
             if ( gl . Value < 5 )
@@ -2774,7 +2795,7 @@ namespace Views
         {
             LoadAllSPs ( );
         }
-        public void  LoadAllSPs ( )
+        public void LoadAllSPs ( )
         {
             string currItem = "";
             if ( Splist . Items . Count > 0 )
@@ -2808,7 +2829,7 @@ namespace Views
             if ( gl . Value < 5 )
                 ViewerGrid . ColumnDefinitions [ 0 ] . Width = new GridLength ( 200 , GridUnitType . Pixel );
         }
-            private void Fontsizeup_Click ( object sender , RoutedEventArgs e )
+        private void Fontsizeup_Click ( object sender , RoutedEventArgs e )
         {
             para1 . FontSize += 1;
         }
@@ -2969,6 +2990,7 @@ namespace Views
         private void ChangeMatchingSPs_Click ( object sender , RoutedEventArgs e )
         {
             SpStringsSelection . Visibility = Visibility . Visible;
+            StringSelectionBorder . Visibility = Visibility . Visible;
             selectedSp . Focus ( );
             selectedSp . Text = Searchtext;
             DragCtrl . InitializeMovement ( SpStringsSelection as FrameworkElement );
@@ -3225,73 +3247,75 @@ namespace Views
                                         buffer = s;
                                         // We now  have ONE sinlge record, but need to add this  to a GenericClass structure 
                                         int reccount = 1;
-                                        foreach ( KeyValuePair<string , string> val in outdict )
-                                        {  //
-                                            switch ( reccount )
-                                            {
-                                                case 1:
-                                                    gc . field1 = val . Value . ToString ( );
-                                                    break;
-                                                case 2:
-                                                    gc . field2 = val . Value . ToString ( );
-                                                    break;
-                                                case 3:
-                                                    gc . field3 = val . Value . ToString ( );
-                                                    break;
-                                                case 4:
-                                                    gc . field4 = val . Value . ToString ( );
-                                                    break;
-                                                case 5:
-                                                    gc . field5 = val . Value . ToString ( );
-                                                    break;
-                                                case 6:
-                                                    gc . field6 = val . Value . ToString ( );
-                                                    break;
-                                                case 7:
-                                                    gc . field7 = val . Value . ToString ( );
-                                                    break;
-                                                case 8:
-                                                    gc . field8 = val . Value . ToString ( );
-                                                    break;
-                                                case 9:
-                                                    gc . field9 = val . Value . ToString ( );
-                                                    break;
-                                                case 10:
-                                                    gc . field10 = val . Value . ToString ( );
-                                                    break;
-                                                case 11:
-                                                    gc . field11 = val . Value . ToString ( );
-                                                    break;
-                                                case 12:
-                                                    gc . field12 = val . Value . ToString ( );
-                                                    break;
-                                                case 13:
-                                                    gc . field13 = val . Value . ToString ( );
-                                                    break;
-                                                case 14:
-                                                    gc . field14 = val . Value . ToString ( );
-                                                    break;
-                                                case 15:
-                                                    gc . field15 = val . Value . ToString ( );
-                                                    break;
-                                                case 16:
-                                                    gc . field16 = val . Value . ToString ( );
-                                                    break;
-                                                case 17:
-                                                    gc . field17 = val . Value . ToString ( );
-                                                    break;
-                                                case 18:
-                                                    gc . field18 = val . Value . ToString ( );
-                                                    break;
-                                                case 19:
-                                                    gc . field19 = val . Value . ToString ( );
-                                                    break;
-                                                case 20:
-                                                    gc . field20 = val . Value . ToString ( );
-                                                    break;
-                                            }
-                                            reccount += 1;
-                                        }
+                                        //GenericClass gc = new GenericClass ( );
+                                        Utils.ParseDictIntoGenericClass (  outdict,  reccount , ref gc );
+                                        //foreach ( KeyValuePair<string , string> val in outdict )
+                                        //{  //
+                                        //    switch ( reccount )
+                                        //    {
+                                        //        case 1:
+                                        //            gc . field1 = val . Value . ToString ( );
+                                        //            break;
+                                        //        case 2:
+                                        //            gc . field2 = val . Value . ToString ( );
+                                        //            break;
+                                        //        case 3:
+                                        //            gc . field3 = val . Value . ToString ( );
+                                        //            break;
+                                        //        case 4:
+                                        //            gc . field4 = val . Value . ToString ( );
+                                        //            break;
+                                        //        case 5:
+                                        //            gc . field5 = val . Value . ToString ( );
+                                        //            break;
+                                        //        case 6:
+                                        //            gc . field6 = val . Value . ToString ( );
+                                        //            break;
+                                        //        case 7:
+                                        //            gc . field7 = val . Value . ToString ( );
+                                        //            break;
+                                        //        case 8:
+                                        //            gc . field8 = val . Value . ToString ( );
+                                        //            break;
+                                        //        case 9:
+                                        //            gc . field9 = val . Value . ToString ( );
+                                        //            break;
+                                        //        case 10:
+                                        //            gc . field10 = val . Value . ToString ( );
+                                        //            break;
+                                        //        case 11:
+                                        //            gc . field11 = val . Value . ToString ( );
+                                        //            break;
+                                        //        case 12:
+                                        //            gc . field12 = val . Value . ToString ( );
+                                        //            break;
+                                        //        case 13:
+                                        //            gc . field13 = val . Value . ToString ( );
+                                        //            break;
+                                        //        case 14:
+                                        //            gc . field14 = val . Value . ToString ( );
+                                        //            break;
+                                        //        case 15:
+                                        //            gc . field15 = val . Value . ToString ( );
+                                        //            break;
+                                        //        case 16:
+                                        //            gc . field16 = val . Value . ToString ( );
+                                        //            break;
+                                        //        case 17:
+                                        //            gc . field17 = val . Value . ToString ( );
+                                        //            break;
+                                        //        case 18:
+                                        //            gc . field18 = val . Value . ToString ( );
+                                        //            break;
+                                        //        case 19:
+                                        //            gc . field19 = val . Value . ToString ( );
+                                        //            break;
+                                        //        case 20:
+                                        //            gc . field20 = val . Value . ToString ( );
+                                        //            break;
+                                        //    }
+                                        //    reccount += 1;
+                                        //}
                                         collection . Add ( gc );
                                     }
                                     catch ( Exception ex )
@@ -3943,7 +3967,10 @@ namespace Views
             if ( e . Key == Key . Enter )
                 GoBtn1_Click ( null , null );
             else if ( e . Key == Key . Escape )
+            {
                 SpStringsSelection . Visibility = Visibility . Collapsed;
+                StringSelectionBorder . Visibility = Visibility . Collapsed;
+            }
         }
 
         public bool SaveDataToNewTable ( ObservableCollection<GenericClass> GridData ,
@@ -4087,10 +4114,14 @@ namespace Views
         private void ExecuteFilterStoredprocs ( object obj )
         {
             SpStringsSelection . Visibility = Visibility . Collapsed;
+            StringSelectionBorder . Visibility = Visibility . Collapsed;
             GoBtn1_Click ( null , null );
         }
         private void ExecuteCloseFilterStoredprocs ( object obj )
-        { SpStringsSelection . Visibility = Visibility . Collapsed; }
+        {
+            SpStringsSelection . Visibility = Visibility . Collapsed;
+            StringSelectionBorder . Visibility = Visibility . Collapsed;
+        }
 
         private bool CanExecuteFilterStoredprocs ( object arg )
         { return true; }
@@ -4156,16 +4187,17 @@ namespace Views
         private void stopBtn1_Click ( object sender , RoutedEventArgs e )
         {
             Grid dgobj = null;
-            Border dgobj2 = null;
+            Grid dgobj2 = null;
             string currgrid = "", lastgrid = "";
             int gridcount = 0;
             UIElement fe = sender as UIElement;
             Type type = sender . GetType ( );
             if ( type == typeof ( Button ) )
             {
-                dgobj = FindOuterParent ( sender , e );
-                if ( dgobj != null )
-                    dgobj . Visibility = Visibility . Collapsed;
+                dgobj2 = DapperGenericsLib . Utils . FindVisualParent<Grid> ( sender as DependencyObject );
+                //dgobj = FindOuterParent ( sender , e );
+                if ( dgobj2 != null )
+                    dgobj2 . Visibility = Visibility . Collapsed;
                 {
                     //dgobj = DapperGenericsLib . Utils . FindVisualParent<Grid> ( e . OriginalSource as DependencyObject );
 
@@ -4205,6 +4237,7 @@ namespace Views
         private void closeSearchDlg ( object sender , MouseButtonEventArgs e )
         {
             SpStringsSelection . Visibility = Visibility . Collapsed;
+            StringSelectionBorder . Visibility = Visibility . Collapsed;
         }
 
 
@@ -4766,7 +4799,7 @@ namespace Views
         /// <param name="spfilename">SP to be loaded</param>
         /// <param name="sptext">Search Text to be highlighted</param>
         /// <returns></returns>
-        public bool LoadShowMatchingSproc ( Window win , FlowDocumentScrollViewer flowdocsv , string spfilename , ref string sptext )
+        public bool LoadShowMatchingSproc ( Window win , FlowDocumentScrollViewer flowdocsv , string spfilename , ref string sptext , int Fontsize = 14 )
         {
             // Read an SP into memory and display it inFlowdocscrollviewer received
             // This reads the SP into memory in sptext  and displays it in the SpResultsViewer Scrollviewer
@@ -4789,7 +4822,7 @@ namespace Views
                 flowdocsv . Document = null;
                 myFlowDocument = new FlowDocument ( );
                 myFlowDocument . Blocks . Clear ( );
-                myFlowDocument = CreateBoldString ( myFlowDocument , sptext , Searchtext );
+                myFlowDocument = CreateBoldString ( myFlowDocument , sptext , Searchtext , Fontsize );
                 myFlowDocument . Background = FindResource ( "Black3" ) as SolidColorBrush;
                 flowdocsv . Document = myFlowDocument;
             }
@@ -4803,7 +4836,7 @@ namespace Views
 
                     Resultsviewer . TextResult . Document = myFlowDocument;
                     Resultsviewer . TextResult . Document . Blocks . Clear ( );
-                    Resultsviewer . TextResult . Document = CreateBoldString ( myFlowDocument , sptext , Searchtext );
+                    Resultsviewer . TextResult . Document = CreateBoldString ( myFlowDocument , sptext , Searchtext , Fontsize );
                     Resultsviewer . TextResult . Document . Background = FindResource ( "Black3" ) as SolidColorBrush;
                 }
             }
@@ -5074,7 +5107,7 @@ namespace Views
                 if ( spviewer . ListResults . SelectedItem != null )
                     spviewer . ListResults . ScrollIntoView ( spviewer . ListResults . SelectedItem );
                 // load selected Sp into Scrollviewer
-                bool result = LoadShowMatchingSproc ( this , spviewer . TextResult , spviewer . ListResults . SelectedItem . ToString ( ) , ref srchtext );
+                bool result = LoadShowMatchingSproc ( this , spviewer . TextResult , spviewer . ListResults . SelectedItem . ToString ( ) , ref srchtext , Fontsize );
                 // set glboal so cosmetics  work correctly
                 Resultsviewer . UsingMatches = true;
             }
@@ -5100,7 +5133,7 @@ namespace Views
                 }
                 if ( spviewer . ListResults . SelectedItem != null )
                     spviewer . ListResults . ScrollIntoView ( spviewer . ListResults . SelectedItem );
-                bool result = LoadShowMatchingSproc ( this , spviewer . TextResult , spviewer . ListResults . SelectedItem . ToString ( ) , ref srchtext );
+                bool result = LoadShowMatchingSproc ( this , spviewer . TextResult , spviewer . ListResults . SelectedItem . ToString ( ) , ref srchtext , Fontsize );
             }
             else
             {
@@ -5127,7 +5160,7 @@ namespace Views
                 spviewer . createoptypes ( );
                 spviewer . optype . UpdateLayout ( );
                 /// load and show data in Scrollviewer
-                bool result = LoadShowMatchingSproc ( this , spviewer . TextResult , spviewer . ListResults . SelectedItem . ToString ( ) , ref srchtext );
+                bool result = LoadShowMatchingSproc ( this , spviewer . TextResult , spviewer . ListResults . SelectedItem . ToString ( ) , ref srchtext , Fontsize );
             }
             // resultsviewer is definitely opened, so just reload it with ALL SP's ?
             // toggle its status to Show ALL SP's
@@ -6059,5 +6092,76 @@ namespace Views
             }
 
         }
+        //public static void  ParseDictIntoGenericClass ( Dictionary<string , string> outdict , int reccount, ref GenericClass gc )
+        //{
+        //    foreach ( KeyValuePair<string , string> val in outdict )
+        //    {  //
+        //        switch ( reccount )
+        //        {
+        //            case 1:
+        //                gc . field1 = val . Value . ToString ( );
+        //                break;
+        //            case 2:
+        //                gc . field2 = val . Value . ToString ( );
+        //                break;
+        //            case 3:
+        //                gc . field3 = val . Value . ToString ( );
+        //                break;
+        //            case 4:
+        //                gc . field4 = val . Value . ToString ( );
+        //                break;
+        //            case 5:
+        //                gc . field5 = val . Value . ToString ( );
+        //                break;
+        //            case 6:
+        //                gc . field6 = val . Value . ToString ( );
+        //                break;
+        //            case 7:
+        //                gc . field7 = val . Value . ToString ( );
+        //                break;
+        //            case 8:
+        //                gc . field8 = val . Value . ToString ( );
+        //                break;
+        //            case 9:
+        //                gc . field9 = val . Value . ToString ( );
+        //                break;
+        //            case 10:
+        //                gc . field10 = val . Value . ToString ( );
+        //                break;
+        //            case 11:
+        //                gc . field11 = val . Value . ToString ( );
+        //                break;
+        //            case 12:
+        //                gc . field12 = val . Value . ToString ( );
+        //                break;
+        //            case 13:
+        //                gc . field13 = val . Value . ToString ( );
+        //                break;
+        //            case 14:
+        //                gc . field14 = val . Value . ToString ( );
+        //                break;
+        //            case 15:
+        //                gc . field15 = val . Value . ToString ( );
+        //                break;
+        //            case 16:
+        //                gc . field16 = val . Value . ToString ( );
+        //                break;
+        //            case 17:
+        //                gc . field17 = val . Value . ToString ( );
+        //                break;
+        //            case 18:
+        //                gc . field18 = val . Value . ToString ( );
+        //                break;
+        //            case 19:
+        //                gc . field19 = val . Value . ToString ( );
+        //                break;
+        //            case 20:
+        //                gc . field20 = val . Value . ToString ( );
+        //                break;
+        //        }
+        //        reccount += 1;
+        //    }
+        //    //return gc;
+        //}
     }
 }

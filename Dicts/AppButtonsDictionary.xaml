@@ -175,8 +175,6 @@
 		<Setter Property="Background">
 			<Setter.Value>
 				<LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-					<!--<GradientStop Color="GREEN" Offset="0.25" />-->
-					<!--<GradientStop Color="{StaticResource BackgroundColor2}" Offset="0.25" />-->
 					<GradientStop Offset="0.25" Color="#FFFFD190" />
 					<GradientStop Offset="0.65" Color="#F94334" />
 					<GradientStop Offset="1" Color="#9C700A" />
@@ -412,9 +410,9 @@
 	<!--This works pretty well overall
 		used by main button bar is in this app-->
 
-	<Style  x:Key="RedToBlackButton"
+    <Style  x:Key="RedToBlackButton" TargetType="Button"
 		BasedOn="{StaticResource StandardYtoRGradientButton}"
-		TargetType="Button">
+		>
 		<Setter Property="OverridesDefaultStyle" Value="true" />
 
 		<!--These do nothing at all, but the do demonstrate how to use

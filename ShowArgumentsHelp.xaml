@@ -13,9 +13,38 @@
 	    ResizeMode="CanResizeWithGrip"
         Title="ShowArgumentsHelp" Height="500" Width="900"
         MinHeight="300" MinWidth="500">
+    <Window.Resources>
+        <!--- Dont understand why it has to be mouseover=false & ExitAction, but it works that way, not if true-->
+  
+        <Style TargetType="ComboBox" x:Key="ComboBoxStyle">
+            <Style.Triggers>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="False"/>
+                    </MultiTrigger.Conditions>
+                    <MultiTrigger.Setters>
+                        <Setter Property="Background" Value="Red"/>
+                        <Setter Property="Foreground" Value="White"/>
+                    </MultiTrigger.Setters>
+                </MultiTrigger>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="True"/>
+                    </MultiTrigger.Conditions>
+                    <MultiTrigger.Setters>
+                        <Setter Property="Background" Value="Red"/>
+                        <Setter Property="Foreground" Value="White"/>
+                    </MultiTrigger.Setters>
+                </MultiTrigger>
+            </Style.Triggers>
+        </Style>
+
+    </Window.Resources>
+    
+    
     <Grid>
-        <Border x:Name="bdr" BorderBrush="{StaticResource Green3}" 
-                BorderThickness="3 3 3 10" Background="{StaticResource Blue7}"
+        <Border x:Name="bdr" BorderBrush="{StaticResource Black5}" 
+                BorderThickness="0 0 0 0" Background="{StaticResource Black7}"
             Panel.ZIndex="300">
             <Grid >
                 <Grid.RowDefinitions>
@@ -30,10 +59,9 @@
                            TextAlignment="Center"
                            FontSize="16"
                            Padding="0 5 0 0"
-                           Background="{StaticResource Red5}"
-                           Foreground="White"
+                           Background="{StaticResource Cyan3}"
+                           Foreground="Yellow"
                            Text="IMPORTANT Stored Procedure Execution Arguments Information"/>
-
               
                 <TextBlock x:Name="ArgInfo" 
                            Grid.Row="1"
@@ -49,11 +77,12 @@
               
                 <FlowDocumentScrollViewer x:Name="ScrollArginfo" 
                     Grid.Row="1"
-                    BorderBrush="White"
+                    BorderBrush="Red"
                     HorizontalAlignment="Stretch"   
                     VerticalAlignment="top"                    
                     IsHitTestVisible="True"
-                    Margin="5 5,2,5"
+                    Margin="0 0,0,5"
+                    FontSize="14"
                     HorizontalScrollBarVisibility="Auto"
                     VerticalScrollBarVisibility="Visible"
                     Background="{StaticResource Black7}"
@@ -61,8 +90,43 @@
                     TextOptions.TextFormattingMode="Ideal"
                     TextOptions.TextRenderingMode="ClearType"
                     Visibility="Visible"/>
-
-
+            
+                <Label 
+                    Grid.Row="2"
+                    Width="Auto"
+                    Margin="25 6 0 0"
+                    Content="Font Size :" 
+                    FontWeight="DemiBold"
+                    Foreground="Yellow" FontSize="16"/>
+                
+                <ComboBox x:Name="CurrentFontSize"
+                          Grid.Row="2"
+                          Width="80"
+                          Height="26"
+                          Margin="115 0 0 0"
+                          SelectionChanged="CurrentFontSize_SelectionChanged"
+                          Background="Red"
+                          Foreground="White"
+                          HorizontalAlignment="Left"
+                          MaxDropDownHeight="250"
+                          AllowDrop="True"
+                          KeyboardNavigation.AcceptsReturn="True"
+                          BorderThickness="2"
+                          BorderBrush="Red"     
+                          FontSize="14"
+                          Style="{StaticResource ComboBoxStyle}"
+                          >
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Width="80"
+                                       Text="{Binding}"
+                                       Height="20"
+                                       Background="{StaticResource Red5}"
+                                       Foreground="White"
+                                       FontSize="14"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                   </ComboBox>
                 <Button x:Name="Closebtn" 
                         Click="Closebtn_Click"
                         Grid.Row="2"
@@ -71,11 +135,11 @@
                         Width="120"
                         FontSize="20"
                         FontWeight="Bold"
-                        Content="Close...." 
+                        Foreground="Black"
+                        Content="Close" 
                         Margin="0 0 10 0"
-                        Background="{StaticResource Black5}"
-                        Foreground="White"/>
-            </Grid>
+                        Style="{StaticResource StandardYtoRGradientButton}"/>
+             </Grid>
         </Border>
     </Grid>
 </Window>

@@ -3345,6 +3345,77 @@ namespace NewWpfDev
             span  = span . Slice ( start , len );
             return span;
         }
+        public static void ParseDictIntoGenericClass ( Dictionary<string , string> outdict , int reccount , ref GenericClass gc )
+        {
+            foreach ( KeyValuePair<string , string> val in outdict )
+            {  //
+                switch ( reccount )
+                {
+                    case 1:
+                        gc . field1 = val . Value . ToString ( );
+                        break;
+                    case 2:
+                        gc . field2 = val . Value . ToString ( );
+                        break;
+                    case 3:
+                        gc . field3 = val . Value . ToString ( );
+                        break;
+                    case 4:
+                        gc . field4 = val . Value . ToString ( );
+                        break;
+                    case 5:
+                        gc . field5 = val . Value . ToString ( );
+                        break;
+                    case 6:
+                        gc . field6 = val . Value . ToString ( );
+                        break;
+                    case 7:
+                        gc . field7 = val . Value . ToString ( );
+                        break;
+                    case 8:
+                        gc . field8 = val . Value . ToString ( );
+                        break;
+                    case 9:
+                        gc . field9 = val . Value . ToString ( );
+                        break;
+                    case 10:
+                        gc . field10 = val . Value . ToString ( );
+                        break;
+                    case 11:
+                        gc . field11 = val . Value . ToString ( );
+                        break;
+                    case 12:
+                        gc . field12 = val . Value . ToString ( );
+                        break;
+                    case 13:
+                        gc . field13 = val . Value . ToString ( );
+                        break;
+                    case 14:
+                        gc . field14 = val . Value . ToString ( );
+                        break;
+                    case 15:
+                        gc . field15 = val . Value . ToString ( );
+                        break;
+                    case 16:
+                        gc . field16 = val . Value . ToString ( );
+                        break;
+                    case 17:
+                        gc . field17 = val . Value . ToString ( );
+                        break;
+                    case 18:
+                        gc . field18 = val . Value . ToString ( );
+                        break;
+                    case 19:
+                        gc . field19 = val . Value . ToString ( );
+                        break;
+                    case 20:
+                        gc . field20 = val . Value . ToString ( );
+                        break;
+                }
+                reccount += 1;
+            }
+            //return gc;
+        }
 
     }
 }

@@ -795,7 +795,6 @@ namespace NewWpfDev
                 try
                 {
                     $" calling {spCommand} ()" . CW ( );
-
                     Debug . WriteLine ( $"ProcessUniversalQueryStoredProcedure() : [ {spCommand . ToUpper ( )} ]" );
 
                     //***********************************************************************************************************************************************//
@@ -803,8 +802,7 @@ namespace NewWpfDev
                     queryresults = sqlCon . Query<string> ( spCommand , parameters , commandType: CommandType . StoredProcedure ) . ToList ( );
                     //***********************************************************************************************************************************************//
 
-                    //result = sqlCon . Execute ( spCommand , parameters , commandType: CommandType . StoredProcedure );
-                    Debug . WriteLine ( $"{spCommand} returned  RESULT = {queryresults . Count}" );
+                      Debug . WriteLine ( $"S.Proc {spCommand} returned  RESULT = {queryresults . Count} records" );
                 }
                 catch ( Exception ex )
                 {

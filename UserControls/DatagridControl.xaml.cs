@@ -358,7 +358,7 @@ namespace UserControls
             //           GenericClass gcc = datagridControl . SelectedItem as GenericClass;
             // Clear list f column info as we are loading a  different table
             //           dglayoutlist . Clear ( );
-            if ( CurrentTable != table)
+            if ( CurrentTable != table )
                 CurrentTable = table;
             //GetNewColumnsInfo ( collection , table );
             //           int colcount = GetGenericColumnCount ( collection , gcc );
@@ -1026,7 +1026,7 @@ namespace UserControls
             //GenericClass gc = new GenericClass ();
             //gc = collection [ 0 ];
             //int count = NewWpfDev . Utils.GetCollectionColumnCount ( gc );
-           // int colcount = GenericGridSupport . GetTableColumnsCount ( Table , null , CurrentTableDomain );
+            // int colcount = GenericGridSupport . GetTableColumnsCount ( Table , null , CurrentTableDomain );
             //         if(colcount != count )
             //          LoadActiveRowsOnlyInGrid ( grid , collection , colcount );
         }
@@ -1500,7 +1500,7 @@ namespace UserControls
                         maxcol = GenClass . field8 == null ? 7 : counter;
                         break;
                     case 9:
-                        maxcol = GenClass . field9 == null ? 8 : counter-1;
+                        maxcol = GenClass . field9 == null ? 8 : counter - 1;
                         break;
                     case 10:
                         maxcol = GenClass . field10 == null ? 9 : counter;
@@ -1812,83 +1812,84 @@ namespace UserControls
                                     buffer = s;
                                     // We now  have ONE sinlge record, but need to add this  to a GenericClass structure 
                                     int reccount = 1;
-                                    try
-                                    {
-                                        foreach ( KeyValuePair<string , string> val in outdict )
-                                        {  //
-                                            switch ( reccount )
-                                            {
-                                                case 1:
-                                                    gc . field1 = val . Value . ToString ( );
-                                                    break;
-                                                case 2:
-                                                    gc . field2 = val . Value . ToString ( );
-                                                    break;
-                                                case 3:
-                                                    gc . field3 = val . Value . ToString ( );
-                                                    break;
-                                                case 4:
-                                                    gc . field4 = val . Value . ToString ( );
-                                                    break;
-                                                case 5:
-                                                    gc . field5 = val . Value . ToString ( );
-                                                    break;
-                                                case 6:
-                                                    gc . field6 = val . Value . ToString ( );
-                                                    break;
-                                                case 7:
-                                                    gc . field7 = val . Value . ToString ( );
-                                                    break;
-                                                case 8:
-                                                    gc . field8 = val . Value . ToString ( );
-                                                    break;
-                                                case 9:
-                                                    gc . field9 = val . Value . ToString ( );
-                                                    break;
-                                                case 10:
-                                                    gc . field10 = val . Value . ToString ( );
-                                                    break;
-                                                case 11:
-                                                    gc . field11 = val . Value . ToString ( );
-                                                    break;
-                                                case 12:
-                                                    gc . field12 = val . Value . ToString ( );
-                                                    break;
-                                                case 13:
-                                                    gc . field13 = val . Value . ToString ( );
-                                                    break;
-                                                case 14:
-                                                    gc . field14 = val . Value . ToString ( );
-                                                    break;
-                                                case 15:
-                                                    gc . field15 = val . Value . ToString ( );
-                                                    break;
-                                                case 16:
-                                                    gc . field16 = val . Value . ToString ( );
-                                                    break;
-                                                case 17:
-                                                    gc . field17 = val . Value . ToString ( );
-                                                    break;
-                                                case 18:
-                                                    gc . field18 = val . Value . ToString ( );
-                                                    break;
-                                                case 19:
-                                                    gc . field19 = val . Value . ToString ( );
-                                                    break;
-                                                case 20:
-                                                    gc . field20 = val . Value . ToString ( );
-                                                    break;
-                                            }
-                                            reccount += 1;
-                                        }
-                                    }
-                                    catch ( Exception ex )
-                                    {
-                                        NewWpfDev . Utils . DoErrorBeep ( );
-                                        Debug . WriteLine ( $"INNER DICT ERROR : {ex . Message}" );
-                                        result = ex . Message;
-                                        errormsg = result;
-                                    }
+                                    NewWpfDev . Utils . ParseDictIntoGenericClass ( outdict , reccount , ref gc );
+                                    //try
+                                    //{
+                                    //    foreach ( KeyValuePair<string , string> val in outdict )
+                                    //    {  //
+                                    //        switch ( reccount )
+                                    //        {
+                                    //            case 1:
+                                    //                gc . field1 = val . Value . ToString ( );
+                                    //                break;
+                                    //            case 2:
+                                    //                gc . field2 = val . Value . ToString ( );
+                                    //                break;
+                                    //            case 3:
+                                    //                gc . field3 = val . Value . ToString ( );
+                                    //                break;
+                                    //            case 4:
+                                    //                gc . field4 = val . Value . ToString ( );
+                                    //                break;
+                                    //            case 5:
+                                    //                gc . field5 = val . Value . ToString ( );
+                                    //                break;
+                                    //            case 6:
+                                    //                gc . field6 = val . Value . ToString ( );
+                                    //                break;
+                                    //            case 7:
+                                    //                gc . field7 = val . Value . ToString ( );
+                                    //                break;
+                                    //            case 8:
+                                    //                gc . field8 = val . Value . ToString ( );
+                                    //                break;
+                                    //            case 9:
+                                    //                gc . field9 = val . Value . ToString ( );
+                                    //                break;
+                                    //            case 10:
+                                    //                gc . field10 = val . Value . ToString ( );
+                                    //                break;
+                                    //            case 11:
+                                    //                gc . field11 = val . Value . ToString ( );
+                                    //                break;
+                                    //            case 12:
+                                    //                gc . field12 = val . Value . ToString ( );
+                                    //                break;
+                                    //            case 13:
+                                    //                gc . field13 = val . Value . ToString ( );
+                                    //                break;
+                                    //            case 14:
+                                    //                gc . field14 = val . Value . ToString ( );
+                                    //                break;
+                                    //            case 15:
+                                    //                gc . field15 = val . Value . ToString ( );
+                                    //                break;
+                                    //            case 16:
+                                    //                gc . field16 = val . Value . ToString ( );
+                                    //                break;
+                                    //            case 17:
+                                    //                gc . field17 = val . Value . ToString ( );
+                                    //                break;
+                                    //            case 18:
+                                    //                gc . field18 = val . Value . ToString ( );
+                                    //                break;
+                                    //            case 19:
+                                    //                gc . field19 = val . Value . ToString ( );
+                                    //                break;
+                                    //            case 20:
+                                    //                gc . field20 = val . Value . ToString ( );
+                                    //                break;
+                                    //        }
+                                    //        reccount += 1;
+                                    //    }
+                                    //}
+                                    //catch ( Exception ex )
+                                    //{
+                                    //    NewWpfDev . Utils . DoErrorBeep ( );
+                                    //    Debug . WriteLine ( $"INNER DICT ERROR : {ex . Message}" );
+                                    //    result = ex . Message;
+                                    //    errormsg = result;
+                                    //}
                                     //genericlist.Add(buffer);
                                     collection . Add ( gc );
                                 }
@@ -2016,76 +2017,77 @@ namespace UserControls
                         }//remove trailing comma
                         string s = buffer?.Substring ( 0 , buffer . Length - 1 );
                         buffer = s;
+//                        genericlist . Add ( buffer );
                         // We now  have ONE sinlge record, but need to add this  to a GenericClass structure 
                         int reccount = 1;
-                        foreach ( KeyValuePair<string , string> val in outdict )
-                        {  //
-                            switch ( reccount )
-                            {
-                                case 1:
-                                    gc . field1 = val . Value . ToString ( );
-                                    break;
-                                case 2:
-                                    gc . field2 = val . Value . ToString ( );
-                                    break;
-                                case 3:
-                                    gc . field3 = val . Value . ToString ( );
-                                    break;
-                                case 4:
-                                    gc . field4 = val . Value . ToString ( );
-                                    break;
-                                case 5:
-                                    gc . field5 = val . Value . ToString ( );
-                                    break;
-                                case 6:
-                                    gc . field6 = val . Value . ToString ( );
-                                    break;
-                                case 7:
-                                    gc . field7 = val . Value . ToString ( );
-                                    break;
-                                case 8:
-                                    gc . field8 = val . Value . ToString ( );
-                                    break;
-                                case 9:
-                                    gc . field9 = val . Value . ToString ( );
-                                    break;
-                                case 10:
-                                    gc . field10 = val . Value . ToString ( );
-                                    break;
-                                case 11:
-                                    gc . field11 = val . Value . ToString ( );
-                                    break;
-                                case 12:
-                                    gc . field12 = val . Value . ToString ( );
-                                    break;
-                                case 13:
-                                    gc . field13 = val . Value . ToString ( );
-                                    break;
-                                case 14:
-                                    gc . field14 = val . Value . ToString ( );
-                                    break;
-                                case 15:
-                                    gc . field15 = val . Value . ToString ( );
-                                    break;
-                                case 16:
-                                    gc . field16 = val . Value . ToString ( );
-                                    break;
-                                case 17:
-                                    gc . field17 = val . Value . ToString ( );
-                                    break;
-                                case 18:
-                                    gc . field18 = val . Value . ToString ( );
-                                    break;
-                                case 19:
-                                    gc . field19 = val . Value . ToString ( );
-                                    break;
-                                case 20:
-                                    gc . field20 = val . Value . ToString ( );
-                                    break;
-                            }
-                            reccount += 1;
-                        }
-                        //genericlist.Add(buffer);
+                        NewWpfDev . Utils . ParseDictIntoGenericClass ( outdict , reccount , ref gc );
+                        //foreach ( KeyValuePair<string , string> val in outdict )
+                        //{  //
+                        //    switch ( reccount )
+                        //    {
+                        //        case 1:
+                        //            gc . field1 = val . Value . ToString ( );
+                        //            break;
+                        //        case 2:
+                        //            gc . field2 = val . Value . ToString ( );
+                        //            break;
+                        //        case 3:
+                        //            gc . field3 = val . Value . ToString ( );
+                        //            break;
+                        //        case 4:
+                        //            gc . field4 = val . Value . ToString ( );
+                        //            break;
+                        //        case 5:
+                        //            gc . field5 = val . Value . ToString ( );
+                        //            break;
+                        //        case 6:
+                        //            gc . field6 = val . Value . ToString ( );
+                        //            break;
+                        //        case 7:
+                        //            gc . field7 = val . Value . ToString ( );
+                        //            break;
+                        //        case 8:
+                        //            gc . field8 = val . Value . ToString ( );
+                        //            break;
+                        //        case 9:
+                        //            gc . field9 = val . Value . ToString ( );
+                        //            break;
+                        //        case 10:
+                        //            gc . field10 = val . Value . ToString ( );
+                        //            break;
+                        //        case 11:
+                        //            gc . field11 = val . Value . ToString ( );
+                        //            break;
+                        //        case 12:
+                        //            gc . field12 = val . Value . ToString ( );
+                        //            break;
+                        //        case 13:
+                        //            gc . field13 = val . Value . ToString ( );
+                        //            break;
+                        //        case 14:
+                        //            gc . field14 = val . Value . ToString ( );
+                        //            break;
+                        //        case 15:
+                        //            gc . field15 = val . Value . ToString ( );
+                        //            break;
+                        //        case 16:
+                        //            gc . field16 = val . Value . ToString ( );
+                        //            break;
+                        //        case 17:
+                        //            gc . field17 = val . Value . ToString ( );
+                        //            break;
+                        //        case 18:
+                        //            gc . field18 = val . Value . ToString ( );
+                        //            break;
+                        //        case 19:
+                        //            gc . field19 = val . Value . ToString ( );
+                        //            break;
+                        //        case 20:
+                        //            gc . field20 = val . Value . ToString ( );
+                        //            break;
+                        //    }
+                        //    reccount += 1;
+                        //}
                         collection . Add ( gc );
                     }
                     catch ( Exception ex )
@@ -2188,20 +2190,20 @@ namespace UserControls
                     dgc . Header = $"Field{indexer++}";
             }
         }
-         /// <summary>
-         /// method using std SQL to return a Datatable containing requested data
-         /// </summary>
-         /// <param name="SqlCommand"></param>
-         /// <param name="connstring"></param>
-         /// <param name="args"></param>
-         /// <returns></returns>
-         static public DataTable ProcessSqlCommand ( string SqlCommand , string connstring , string [ ] args = null )
+        /// <summary>
+        /// method using std SQL to return a Datatable containing requested data
+        /// </summary>
+        /// <param name="SqlCommand"></param>
+        /// <param name="connstring"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        static public DataTable ProcessSqlCommand ( string SqlCommand , string connstring , string [ ] args = null )
         {
             SqlConnection con;
             DataTable dt = new DataTable ( );
             string filterline = "";
             string ConString = connstring;
-             if ( connstring == "" )
+            if ( connstring == "" )
                 ConString = "Data Source=DINO-PC;Initial Catalog=\"IAN1\";Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
 
             con = new SqlConnection ( ConString );
@@ -2226,7 +2228,7 @@ namespace UserControls
                 Debug . WriteLine ( $" SQL data loaded from SQLCommand [{SqlCommand . ToUpper ( )}]" );
                 con . Close ( );
             }
-             return dt;
+            return dt;
         }
         public void GetNewColumnsInfo ( ObservableCollection<GenericClass> collection , string Table )
         {
@@ -2543,73 +2545,74 @@ namespace UserControls
                                             buffer = s;
                                             // We now  have ONE sinlge record, but need to add this  to a GenericClass structure 
                                             int reccount = 1;
-                                            foreach ( KeyValuePair<string , string> val in outdict )
-                                            {  //
-                                                switch ( reccount )
-                                                {
-                                                    case 1:
-                                                        gc . field1 = val . Value . ToString ( );
-                                                        break;
-                                                    case 2:
-                                                        gc . field2 = val . Value . ToString ( );
-                                                        break;
-                                                    case 3:
-                                                        gc . field3 = val . Value . ToString ( );
-                                                        break;
-                                                    case 4:
-                                                        gc . field4 = val . Value . ToString ( );
-                                                        break;
-                                                    case 5:
-                                                        gc . field5 = val . Value . ToString ( );
-                                                        break;
-                                                    case 6:
-                                                        gc . field6 = val . Value . ToString ( );
-                                                        break;
-                                                    case 7:
-                                                        gc . field7 = val . Value . ToString ( );
-                                                        break;
-                                                    case 8:
-                                                        gc . field8 = val . Value . ToString ( );
-                                                        break;
-                                                    case 9:
-                                                        gc . field9 = val . Value . ToString ( );
-                                                        break;
-                                                    case 10:
-                                                        gc . field10 = val . Value . ToString ( );
-                                                        break;
-                                                    case 11:
-                                                        gc . field11 = val . Value . ToString ( );
-                                                        break;
-                                                    case 12:
-                                                        gc . field12 = val . Value . ToString ( );
-                                                        break;
-                                                    case 13:
-                                                        gc . field13 = val . Value . ToString ( );
-                                                        break;
-                                                    case 14:
-                                                        gc . field14 = val . Value . ToString ( );
-                                                        break;
-                                                    case 15:
-                                                        gc . field15 = val . Value . ToString ( );
-                                                        break;
-                                                    case 16:
-                                                        gc . field16 = val . Value . ToString ( );
-                                                        break;
-                                                    case 17:
-                                                        gc . field17 = val . Value . ToString ( );
-                                                        break;
-                                                    case 18:
-                                                        gc . field18 = val . Value . ToString ( );
-                                                        break;
-                                                    case 19:
-                                                        gc . field19 = val . Value . ToString ( );
-                                                        break;
-                                                    case 20:
-                                                        gc . field20 = val . Value . ToString ( );
-                                                        break;
-                                                }
-                                                reccount += 1;
-                                            }
+                                            NewWpfDev . Utils . ParseDictIntoGenericClass ( outdict , reccount , ref gc );
+                                            //foreach ( KeyValuePair<string , string> val in outdict )
+                                            //{  //
+                                            //    switch ( reccount )
+                                            //    {
+                                            //        case 1:
+                                            //            gc . field1 = val . Value . ToString ( );
+                                            //            break;
+                                            //        case 2:
+                                            //            gc . field2 = val . Value . ToString ( );
+                                            //            break;
+                                            //        case 3:
+                                            //            gc . field3 = val . Value . ToString ( );
+                                            //            break;
+                                            //        case 4:
+                                            //            gc . field4 = val . Value . ToString ( );
+                                            //            break;
+                                            //        case 5:
+                                            //            gc . field5 = val . Value . ToString ( );
+                                            //            break;
+                                            //        case 6:
+                                            //            gc . field6 = val . Value . ToString ( );
+                                            //            break;
+                                            //        case 7:
+                                            //            gc . field7 = val . Value . ToString ( );
+                                            //            break;
+                                            //        case 8:
+                                            //            gc . field8 = val . Value . ToString ( );
+                                            //            break;
+                                            //        case 9:
+                                            //            gc . field9 = val . Value . ToString ( );
+                                            //            break;
+                                            //        case 10:
+                                            //            gc . field10 = val . Value . ToString ( );
+                                            //            break;
+                                            //        case 11:
+                                            //            gc . field11 = val . Value . ToString ( );
+                                            //            break;
+                                            //        case 12:
+                                            //            gc . field12 = val . Value . ToString ( );
+                                            //            break;
+                                            //        case 13:
+                                            //            gc . field13 = val . Value . ToString ( );
+                                            //            break;
+                                            //        case 14:
+                                            //            gc . field14 = val . Value . ToString ( );
+                                            //            break;
+                                            //        case 15:
+                                            //            gc . field15 = val . Value . ToString ( );
+                                            //            break;
+                                            //        case 16:
+                                            //            gc . field16 = val . Value . ToString ( );
+                                            //            break;
+                                            //        case 17:
+                                            //            gc . field17 = val . Value . ToString ( );
+                                            //            break;
+                                            //        case 18:
+                                            //            gc . field18 = val . Value . ToString ( );
+                                            //            break;
+                                            //        case 19:
+                                            //            gc . field19 = val . Value . ToString ( );
+                                            //            break;
+                                            //        case 20:
+                                            //            gc . field20 = val . Value . ToString ( );
+                                            //            break;
+                                            //    }
+                                            //    reccount += 1;
+                                            //}
                                             //genericlist.Add(buffer);
                                             collection . Add ( gc );
                                         }
@@ -3978,9 +3981,9 @@ namespace UserControls
                             }
                         }
                     }
-                    IEnumerable<dynamic> res3 = null;                   
-                    
-                    
+                    IEnumerable<dynamic> res3 = null;
+
+
                     if ( method == 0 )
                     {
                         // Executing SQL via Stored procedure
@@ -4123,7 +4126,7 @@ namespace UserControls
             }
             return parameters;
         }
-       //****************************************************************//
+        //****************************************************************//
         public dynamic GetDataViaDapper ( string SqlCommand , string [ ] args , out List<Dictionary<string , string>> ColumnTypesList , out int count , int method = 0 )
         {
             string connectionString = MainWindow . SqlCurrentConstring;
@@ -4237,7 +4240,7 @@ namespace UserControls
             }
             catch ( Exception ex )
             {
-                NewWpfDev.Utils . DoErrorBeep ( );
+                NewWpfDev . Utils . DoErrorBeep ( );
                 err = "EXISTS : {ex.Message}, {ex.Data}";
             }
             finally

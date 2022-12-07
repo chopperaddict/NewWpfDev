@@ -28,6 +28,10 @@ using Views;
 
 namespace StoredProcs
 {
+    /// <summary>
+    /// set of methods  used to support the parsing of S.Procs
+    /// command lines in SpResultsViewer
+    /// </summary>
     public static class SProcsDataHandling
     {
         public static SpResultsViewer spviewer { get; set; }
@@ -197,6 +201,7 @@ namespace StoredProcs
             catch ( Exception ex )
             {
                 Debug . WriteLine ( $"{ex . Message}" );
+                NewWpfDev . Utils . DoErrorBeep ( );
             }
             return Output;
         }
@@ -420,6 +425,7 @@ namespace StoredProcs
             catch ( Exception ex )
             {
                 Debug . WriteLine ( $"{ex . Message}" );
+                NewWpfDev . Utils . DoErrorBeep ( );
             }
             return Output;
         }
@@ -448,11 +454,24 @@ namespace StoredProcs
             string output = "";
 
             // retrieve header block
-            if ( Arguments . Contains ( "CREATE PROCEDURE" ) || Arguments . Contains ( "CREATE  PROCEDURE" ) == true )
+            if ( Arguments . Contains ( "CREATE PROCEDURE" ) )
+                CreatePosition = Arguments . IndexOf ( "CREATE PROCEDURE" );
+            else if ( Arguments . Contains ( "CREATE  PROCEDURE" ) )
+                CreatePosition = Arguments . IndexOf ( "CREATE  PROCEDURE" );
+            else if ( Arguments . Contains ( "CREATE PROC" ) || Arguments . Contains ( "CREATE  PROC" ) )
+                CreatePosition = Arguments . IndexOf ( "CREATE PROC" );
+            else if ( Arguments . Contains ( "CREATE " ) )
+            {
+                int CreatePosition1 = Arguments . IndexOf ( "CREATE " );
+                int CreatePosition2 = Arguments . IndexOf ( "PROC" );
+
+            }
+
+
+            if ( CreatePosition != -1 )
             {
                 try
                 {
-                    CreatePosition = Arguments . IndexOf ( "CREATE PROCEDURE" );
                     if ( CreatePosition == -1 )
                     {
                         string [ ] tmp = Arguments . Split ( "CREATE " );
@@ -478,8 +497,8 @@ namespace StoredProcs
                     {
                         // Strip out any preamble before the Create Proc line
                         Arguments = Arguments . Substring ( CreatePosition );
-                        int offset3 = Arguments . IndexOf ( "\r\n" );
-                        Arguments = Arguments . Substring ( offset3 + 2 );
+                        //int offset3 = Arguments . IndexOf ( "\r\n" );
+                        //Arguments = Arguments . Substring ( offset3 );
                     }
                     // we should ave now removed the Create Proc line
                     // split the remaining script down to individual lines
@@ -527,19 +546,19 @@ namespace StoredProcs
                     if ( test . Length == 1 && test [ 0 ] == "" )
                     {
                         spviewer . Parameterstop . Text = $"[No Parameters/Arguments required]";
-                        output = "No arguments required, press 'Clear Prompt' button and then select Execute Option.";
+                        output = "No arguments are required, so select Execute Option and proceed.";
                         return output;
                     }
 
                     if ( test [ 0 ] . StartsWith ( "CREATE PROCEDURE" ) && test . Length == 1 )
                     {
                         spviewer . Parameterstop . Text = $"[No Parameters/Arguments required]";
-                        output = "No arguments are required, press 'Clear Prompt' button and then select Execute Option.";
+                        output = "No arguments are required, so select Execute Option and proceed.";
                         return output;
                     }
                     else if ( test [ 0 ] . StartsWith ( "CREATE PROCEDURE" ) && test . Length > 1 )
                     {
-                        test [ 0 ] = "";
+                        test [ 0 ] = "";                        
                     }
 
                     string currentrow = "";
@@ -600,13 +619,14 @@ namespace StoredProcs
                 catch ( Exception ex )
                 {
                     Console . WriteLine ( $"Parsing error {ex . Message}" );
+                    NewWpfDev . Utils . DoErrorBeep ( );
                     return "";
                 }
 
                 if ( output == "" )
                 {
                     spviewer . Parameterstop . Text = $"[No Parameters/Arguments required]";
-                    output = "No arguments are required, press 'Clear Prompt' button and then select Execute Option.";
+                    output = "No arguments are required, so select Execute Option and proceed.";
                 }
                 else
                 {
@@ -639,7 +659,7 @@ namespace StoredProcs
                     else if ( count [ 0 ] > 1 && count [ 1 ] == 0 && str . Length == 1 )
                         spviewer . Parameterstop . Text = @$"[Single Target plus one input or Multiple Inputs]";
                     else if ( count [ 0 ] > 1 && count [ 1 ] == 0 && str . Length > 1 )
-                        spviewer . Parameterstop . Text = @$"[Single Target and/or Multiple Inputs]";
+                        spviewer . Parameterstop . Text = @$"[Target and one or more Inputs or multiple inputs]";
                     else if ( count [ 0 ] == 1 && count [ 1 ] == 0 && str . Length > 1 )
                         spviewer . Parameterstop . Text = @$"[Single Target or Input parameter]";
                     else if ( count [ 0 ] == 0 && count [ 1 ] == 1 )
@@ -933,51 +953,79 @@ namespace StoredProcs
             // now parse what is left
             //***********************//
             string [ ] argument = testbuff . Split ( " " );
-            for ( int y = 0 ; y < argument . Length ; y++ )
+            try
             {
-                // Test for : "(xxx)"
-                if ( argument [ y ] . Contains ( '(' ) && argument [ y ] . Contains ( ')' ) )
+                for ( int y = 0 ; y < argument . Length ; y++ )
                 {
+                    // Test for : "(xxx)"
+                    if ( argument [ y ] . Contains ( '(' ) && argument [ y ] . Contains ( ')' ) )
+                    {
+                        string [ ] tmp2 = new string [ 5 ];
+                        tmp2 [ y ] = argument [ y ] . Trim ( );
+                        int offset = tmp2 [ y ] . IndexOf ( '(' );
+                        // strip out "(xxx)"
+                        string [ ] tmp = tmp2 [ y ] . Split ( "(" );
+                        tmp2 [ y ] = tmp [ 1 ];
+                        offset = tmp2 [ y ] . IndexOf ( ')' );
+                        tmp2 [ y ] = tmp2 [ y ] . Substring ( 0 , offset );
+                        if ( tmp2 [ y ] == "MAX" || tmp2 [ y ] == "SYSNAME" )
+                        {
+                            if ( SpResultsViewer . SHOWSIZEARG )
+                                tmp2 [ y ] = " STRING 32000";
+                            else
+                                tmp2 [ 2 ] = "STRING";
+                        }
+                        //else
+                        //    tmp2 [ y ] = $"STRING";
+                        //argument [ y ] = tmp2 [ y ];
+                        if ( argument [ 1 ] != "STRING" && SpResultsViewer . SHOWSIZEARG == false )
+                            argument [ y ] = "STRING";
+                        else if ( argument [ 1 ] == "STRING" && y > 1 )
+                            argument [ y ] = "";
+                        else
+                            tmp2 [ y ] = "";
+                    }
+                    //else argument [ y] = 
+                    if ( argument [ y ] . Contains ( "VARCHAR" ) )
+                    {
+                        argument [ y ] = "STRING";
+                    }
+                    // Test for : "MAX" for size
+                    if ( argument [ y ] == "MAX" || argument [ y ] == "SYSNAME" )
+                    {
+                        if ( SpResultsViewer . SHOWSIZEARG )
+                            argument [ y ] = " STRING 32000";
+                        else
+                            argument [ y ] = " STRING";
+                    }
+                    // Test for : Sysname as size
+                    if ( argument [ y ] . Contains ( "SYSNAME" ) )
+                    {
+                        string [ ] args = new string [ 5 ];
 
-                    //                   string [ ] args = new string [ 5 ];
-                    string [ ] tmp2 = new string [ 5 ];
-                    tmp2 [ y ] = argument [ y ] . Trim ( );
-                    int offset = tmp2 [ y ] . IndexOf ( '(' );
-                    // strip out "(xxx)"
-                    string [ ] tmp = tmp2 [ y ] . Split ( "(" );
-                    tmp2 [ y ] = tmp [ 1 ];
-                    offset = tmp2 [ y ] . IndexOf ( ')' );
-                    tmp2 [ y ] = tmp2 [ y ] . Substring ( 0 , offset );
-                    if ( tmp2 [ y ] == "MAX" || tmp2 [ y ] == "SYSNAME" )
-                        tmp2 [ y ] = " STRING 32000";
-                    else
-                        tmp2 [ y ] = $"STRING {tmp2 [ y ]}";
-                    argument [ y ] = tmp2 [ y ];
+                        args = argument [ y ] . Split ( ' ' );
+                        if ( args [ 1 ] . Contains ( "SYSNAME" ) )
+                        {
+                            if ( SpResultsViewer . SHOWSIZEARG )
+                                argument [ y ] = " STRING 32000";
+                            else
+                                argument [ y ] = " STRING ";
+                        }
+                    }
+                    if ( testbuff . Contains ( "=" ) )
+                    {
+                        // discard it
+                        int offset = testbuff . IndexOf ( "=" );
+                        testbuff = testbuff . Substring ( 0 , offset - 1 );
+                        //for ( int x = 0 ; x < 5 ; x++ )
+                        //    argument [ x ] = "";
+                    }
                 }
-                if ( argument [ y ] . Contains ( "VARCHAR" ) )
-                {
-                    argument [ y ] = "STRING";
-                }
-                // Test for : "MAX" for size
-                if ( argument [ y ] == "MAX" || argument [ y ] == "SYSNAME" )
-                    argument [ y ] = " STRING 32000";
-
-                // Test for : Sysname as size
-                if ( argument [ y ] . Contains ( "SYSNAME" ) )
-                {
-                    string [ ] args = new string [ 5 ];
-
-                    args = argument [ y ] . Split ( ' ' );
-                    if ( args [ 1 ] . Contains ( "SYSNAME" ) )
-                        argument [ y ] = " STRING 32000";
-                }
-                if ( testbuff . Contains ( "=" ) )
-                {
-                    // discard it
-                    argument = new string [ 5 ];
-                    for ( int x = 0 ; x < 5 ; x++ )
-                        argument [ x ] = "";
-                }
+            }
+            catch ( Exception ex )
+            {
+                Debug . WriteLine ( $"{ex . Message}" );
+                NewWpfDev . Utils . DoErrorBeep ( );
             }
             testbuff = "";
             for ( int z = 0 ; z < argument . Length ; z++ )
@@ -1015,6 +1063,7 @@ namespace StoredProcs
             catch ( Exception ex )
             {
                 Debug . WriteLine ( $"Regex failure : {ex . Message}" );
+                NewWpfDev . Utils . DoErrorBeep ( );
             }
             return Output;
         }

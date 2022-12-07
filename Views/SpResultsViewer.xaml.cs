@@ -23,8 +23,8 @@ using System . Windows . Media;
 using StoredProcs;
 using Expandos;
 using System . IO;
-using IronPython . Compiler . Ast;
-using IronPython . Runtime . Operations;
+//using IronPython . Compiler . Ast;
+//using IronPython . Runtime . Operations;
 
 using NewWpfDev;
 
@@ -34,9 +34,11 @@ using System . Threading;
 using System . Windows . Threading;
 using Microsoft . Data . SqlClient;
 using System . Net;
-using static IronPython . Modules . _ast;
-using Microsoft . VisualBasic;
-using IronPython . Runtime;
+//using static IronPython . Modules . _ast;
+//using Microsoft . VisualBasic;
+//using IronPython . Runtime;
+using Microsoft . Xaml . Behaviors . Media;
+using System . Reflection;
 
 namespace Views
 {
@@ -45,6 +47,7 @@ namespace Views
     /// </summary>
     public partial class SpResultsViewer : Window
     {
+        #region declarations
         public SpResultsViewer spviewer;
         public ObservableCollection<string> Executedata = new ObservableCollection<string> ( );
         Genericgrid Gengrid { get; set; }
@@ -65,7 +68,13 @@ namespace Views
         public bool IsLoading { get; set; } = true;
         public bool ShowOptionsPanel { get; set; } = true;
         public bool ShowCheckboxes { get; set; } = true;
+        public bool IsFlashing { get; set; } = false;
 
+        #endregion declarations
+
+        int Fontsize { set; get; } = 14;
+        int SpListFontsize { set; get; } = 14;
+        int SpViewerFontsize { set; get; } = 14;
         public struct ExecutionResults
         {
             public int resultInt { get; set; }
@@ -74,10 +83,9 @@ namespace Views
             public double resultDouble { get; set; }
             public ObservableCollection<GenericClass> resultCollection { get; set; }
         }
-        //        public static ExecutionResults ExecResults;
-        public bool IsFlashing { get; set; } = false;
 
         const int DEFAULTARGSSIZE = 6;
+        public static bool SHOWSIZEARG = false;
 
         #region full props
 
@@ -206,12 +214,9 @@ namespace Views
             selitem = selitem != -1 ? selitem : 0;
             ListResults . SelectedIndex = selitem;
             ListResults . SelectedItem = selitem;
+            this . Focus ( );
+            this . BringIntoView ( );
             return;
-        }
-        public string checklbitem ( )
-        {
-            string output = "";
-            return output;
         }
         private void ListResults_SelectionChanged ( object sender , SelectionChangedEventArgs e )
         {
@@ -232,7 +237,7 @@ namespace Views
                 // Update cosmetics
                 if ( IsLoading == false )
                 {
-                    bool result = Gengrid . LoadShowMatchingSproc ( this , TextResult , selname , ref sptext );
+                    bool result = Gengrid . LoadShowMatchingSproc ( this , TextResult , selname , ref sptext , SpViewerFontsize );
                     ShowParseDetails = true;
                     if ( ShowParseDetails )
                     {
@@ -391,6 +396,15 @@ namespace Views
                 MessageBox . Show ( "You MUST select an Execution Method before the selected S.P can be executed !" , "Execution processing error" );
                 return;
             }
+
+            if ( SPArguments . Text != SPArgumentsFull . Text )
+            {
+                if ( SPArguments . Text . Contains ( "STRING" ) == true && SPArgumentsFull . Text . Contains ( "STRING" ) == false )
+                    SPArguments = SPArgumentsFull;
+                else if ( SPArguments . Text . Contains ( "STRING" ) == false && SPArgumentsFull . Text . Contains ( "STRING" ) == true )
+                    SPArgumentsFull = SPArguments;
+            }
+
             int count = 0;
             string ResultString = "";
             Type objtype = null;
@@ -462,6 +476,7 @@ namespace Views
             {
                 Console . WriteLine ( $"Error occurred parsing return types from SLQ  Execution request\nError was {ex . Message}" );
                 Mouse . OverrideCursor = Cursors . Arrow;
+                NewWpfDev . Utils . DoErrorBeep ( );
                 return;
             }
             //GengridExecutionResults
@@ -492,452 +507,457 @@ namespace Views
                 return;
             }
 
+            ProcessSprocExecutionResult ( dynvar , count , ResultString , objtype , obj , err , newtype);
             // find out what we have  got
             try
-            {
-                if ( dynvar != null )
-                {
-                    if ( newtype == null )
-                    {
-                        Mouse . OverrideCursor = Cursors . Arrow;
-                        return;
-                    }
-                    //-------------------------------------------------------------------------------------------------//
-                    if ( newtype == typeof ( string ) )
-                    //-------------------------------------------------------------------------------------------------//
-                    {
-                        int listcount = 0;
-                        string outputstring = "";
-                        List<string> list = new List<string> ( );
+            { 
+            //    if ( dynvar != null )
+            //    {
+            //        if ( newtype == null )
+            //        {
+            //            Mouse . OverrideCursor = Cursors . Arrow;
+            //            return;
+            //        }
+            //        //-------------------------------------------------------------------------------------------------//
+            //        if ( newtype == typeof ( string ) )
+            //        //-------------------------------------------------------------------------------------------------//
+            //        {
+            //            int listcount = 0;
+            //            string outputstring = "";
+            //            List<string> list = new List<string> ( );
 
-                        foreach ( var str in dynvar )
-                        {
-                            list . Add ( str );
-                            outputstring += $"{str}, ";
-                            listcount++;
-                        }
-                        if ( list . Count == 0 )
-                            listcount = 0;
-                        outputstring = outputstring . Trim ( );
-                        //remove terminating comma from script
-                        if ( outputstring != "" ) outputstring = outputstring . Substring ( 0 , outputstring . Length - 1 );
-                        // return value from SP String return method
-                        // Go   ahead & Show our results  dialog popup
-                        if ( listcount == 0 )
-                        {
-                            GenResults . ExecutionInfo . Visibility = Visibility . Visible;
-                            GenResults . CollectionTextresults . Visibility = Visibility . Visible;
-                            GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Star );
-                            GenResults . CollectionTextresults . Document =
-                                Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
-                                 FindResource ( "Black3" ) as SolidColorBrush ,
-                            $"Execution of S.P [{ListResults . SelectedItem . ToString ( )}] using [{optype . SelectedItem . ToString ( )}] appears to have failed !\n\nThe data returned was {resultstring}.\n\nPerhaps using a different Execution Method will provide a better result ?" );
-                            GenResults . CollectionTextresults . Document . Blocks . FirstBlock . FontSize = 18;
-                            GenResults . Height = 280;
-                            GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Pixel );
-                            GenResults . CountResult . Text = $"ZERO";
-                            NewWpfDev . Utils . DoErrorBeep ( );
-                            GenResults . ShowDialog ( );
-                            GenResults . Refresh ( );
-                            Mouse . OverrideCursor = Cursors . Arrow;
-                        }
-                        else if ( list . Count > 1 )
-                        {
-                            GenResults . CollectionListboxresults . Items . Clear ( );
-                            GenResults . CollectionListboxresults . ItemsSource = null;
-                            GenResults . CollectionListboxresults . ItemsSource = list;
-                            GenResults . CollectionListboxresults . Visibility = Visibility . Visible;
-                            GenResults . CollectionTextresults . Visibility = Visibility . Visible;
-                            GenResults . OperationResults . Visibility = Visibility . Visible;
-                            GenResults . CollectionTextresults . Document = Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
-                                FindResource ( "Black3" ) as SolidColorBrush ,
-                               $"Execution of [{ListResults . SelectedItem . ToString ( )}] using [{optype . SelectedItem . ToString ( )}] completed successfully. \nbut contains a total of {list . Count} rows being returned. \n" +
-                               $"Due to more than one string being returned the results are displayed in the listbox below... " );
-                            GenResults . CollectionTextresults . Document . Blocks . FirstBlock . FontSize = 18;
-                            GenResults . ExecutionInfo . Text = $"Execution of [{optype . SelectedItem . ToString ( )}]\ncompleted successfully, the results are listed above...";
-                            GenResults . CountResult . Text = $"{list . Count}";
-                            GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Star );
+            //            foreach ( var str in dynvar )
+            //            {
+            //                list . Add ( str );
+            //                outputstring += $"{str}, ";
+            //                listcount++;
+            //            }
+            //            if ( list . Count == 0 )
+            //                listcount = 0;
+            //            outputstring = outputstring . Trim ( );
+            //            //remove terminating comma from script
+            //            if ( outputstring != "" ) outputstring = outputstring . Substring ( 0 , outputstring . Length - 1 );
+            //            // return value from SP String return method
+            //            // Go   ahead & Show our results  dialog popup
+            //            if ( listcount == 0 )
+            //            {
+            //                GenResults . ExecutionInfo . Visibility = Visibility . Visible;
+            //                GenResults . CollectionTextresults . Visibility = Visibility . Visible;
+            //                GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Star );
+            //                GenResults . CollectionTextresults . Document =
+            //                    Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
+            //                     FindResource ( "Black3" ) as SolidColorBrush ,
+            //                $"Execution of S.P [{ListResults . SelectedItem . ToString ( )}] using [{optype . SelectedItem . ToString ( )}] appears to have failed !\n\nThe data returned was {resultstring}.\n\nPerhaps using a different Execution Method will provide a better result ?" );
+            //                GenResults . CollectionTextresults . Document . Blocks . FirstBlock . FontSize = 18;
+            //                GenResults . Height = 280;
+            //                GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Pixel );
+            //                GenResults . CountResult . Text = $"ZERO";
+            //                NewWpfDev . Utils . DoErrorBeep ( );
+            //                GenResults . ShowDialog ( );
+            //                GenResults . Refresh ( );
+            //                Mouse . OverrideCursor = Cursors . Arrow;
+            //            }
+            //            else if ( list . Count > 1 )
+            //            {
+            //                GenResults . CollectionListboxresults . Items . Clear ( );
+            //                GenResults . CollectionListboxresults . ItemsSource = null;
+            //                GenResults . CollectionListboxresults . ItemsSource = list;
+            //                GenResults . CollectionListboxresults . Visibility = Visibility . Visible;
+            //                GenResults . CollectionTextresults . Visibility = Visibility . Visible;
+            //                GenResults . OperationResults . Visibility = Visibility . Visible;
+            //                GenResults . CollectionTextresults . Document = Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
+            //                    FindResource ( "Black3" ) as SolidColorBrush ,
+            //                   $"Execution of [{ListResults . SelectedItem . ToString ( )}] using [{optype . SelectedItem . ToString ( )}] completed successfully. \nbut contains a total of {list . Count} rows being returned. \n" +
+            //                   $"Due to more than one string being returned the results are displayed in the listbox below... " );
+            //                GenResults . CollectionTextresults . Document . Blocks . FirstBlock . FontSize = 18;
+            //                GenResults . ExecutionInfo . Text = $"Execution of [{optype . SelectedItem . ToString ( )}]\ncompleted successfully, the results are listed above...";
+            //                GenResults . CountResult . Text = $"{list . Count}";
+            //                GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Star );
 
-                            // Showing Scrollviewer Text AND DataGrid, so we stay full height
-                            GenResults . Refresh ( );
-                            NewWpfDev . Utils . DoSuccessBeep ( );
-                            Mouse . OverrideCursor = Cursors . Arrow;
-                            GenResults . Show ( );
-                            GenResults . Topmost = true;
-                            GenResults . CollectionListboxresults . SelectedIndex = 0;
-                            GenResults . CollectionListboxresults . Focus ( );
-                        }
-                        else if ( list . Count == 1 )
-                        {
-                            // show single string result in Scrollviewer Document
-                            string outline = list [ 0 ] . ToString ( );
+            //                // Showing Scrollviewer Text AND DataGrid, so we stay full height
+            //                GenResults . Refresh ( );
+            //                NewWpfDev . Utils . DoSuccessBeep ( );
+            //                Mouse . OverrideCursor = Cursors . Arrow;
+            //                GenResults . Show ( );
+            //                GenResults . Topmost = true;
+            //                GenResults . CollectionListboxresults . SelectedIndex = 0;
+            //                GenResults . CollectionListboxresults . Focus ( );
+            //            }
+            //            else if ( list . Count == 1 )
+            //            {
+            //                // show single string result in Scrollviewer Document
+            //                string outline = list [ 0 ] . ToString ( );
 
-                            GenResults . CollectionTextresults . Visibility = Visibility . Visible;
-                            GenResults . TextResultsDocument . Visibility = Visibility . Visible;
-                            GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Star );
-                            //                            GenResults . innerresultscontainer . RowDefinitions [ 0 ] . Height = new GridLength ( 3.9 , GridUnitType . Star );
-                            GenResults . CollectionTextresults . Document = Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
-                             FindResource ( "Black3" ) as SolidColorBrush ,
-                            $"Execution of S.P [{ListResults . SelectedItem . ToString ( )}] using [{optype . SelectedItem . ToString ( )}] completed successfully. The results of the request is shown in the viewer below." );
-                            GenResults . TextResultsDocument . Document =
-                                Gengrid . LoadFlowDoc ( GenResults . TextResultsDocument ,
-                                 FindResource ( "Black3" ) as SolidColorBrush ,
-                                $"{outline}" );
-                            GenResults . CollectionTextresults . Document . Blocks . FirstBlock . FontSize = 18;
-                            GenResults . ExecutionInfo . Text = $"Execution of [{optype . SelectedItem . ToString ( )}]\ncompleted successfully, the result is listed above...";
-                            GenResults . CountResult . Text = "1";
-                            GenResults . Refresh ( );
-                            NewWpfDev . Utils . DoSuccessBeep ( );
-                            Mouse . OverrideCursor = Cursors . Arrow;
-                            GenResults . Show ( );
-                            GenResults . Topmost = true;
-                            Mouse . OverrideCursor = Cursors . Arrow;
-                            return;
-                        }
-                    }
-                    //-------------------------------------------------------------------------------------------------//
-                    else if ( newtype == typeof ( Int32 ) )
-                    //-------------------------------------------------------------------------------------------------//
-                    {
-                        // Got an INT value in returned (ref value count ) variable
-                        string argstring = SPArguments . Text == "Argument(s) required ?" ? "" : SPArguments . Text;
-                        SPArgumentsFull . Text = SPArguments . Text;
-                        GenResults . CollectionTextresults . Visibility = Visibility . Visible;
-                        GenResults . CollectionTextresults . Document =
-                            Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
-                             FindResource ( "Black3" ) as SolidColorBrush ,
-                        $"The enquiry [ {ListResults . SelectedItem . ToString ( )} {argstring}] \nsuccessfully returned a numeric value - shown below in the left hand panel..." );
-                        GenResults . CountResult . Text = $"{count}";
-                        GenResults . CountResult . Background = FindResource ( "Green5" ) as SolidColorBrush;
-                        GenResults . CountResult . Foreground = FindResource ( "Red4" ) as SolidColorBrush;
-                        GenResults . ExecutionInfo . Text = $"Execution of  [{ListResults . SelectedItem . ToString ( )}] using [{optype . SelectedItem . ToString ( )}] completed successfully. \nThe count you requested is shown at the left of this information panel...";
-                        // Squeeze unused row so buttons show in our 220 height
-                        GenResults . CollectionTextresults . Document . Blocks . FirstBlock . FontSize = 18;
-                        GenResults . Height = 300;
-                        GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Star );
-                        GenResults . UpdateLayout ( );
-                        GenResults . Refresh ( );
-                        NewWpfDev . Utils . DoSuccessBeep ( );
-                        GenResults . Show ( );
-                        GenResults . Topmost = true;
-                        Mouse . OverrideCursor = Cursors . Arrow;
-                        GenResults . Focus ( );
-                        return;
-                    }
-                    //-------------------------------------------------------------------------------------------------//
-                    else if ( newtype . ToString ( ) . Contains ( "List" ) )
-                    //-------------------------------------------------------------------------------------------------//
-                    {
-                        // Got a List<string>
-                        // Go  ahead & Show our results  dialog popup
-                        string outputstring = "";
-                        string errormsg = "";
-                        int dictcount = 0;
-                        int recordcount = 0;
-                        List<string> newlist;//= new List<string> ( );
-                        ObservableCollection<GenericClass> gengrid = new ObservableCollection<GenericClass> ( );
-                        if ( dynvar . Count > 1 )
-                        {
-                            int colcount = 0;
-                            string result = "";
-                            System . Collections . Generic . List<System . Collections . Generic . List<string>> varlist = null;
-                            //List<string> varlist = null;
-                            //if ( IsCmd )
-                            //{
-                            Dictionary<string , object> dict = new Dictionary<string , object> ( );
-                            Dictionary<string , string> outdict = new Dictionary<string , string> ( );
+            //                GenResults . CollectionTextresults . Visibility = Visibility . Visible;
+            //                GenResults . TextResultsDocument . Visibility = Visibility . Visible;
+            //                GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Star );
+            //                //                            GenResults . innerresultscontainer . RowDefinitions [ 0 ] . Height = new GridLength ( 3.9 , GridUnitType . Star );
+            //                GenResults . CollectionTextresults . Document = Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
+            //                 FindResource ( "Black3" ) as SolidColorBrush ,
+            //                $"Execution of S.P [{ListResults . SelectedItem . ToString ( )}] using [{optype . SelectedItem . ToString ( )}] completed successfully. The results of the request is shown in the viewer below." );
+            //                GenResults . TextResultsDocument . Document =
+            //                    Gengrid . LoadFlowDoc ( GenResults . TextResultsDocument ,
+            //                     FindResource ( "Black3" ) as SolidColorBrush ,
+            //                    $"{outline}" );
+            //                GenResults . CollectionTextresults . Document . Blocks . FirstBlock . FontSize = 18;
+            //                GenResults . ExecutionInfo . Text = $"Execution of [{optype . SelectedItem . ToString ( )}]\ncompleted successfully, the result is listed above...";
+            //                GenResults . CountResult . Text = "1";
+            //                GenResults . Refresh ( );
+            //                NewWpfDev . Utils . DoSuccessBeep ( );
+            //                Mouse . OverrideCursor = Cursors . Arrow;
+            //                GenResults . Show ( );
+            //                GenResults . Topmost = true;
+            //                Mouse . OverrideCursor = Cursors . Arrow;
+            //                return;
+            //            }
+            //        }
+            //        //-------------------------------------------------------------------------------------------------//
+            //        else if ( newtype == typeof ( Int32 ) )
+            //        //-------------------------------------------------------------------------------------------------//
+            //        {
+            //            // Got an INT value in returned (ref value count ) variable
+            //            string argstring = SPArguments . Text == "Argument(s) required ?" ? "" : SPArguments . Text;
+            //            SPArgumentsFull . Text = SPArguments . Text;
+            //            GenResults . CollectionTextresults . Visibility = Visibility . Visible;
+            //            GenResults . CollectionTextresults . Document =
+            //                Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
+            //                 FindResource ( "Black3" ) as SolidColorBrush ,
+            //            $"The enquiry [ {ListResults . SelectedItem . ToString ( )} {argstring}] \nsuccessfully returned a numeric value - shown below in the left hand panel..." );
+            //            GenResults . CountResult . Text = $"{count}";
+            //            GenResults . CountResult . Background = FindResource ( "Green5" ) as SolidColorBrush;
+            //            GenResults . CountResult . Foreground = FindResource ( "Red4" ) as SolidColorBrush;
+            //            GenResults . ExecutionInfo . Text = $"Execution of  [{ListResults . SelectedItem . ToString ( )}] using [{optype . SelectedItem . ToString ( )}] completed successfully. \nThe count you requested is shown at the left of this information panel...";
+            //            // Squeeze unused row so buttons show in our 220 height
+            //            GenResults . CollectionTextresults . Document . Blocks . FirstBlock . FontSize = 18;
+            //            GenResults . Height = 300;
+            //            GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Star );
+            //            GenResults . UpdateLayout ( );
+            //            GenResults . Refresh ( );
+            //            NewWpfDev . Utils . DoSuccessBeep ( );
+            //            GenResults . Show ( );
+            //            GenResults . Topmost = true;
+            //            Mouse . OverrideCursor = Cursors . Arrow;
+            //            GenResults . Focus ( );
+            //            return;
+            //        }
+            //        //-------------------------------------------------------------------------------------------------//
+            //        else if ( newtype . ToString ( ) . Contains ( "List" ) )
+            //        //-------------------------------------------------------------------------------------------------//
+            //        {
+            //            // Got a List<string>
+            //            // Go  ahead & Show our results  dialog popup
+            //            string outputstring = "";
+            //            string errormsg = "";
+            //            int dictcount = 0;
+            //            int recordcount = 0;
+            //            List<string> newlist;//= new List<string> ( );
+            //            ObservableCollection<GenericClass> gengrid = new ObservableCollection<GenericClass> ( );
+            //            if ( dynvar . Count > 1 )
+            //            {
+            //                int colcount = 0;
+            //                string result = "";
+            //                System . Collections . Generic . List<System . Collections . Generic . List<string>> varlist = null;
+            //                //List<string> varlist = null;
+            //                //if ( IsCmd )
+            //                //{
+            //                Dictionary<string , object> dict = new Dictionary<string , object> ( );
+            //                Dictionary<string , string> outdict = new Dictionary<string , string> ( );
 
-                            foreach ( var item in dynvar )
-                            {
-                                try
-                                {
-                                    // we need to create a dictionary for each row of data then add it to a GenericClass row then add row to Generics Db
-                                    string buffer = "";
-                                    List<int> VarcharList = new List<int> ( );
-                                    DatagridControl . ParseDapperRow ( item , dict , out colcount );
-                                    GenericClass gc = new GenericClass ( );
-                                    dictcount = 1;
-                                    int index = 1;
-                                    int fldcount = dict . Count;
-                                    string tmp = "";
+            //                foreach ( var item in dynvar )
+            //                {
+            //                    try
+            //                    {
+            //                        // we need to create a dictionary for each row of data then add it to a GenericClass row then add row to Generics Db
+            //                        string buffer = "";
+            //                        List<int> VarcharList = new List<int> ( );
+            //                        DatagridControl . ParseDapperRow ( item , dict , out colcount );
+            //                        GenericClass gc = new GenericClass ( );
+            //                        dictcount = 1;
+            //                        int index = 1;
+            //                        int fldcount = dict . Count;
+            //                        string tmp = "";
 
-                                    // Parse reslt.item into  single Dictionary record
-                                    foreach ( var pair in dict )
-                                    {
-                                        try
-                                        {
-                                            if ( pair . Key != null && pair . Value != null )
-                                            {
-                                                DatagridControl . AddDictPairToGeneric ( gc , pair , dictcount++ );
-                                                tmp = $"field{index++} = {pair . Value . ToString ( )}";
-                                                buffer += tmp + ",";
-                                                outdict . Add ( pair . Key , pair . Value . ToString ( ) );
-                                            }
-                                        }
-                                        catch ( Exception ex )
-                                        {
-                                            $"Dictionary ERROR : {ex . Message}" . cwerror ( );
-                                            result = ex . Message;
-                                        }
-                                    }
+            //                        // Parse reslt.item into  single Dictionary record
+            //                        foreach ( var pair in dict )
+            //                        {
+            //                            try
+            //                            {
+            //                                if ( pair . Key != null && pair . Value != null )
+            //                                {
+            //                                    DatagridControl . AddDictPairToGeneric ( gc , pair , dictcount++ );
+            //                                    tmp = $"field{index++} = {pair . Value . ToString ( )}";
+            //                                    buffer += tmp + ",";
+            //                                    outdict . Add ( pair . Key , pair . Value . ToString ( ) );
+            //                                }
+            //                            }
+            //                            catch ( Exception ex )
+            //                            {
+            //                                $"Dictionary ERROR : {ex . Message}" . cwerror ( );
+            //                                NewWpfDev . Utils . DoErrorBeep ( );
+            //                                result = ex . Message;
+            //                            }
+            //                        }
 
-                                    //remove trailing comma
-                                    string s = buffer . Substring ( 0 , buffer . Length - 1 );
-                                    buffer = s;
-                                    // We now  have ONE sinlge record, but need to add this  to a GenericClass structure 
-                                    int reccount = 1;
-                                    foreach ( KeyValuePair<string , string> val in outdict )
-                                    {  //
-                                        switch ( reccount )
-                                        {
-                                            case 1:
-                                                gc . field1 = val . Value . ToString ( );
-                                                break;
-                                            case 2:
-                                                gc . field2 = val . Value . ToString ( );
-                                                break;
-                                            case 3:
-                                                gc . field3 = val . Value . ToString ( );
-                                                break;
-                                            case 4:
-                                                gc . field4 = val . Value . ToString ( );
-                                                break;
-                                            case 5:
-                                                gc . field5 = val . Value . ToString ( );
-                                                break;
-                                            case 6:
-                                                gc . field6 = val . Value . ToString ( );
-                                                break;
-                                            case 7:
-                                                gc . field7 = val . Value . ToString ( );
-                                                break;
-                                            case 8:
-                                                gc . field8 = val . Value . ToString ( );
-                                                break;
-                                            case 9:
-                                                gc . field9 = val . Value . ToString ( );
-                                                break;
-                                            case 10:
-                                                gc . field10 = val . Value . ToString ( );
-                                                break;
-                                            case 11:
-                                                gc . field11 = val . Value . ToString ( );
-                                                break;
-                                            case 12:
-                                                gc . field12 = val . Value . ToString ( );
-                                                break;
-                                            case 13:
-                                                gc . field13 = val . Value . ToString ( );
-                                                break;
-                                            case 14:
-                                                gc . field14 = val . Value . ToString ( );
-                                                break;
-                                            case 15:
-                                                gc . field15 = val . Value . ToString ( );
-                                                break;
-                                            case 16:
-                                                gc . field16 = val . Value . ToString ( );
-                                                break;
-                                            case 17:
-                                                gc . field17 = val . Value . ToString ( );
-                                                break;
-                                            case 18:
-                                                gc . field18 = val . Value . ToString ( );
-                                                break;
-                                            case 19:
-                                                gc . field19 = val . Value . ToString ( );
-                                                break;
-                                            case 20:
-                                                gc . field20 = val . Value . ToString ( );
-                                                break;
-                                        }
-                                        reccount += 1;
-                                    }
-                                    gengrid . Add ( gc );
-                                }
-                                catch ( Exception ex )
-                                {
-                                    result = $"SQLERROR : {ex . Message}";
-                                    errormsg = result;
-                                    result . cwerror ( );
-                                }
-                                dict . Clear ( );
-                                outdict . Clear ( );
-                                dictcount = 1;
-                            }
+            //                        //remove trailing comma
+            //                        string s = buffer . Substring ( 0 , buffer . Length - 1 );
+            //                        buffer = s;
+            //                        // We now  have ONE sinlge record, but need to add this  to a GenericClass structure 
+            //                        int reccount = 1;
+            //                        foreach ( KeyValuePair<string , string> val in outdict )
+            //                        {  //
+            //                            switch ( reccount )
+            //                            {
+            //                                case 1:
+            //                                    gc . field1 = val . Value . ToString ( );
+            //                                    break;
+            //                                case 2:
+            //                                    gc . field2 = val . Value . ToString ( );
+            //                                    break;
+            //                                case 3:
+            //                                    gc . field3 = val . Value . ToString ( );
+            //                                    break;
+            //                                case 4:
+            //                                    gc . field4 = val . Value . ToString ( );
+            //                                    break;
+            //                                case 5:
+            //                                    gc . field5 = val . Value . ToString ( );
+            //                                    break;
+            //                                case 6:
+            //                                    gc . field6 = val . Value . ToString ( );
+            //                                    break;
+            //                                case 7:
+            //                                    gc . field7 = val . Value . ToString ( );
+            //                                    break;
+            //                                case 8:
+            //                                    gc . field8 = val . Value . ToString ( );
+            //                                    break;
+            //                                case 9:
+            //                                    gc . field9 = val . Value . ToString ( );
+            //                                    break;
+            //                                case 10:
+            //                                    gc . field10 = val . Value . ToString ( );
+            //                                    break;
+            //                                case 11:
+            //                                    gc . field11 = val . Value . ToString ( );
+            //                                    break;
+            //                                case 12:
+            //                                    gc . field12 = val . Value . ToString ( );
+            //                                    break;
+            //                                case 13:
+            //                                    gc . field13 = val . Value . ToString ( );
+            //                                    break;
+            //                                case 14:
+            //                                    gc . field14 = val . Value . ToString ( );
+            //                                    break;
+            //                                case 15:
+            //                                    gc . field15 = val . Value . ToString ( );
+            //                                    break;
+            //                                case 16:
+            //                                    gc . field16 = val . Value . ToString ( );
+            //                                    break;
+            //                                case 17:
+            //                                    gc . field17 = val . Value . ToString ( );
+            //                                    break;
+            //                                case 18:
+            //                                    gc . field18 = val . Value . ToString ( );
+            //                                    break;
+            //                                case 19:
+            //                                    gc . field19 = val . Value . ToString ( );
+            //                                    break;
+            //                                case 20:
+            //                                    gc . field20 = val . Value . ToString ( );
+            //                                    break;
+            //                            }
+            //                            reccount += 1;
+            //                        }
+            //                        gengrid . Add ( gc );
+            //                    }
+            //                    catch ( Exception ex )
+            //                    {
+            //                        result = $"SQLERROR : {ex . Message}";
+            //                        errormsg = result;
+            //                        NewWpfDev . Utils . DoErrorBeep ( );
+            //                        result . cwerror ( );
+            //                    }
+            //                    dict . Clear ( );
+            //                    outdict . Clear ( );
+            //                    dictcount = 1;
+            //                }
 
-                            // Massage  data from dynamic collection into list<string>
-                            List<string> list = SProcsDataHandling . CreateListFromGenericClass ( gengrid );
+            //                // Massage  data from dynamic collection into list<string>
+            //                List<string> list = SProcsDataHandling . CreateListFromGenericClass ( gengrid );
 
-                            GenResults . CollectionListboxresults . ItemsSource = null;
-                            GenResults . CollectionListboxresults . Items . Clear ( );
-                            GenResults . CollectionListboxresults . ItemsSource = list;
-                            recordcount = gengrid . Count;
-                            GenResults . CollectionListboxresults . Visibility = Visibility . Visible;
-                            GenResults . CollectionTextresults . Visibility = Visibility . Visible;
-                            GenResults . OperationResults . Visibility = Visibility . Visible;
-                            GenResults . CollectionTextresults . Document = Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
-                                FindResource ( "Black3" ) as SolidColorBrush ,
-                               $"Execution of [{ListResults . SelectedItem . ToString ( )}] using [{optype . SelectedItem . ToString ( )}] completed successfully. \n" +
-                               $"with a total of {recordcount} items returned. \nThe results are shown below... " );
-                            GenResults . CollectionTextresults . Document . Blocks . FirstBlock . FontSize = 18;
-                            GenResults . ExecutionInfo . Text = $"Execution of [{optype . SelectedItem . ToString ( )}]\ncompleted successfully, the results are listed above...";
-                            GenResults . CountResult . Text = $"{recordcount}";
-                            GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Star );
+            //                GenResults . CollectionListboxresults . ItemsSource = null;
+            //                GenResults . CollectionListboxresults . Items . Clear ( );
+            //                GenResults . CollectionListboxresults . ItemsSource = list;
+            //                recordcount = gengrid . Count;
+            //                GenResults . CollectionListboxresults . Visibility = Visibility . Visible;
+            //                GenResults . CollectionTextresults . Visibility = Visibility . Visible;
+            //                GenResults . OperationResults . Visibility = Visibility . Visible;
+            //                GenResults . CollectionTextresults . Document = Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
+            //                    FindResource ( "Black3" ) as SolidColorBrush ,
+            //                   $"Execution of [{ListResults . SelectedItem . ToString ( )}] using [{optype . SelectedItem . ToString ( )}] completed successfully. \n" +
+            //                   $"with a total of {recordcount} items returned. \nThe results are shown below... " );
+            //                GenResults . CollectionTextresults . Document . Blocks . FirstBlock . FontSize = 18;
+            //                GenResults . ExecutionInfo . Text = $"Execution of [{optype . SelectedItem . ToString ( )}]\ncompleted successfully, the results are listed above...";
+            //                GenResults . CountResult . Text = $"{recordcount}";
+            //                GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Star );
 
-                            // Showing Scrollviewer Text AND DataGrid, so we stay full height
-                            GenResults . Refresh ( );
-                            NewWpfDev . Utils . DoSuccessBeep ( );
-                            Mouse . OverrideCursor = Cursors . Arrow;
-                            GenResults . Show ( );
-                            GenResults . Topmost = true;
-                            GenResults . CollectionListboxresults . SelectedIndex = 0;
-                            GenResults . CollectionListboxresults . Focus ( );
-                        }
-                        else if ( dynvar . Count == 1 )
-                        {
-                            outputstring = dynvar [ 0 ] . ToString ( );
-                            int stringlen = outputstring . Length;
-                            string argstring = SPArguments . Text == "Argument(s) required ?" ? "" : SPArguments . Text;
-                            SPArgumentsFull . Text = SPArguments . Text;
+            //                // Showing Scrollviewer Text AND DataGrid, so we stay full height
+            //                GenResults . Refresh ( );
+            //                NewWpfDev . Utils . DoSuccessBeep ( );
+            //                Mouse . OverrideCursor = Cursors . Arrow;
+            //                GenResults . Show ( );
+            //                GenResults . Topmost = true;
+            //                GenResults . CollectionListboxresults . SelectedIndex = 0;
+            //                GenResults . CollectionListboxresults . Focus ( );
+            //            }
+            //            else if ( dynvar . Count == 1 )
+            //            {
+            //                outputstring = dynvar [ 0 ] . ToString ( );
+            //                int stringlen = outputstring . Length;
+            //                string argstring = SPArguments . Text == "Argument(s) required ?" ? "" : SPArguments . Text;
+            //                SPArgumentsFull . Text = SPArguments . Text;
 
-                            GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Star );
-                            GenResults . TextResultsDocument . Visibility = Visibility . Visible;
-                            GenResults . CollectionTextresults . Visibility = Visibility . Visible;
+            //                GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Star );
+            //                GenResults . TextResultsDocument . Visibility = Visibility . Visible;
+            //                GenResults . CollectionTextresults . Visibility = Visibility . Visible;
 
-                            GenResults . CollectionTextresults . Document = Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
-                                 FindResource ( "Black3" ) as SolidColorBrush ,
-                                $"The enquiry [{ListResults . SelectedItem . ToString ( )} {argstring}] completed successfully, but it only returned a single row, so that row is being displayed in a text viewer for you to view more easily" );
-                            GenResults . ExecutionInfo . Text = $"Execution of [{ListResults . SelectedItem . ToString ( )}] using [{optype . SelectedItem . ToString ( )}] completed successfully, details shown above...";
-                            GenResults . CollectionTextresults . Document . Blocks . FirstBlock . FontSize = 18;
+            //                GenResults . CollectionTextresults . Document = Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
+            //                     FindResource ( "Black3" ) as SolidColorBrush ,
+            //                    $"The enquiry [{ListResults . SelectedItem . ToString ( )} {argstring}] completed successfully, but it only returned a single row, so that row is being displayed in a text viewer for you to view more easily" );
+            //                GenResults . ExecutionInfo . Text = $"Execution of [{ListResults . SelectedItem . ToString ( )}] using [{optype . SelectedItem . ToString ( )}] completed successfully, details shown above...";
+            //                GenResults . CollectionTextresults . Document . Blocks . FirstBlock . FontSize = 18;
 
-                            GenResults . TextResultsDocument . Document = Gengrid . LoadFlowDoc ( GenResults . TextResultsDocument ,
-                                 FindResource ( "Black3" ) as SolidColorBrush ,
-                                $"{outputstring}" );
-                            GenResults . CountResult . Text = $"1";
-                            NewWpfDev . Utils . DoSuccessBeep ( );
-                            GenResults . Show ( );
-                            GenResults . Topmost = true;
-                            GenResults . Refresh ( );
-                            Mouse . OverrideCursor = Cursors . Arrow;
-                        }
-                        else
-                        {
-                            GenResults . innerresultscontainer . RowDefinitions [ 0 ] . Height = new GridLength ( 3.9 , GridUnitType . Star );
-                            string data = "";
-                            foreach ( var item in dynvar )
-                            {
-                                data += $"{item . ToString ( )}\n";
-                            }
-                            string argstring = SPArguments . Text == "Argument(s) required ?" ? "" : SPArguments . Text;
-                            SPArgumentsFull . Text = SPArguments . Text;
-                            GenResults . CollectionTextresults . Document = Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
-                                FindResource ( "Black3" ) as SolidColorBrush ,
-                               $"The enquiry [{ListResults . SelectedItem . ToString ( )} {argstring}] responded with the following values\n\n[{data}]" );
-                            GenResults . ExecutionInfo . Text = $"Execution of [{ListResults . SelectedItem . ToString ( )} using {optype . SelectedItem . ToString ( )}] completed with the list containing the data shown above!";
-                            GenResults . CollectionTextresults . Document . Blocks . FirstBlock . FontSize = 18;
-                            GenResults . CountResult . Text = $"{count}";
-                            // Showing Scrollviewer Text Only, so reduce height
-                            // Squeeze unused row so buttons show in our 220 height
-                            GenResults . Height = 280;
-                            GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Pixel );
-                            NewWpfDev . Utils . PlayErrorBeep ( );
-                            GenResults . Show ( );
-                            GenResults . Topmost = true;
-                            GenResults . Refresh ( );
-                        }
-                    }
-                    //-------------------------------------------------------------------------------------------------//
-                    else if ( newtype . ToString ( ) . ToUpper ( ) . Contains ( "IENUMERABLE" ) == true )
-                    //-------------------------------------------------------------------------------------------------//
-                    {
-                        // WORKING WELL 19/11/2022
-                        // got an observable collection in Dynamic collection, so display it
-                        int colcount = 0;
-                        string outline = "";
-                        ObservableCollection<GenericClass> genclass = new ObservableCollection<GenericClass> ( );
-                        ObservableCollection<GenericClass> output = new ObservableCollection<GenericClass> ( );
-                        genclass = GenDapperQueries . ParseDynamicToCollection (
-                                     dynvar ,
-                                     out string errormsg ,
-                                     out int reccount ,
-                                     out List<string> genericlist );
-                        if ( genclass . Count == 1 )
-                        {
-                            GenericClass gc = new GenericClass ( );
-                            gc = genclass [ 0 ];
-                            outline = gc . field1 . ToString ( );
-                            colcount = DatagridControl . GetColumnsCount ( genclass , null );
-                        }
-                        if ( colcount == 1 )
-                        {
-                            // show single string result in Scrollviewer Document
+            //                GenResults . TextResultsDocument . Document = Gengrid . LoadFlowDoc ( GenResults . TextResultsDocument ,
+            //                     FindResource ( "Black3" ) as SolidColorBrush ,
+            //                    $"{outputstring}" );
+            //                GenResults . CountResult . Text = $"1";
+            //                NewWpfDev . Utils . DoSuccessBeep ( );
+            //                GenResults . Show ( );
+            //                GenResults . Topmost = true;
+            //                GenResults . Refresh ( );
+            //                Mouse . OverrideCursor = Cursors . Arrow;
+            //            }
+            //            else
+            //            {
+            //                GenResults . innerresultscontainer . RowDefinitions [ 0 ] . Height = new GridLength ( 3.9 , GridUnitType . Star );
+            //                string data = "";
+            //                foreach ( var item in dynvar )
+            //                {
+            //                    data += $"{item . ToString ( )}\n";
+            //                }
+            //                string argstring = SPArguments . Text == "Argument(s) required ?" ? "" : SPArguments . Text;
+            //                SPArgumentsFull . Text = SPArguments . Text;
+            //                GenResults . CollectionTextresults . Document = Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
+            //                    FindResource ( "Black3" ) as SolidColorBrush ,
+            //                   $"The enquiry [{ListResults . SelectedItem . ToString ( )} {argstring}] responded with the following values\n\n[{data}]" );
+            //                GenResults . ExecutionInfo . Text = $"Execution of [{ListResults . SelectedItem . ToString ( )} using {optype . SelectedItem . ToString ( )}] completed with the list containing the data shown above!";
+            //                GenResults . CollectionTextresults . Document . Blocks . FirstBlock . FontSize = 18;
+            //                GenResults . CountResult . Text = $"{count}";
+            //                // Showing Scrollviewer Text Only, so reduce height
+            //                // Squeeze unused row so buttons show in our 220 height
+            //                GenResults . Height = 280;
+            //                GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Pixel );
+            //                NewWpfDev . Utils . PlayErrorBeep ( );
+            //                GenResults . Show ( );
+            //                GenResults . Topmost = true;
+            //                GenResults . Refresh ( );
+            //            }
+            //        }
+            //        //-------------------------------------------------------------------------------------------------//
+            //        else if ( newtype . ToString ( ) . ToUpper ( ) . Contains ( "IENUMERABLE" ) == true )
+            //        //-------------------------------------------------------------------------------------------------//
+            //        {
+            //            // WORKING WELL 19/11/2022
+            //            // got an observable collection in Dynamic collection, so display it
+            //            int colcount = 0;
+            //            string outline = "";
+            //            string argstring = SPArgumentsFull . Text;
+            //            ObservableCollection<GenericClass> genclass = new ObservableCollection<GenericClass> ( );
+            //            ObservableCollection<GenericClass> output = new ObservableCollection<GenericClass> ( );
+            //            genclass = GenDapperQueries . ParseDynamicToCollection (
+            //                         dynvar ,
+            //                         out string errormsg ,
+            //                         out int reccount ,
+            //                         out List<string> genericlist );
+            //            if ( genclass . Count == 1 )
+            //            {
+            //                GenericClass gc = new GenericClass ( );
+            //                gc = genclass [ 0 ];
+            //                outline = gc . field1 . ToString ( );
+            //                colcount = DatagridControl . GetColumnsCount ( genclass , null );
+            //            }
+            //            if ( colcount == 1 )
+            //            {
+            //                // show single string result in Scrollviewer Document
 
-                            GenResults . CollectionTextresults . Visibility = Visibility . Visible;
-                            GenResults . TextResultsDocument . Visibility = Visibility . Visible;
-                            GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Star );
-                            GenResults . CollectionTextresults . Document = Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
-                             FindResource ( "Black3" ) as SolidColorBrush ,
-                            $"Execution of S.P [{ListResults . SelectedItem . ToString ( )}] using [{optype . SelectedItem . ToString ( )}] completed successfully, BUT only returned " +
-                            $"a single row with just one Column, so this column's content is shown in the text viewer below." );
-                            GenResults . TextResultsDocument . Document =
-                                Gengrid . LoadFlowDoc ( GenResults . TextResultsDocument ,
-                                 FindResource ( "Black3" ) as SolidColorBrush ,
-                                $"{outline}" );
-                            GenResults . CollectionTextresults . Document . Blocks . FirstBlock . FontSize = 18;
-                            GenResults . ExecutionInfo . Text = $"Execution of [{optype . SelectedItem . ToString ( )}]\ncompleted successfully, the result is listed above...";
-                            GenResults . CountResult . Text = "1";
-                            GenResults . Refresh ( );
-                        }
-                        else
-                        {
-                            GenResults . CollectionTextresults . Visibility = Visibility . Visible;
-                            GenResults . CollectionGridresults . Visibility = Visibility . Visible;
-                            GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Star );
-                            string argstring = SPArguments . Text == "Argument(s) required ?" ? "" : SPArguments . Text;
-                            SPArgumentsFull . Text = SPArguments . Text;
-                            string [ ] parts = SPArguments . Text . Split ( ',' );
-                            count = genclass . Count;
-                            GenResults . CountResult . Text = $"{count}";
-                            GenResults . CollectionGridresults . ItemsSource = genclass;
-                            GenResults . CollectionTextresults . Document = Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
-                            FindResource ( "Black3" ) as SolidColorBrush ,
-                                $"Execution of [{ListResults . SelectedItem . ToString ( )} using [{optype . SelectedItem . ToString ( )}] was processed successfully \nand returned a value of [{count}] records..." );
-                            GenResults . ExecutionInfo . Text = $"Execution of [{optype . SelectedItem . ToString ( )}]\ncompleted successfully, details shown above...";
-                            GenResults . CollectionTextresults . Document . Blocks . FirstBlock . FontSize = 18;
-                        }
-                        NewWpfDev . Utils . DoSuccessBeep ( );
-                        GenResults . Show ( );
-                        GenResults . Topmost = true;
-                        GenResults . Refresh ( );
-                        Mouse . OverrideCursor = Cursors . Arrow;
-                    }
-                    else
-                    {
-                        // Unknown result
-                        string argstring = SPArguments . Text == "Argument(s) required ?" ? "" : SPArguments . Text;
-                        SPArgumentsFull . Text = SPArguments . Text;
-                        GenResults . CollectionTextresults . Visibility = Visibility . Visible;
-                        GenResults . CollectionTextresults . Document = Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
-                             FindResource ( "Black3" ) as SolidColorBrush ,
-                           $"Execution of [{ListResults . SelectedItem . ToString ( )} using {optype . SelectedItem . ToString ( )}] completed successfully \nbut failed to return any type of value ...\n\nTry a different Method of Execution !" );
-                        GenResults . ExecutionInfo . Text = $"Execution of [{optype . SelectedItem . ToString ( )}] completed successfully, but see notes above...";
-                        GenResults . CollectionTextresults . Document . Blocks . FirstBlock . FontSize = 18;
-                        // Showing Scrollviewer Text Only, so reduce height
-                        // Squeeze unused row so buttons show in our 220 height
-                        GenResults . CountResult . Text = $"ZERO";
-                        GenResults . Height = 280;
-                        GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Pixel );
-                        NewWpfDev . Utils . PlayErrorBeep ( );
-                        GenResults . Show ( );
-                        GenResults . Topmost = true;
-                        GenResults . Refresh ( );
-                        Mouse . OverrideCursor = Cursors . Arrow;
-                        return;
-                    }
-                    Mouse . OverrideCursor = Cursors . Arrow;
-                    return;
-                }
+            //                GenResults . CollectionTextresults . Visibility = Visibility . Visible;
+            //                GenResults . TextResultsDocument . Visibility = Visibility . Visible;
+            //                GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Star );
+            //                GenResults . CollectionTextresults . Document = Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
+            //                 FindResource ( "Black3" ) as SolidColorBrush ,
+            //                $"Execution of S.P [{ListResults . SelectedItem . ToString ( )}] using [{optype . SelectedItem . ToString ( )}] completed successfully, BUT only returned " +
+            //                $"a single row with just one Column, so this column's content is shown in the text viewer below." );
+            //                GenResults . TextResultsDocument . Document =
+            //                    Gengrid . LoadFlowDoc ( GenResults . TextResultsDocument ,
+            //                     FindResource ( "Black3" ) as SolidColorBrush ,
+            //                    $"{outline}" );
+            //                GenResults . CollectionTextresults . Document . Blocks . FirstBlock . FontSize = 18;
+            //                GenResults . ExecutionInfo . Text = $"Execution of [{optype . SelectedItem . ToString ( )}]\ncompleted successfully, the result is listed above...";
+            //                GenResults . CountResult . Text = "1";
+            //                GenResults . Refresh ( );
+            //            }
+            //            else
+            //            {
+            //                GenResults . CollectionTextresults . Visibility = Visibility . Visible;
+            //                GenResults . CollectionGridresults . Visibility = Visibility . Visible;
+            //                GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Star );
+            //                argstring = SPArguments . Text == "Argument(s) required ?" ? "" : SPArguments . Text;
+            //                SPArgumentsFull . Text = SPArguments . Text;
+            //                string [ ] parts = SPArguments . Text . Split ( ',' );
+            //                count = genclass . Count;
+            //                GenResults . CountResult . Text = $"{count}";
+            //                GenResults . CollectionGridresults . ItemsSource = genclass;
+            //                GenResults . CollectionTextresults . Document = Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
+            //                FindResource ( "Black3" ) as SolidColorBrush ,
+            //                    $"Execution of [{ListResults . SelectedItem . ToString ( )} using [{optype . SelectedItem . ToString ( )}] was processed successfully \nand returned a value of [{count}] records..." );
+            //                GenResults . ExecutionInfo . Text = $"Execution of [{optype . SelectedItem . ToString ( )}]\ncompleted successfully, details shown above...";
+            //                GenResults . CollectionTextresults . Document . Blocks . FirstBlock . FontSize = 18;
+            //            }
+            //            NewWpfDev . Utils . DoSuccessBeep ( );
+            //            GenResults . Show ( );
+            //            GenResults . Topmost = true;
+            //            // GenResults . Refresh ( );
+            //            SPArguments . Text = argstring;
+            //            Mouse . OverrideCursor = Cursors . Arrow;
+            //        }
+            //        else
+            //        {
+            //            // Unknown result
+            //            string argstring = SPArguments . Text == "Argument(s) required ?" ? "" : SPArguments . Text;
+            //            SPArgumentsFull . Text = SPArguments . Text;
+            //            GenResults . CollectionTextresults . Visibility = Visibility . Visible;
+            //            GenResults . CollectionTextresults . Document = Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
+            //                 FindResource ( "Black3" ) as SolidColorBrush ,
+            //               $"Execution of [{ListResults . SelectedItem . ToString ( )} using {optype . SelectedItem . ToString ( )}] completed successfully \nbut failed to return any type of value ...\n\nTry a different Method of Execution !" );
+            //            GenResults . ExecutionInfo . Text = $"Execution of [{optype . SelectedItem . ToString ( )}] completed successfully, but see notes above...";
+            //            GenResults . CollectionTextresults . Document . Blocks . FirstBlock . FontSize = 18;
+            //            // Showing Scrollviewer Text Only, so reduce height
+            //            // Squeeze unused row so buttons show in our 220 height
+            //            GenResults . CountResult . Text = $"ZERO";
+            //            GenResults . Height = 280;
+            //            GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Pixel );
+            //            NewWpfDev . Utils . PlayErrorBeep ( );
+            //            GenResults . Show ( );
+            //            GenResults . Topmost = true;
+            //            GenResults . Refresh ( );
+            //            Mouse . OverrideCursor = Cursors . Arrow;
+            //            return;
+            //        }
+            //        Mouse . OverrideCursor = Cursors . Arrow;
+            //        return;
+            //    }
             }
             catch ( Exception ex )
             {
@@ -1018,12 +1038,18 @@ namespace Views
             {
                 if ( args != "" && args != "MAX" && args != "SYSNAME" )
                 {
+                    //return size of any not text variable type
                     size = Convert . ToInt32 ( args );
                     Size sz = Size . Parse ( size . ToString ( ) );
                     return sz . ToString ( );
                 }
                 else if ( args == "MAX" || args == "SYSNAME" )
-                    return "32000";
+                {
+                    if ( SHOWSIZEARG )
+                        return "32000";
+                    else
+                        return "";
+                }
                 else
                     return args;
             }
@@ -1158,6 +1184,8 @@ namespace Views
                            3 - size (if relevant) (Optional)
                            4 - direction (INPUT / OUTPUT/ RETURN)
                             */
+                            if ( tempargs [ z ] . ToUpper ( ) . Contains ( "NO ARGUMENTS ARE REQUIRED" ) )
+                                break;
                             if ( tempargs [ z ] == "" )
                                 continue;
                             if ( tempargs . Length == 0 )
@@ -1217,8 +1245,13 @@ namespace Views
                                         args [ 4 ] = parts [ x ];
                                     else if ( args [ 1 ] != parts [ x ] )
                                     {
-                                        args [ 3 ] = parts [ x ];
-                                        args [ 3 ] = ValidateSizeParam ( args [ 3 ] );
+                                        if ( SHOWSIZEARG )
+                                        {
+                                            args [ 3 ] = parts [ x ];
+                                            args [ 3 ] = ValidateSizeParam ( args [ 3 ] );
+                                        }
+                                        else
+                                            args [ 3 ] = "";
                                     }
                                 }
                                 if ( x == 4 )
@@ -1238,6 +1271,7 @@ namespace Views
                     catch ( Exception ex )
                     {
                         Console . WriteLine ( $"Parsing error : {ex . Message}, {ex . Data}" );
+                        NewWpfDev . Utils . DoErrorBeep ( );
                         return null;
                     }
                 }
@@ -1282,8 +1316,8 @@ namespace Views
             }
             if ( IsSproc )
             {
-                argsbuffer = new List<string[]>( );
-                string [ ] args = new string [ sprocCmd . Length-1 ];
+                argsbuffer = new List<string [ ]> ( );
+                string [ ] args = new string [ sprocCmd . Length - 1 ];
                 for ( int x = 0 ; x < sprocCmd . Length ; x++ )
                 {
                     if ( x == 0 )
@@ -1306,7 +1340,7 @@ namespace Views
                 if ( operationtype == "SP Execute command or returning an INT value" )
                 {
                     //METHOD 6
-                    if ( IsCmd == false && IsSproc == false )
+                    if ( IsCmd == false && IsSproc == false && SqlCommand == "" )
                         SqlCommand = $"{ListResults . SelectedItem . ToString ( )}";
 
                     //// tell method what we are expecting back
@@ -1345,7 +1379,7 @@ namespace Views
                     //METHOD 2
 
                     //Use storedprocedure  version
-                    if ( IsCmd == false )
+                    if ( IsCmd == false && IsSproc == false && SqlCommand == "" )
                         SqlCommand = $"{ListResults . SelectedItem . ToString ( )}";
 
                     // tell method what we are expecting back
@@ -1382,7 +1416,7 @@ namespace Views
                 else if ( operationtype == "SP returning a List<string>" )
                 {
                     //METHOD 5
-                    if ( IsCmd == false )
+                    if ( IsCmd == false && IsSproc == false && SqlCommand == "" )
                         SqlCommand = $"{ListResults . SelectedItem . ToString ( )}";
 
                     // tell method what we are expecting back
@@ -1412,7 +1446,7 @@ namespace Views
                 else if ( operationtype == "SP returning a Table as ObservableCollection" )
                 {
                     //METHOD 0
-                    if ( IsCmd == false )
+                    if ( IsCmd == false && IsSproc == false && SqlCommand == "" )
                         SqlCommand = $"{ListResults . SelectedItem . ToString ( )}";
                     DatagridControl dgc = new ( );
 
@@ -1457,7 +1491,8 @@ namespace Views
                 {
                     string error = "";
                     //string [ ] argsbuff = new string [ 0 ];
-                    SqlCommand = SPArguments . Text . Trim ( );
+                    if ( IsCmd == false && IsSproc == false && SqlCommand == "" )
+                        SqlCommand = SPArguments . Text . Trim ( );
                     //********************************************************************************//
                     // call Execute procedure for TEXT command (0)
                     GenDapperQueries . ExecuteSqlCommandWithNoReturnValue ( 0 , SqlCommand , argsbuffer , out error );
@@ -1539,7 +1574,7 @@ namespace Views
 
         public void PrintSPArgs ( string [ ] args )
         {
-            Debug . WriteLine ( "\n" );
+            Debug . WriteLine ( message: "\n" );
             for ( int x = 0 ; x < args . Length ; x++ )
             {
                 Debug . WriteLine ( $"({x})  [{args [ x ]}]" );
@@ -1602,32 +1637,42 @@ namespace Views
                 if ( argset . Length >= 4 && argset [ 3 ] != "" )
                 {
                     // 3rd parameter value  (size)
-                    argset [ 3 ] = NewWpfDev . Utils . SpanTrim ( argset [ 3 ] , 1 , argset [ 3 ] . Length - 2 ) . ToString ( );
-                    for ( int y = 0 ; y < argset [ 3 ] . Length ; y++ )
+                    if ( SHOWSIZEARG )
                     {
-                        char ch = argset [ 3 ] [ y ];
-                        char char2 = ' ';
-                        for ( int t = 0 ; t < validnumerics . Length ; t++ )
+                        argset [ 3 ] = NewWpfDev . Utils . SpanTrim ( argset [ 3 ] , 1 , argset [ 3 ] . Length - 2 ) . ToString ( );
+                        for ( int y = 0 ; y < argset [ 3 ] . Length ; y++ )
                         {
-                            char2 = ( char ) validnumerics [ t ];
-                            if ( ch == char2 )
+                            char ch = argset [ 3 ] [ y ];
+                            char char2 = ' ';
+                            for ( int t = 0 ; t < validnumerics . Length ; t++ )
                             {
-                                isnumeric = false;
+                                char2 = ( char ) validnumerics [ t ];
+                                if ( ch == char2 )
+                                {
+                                    isnumeric = false;
+                                    break;
+                                }
+                                else
+                                    isnumeric = false;
                                 break;
                             }
+                        }
+                        if ( isnumeric == false && argset [ 3 ] . Contains ( "MAX" ) || argset [ 3 ] . Contains ( "SYSNAME" ) )
+                        {
+                            if ( SHOWSIZEARG )
+                                tmp [ 3 ] = "32000";
                             else
-                                isnumeric = false;
-                            break;
+                                tmp [ 3 ] = "";
+                        }
+                        else if ( isnumeric == true )
+                        {
+                            if ( SHOWSIZEARG )
+                                tmp [ 3 ] = Convert . ToInt32 ( argset [ 3 ] ) . ToString ( );
+                            else tmp [ 3 ] = "";
                         }
                     }
-                    if ( isnumeric == false && argset [ 3 ] . Contains ( "MAX" ) || argset [ 3 ] . Contains ( "SYSNAME" ) )
-                    {
-                        tmp [ 3 ] = "32000";
-                    }
-                    else if ( isnumeric == true )
-                    {
-                        tmp [ 3 ] = Convert . ToInt32 ( argset [ 3 ] ) . ToString ( );
-                    }
+                    else
+                        tmp [ 3 ] = "";
                 }
                 if ( argset . Length >= 4 && argset [ 3 ] != "" )
                 {
@@ -1641,8 +1686,10 @@ namespace Views
                     {
                         if ( isnumeric )
                         {
-                            tmp [ ( insertindx ) - blanks ] = Convert . ToInt32 ( argset [ 3 ] ) . ToString ( );
-                            //continue;
+                            if ( SHOWSIZEARG )
+                                tmp [ ( insertindx ) - blanks ] = Convert . ToInt32 ( argset [ 3 ] ) . ToString ( );
+                            else
+                                tmp [ ( insertindx ) - blanks ] = "";
                         }
                         else
                         {
@@ -1660,7 +1707,11 @@ namespace Views
                         }
                         int val = Convert . ToInt32 ( argset [ 4 ] );
                     }
-                    catch ( Exception ex ) { isnumeric = false; }
+                    catch ( Exception ex )
+                    {
+                        NewWpfDev . Utils . DoErrorBeep ( );
+                        isnumeric = false;
+                    }
                 }
             }
             if ( tmp [ 2 ] == "OUT" || tmp [ 2 ] == "OUTPUT" )
@@ -1756,6 +1807,7 @@ namespace Views
             }
             catch ( Exception ex )
             {
+                NewWpfDev . Utils . DoErrorBeep ( );
                 //Debug . WriteLine ( $"{ex . Message}" );
             }
             //output = buffer;
@@ -1852,6 +1904,13 @@ namespace Views
 
         private void optype_MouseDoubleClick ( object sender , MouseButtonEventArgs e )
         {
+            if ( SPArguments . Text != SPArgumentsFull . Text )
+            {
+                if ( SPArguments . Text . Contains ( "STRING" ) == true && SPArgumentsFull . Text . Contains ( "STRING" ) == false )
+                    SPArguments = SPArgumentsFull;
+                else if ( SPArguments . Text . Contains ( "STRING" ) == false && SPArgumentsFull . Text . Contains ( "STRING" ) == true )
+                    SPArgumentsFull = SPArguments;
+            }
             DoExecute_Click ( null , null );
         }
 
@@ -1882,14 +1941,14 @@ namespace Views
             Point pt = e . GetPosition ( sender as UIElement );
             // Hide relevant entries
             List<string> hideitems = new List<string> ( );
-            if ( ShowingAllSPs == false )
-            {   // Show show all as we showing matches only
-                hideitems . Add ( "gm1" );
-            }
-            else
-            {   // hide show all as we already are showing all
-                hideitems . Add ( "gm2" );
-            }
+            //if ( ShowingAllSPs == false )
+            //{   // Show show all as we showing matches only
+            //    hideitems . Add ( "gm1" );
+            //}
+            //else
+            //{   // hide show all as we already are showing all
+            //    hideitems . Add ( "gm2" );
+            //}
             //hideitems . Add ( "gm3" );
             //hideitems . Add ( "gm4" );
             // Hide close tables viewer as it is not open
@@ -2045,6 +2104,7 @@ namespace Views
             if ( ShowingAllSPs == false )
                 ShowingAllSPs = true;
             IsLoading = false;
+            this . Focus ( );
             // only now, get prompt data
             //string sptext = "";
             //bool result = Gengrid . LoadShowMatchingSproc ( this , TextResult , ListResults . SelectedItem . ToString ( ) , ref sptext );
@@ -2083,7 +2143,8 @@ namespace Views
             if ( e . Key == Key . F1 )
             {
                 //if( ShowArgumentsHelp .IsHitTestVisibleProperty )
-                ShowArgumentsHelp sh = new ShowArgumentsHelp ( );
+                ShowArgumentsHelp sh = new ShowArgumentsHelp ( @"C:\users\ianch\documents\spresultsviewer arguments layout.txt" , this );
+                sh . header . Text = "IMPORTANT HELP : Entering Stored Procedure Arguments";
                 sh . Show ( );
                 sh . ArgInfo . UpdateLayout ( );
                 sh . Topmost = true;
@@ -2091,11 +2152,9 @@ namespace Views
             }
             else if ( e . Key == Key . F2 )
             {
-                //IsFlashing = true;
                 GengridExecutionResults sh = new GengridExecutionResults ( this , false );
                 sh . Show ( );
                 e . Handled = true;
-                //IsFlashing = true;
             }
             else if ( e . Key == Key . F3 )
             {
@@ -2765,80 +2824,71 @@ namespace Views
             return datatype;
         }
 
-        private void ExecuteEdit_PreviewMouseRightButtonDown ( object sender , MouseButtonEventArgs e )
-        {
+        //private void ExecuteEdit_PreviewMouseRightButtonDown ( object sender , MouseButtonEventArgs e )
+        //{
 
-        }
+        //}
 
         public void LoadExecuteEditor ( )
         {
-            Executedata . Clear ( );
-            //var col = new DataGridTextColumn ( );
-            //col . Header = "Argument";
-            //col . Binding = new Binding ( "Text" );
-            //ExecuteEdit. Columns . Add ( col ); 
-
-            string argstring = SPArguments . Text;
-            string [ ] args = argstring . Split ( ' ' );
-            if ( args . Length < 4 )
-            {
-                args = argstring . Split ( ',' );
-            }
-            int count = 0;
-            string outbuff = "";
-            foreach ( var item in args )
-            {
-                string output = "";
-                if ( item == "" ) continue;
-                if ( count < 3 )
-                {
-                    //outbuff += $"{item . Trim ( )} ";
-                    if ( item . Contains ( "**]" ) )
-                    {
-                        outbuff += $"{item . ToString ( ) . Trim ( )} ";
-                    }
-                    else
-                        outbuff += $"{item . ToString ( ) . Trim ( )} ";
-                    count++;
-                    continue;
-                }
-                else
-                    outbuff = item . ToString ( ) . Trim ( );
-                output = outbuff;
-                Executedata . Add ( output );
-                //ExecuteEdit . Items . Add ( output );
-            }
+            //Executedata . Clear ( );
+            // string argstring = SPArguments . Text;
+            //string [ ] args = argstring . Split ( ' ' );
+            //if ( args . Length < 4 )
+            //{
+            //    args = argstring . Split ( ',' );
+            //}
+            //int count = 0;
+            //string outbuff = "";
+            //foreach ( var item in args )
+            //{
+            //    string output = "";
+            //    if ( item == "" ) continue;
+            //    if ( count < 3 )
+            //    {
+            //         if ( item . Contains ( "**]" ) )
+            //        {
+            //            outbuff += $"{item . ToString ( ) . Trim ( )} ";
+            //        }
+            //        else
+            //            outbuff += $"{item . ToString ( ) . Trim ( )} ";
+            //        count++;
+            //        continue;
+            //    }
+            //    else
+            //        outbuff = item . ToString ( ) . Trim ( );
+            //    output = outbuff;
+            //    Executedata . Add ( output );
+            //}
         }
         private void Arguments_KeyDown ( object sender , KeyEventArgs e )
         {
             //call method below to handle dbleCLick on SPlist
             if ( e . Key == Key . Enter )
                 ExecuteSp ( );
-            else if ( e . Key == Key . F8 )
-            {
-                ExecuteEdit . Visibility = Visibility . Visible;
-                LoadExecuteEditor ( );
-                ExecuteEdit . ItemsSource = null;
-                ExecuteEdit . Items . Clear ( );
-                ExecuteEdit . ItemsSource = Executedata;
-                ExecuteEdit . SelectedIndex = 0;
-                ExecuteEdit . SelectedItem = 0;
-                CreateEditBox ( ExecuteEdit );
-            }
-            else if ( e . Key == Key . F9 )
-                ExecuteEdit . Visibility = Visibility . Collapsed;
+            //else if ( e . Key == Key . F8 )
+            //{
+            //    ExecuteEdit . Visibility = Visibility . Visible;
+            //    LoadExecuteEditor ( );
+            //    ExecuteEdit . ItemsSource = null;
+            //    ExecuteEdit . Items . Clear ( );
+            //    ExecuteEdit . ItemsSource = Executedata;
+            //    ExecuteEdit . SelectedIndex = 0;
+            //    ExecuteEdit . SelectedItem = 0;
+            //    CreateEditBox ( ExecuteEdit );
+            //}
+            //else if ( e . Key == Key . F9 )
+            //    ExecuteEdit . Visibility = Visibility . Collapsed;
         }
 
         private void TextBlock_KeyDown ( object sender , KeyEventArgs e )
         {
-            if ( e . Key == Key . F9 )
-                ExecuteEdit . Visibility = Visibility . Collapsed;
+            //if ( e . Key == Key . F9 )
+            //    ExecuteEdit . Visibility = Visibility . Collapsed;
         }
 
         private void CreateEditBox ( object sender )
         {
-            //ExecuteEdit.ListBoxItem.TBrow.Vis
-            //this.txboxrow
             TextBox editBox = new TextBox ( );
             var ListBox1 = ( ListBox ) sender;
             ListBoxItem lbi = new ListBoxItem ( );
@@ -2848,20 +2898,10 @@ namespace Views
             var absolutePos = ListBox1 . PointToScreen ( new Point ( 0 , 0 ) );
 
             TextBox tb = new TextBox ( );
-            // ExecuteEdit.AddHandler()
-            // var posMW = tb . PointToScreen ( new Point (0,0));
-            // posMW = absolutePos;
             tb . Visibility = Visibility . Visible;
             string itemText = ( string ) lbi . ToString ( );
             tb . Text = itemText;
-            //editBox . Location = new System . Drawing . Point ( r . X + delta , r . Y + delta );
-            //editBox . Size = new System . Drawing . Size ( r . Width - 10 , r . Height - delta );
-            //tb. Show ( );
-            //listBox1 . Controls . AddRange ( new System . Windows . Forms . Control [ ] { this . editBox } );
             tb . Focus ( );
-            //          editBox . SelectAll ( );
-            //           editBox . KeyPress += new System . Windows . Forms . KeyPressEventHandler ( this . EditOver );
-            //editBox . LostFocus += new System . EventHandler ( this . FocusOver );
         }
 
         private void CreateCmdLine ( object sender , RoutedEventArgs e )
@@ -3015,56 +3055,60 @@ namespace Views
         {
             try
             {
-            //    TextBox tb = sender as TextBox;
-            //    string line = tb . Text;
-            //    string seltext = tb . SelectedText . ToString ( );
-            //    int caretstart = tb . CaretIndex;
+                //    TextBox tb = sender as TextBox;
+                //    string line = tb . Text;
+                //    string seltext = tb . SelectedText . ToString ( );
+                //    int caretstart = tb . CaretIndex;
 
-            //    char [ ] charbuff = new char [ line . Length ];
-            //    for ( int x = 0 ; x < line . Length ; x++ )
-            //    {
-            //        charbuff [ x ] = line [ x ];
-            //    }
-            //    int offsetstart = line . IndexOf ( seltext );
-            //    int offsetend = offsetstart + seltext . Length;
-            //    int charsellength = 0;
-            //    string newselstring = "";
-            //    int selstart = offsetstart;
-            //    // Check backwards for start of line or a space
-            //    int backspaces = 0;
-            //    for ( int x = offsetstart ; x < line . Length ; x-- )
-            //    {
-            //        if ( x < 0 )
-            //        {
-            //            selstart = 0;
-            //            break;
-            //        }
-            //        if ( charbuff [ x ] == ' ' )
-            //        {
-            //            selstart = x;
-            //            break;
-            //        }
-            //        else
-            //            backspaces++;
-            //    }
-            //    Debug . WriteLine ( $"offsetstart = {offsetstart}, backspaces = {backspaces}" );
-            //    Console . WriteLine ( $"offsetstart = {offsetstart}, backspaces = {backspaces}" );
-            //    // Check forwards for end of line or a trailing space
-            //    for ( int x = ( selstart >= backspaces ? selstart - backspaces : 0 ) + seltext . Length ; x < line . Length ; x++ )
-            //    {
-            //        if ( charbuff [ x ] == ' ' )
-            //            break;
-            //        else
-            //        {
-            //            newselstring += charbuff [ x ];
-            //            charsellength++;
-            //        }
-            //    }
-            //    Debug . WriteLine ( $"charsellength = {charsellength}" );
-            //    string newselectedbuffer = line . Substring ( offsetstart - charsellength , offsetstart + charsellength );
-            //    tb . Select ( caretstart - charsellength , newselectedbuffer . Length );
+                //    char [ ] charbuff = new char [ line . Length ];
+                //    for ( int x = 0 ; x < line . Length ; x++ )
+                //    {
+                //        charbuff [ x ] = line [ x ];
+                //    }
+                //    int offsetstart = line . IndexOf ( seltext );
+                //    int offsetend = offsetstart + seltext . Length;
+                //    int charsellength = 0;
+                //    string newselstring = "";
+                //    int selstart = offsetstart;
+                //    // Check backwards for start of line or a space
+                //    int backspaces = 0;
+                //    for ( int x = offsetstart ; x < line . Length ; x-- )
+                //    {
+                //        if ( x < 0 )
+                //        {
+                //            selstart = 0;
+                //            break;
+                //        }
+                //        if ( charbuff [ x ] == ' ' )
+                //        {
+                //            selstart = x;
+                //            break;
+                //        }
+                //        else
+                //            backspaces++;
+                //    }
+                //    Debug . WriteLine ( $"offsetstart = {offsetstart}, backspaces = {backspaces}" );
+                //    Console . WriteLine ( $"offsetstart = {offsetstart}, backspaces = {backspaces}" );
+                //    // Check forwards for end of line or a trailing space
+                //    for ( int x = ( selstart >= backspaces ? selstart - backspaces : 0 ) + seltext . Length ; x < line . Length ; x++ )
+                //    {
+                //        if ( charbuff [ x ] == ' ' )
+                //            break;
+                //        else
+                //        {
+                //            newselstring += charbuff [ x ];
+                //            charsellength++;
+                //        }
+                //    }
+                //    Debug . WriteLine ( $"charsellength = {charsellength}" );
+                //    string newselectedbuffer = line . Substring ( offsetstart - charsellength , offsetstart + charsellength );
+                //    tb . Select ( caretstart - charsellength , newselectedbuffer . Length );
             }
-            catch ( Exception ex ) { Debug . WriteLine ( $"{ex . Message}" ); }
+            catch ( Exception ex )
+            {
+                NewWpfDev . Utils . DoErrorBeep ( );
+                Debug . WriteLine ( $"{ex . Message}" );
+            }
             e . Handled = true;
         }
 
@@ -3198,18 +3242,584 @@ namespace Views
 
         public void ShowExecutionHints ( object sender , RoutedEventArgs e )
         {
-            string infotext = File . ReadAllText ( @$"C:\users\ianch\documents\Execution Methods Info.Txt" );
-            //ExecInfo . Content = infotext;
-            execinf . Text = "";
-            execinf . Text = infotext;
-            execinf . UpdateLayout ( );
-            Executeinfo . Visibility = Visibility . Visible;
+            string infotext = @$"C:\users\ianch\documents\Execution Methods Info.Txt";
+            ShowArgumentsHelp sh = new ShowArgumentsHelp ( infotext , this );
+            sh . header . Text = "IMPORTANT HELP : How  to select an Execution Method";
+            sh . Show ( );
+            //execinf . Text = "";
+            //execinf . Text = infotext;
+            //execinf . UpdateLayout ( );
+            //Executeinfo . Visibility = Visibility . Visible;
 
         }
 
         private void CloseWin ( object sender , RoutedEventArgs e )
         {
-            Executeinfo . Visibility = Visibility . Collapsed;
+            //Executeinfo . Visibility = Visibility . Collapsed;
+        }
+
+        private void AllTables_MouseDoubleClick ( object sender , MouseButtonEventArgs e )
+        {
+            string selection = "";
+            string newcommand = "";
+            ListBox lb = sender as ListBox;
+            if ( lb != null )
+            {
+                selection = lb . SelectedItem . ToString ( );
+                if ( SPArgumentsFull . Text . Contains ( "STRING" ) )
+                {
+                    string [ ] words = SPArgumentsFull . Text . Split ( " " );
+                    for ( int x = 0 ; x < words . Length ; x++ )
+                    {
+                        if ( words [ x ] == "STRING" ) newcommand += $"{selection} ";
+                        else newcommand += $"{words [ x ]} ";
+                    }
+                    SPArgumentsFull . Text = newcommand . Trim ( );
+                    SPArguments . Text = SPArgumentsFull . Text;
+                }
+                SPArguments . UpdateLayout ( );
+                SPArgumentsFull . UpdateLayout ( );
+            }
+        }
+
+
+        private void CloseFont_Click ( object sender , RoutedEventArgs e )
+        {
+            FontSizeChanger . Visibility = Visibility . Collapsed;
+        }
+
+
+        private void FontSizeChanger_Loaded ( object sender , RoutedEventArgs e )
+        {
+            List<string> sizes = new List<string> ( );
+            for ( int x = 11 ; x < 21 ; x++ )
+            {
+                sizes . Add ( $"{x}" );
+            }
+            Fonts . ItemsSource = sizes;
+            Fonts . SelectedIndex = 3;
+
+        }
+
+        private void SetFontsize ( object sender , RoutedEventArgs e )
+        {
+            FontSizeChanger . Visibility = Visibility . Visible;
+            operationtype4 . Text = "Reset S.Proc viewer font size";
+            SelectFontSize ( SpViewerFontsize );
+        }
+        private void SetLbsize ( object sender , RoutedEventArgs e )
+        {
+            FontSizeChanger . Visibility = Visibility . Visible;
+            operationtype4 . Text = "Reset S.Procs Listbox font size";
+            SelectFontSize ( SpListFontsize );
+        }
+        public void SelectFontSize ( int caller )
+        {
+            IsLoading = true;
+            if ( caller == 11 ) Fonts . SelectedIndex = 0;
+            if ( caller == 12 ) Fonts . SelectedIndex = 1;
+            if ( caller == 13 ) Fonts . SelectedIndex = 2;
+            if ( caller == 14 ) Fonts . SelectedIndex = 3;
+            if ( caller == 15 ) Fonts . SelectedIndex = 4;
+            if ( caller == 16 ) Fonts . SelectedIndex = 5;
+            if ( caller == 17 ) Fonts . SelectedIndex = 6;
+            if ( caller == 18 ) Fonts . SelectedIndex = 7;
+            if ( caller == 19 ) Fonts . SelectedIndex = 8;
+            if ( caller == 20 ) Fonts . SelectedIndex = 9;
+            IsLoading = false;
+        }
+        private void Fonts_SelectionChanged ( object sender , SelectionChangedEventArgs e )
+        {
+            if ( IsLoading ) return;
+            FontSizeChanger . Visibility = Visibility . Collapsed;
+            // reset scrolldoc or SP list font sizes 
+            string newsize = "";
+            string infotext = "";
+            ComboBox cb = Fonts;
+            if ( cb != null )
+            {
+                SolidColorBrush newcolor = FindResource ( "Black4" ) as SolidColorBrush;
+                newsize = cb . SelectedItem . ToString ( );
+                Fontsize = Convert . ToInt32 ( newsize );
+                if ( operationtype4 . Text == "Reset S.Procs Listbox font size" )
+                {
+                    SpListFontsize = Fontsize;
+                    ListResults . FontSize = SpListFontsize;
+                    ListResults . UpdateLayout ( );
+                }
+                else if ( operationtype4 . Text == "Reset S.Proc viewer font size" )
+                {
+                    FlowDocument doc = TextResult . Document;
+                    string sptext = "";
+
+                    SpViewerFontsize = Fontsize;
+                    doc . Blocks . Clear ( );
+                    string spname = ListResults . SelectedItem . ToString ( );
+                    bool result = Gengrid . LoadShowMatchingSproc ( this , TextResult , spname , ref sptext , SpViewerFontsize );
+                    TextResult . UpdateLayout ( );
+                }
+                Fontsize = 0;
+            }
+        }
+        public  void ProcessSprocExecutionResult ( dynamic dynvar , int count , string ResultString , Type objtype , object obj , string err, Type newtype)
+        {
+            try
+            {
+                if ( dynvar != null )
+                {
+                    if ( newtype == null )
+                    {
+                        Mouse . OverrideCursor = Cursors . Arrow;
+                        return;
+                    }
+                    //-------------------------------------------------------------------------------------------------//
+                    if ( newtype == typeof ( string ) )
+                    //-------------------------------------------------------------------------------------------------//
+                    {
+                        int listcount = 0;
+                        string outputstring = "";
+                        List<string> list = new List<string> ( );
+
+                        foreach ( var str in dynvar )
+                        {
+                            list . Add ( str );
+                            outputstring += $"{str}, ";
+                            listcount++;
+                        }
+                        if ( list . Count == 0 )
+                            listcount = 0;
+                        outputstring = outputstring . Trim ( );
+                        //remove terminating comma from script
+                        if ( outputstring != "" ) outputstring = outputstring . Substring ( 0 , outputstring . Length - 1 );
+                        // return value from SP String return method
+                        // Go   ahead & Show our results  dialog popup
+                        if ( listcount == 0 )
+                        {
+                            GenResults . ExecutionInfo . Visibility = Visibility . Visible;
+                            GenResults . CollectionTextresults . Visibility = Visibility . Visible;
+                            GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Star );
+                            GenResults . CollectionTextresults . Document =
+                                Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
+                                 FindResource ( "Black3" ) as SolidColorBrush ,
+                            $"Execution of S.P [{ListResults . SelectedItem . ToString ( )}] using [{optype . SelectedItem . ToString ( )}] appears to have failed !\n\nThe data returned was {ResultString}.\n\nPerhaps using a different Execution Method will provide a better result ?" );
+                            GenResults . CollectionTextresults . Document . Blocks . FirstBlock . FontSize = 18;
+                            GenResults . Height = 280;
+                            GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Pixel );
+                            GenResults . CountResult . Text = $"ZERO";
+                            NewWpfDev . Utils . DoErrorBeep ( );
+                            GenResults . ShowDialog ( );
+                            GenResults . Refresh ( );
+                            Mouse . OverrideCursor = Cursors . Arrow;
+                        }
+                        else if ( list . Count > 1 )
+                        {
+                            GenResults . CollectionListboxresults . Items . Clear ( );
+                            GenResults . CollectionListboxresults . ItemsSource = null;
+                            GenResults . CollectionListboxresults . ItemsSource = list;
+                            GenResults . CollectionListboxresults . Visibility = Visibility . Visible;
+                            GenResults . CollectionTextresults . Visibility = Visibility . Visible;
+                            GenResults . OperationResults . Visibility = Visibility . Visible;
+                            GenResults . CollectionTextresults . Document = Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
+                                FindResource ( "Black3" ) as SolidColorBrush ,
+                               $"Execution of [{ListResults . SelectedItem . ToString ( )}] using [{optype . SelectedItem . ToString ( )}] completed successfully. \nbut contains a total of {list . Count} rows being returned. \n" +
+                               $"Due to more than one string being returned the results are displayed in the listbox below... " );
+                            GenResults . CollectionTextresults . Document . Blocks . FirstBlock . FontSize = 18;
+                            GenResults . ExecutionInfo . Text = $"Execution of [{optype . SelectedItem . ToString ( )}]\ncompleted successfully, the results are listed above...";
+                            GenResults . CountResult . Text = $"{list . Count}";
+                            GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Star );
+
+                            // Showing Scrollviewer Text AND DataGrid, so we stay full height
+                            GenResults . Refresh ( );
+                            NewWpfDev . Utils . DoSuccessBeep ( );
+                            Mouse . OverrideCursor = Cursors . Arrow;
+                            GenResults . Show ( );
+                            GenResults . Topmost = true;
+                            GenResults . CollectionListboxresults . SelectedIndex = 0;
+                            GenResults . CollectionListboxresults . Focus ( );
+                        }
+                        else if ( list . Count == 1 )
+                        {
+                            // show single string result in Scrollviewer Document
+                            string outline = list [ 0 ] . ToString ( );
+
+                            GenResults . CollectionTextresults . Visibility = Visibility . Visible;
+                            GenResults . TextResultsDocument . Visibility = Visibility . Visible;
+                            GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Star );
+                            //                            GenResults . innerresultscontainer . RowDefinitions [ 0 ] . Height = new GridLength ( 3.9 , GridUnitType . Star );
+                            GenResults . CollectionTextresults . Document = Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
+                             FindResource ( "Black3" ) as SolidColorBrush ,
+                            $"Execution of S.P [{ListResults . SelectedItem . ToString ( )}] using [{optype . SelectedItem . ToString ( )}] completed successfully. The results of the request is shown in the viewer below." );
+                            GenResults . TextResultsDocument . Document =
+                                Gengrid . LoadFlowDoc ( GenResults . TextResultsDocument ,
+                                 FindResource ( "Black3" ) as SolidColorBrush ,
+                                $"{outline}" );
+                            GenResults . CollectionTextresults . Document . Blocks . FirstBlock . FontSize = 18;
+                            GenResults . ExecutionInfo . Text = $"Execution of [{optype . SelectedItem . ToString ( )}]\ncompleted successfully, the result is listed above...";
+                            GenResults . CountResult . Text = "1";
+                            GenResults . Refresh ( );
+                            NewWpfDev . Utils . DoSuccessBeep ( );
+                            Mouse . OverrideCursor = Cursors . Arrow;
+                            GenResults . Show ( );
+                            GenResults . Topmost = true;
+                            Mouse . OverrideCursor = Cursors . Arrow;
+                            return;
+                        }
+                    }
+                    //-------------------------------------------------------------------------------------------------//
+                    else if ( newtype == typeof ( Int32 ) )
+                    //-------------------------------------------------------------------------------------------------//
+                    {
+                        // Got an INT value in returned (ref value count ) variable
+                        string argstring = SPArguments . Text == "Argument(s) required ?" ? "" : SPArguments . Text;
+                        SPArgumentsFull . Text = SPArguments . Text;
+                        GenResults . CollectionTextresults . Visibility = Visibility . Visible;
+                        GenResults . CollectionTextresults . Document =
+                            Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
+                             FindResource ( "Black3" ) as SolidColorBrush ,
+                        $"The enquiry [ {ListResults . SelectedItem . ToString ( )} {argstring}] \nsuccessfully returned a numeric value - shown below in the left hand panel..." );
+                        GenResults . CountResult . Text = $"{count}";
+                        GenResults . CountResult . Background = FindResource ( "Green5" ) as SolidColorBrush;
+                        GenResults . CountResult . Foreground = FindResource ( "Red4" ) as SolidColorBrush;
+                        GenResults . ExecutionInfo . Text = $"Execution of  [{ListResults . SelectedItem . ToString ( )}] using [{optype . SelectedItem . ToString ( )}] completed successfully. \nThe count you requested is shown at the left of this information panel...";
+                        // Squeeze unused row so buttons show in our 220 height
+                        GenResults . CollectionTextresults . Document . Blocks . FirstBlock . FontSize = 18;
+                        GenResults . Height = 300;
+                        GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Star );
+                        GenResults . UpdateLayout ( );
+                        GenResults . Refresh ( );
+                        NewWpfDev . Utils . DoSuccessBeep ( );
+                        GenResults . Show ( );
+                        GenResults . Topmost = true;
+                        Mouse . OverrideCursor = Cursors . Arrow;
+                        GenResults . Focus ( );
+                        return;
+                    }
+                    //-------------------------------------------------------------------------------------------------//
+                    else if ( newtype . ToString ( ) . Contains ( "List" ) )
+                    //-------------------------------------------------------------------------------------------------//
+                    {
+                        // Got a List<string>
+                        // Go  ahead & Show our results  dialog popup
+                        string outputstring = "";
+                        string errormsg = "";
+                        int dictcount = 0;
+                        int recordcount = 0;
+                        List<string> newlist;//= new List<string> ( );
+                        ObservableCollection<GenericClass> gengrid = new ObservableCollection<GenericClass> ( );
+                        if ( dynvar . Count > 1 )
+                        {
+                            int colcount = 0;
+                            string result = "";
+                            System . Collections . Generic . List<System . Collections . Generic . List<string>> varlist = null;
+                            //List<string> varlist = null;
+                            //if ( IsCmd )
+                            //{
+                            Dictionary<string , object> dict = new Dictionary<string , object> ( );
+                            Dictionary<string , string> outdict = new Dictionary<string , string> ( );
+
+                            foreach ( var item in dynvar )
+                            {
+                                try
+                                {
+                                    // we need to create a dictionary for each row of data then add it to a GenericClass row then add row to Generics Db
+                                    string buffer = "";
+                                    List<int> VarcharList = new List<int> ( );
+                                    DatagridControl . ParseDapperRow ( item , dict , out colcount );
+                                    GenericClass gc = new GenericClass ( );
+                                    dictcount = 1;
+                                    int index = 1;
+                                    int fldcount = dict . Count;
+                                    string tmp = "";
+
+                                    // Parse reslt.item into  single Dictionary record
+                                    foreach ( var pair in dict )
+                                    {
+                                        try
+                                        {
+                                            if ( pair . Key != null && pair . Value != null )
+                                            {
+                                                DatagridControl . AddDictPairToGeneric ( gc , pair , dictcount++ );
+                                                tmp = $"field{index++} = {pair . Value . ToString ( )}";
+                                                buffer += tmp + ",";
+                                                outdict . Add ( pair . Key , pair . Value . ToString ( ) );
+                                            }
+                                        }
+                                        catch ( Exception ex )
+                                        {
+                                            $"Dictionary ERROR : {ex . Message}" . cwerror ( );
+                                            NewWpfDev . Utils . DoErrorBeep ( );
+                                            result = ex . Message;
+                                        }
+                                    }
+
+                                    //remove trailing comma
+                                    string s = buffer . Substring ( 0 , buffer . Length - 1 );
+                                    buffer = s;
+                                    // We now  have ONE single record, but need to add this  to a GenericClass structure 
+                                    int reccount = 1;
+                                    NewWpfDev.Utils.ParseDictIntoGenericClass ( outdict , reccount , ref gc );
+                                    //foreach ( KeyValuePair<string , string> val in outdict )
+                                    //{  //
+                                    //    switch ( reccount )
+                                    //    {
+                                    //        case 1:
+                                    //            gc . field1 = val . Value . ToString ( );
+                                    //            break;
+                                    //        case 2:
+                                    //            gc . field2 = val . Value . ToString ( );
+                                    //            break;
+                                    //        case 3:
+                                    //            gc . field3 = val . Value . ToString ( );
+                                    //            break;
+                                    //        case 4:
+                                    //            gc . field4 = val . Value . ToString ( );
+                                    //            break;
+                                    //        case 5:
+                                    //            gc . field5 = val . Value . ToString ( );
+                                    //            break;
+                                    //        case 6:
+                                    //            gc . field6 = val . Value . ToString ( );
+                                    //            break;
+                                    //        case 7:
+                                    //            gc . field7 = val . Value . ToString ( );
+                                    //            break;
+                                    //        case 8:
+                                    //            gc . field8 = val . Value . ToString ( );
+                                    //            break;
+                                    //        case 9:
+                                    //            gc . field9 = val . Value . ToString ( );
+                                    //            break;
+                                    //        case 10:
+                                    //            gc . field10 = val . Value . ToString ( );
+                                    //            break;
+                                    //        case 11:
+                                    //            gc . field11 = val . Value . ToString ( );
+                                    //            break;
+                                    //        case 12:
+                                    //            gc . field12 = val . Value . ToString ( );
+                                    //            break;
+                                    //        case 13:
+                                    //            gc . field13 = val . Value . ToString ( );
+                                    //            break;
+                                    //        case 14:
+                                    //            gc . field14 = val . Value . ToString ( );
+                                    //            break;
+                                    //        case 15:
+                                    //            gc . field15 = val . Value . ToString ( );
+                                    //            break;
+                                    //        case 16:
+                                    //            gc . field16 = val . Value . ToString ( );
+                                    //            break;
+                                    //        case 17:
+                                    //            gc . field17 = val . Value . ToString ( );
+                                    //            break;
+                                    //        case 18:
+                                    //            gc . field18 = val . Value . ToString ( );
+                                    //            break;
+                                    //        case 19:
+                                    //            gc . field19 = val . Value . ToString ( );
+                                    //            break;
+                                    //        case 20:
+                                    //            gc . field20 = val . Value . ToString ( );
+                                    //            break;
+                                    //    }
+                                    //    reccount += 1;
+                                    //}
+                                    gengrid . Add ( gc );
+                                }
+                                catch ( Exception ex )
+                                {
+                                    result = $"SQLERROR : {ex . Message}";
+                                    errormsg = result;
+                                    NewWpfDev . Utils . DoErrorBeep ( );
+                                    result . cwerror ( );
+                                }
+                                dict . Clear ( );
+                                outdict . Clear ( );
+                                dictcount = 1;
+                            }
+
+                            // Massage  data from dynamic collection into list<string>
+                            List<string> list = SProcsDataHandling . CreateListFromGenericClass ( gengrid );
+
+                            GenResults . CollectionListboxresults . ItemsSource = null;
+                            GenResults . CollectionListboxresults . Items . Clear ( );
+                            GenResults . CollectionListboxresults . ItemsSource = list;
+                            recordcount = gengrid . Count;
+                            GenResults . CollectionListboxresults . Visibility = Visibility . Visible;
+                            GenResults . CollectionTextresults . Visibility = Visibility . Visible;
+                            GenResults . OperationResults . Visibility = Visibility . Visible;
+                            GenResults . CollectionTextresults . Document = Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
+                                FindResource ( "Black3" ) as SolidColorBrush ,
+                               $"Execution of [{ListResults . SelectedItem . ToString ( )}] using [{optype . SelectedItem . ToString ( )}] completed successfully. \n" +
+                               $"with a total of {recordcount} items returned. \nThe results are shown below... " );
+                            GenResults . CollectionTextresults . Document . Blocks . FirstBlock . FontSize = 18;
+                            GenResults . ExecutionInfo . Text = $"Execution of [{optype . SelectedItem . ToString ( )}]\ncompleted successfully, the results are listed above...";
+                            GenResults . CountResult . Text = $"{recordcount}";
+                            GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Star );
+
+                            // Showing Scrollviewer Text AND DataGrid, so we stay full height
+                            GenResults . Refresh ( );
+                            NewWpfDev . Utils . DoSuccessBeep ( );
+                            Mouse . OverrideCursor = Cursors . Arrow;
+                            GenResults . Show ( );
+                            GenResults . Topmost = true;
+                            GenResults . CollectionListboxresults . SelectedIndex = 0;
+                            GenResults . CollectionListboxresults . Focus ( );
+                        }
+                        else if ( dynvar . Count == 1 )
+                        {
+                            outputstring = dynvar [ 0 ] . ToString ( );
+                            int stringlen = outputstring . Length;
+                            string argstring = SPArguments . Text == "Argument(s) required ?" ? "" : SPArguments . Text;
+                            SPArgumentsFull . Text = SPArguments . Text;
+
+                            GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Star );
+                            GenResults . TextResultsDocument . Visibility = Visibility . Visible;
+                            GenResults . CollectionTextresults . Visibility = Visibility . Visible;
+
+                            GenResults . CollectionTextresults . Document = Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
+                                 FindResource ( "Black3" ) as SolidColorBrush ,
+                                $"The enquiry [{ListResults . SelectedItem . ToString ( )} {argstring}] completed successfully, but it only returned a single row, so that row is being displayed in a text viewer for you to view more easily" );
+                            GenResults . ExecutionInfo . Text = $"Execution of [{ListResults . SelectedItem . ToString ( )}] using [{optype . SelectedItem . ToString ( )}] completed successfully, details shown above...";
+                            GenResults . CollectionTextresults . Document . Blocks . FirstBlock . FontSize = 18;
+
+                            GenResults . TextResultsDocument . Document = Gengrid . LoadFlowDoc ( GenResults . TextResultsDocument ,
+                                 FindResource ( "Black3" ) as SolidColorBrush ,
+                                $"{outputstring}" );
+                            GenResults . CountResult . Text = $"1";
+                            NewWpfDev . Utils . DoSuccessBeep ( );
+                            GenResults . Show ( );
+                            GenResults . Topmost = true;
+                            GenResults . Refresh ( );
+                            Mouse . OverrideCursor = Cursors . Arrow;
+                        }
+                        else
+                        {
+                            GenResults . innerresultscontainer . RowDefinitions [ 0 ] . Height = new GridLength ( 3.9 , GridUnitType . Star );
+                            string data = "";
+                            foreach ( var item in dynvar )
+                            {
+                                data += $"{item . ToString ( )}\n";
+                            }
+                            string argstring = SPArguments . Text == "Argument(s) required ?" ? "" : SPArguments . Text;
+                            SPArgumentsFull . Text = SPArguments . Text;
+                            GenResults . CollectionTextresults . Document = Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
+                                FindResource ( "Black3" ) as SolidColorBrush ,
+                               $"The enquiry [{ListResults . SelectedItem . ToString ( )} {argstring}] responded with the following values\n\n[{data}]" );
+                            GenResults . ExecutionInfo . Text = $"Execution of [{ListResults . SelectedItem . ToString ( )} using {optype . SelectedItem . ToString ( )}] completed with the list containing the data shown above!";
+                            GenResults . CollectionTextresults . Document . Blocks . FirstBlock . FontSize = 18;
+                            GenResults . CountResult . Text = $"{count}";
+                            // Showing Scrollviewer Text Only, so reduce height
+                            // Squeeze unused row so buttons show in our 220 height
+                            GenResults . Height = 280;
+                            GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Pixel );
+                            NewWpfDev . Utils . PlayErrorBeep ( );
+                            GenResults . Show ( );
+                            GenResults . Topmost = true;
+                            GenResults . Refresh ( );
+                        }
+                    }
+                    //-------------------------------------------------------------------------------------------------//
+                    else if ( newtype . ToString ( ) . ToUpper ( ) . Contains ( "IENUMERABLE" ) == true )
+                    //-------------------------------------------------------------------------------------------------//
+                    {
+                        // WORKING WELL 19/11/2022
+                        // got an observable collection in Dynamic collection, so display it
+                        int colcount = 0;
+                        string outline = "";
+                        string argstring = SPArgumentsFull . Text;
+                        ObservableCollection<GenericClass> genclass = new ObservableCollection<GenericClass> ( );
+                        ObservableCollection<GenericClass> output = new ObservableCollection<GenericClass> ( );
+                        genclass = GenDapperQueries . ParseDynamicToCollection (
+                                     dynvar ,
+                                     out string errormsg ,
+                                     out int reccount ,
+                                     out List<string> genericlist );
+                        if ( genclass . Count == 1 )
+                        {
+                            GenericClass gc = new GenericClass ( );
+                            gc = genclass [ 0 ];
+                            outline = gc . field1 . ToString ( );
+                            colcount = DatagridControl . GetColumnsCount ( genclass , null );
+                        }
+                        if ( colcount == 1 )
+                        {
+                            // show single string result in Scrollviewer Document
+
+                            GenResults . CollectionTextresults . Visibility = Visibility . Visible;
+                            GenResults . TextResultsDocument . Visibility = Visibility . Visible;
+                            GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Star );
+                            GenResults . CollectionTextresults . Document = Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
+                             FindResource ( "Black3" ) as SolidColorBrush ,
+                            $"Execution of S.P [{ListResults . SelectedItem . ToString ( )}] using [{optype . SelectedItem . ToString ( )}] completed successfully, BUT only returned " +
+                            $"a single row with just one Column, so this column's content is shown in the text viewer below." );
+                            GenResults . TextResultsDocument . Document =
+                                Gengrid . LoadFlowDoc ( GenResults . TextResultsDocument ,
+                                 FindResource ( "Black3" ) as SolidColorBrush ,
+                                $"{outline}" );
+                            GenResults . CollectionTextresults . Document . Blocks . FirstBlock . FontSize = 18;
+                            GenResults . ExecutionInfo . Text = $"Execution of [{optype . SelectedItem . ToString ( )}]\ncompleted successfully, the result is listed above...";
+                            GenResults . CountResult . Text = "1";
+                            GenResults . Refresh ( );
+                        }
+                        else
+                        {
+                            GenResults . CollectionTextresults . Visibility = Visibility . Visible;
+                            GenResults . CollectionGridresults . Visibility = Visibility . Visible;
+                            GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Star );
+                            argstring = SPArguments . Text == "Argument(s) required ?" ? "" : SPArguments . Text;
+                            SPArgumentsFull . Text = SPArguments . Text;
+                            string [ ] parts = SPArguments . Text . Split ( ',' );
+                            count = genclass . Count;
+                            GenResults . CountResult . Text = $"{count}";
+                            GenResults . CollectionGridresults . ItemsSource = genclass;
+                            GenResults . CollectionTextresults . Document = Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
+                            FindResource ( "Black3" ) as SolidColorBrush ,
+                                $"Execution of [{ListResults . SelectedItem . ToString ( )} using [{optype . SelectedItem . ToString ( )}] was processed successfully \nand returned a value of [{count}] records..." );
+                            GenResults . ExecutionInfo . Text = $"Execution of [{optype . SelectedItem . ToString ( )}]\ncompleted successfully, details shown above...";
+                            GenResults . CollectionTextresults . Document . Blocks . FirstBlock . FontSize = 18;
+                        }
+                        NewWpfDev . Utils . DoSuccessBeep ( );
+                        GenResults . Show ( );
+                        GenResults . Topmost = true;
+                        // GenResults . Refresh ( );
+                        SPArguments . Text = argstring;
+                        Mouse . OverrideCursor = Cursors . Arrow;
+                    }
+                    else
+                    {
+                        // Unknown result
+                        string argstring = SPArguments . Text == "Argument(s) required ?" ? "" : SPArguments . Text;
+                        SPArgumentsFull . Text = SPArguments . Text;
+                        GenResults . CollectionTextresults . Visibility = Visibility . Visible;
+                        GenResults . CollectionTextresults . Document = Gengrid . LoadFlowDoc ( GenResults . CollectionTextresults ,
+                             FindResource ( "Black3" ) as SolidColorBrush ,
+                           $"Execution of [{ListResults . SelectedItem . ToString ( )} using {optype . SelectedItem . ToString ( )}] completed successfully \nbut failed to return any type of value ...\n\nTry a different Method of Execution !" );
+                        GenResults . ExecutionInfo . Text = $"Execution of [{optype . SelectedItem . ToString ( )}] completed successfully, but see notes above...";
+                        GenResults . CollectionTextresults . Document . Blocks . FirstBlock . FontSize = 18;
+                        // Showing Scrollviewer Text Only, so reduce height
+                        // Squeeze unused row so buttons show in our 220 height
+                        GenResults . CountResult . Text = $"ZERO";
+                        GenResults . Height = 280;
+                        GenResults . innerresultscontainer . RowDefinitions [ 1 ] . Height = new GridLength ( 1 , GridUnitType . Pixel );
+                        NewWpfDev . Utils . PlayErrorBeep ( );
+                        GenResults . Show ( );
+                        GenResults . Topmost = true;
+                        GenResults . Refresh ( );
+                        Mouse . OverrideCursor = Cursors . Arrow;
+                        return;
+                    }
+                    Mouse . OverrideCursor = Cursors . Arrow;
+                    return;
+                }
+            }
+            catch ( Exception ex )
+            {
+                Utils . DoErrorBeep ( );
+                Debug . WriteLine ( $"SQL error encountered ...\n {ex . Message}, [{ex . Data}]" );
+            }
         }
     }
 }
+

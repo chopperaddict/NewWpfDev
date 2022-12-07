@@ -124,6 +124,10 @@ namespace NewWpfDev . Models
             canvas . BringIntoView ( );
             Flowdoc . Visibility = Visibility . Visible;
             Flowdoc . BringIntoView ( );
+            Flowdoc . Refresh ( );
+            Flowdoc . UpdateLayout ( );
+            //Flowdoc . TopMost = true;
+
             if ( Flags . PinToBorder == true )
             {
                 ( Flowdoc as FrameworkElement ) . SetValue ( Canvas . LeftProperty , ( double ) 0 );

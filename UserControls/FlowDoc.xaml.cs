@@ -184,7 +184,7 @@ namespace NewWpfDev . UserControls
             FlowDocumentScrollViewer myFlowDocumentScrollViewer = new FlowDocumentScrollViewer ( );
             FlowDocument myFlowDocument = new FlowDocument ( );
             FlowDocument myFlowDocument2 = new FlowDocument ( );
-
+            flowdoc = Flowdoc;
             flowdoc . FontSize = this . Fontsize;
             if ( Flags . UseScrollView )
             {
@@ -286,7 +286,7 @@ namespace NewWpfDev . UserControls
                 flowdoc . Width = v2;
             flowdoc . SetValue ( WidthProperty , ( double ) flowdoc . Width );
 
-            if ( this . Visibility == Visibility . Collapsed )
+            if ( this . Visibility == Visibility . Collapsed || this . Visibility == Visibility . Hidden)
             {
                 if ( Flags . UseFlowScrollbar )
                 {
@@ -300,15 +300,15 @@ namespace NewWpfDev . UserControls
                         doc . VerticalScrollBarVisibility = ScrollBarVisibility . Visible;
                     }
                 }
-                this . Visibility = Visibility . Visible;
-                this . BringIntoView ( );
+                flowdoc . Visibility = Visibility . Visible;
+                flowdoc . BringIntoView ( );
                 if ( beep )
                     WpfLib1 . Utils . DoErrorBeep ( 300 , 50 , 1 );
             }
             else
             {
-                this . Visibility = Visibility . Visible;
-                this . BringIntoView ( );
+                flowdoc . Visibility = Visibility . Visible;
+                flowdoc . BringIntoView ( );
             }
         }
 
