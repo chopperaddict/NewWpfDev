@@ -10,9 +10,7 @@
             <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
 
             <ResourceDictionary.MergedDictionaries>
-                <!--<ResourceDictionary Source="pack://application:,,,/CommonControls;component/Themes/GeneralStyle.xaml" />-->
-                <!--<ResourceDictionary Source="pack://application:,,,/CommonControls;component/Themes/GeneralStyle.xaml" />-->
-                <ResourceDictionary Source="Dicts\ColorsDictionary.xaml" />
+                  <ResourceDictionary Source="Dicts\ColorsDictionary.xaml" />
                 <ResourceDictionary Source="Dicts\ButtonsMaster.xaml" />
                 <ResourceDictionary Source="Dicts\MainMenu.xaml" />
                 <ResourceDictionary Source="Dicts\DataGridStyles.xaml" />
@@ -22,8 +20,6 @@
                 <ResourceDictionary Source="Dicts\TreeViewDictionary.xaml"/>
                 <ResourceDictionary Source="DataTemplates\ContextMenuResources.xaml" />
                 <ResourceDictionary Source="Styles\StylesDictonary.xaml"/>
-                <!--<ResourceDictionary Source="\DataTemplates\BankDataStyleTemplateSelector.xaml"/>-->
-                <!--<ResourceDictionary Source="\DataTemplates\BankDataTemplateSelector.xaml"/>-->
                 <ResourceDictionary Source="DataTemplates\CustomerDataTemplates.xaml"/>
                 <ResourceDictionary Source="DataTemplates\BankDataTemplates.xaml"/>
                 <ResourceDictionary Source="DataTemplates\GenericDataTemplates.xaml"/>
@@ -35,22 +31,10 @@
                 <ResourceDictionary Source="Themes\ThemesDictionary.xaml"/>
                 <ResourceDictionary Source="ViewModels\ListBoxViewStyles.xaml"/>
                 <ResourceDictionary Source="ViewModels\MenuStyles.xaml"/>
-                <!--<ResourceDictionary Source="Themes\ControlColours.xaml"/>-->
-                <ResourceDictionary Source=".\Dicts\BankGridStyle.xaml"/>
+                 <ResourceDictionary Source=".\Dicts\BankGridStyle.xaml"/>
                 <ResourceDictionary Source="Styles\DarkMode.xaml" />
                 
-                <!--<ResourceDictionary Source="Themes\DarkTheme.xaml"/>-->
-                <!--<ResourceDictionary Source="Themes\DeepDark.xaml"/>-->
-                <!--<ResourceDictionary Source="Themes\LighTheme.xaml"/>-->
-                <!--<ResourceDictionary Source="Themes\luna.metallic.xaml"/>-->
-                <!--<ResourceDictionary Source="Themes\RedBlackTheme.xaml"/>
-                <ResourceDictionary Source="Themes\SoftDark.xaml"/>
-                <ResourceDictionary Source="Themes\VeryDarkTheme.xaml"/>
-                <ResourceDictionary Source="Themes\ColourfulLightTheme.xaml"/>-->
-                <!--<ResourceDictionary Source="Themes\classic.xaml"/>.--><!--
-                <ResourceDictionary Source="Themes\aero.NormalColor.xaml"/>-->
-                <!--<ResourceDictionary Source="/PresentationFramework.Aero;component/themes/Aero.NormalColor.xaml"/>-->
-            </ResourceDictionary.MergedDictionaries>
+              </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary >
     </Application.Resources>
     

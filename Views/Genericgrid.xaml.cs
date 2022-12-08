@@ -35,6 +35,8 @@ using StoredProcs;
 
 using UserControls;
 
+using UtilityWindows;
+
 using File = System . IO . File;
 using Flags = NewWpfDev . Views . Flags;
 using GenericClass = NewWpfDev . GenericClass;
@@ -1170,8 +1172,9 @@ namespace Views
             GridData = DapperSupport . CreateFullColumnInfo ( CurrentTable , ConString , true );
             string output = GenerateTableStructuretext ( GridData );
             Mouse . OverrideCursor = Cursors . Arrow;
-            fdl . ShowInfo ( Flowdoc , Filtercanvas , line1: output , clr1: "Black0" , line2: "" , clr2: "Black0" , line3: "" , clr3: "Black0" , header: "" , clr4: "Black0" );
-
+            DataViewer dv = new DataViewer ( output , "Normal" , "Nirmala UI" , 14 , "Black1");
+            dv . Show ( );
+ //
             return;
         }
         public static string GenerateTableStructuretext ( ObservableCollection<GenericClass> GridData )

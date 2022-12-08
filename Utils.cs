@@ -246,7 +246,7 @@ namespace NewWpfDev
                     Console . Beep ( 280 , 100 );
                     Console . Beep ( 200 , 500 );
                 }
-            //    Thread . Sleep ( 100 );
+                //    Thread . Sleep ( 100 );
             }
             return;
         }
@@ -256,11 +256,11 @@ namespace NewWpfDev
             {
                 //for ( int i = 0 ; i < repeat ; i++ )
                 //{
-                   Console . Beep ( 340 , 150 );
-                    Console . Beep ( 410 , 120 );
-                    Console . Beep ( 340 , 150 );
-                    Console . Beep ( 430, 350 );
-                    //Console . Beep ( 300 , 800 );
+                Console . Beep ( 340 , 150 );
+                Console . Beep ( 410 , 120 );
+                Console . Beep ( 340 , 150 );
+                Console . Beep ( 430 , 350 );
+                //Console . Beep ( 300 , 800 );
                 //
             }
             return;
@@ -269,8 +269,8 @@ namespace NewWpfDev
         {
             //for ( int i = 0 ; i < repeat ; i++ )
             //{
-                Console . Beep ( 320 , 300 );
-                Console . Beep ( 260 , 800 );
+            Console . Beep ( 320 , 300 );
+            Console . Beep ( 260 , 800 );
             //}
             //Thread . Sleep ( 100 );
             return;
@@ -1117,6 +1117,14 @@ namespace NewWpfDev
             // Dgrid . ScrollIntoView ( Dgrid . SelectedItem );
             //Dgrid . UpdateLayout ( );
         }
+        public static void ScrollCBRecordIntoView ( ComboBox lbox , int CurrentRecord )
+        {
+            // Works well 26/5/21
+            //update and scroll to bottom first
+            lbox . SelectedIndex = CurrentRecord;
+            lbox . UpdateLayout ( );
+        }
+
         //Generic form of Selection forcing code below
         public static void SetupWindowDrag ( Window inst )
         {
@@ -3300,25 +3308,43 @@ namespace NewWpfDev
         static public FontFamily ResetFont ( string fontname )
         {
             FontFamily fontfamily = null;
-            string test = ( string ) Properties . Settings . Default [ fontname ];
-            if ( test != "" )
-                fontfamily = new FontFamily ( test );
-            return fontfamily;
-        }
-        static public FontFamily GetFlowdocFont ( string font = "" )
-        {
-            FontFamily fontfamily = null;
-            if ( font == "" )
+            try
             {
-                fontfamily = new FontFamily ( );
-            }
-            else
-            {
-                string test = ( string ) Properties . Settings . Default [ font ];
+                string test = ( string ) Properties . Settings . Default [ fontname ];
                 if ( test != "" )
                     fontfamily = new FontFamily ( test );
             }
+            catch ( Exception ex ) { }
             return fontfamily;
+        }
+        static public string  GetFlowdocFont ( string font = "" )
+        {
+            FontFamily fontfamily = new FontFamily ( "Arial" );
+            try
+            {
+                if ( font == "" )
+                {
+                    fontfamily = new FontFamily ( "Arial" );
+                }
+                else
+                {
+                    string test = ( string ) Properties . Settings . Default [ font ];
+                    if ( test != "" )
+                        fontfamily = new FontFamily ( test );
+                }
+            }
+            catch ( Exception ex ) { }
+            return fontfamily.ToString();
+        }
+        static public int GetFlowdocFontSize ( )
+        {
+            try
+            {
+                string test = ( string ) Properties . Settings . Default [ "FlowDocFontSize" ];
+                return Convert . ToInt32 ( test );
+            }
+            catch ( Exception ex ) { }
+            return 13;
         }
         static public int GetIntFromEnumerable ( IEnumerable value )
         {
@@ -3338,11 +3364,11 @@ namespace NewWpfDev
             }
             return recordcount;
         }
-        static public ReadOnlySpan <char> SpanTrim(string str, int start, int len)
+        static public ReadOnlySpan<char> SpanTrim ( string str , int start , int len )
         {
-           // string output = "";
+            // string output = "";
             ReadOnlySpan<char> span = str;
-            span  = span . Slice ( start , len );
+            span = span . Slice ( start , len );
             return span;
         }
         public static void ParseDictIntoGenericClass ( Dictionary<string , string> outdict , int reccount , ref GenericClass gc )
@@ -3416,6 +3442,18 @@ namespace NewWpfDev
             }
             //return gc;
         }
-
+        public static void SetDefaultFontSizes ( ComboBox cb , int start , int total , int defindex )
+        {
+            int indx = 0;
+            List<string> sizes = new List<string> ( );
+            for ( int x = start ; x < start + total ; x++ )
+            {
+                sizes . Add ( $"{x}" );
+                if ( x == defindex )
+                    indx = x - start;
+            }
+            cb . ItemsSource = sizes;
+            cb . SelectedIndex = indx;
+        }
     }
 }

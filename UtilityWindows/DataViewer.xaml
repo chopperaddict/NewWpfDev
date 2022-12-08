@@ -1,0 +1,169 @@
+﻿<Window x:Class="UtilityWindows.DataViewer"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:UtilityWindows"
+        xmlns:conv="clr-namespace:NewWpfDev.Converts"
+        xmlns:user="clr-namespace:NewWpfDev.UserControls"
+        mc:Ignorable="d"
+       WindowChrome.ResizeGripDirection="BottomRight"
+	    ResizeMode="CanResizeWithGrip"        
+        MinHeight="200" MinWidth="400"
+        KeyDown="Dataviewer_KeyDown"
+        Background="{StaticResource White0}"
+        Loaded="Grid_Loaded"
+        Closing="Dataviewer_Closing"
+        x:Name="Dataviewer"
+        Title="Data Viewer" FontWeight="Bold" Height="300" Width="500">
+    <Window.Resources>
+        <conv:IncreaseByParamValue x:Key="IncreaseByParamValue" />
+        <conv:ReduceByParamValue x:Key="ReduceByParamValue"/>
+
+        <Style x:Key="ComboBoxStyle" TargetType="ComboBox" >
+            <Style.Triggers>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="False"/>
+                    </MultiTrigger.Conditions>
+                    <MultiTrigger.Setters>
+                        <Setter Property="Background" Value="Red"/>
+                        <Setter Property="Foreground" Value="White"/>
+                    </MultiTrigger.Setters>
+                </MultiTrigger>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="True"/>
+                    </MultiTrigger.Conditions>
+                    <MultiTrigger.Setters>
+                        <Setter Property="Background" Value="Red"/>
+                        <Setter Property="Foreground" Value="White"/>
+                    </MultiTrigger.Setters>
+                </MultiTrigger>
+            </Style.Triggers>
+        </Style>
+
+    </Window.Resources>
+    <Grid x:Name="dataviewergrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition x:Name ="row1" Height="*"/>
+            <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" >
+            <TextBlock x:Name="banner"
+                   Background="{StaticResource Orange4}"
+                   Foreground="Black"
+                   Text="Data Display Viewer"
+                   TextAlignment="left"
+                   HorizontalAlignment="Left"
+                   FontSize="14"
+                   Width="{Binding ActualWidth, ElementName=dataviewergrid,
+                        Converter={StaticResource ReduceByParamValue},ConverterParameter=130}"
+                   Padding="20 3 0 0"/>
+            <TextBlock x:Name="f8"
+                   Background="{StaticResource Orange4}"
+                   Foreground="{StaticResource Red3}"
+                   Text="F8-Reset defaults"
+                   TextAlignment="Center"
+                   HorizontalAlignment="Right"
+                   FontSize="14"
+                   Width="130"
+                   Padding="0 3 0 0"/>
+        </Grid>
+        <!--ContextMenu="{StaticResource OptionsContextmenu}"-->
+        <FlowDocumentScrollViewer x:Name="fdviewer"
+                Grid.Row="1"
+				Focusable="true"
+				FontFamily="{Binding fontFamily}"
+				FontSize="{Binding Fontsize}"
+				Grid.Column="1"
+				Grid.ColumnSpan="2"
+				Width="{Binding Path=ActualWidth, ElementName=dataviewergrid, 
+                    Converter={StaticResource ReduceByParamValue},ConverterParameter=5}"
+				HorizontalAlignment="Left"
+				IsHitTestVisible="true"
+				IsEnabled="true"
+				IsSelectionEnabled="false"
+				Panel.ZIndex="10"
+				Margin="2,0,0,0"
+				VerticalAlignment="Stretch"
+                VerticalScrollBarVisibility="Visible"
+				ScrollViewer.CanContentScroll="True"
+                ScrollViewer.HorizontalScrollBarVisibility="Visible"
+				Visibility="Visible"
+				Height="{Binding Path=ActualHeight, ElementName=dataviewergrid, 
+                    Converter={StaticResource ReduceByParamValue},ConverterParameter=90}"
+						 />
+
+
+        <!--#region bottom panel-->
+  
+        <Grid x:Name="BnGrid" Grid.Row="2" Background="{StaticResource Orange1}">
+            <TextBlock x:Name="btnbar"
+                   Background="{StaticResource Orange4}"
+                   Foreground="Black"
+                       TextAlignment="Center"
+                       FontSize="14"                   
+                       Padding="0 3 0 0"/>
+
+                <Label Content="Set Font size :"
+                       Foreground="Black"
+                       Padding="210 10 0 0"
+                       FontSize="14"
+                       />
+            <ComboBox x:Name="Fonts" 
+                          Width="60"
+                          Height="30"
+                          FontSize="14"
+                          HorizontalAlignment="Left"
+                          Margin="310 0 0 0"
+                          Style="{StaticResource ComboBoxStyle}"
+                      SelectionChanged="Fonts_SelectionChanged"
+                          MaxDropDownHeight="250">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Width="80"
+                                Text="{Binding}"
+                                Height="20"
+                                Background="{StaticResource Black4}"
+                                Foreground="White"
+                                FontSize="14"/>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+
+            <ComboBox x:Name="fontslist" 
+                      Grid.Row="2"
+                          Width="190"
+                          Height="30"
+                          FontSize="14"
+                          HorizontalAlignment="Left"
+                          Margin="10 0 0 0"
+                          Style="{StaticResource ComboBoxStyle}"
+                      SelectionChanged="Fontslist_SelectionChanged"
+                          MaxDropDownHeight="320">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Width="180"
+                                Text="{Binding}"
+                                Height="20"
+                                Background="{StaticResource Black4}"
+                                Foreground="White"
+                                FontSize="14"/>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+            <Button Content="Close"
+                        Click="Close_Click"
+                        Width="110"
+                        Height="30"
+                        HorizontalAlignment="Right"
+                        Margin="0 0 10 0"
+                        Style="{StaticResource DarkmodeButton}"
+                        />
+            <!--#endregion bottom panel-->
+
+        </Grid>
+    </Grid>
+</Window>

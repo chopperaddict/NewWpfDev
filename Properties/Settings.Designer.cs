@@ -12,7 +12,7 @@ namespace NewWpfDev.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.3.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.4.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -219,6 +219,102 @@ namespace NewWpfDev.Properties {
             }
             set {
                 this["SpResultsViewerOnTop"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("\"13\"")]
+        public string FlowDocFontSize {
+            get {
+                return ((string)(this["FlowDocFontSize"]));
+            }
+            set {
+                this["FlowDocFontSize"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Nirmala UI")]
+        public string FlowDocFontFamily {
+            get {
+                return ((string)(this["FlowDocFontFamily"]));
+            }
+            set {
+                this["FlowDocFontFamily"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Normal")]
+        public string FlowDocFontStyle {
+            get {
+                return ((string)(this["FlowDocFontStyle"]));
+            }
+            set {
+                this["FlowDocFontStyle"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("\"14\"")]
+        public string SettingFlowDocFontSize2 {
+            get {
+                return ((string)(this["SettingFlowDocFontSize2"]));
+            }
+            set {
+                this["SettingFlowDocFontSize2"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Arial")]
+        public string FlowDocFontFamily2 {
+            get {
+                return ((string)(this["FlowDocFontFamily2"]));
+            }
+            set {
+                this["FlowDocFontFamily2"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Italic")]
+        public string FlowDocFontStyle2 {
+            get {
+                return ((string)(this["FlowDocFontStyle2"]));
+            }
+            set {
+                this["FlowDocFontStyle2"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Black0")]
+        public string FlowDocFontColor {
+            get {
+                return ((string)(this["FlowDocFontColor"]));
+            }
+            set {
+                this["FlowDocFontColor"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Red3")]
+        public string FlowDocFontColor2 {
+            get {
+                return ((string)(this["FlowDocFontColor2"]));
+            }
+            set {
+                this["FlowDocFontColor2"] = value;
             }
         }
     }

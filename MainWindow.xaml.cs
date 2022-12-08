@@ -10,6 +10,8 @@ using System . Windows . Controls;
 using System . Windows . Input;
 using System . Windows . Media;
 
+using ConfigSettings;
+
 using Expandos;
 
 using IronPython . Compiler . Ast;
@@ -263,6 +265,8 @@ namespace NewWpfDev
 
         //public static ExplorerClass Txplorer;
 
+      // public static AppSettingsHandler AppSettings { get; set; } = null;
+        
         public MainWindow ( )
         {
             InitializeComponent ( );
@@ -270,6 +274,7 @@ namespace NewWpfDev
             this . Left = 100;
             WpfLib1 . Utils . SetupWindowDrag ( this );
             this . Show ( );
+           // AppSettings = new AppSettingsHandler ( );
             Mouse . SetCursor ( Cursors . Wait );
             Flags . CurrentConnectionString = ( string ) Properties . Settings . Default [ "BankSysConnectionString" ];
             Flags . FlowdocCrMultplier = 3.0;
