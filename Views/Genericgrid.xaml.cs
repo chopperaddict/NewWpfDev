@@ -4928,13 +4928,13 @@ namespace Views
                 {
                     /// got searchtext and we are using matches
                     spviewer . Bannerline . Text = $"Stored Procedures Helper : ({spviewer . ListResults . Items . Count}) SP's matching  [{Searchtext}] is  shown)";
-                    spviewer . ShowingAllSprocs . Content = $"Show All available SP's. ";
+                    //spviewer . ShowingAllSprocs . Content = $"Show All available SP's. ";
                 }
                 else if ( Resultsviewer . UsingMatches == false )
                 {
                     // there is a search text, but showing all
                     spviewer . Bannerline . Text = $"Stored Procedures Helper : ALL ({spviewer . ListResults . Items . Count}) available SP's  shown)";
-                    spviewer . ShowingAllSprocs . Content = $"Show SP's matching [{Gengrid . Searchtext}]. ";
+                    //spviewer . ShowingAllSprocs . Content = $"Show SP's matching [{Gengrid . Searchtext}]. ";
                 }
             }
             //spviewer . Bannerline . Text = $"Stored Procedures Helper ({Gengrid . Splist . Items . Count}) SP's Matching  [{Searchtext}] shown)";

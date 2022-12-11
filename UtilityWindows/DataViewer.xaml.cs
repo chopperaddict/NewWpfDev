@@ -803,6 +803,9 @@ namespace UtilityWindows
                             if ( defsize . Contains ( "--" ) )
                                 defsize = defsize . Substring ( 0 , defsize . IndexOf ( "--" ));
 
+                            if ( defsize . Contains ( "=" )== true )
+                                defsize = defsize . Substring ( 0 , defsize . IndexOf ( "=" ) );
+
                             newwords [ wordsindex++ ] = $"\n{dummytab}*** Max Size is {defsize}) ***";
                             continue;
                         }

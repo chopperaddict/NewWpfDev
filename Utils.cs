@@ -3146,7 +3146,7 @@ namespace NewWpfDev
         }   // METHOD END
 
 
-        private static void CheckStyle ( string file , int offset , bool isfullkey , ref List<string> Paths , ref List<string> Styles , ref string fullBuffer )
+        private static void CheckStyle ( string file , int offset , bool isfullkey , ref List<string> Paths , ref List<string> styles , ref string fullBuffer )
         {
             // This DOES maintain the much need Case Sensitivity of the Template names
             // as they are case sensitive in FindResource(), so our list will adhere to (Camel Casing)
@@ -3155,9 +3155,9 @@ namespace NewWpfDev
             string testbuffer = "", buffer = "";
             FullBuffer = fullBuffer;
 
-            if ( Styles . Count == 0 )
+            if ( styles . Count == 0 )
             {
-                Styles . Add ( "Dark Mode" );
+                styles . Add ( "Dark Mode" );
                 Paths . Add ( "Dark Mode" );
             }
 
@@ -3189,7 +3189,7 @@ namespace NewWpfDev
                     buffer = buffer . Substring ( 0 , offset );
 
                     Paths . Add ( file );
-                    Styles . Add ( buffer );
+                    styles . Add ( buffer );
 
                     FullBuffer = Currentbuffer . Substring ( buffer . Length + 20 );
                     //FullBuffer = testbuffer;
@@ -3226,7 +3226,7 @@ namespace NewWpfDev
                 //    buffer = buffer . Substring ( 0 , offset );
 
                 Paths . Add ( file );
-                Styles . Add ( buffer );
+                styles . Add ( buffer );
 
                 // FullBuffer = Currentbuffer . Substring ( buffer . Length + 40 );
                 //FullBuffer = testbuffer;

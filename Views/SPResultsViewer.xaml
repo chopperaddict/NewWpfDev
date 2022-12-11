@@ -17,10 +17,11 @@
   	    WindowChrome.ResizeGripDirection="BottomRight"
 	    ResizeMode="CanResizeWithGrip"
         Title="Stored Procedures Results Viewer" 
-        Height="870" Width="1000"
+        Height="670" Width="1000"
         MinHeight="500" 
         MinWidth="925">
     <!--MouseUp="ContextMenu_Closed"-->
+        <!--xmlns:tbarstyles="clr-namespace:NewWpfDev.Stylesheets"-->        
 
     <Window.Resources>
         <conv:IncreaseByParamValue x:Key="IncreaseByParamValue" />
@@ -554,12 +555,13 @@
                 <MenuItem.Header>
                     <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
                         <TextBlock 
-                                    Text="How to best select an Execution Method" 
-                                    FontSize="14"
-                                     Height="25"
-                                    Padding="20 0 0 0"
-                                    Margin="0 0 0 0"
-                                     Width="375"/>
+                            Text="How to best select an Execution Method" 
+                            FontWeight="DemiBold"
+                            FontSize="14"
+                            Height="25"
+                            Padding="20 0 0 0"
+                            Margin="0 0 0 0"
+                            Width="375"/>
                     </StackPanel>
                 </MenuItem.Header>
             </MenuItem>
@@ -571,6 +573,7 @@
                         <TextBlock 
                                     Text="Show Header Block Detailed Information" 
                                     FontSize="14"
+                                FontWeight="DemiBold"
                                      Height="25"
                                     Padding="20 0 0 0"
                                     Margin="0 0 0 0"
@@ -579,7 +582,7 @@
                 </MenuItem.Header>
             </MenuItem>
 
-           <MenuItem   >
+            <MenuItem   >
                 <!--// splitter-->
                 <MenuItem.Header>
                     <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
@@ -601,6 +604,7 @@
                         <TextBlock 
                                     Text="Toggle Parameters/Options panels" 
                                     FontSize="14"
+                            FontWeight="DemiBold"
                                      Height="25"
                                     Padding="20 0 0 0"
                                     Margin="0 0 0 0"
@@ -609,83 +613,54 @@
                 </MenuItem.Header>
             </MenuItem>
 
-
-            <MenuItem   x:Name="gm56" Click="SetLbsize">
+            <MenuItem   x:Name="gm41" Click="expandargsentry">
+                    <MenuItem.Header>
+                        <!--// Reset Scroller font  size-->
+                        <StackPanel x:Name="sp41" Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                            <TextBlock x:Name="gm41Text"
+                                    Text="{Binding gm41Text}" 
+                                    FontSize="14"
+                            FontWeight="DemiBold"
+                                     Height="20"
+                                    Padding="20 0 0 0"
+                                    Margin="0 0 0 0"
+                                     Width="375"/>
+                        </StackPanel>
+                    </MenuItem.Header>
+                </MenuItem>
+ 
+  
+            <!--<MenuItem   x:Name="gm56" Click="SetLbsize">
                 <MenuItem.Header>
                     <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
                         <TextBlock 
                                     Text="Reset S.Procs Listbox font size" 
                                     FontSize="14"
+                            FontWeight="DemiBold"
                                      Height="20"
                                     Padding="20 0 0 0"
                                     Margin="0 0 0 0"
                                      Width="375"/>
                     </StackPanel>
                 </MenuItem.Header>
-            </MenuItem>
-
-            <MenuItem   >
-                <!--// splitter-->
-                <MenuItem.Header>
-                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
-                        <TextBlock 
-                                Text="------------------------------------------------------------------------"
-                                FontSize="8"
-                                    Foreground="Red"
-                                     Height="12"
-                                    Padding="20 0 0 0"
-                                    Margin="0 0 0 0"
-                                     Width="375"/>
-                    </StackPanel>
-                </MenuItem.Header>
-            </MenuItem>
-
-            <MenuItem   x:Name="gm55" Click="SetFontsize">
+            </MenuItem>                  
+ 
+            <MenuItem   x:Name="gm55" Click="SetViewerFontsize">
                 <MenuItem.Header>
                     <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
                         <TextBlock 
                                     Text="Reset S.Proc Script Viewer font size" 
                                     FontSize="14"
+                            FontWeight="DemiBold"
                                      Height="20"
                                     Padding="20 0 0 0"
                                     Margin="0 0 0 0"
                                      Width="375"/>
                     </StackPanel>
                 </MenuItem.Header>
-            </MenuItem>
+            </MenuItem>-->-->
 
-            <MenuItem   >
-                <!--// splitter-->
-                <MenuItem.Header>
-                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
-                        <TextBlock 
-                                Text="------------------------------------------------------------------------"
-                                FontSize="8"
-                                    Foreground="Red"
-                                     Height="12"
-                                    Padding="20 0 0 0"
-                                    Margin="0 0 0 0"
-                                     Width="375"/>
-                    </StackPanel>
-                </MenuItem.Header>
-            </MenuItem>
-
-            <MenuItem   x:Name="gm41" Click="expandargsentry">
-                <MenuItem.Header>
-                    <StackPanel x:Name="sp41" Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
-                        <TextBlock x:Name="gm41Text"
-                                    Text="{Binding gm41Text}" 
-                                    FontSize="14"
-                                     Height="20"
-                                    Padding="20 0 0 0"
-                                    Margin="0 0 0 0"
-                                     Width="375"/>
-                    </StackPanel>
-                </MenuItem.Header>
-            </MenuItem>
-
-            <MenuItem   >
-                <!--// splitter-->
+              <MenuItem   >         <!--// splitter-->
                 <MenuItem.Header>
                     <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
                         <TextBlock 
@@ -706,6 +681,7 @@
                         <TextBlock 
                                     Text="Show only SP's matching Search term" 
                                     FontSize="14"
+                            FontWeight="DemiBold"
                                      Height="20"
                                     Padding="20 0 0 0"
                                     Margin="0 0 0 0"
@@ -721,6 +697,7 @@
                         <TextBlock 
                                     Text="Show ALL S.P's in LIstBox"
                                     FontSize="14"
+                            FontWeight="DemiBold"
                                      Height="20"
                                     Padding="20 0 0 0"
                                     Margin="0 0 0 0"
@@ -730,8 +707,7 @@
             </MenuItem>
 
             <!--//Splitter-->
-            <MenuItem   x:Name="gm3" >
-                <!--// splitter-->
+            <MenuItem   x:Name="gm3" >       <!--// splitter-->
                 <MenuItem.Header>
                     <StackPanel Orientation="Horizontal" Width="375" Style="{StaticResource StackPanelStyle1}">
                         <TextBlock 
@@ -753,6 +729,7 @@
                         <TextBlock 
                                     Text="Show ALL/Select Sql Tables in Current Db"
                                     FontSize="14"
+                            FontWeight="DemiBold"
                                      Height="20"
                                     Padding="20 0 0 0"
                                     Margin="0 0 0 0"
@@ -768,6 +745,7 @@
                         <TextBlock 
                                     Text="Close Sql Tables Viewer"
                                     FontSize="14"
+                            FontWeight="DemiBold"
                                      Height="20"
                                     Padding="20 0 0 0"
                                     Margin="0 0 0 0"
@@ -776,10 +754,8 @@
                 </MenuItem.Header>
             </MenuItem>
 
-            <!--// Spitter-->
-            <MenuItem   x:Name="gm6" >
-                <!--// splitter-->
-                <!--// Divider-->
+
+            <MenuItem   x:Name="gm6" >     <!--// Spitter-->
                 <MenuItem.Header>
                     <StackPanel Orientation="Horizontal" Width="375" Style="{StaticResource StackPanelStyle1}">
                         <TextBlock 
@@ -801,6 +777,7 @@
                         <TextBlock 
                                     Text="Show SP Argument details alone" 
                                     FontSize="14"
+                            FontWeight="DemiBold"
                                      Height="20"
                                     Padding="20 0 0 0"
                                     Margin="0 0 0 0"
@@ -812,9 +789,11 @@
         </ContextMenu>
 
         <!--#endregion SpResultsViewer ContextMenu-->
-        
+
     </Window.Resources>
 
+    <!--==============================================================================-->
+    
     <Grid x:Name="SpViewerResults" 
             KeyDown="SpStrings_KeyDown"                    
               Width="{Binding ActualWidth, ElementName=Spresultsviewer,
@@ -832,6 +811,8 @@
             <RowDefinition x:Name="hsplit" Height="40"/>
             <RowDefinition  x:Name="vrow2"  Height="*"/>
             <RowDefinition  x:Name="vrow3" Height="115"/>
+            <RowDefinition  x:Name="promptbar" Height="20"/>
+            <RowDefinition  x:Name="tbar" Height="25"/>
         </Grid.RowDefinitions>
 
         <!--// hidden field-->
@@ -882,7 +863,7 @@
                 FontSize="18"
                 FontWeight="DemiBold"
                 VerticalAlignment="Top"
-                UseLayoutRounding="True" />  
+                UseLayoutRounding="True" />
         </Grid>
 
         <!--#endregion banner-->
@@ -1038,8 +1019,8 @@
                     PreviewKeyDown="Arguments_KeyDown"
                     TextOptions.TextFormattingMode="Ideal"
                     TextOptions.TextRenderingMode="ClearType"/>
-                    <!--Background="{StaticResource Red6}"
-                    Foreground="{StaticResource Black0}"-->                                              
+            <!--Background="{StaticResource Red6}"
+                    Foreground="{StaticResource Black0}"-->
         </Grid>
 
         <!--#endregion Scrolldocument-->
@@ -1047,7 +1028,7 @@
         <!--#region Checkboxes-->
 
         <!--IsChecked="{Binding  ShowingAllSPs}"-->
-        <CheckBox x:Name="ShowingAllSprocs"
+        <!--<CheckBox x:Name="ShowingAllSprocs"
                 Grid.Row="4"
                 Grid.Column="0"
                 HorizontalAlignment="Left"
@@ -1081,7 +1062,7 @@
                           Click="OntopCheck_Click"
                           Margin="17,43,0,0"
                           Visibility="Collapsed"
-                  />
+                  />-->
 
         <!--#endregion Checkboxes-->
 
@@ -1104,7 +1085,7 @@
                 PreviewMouseRightButtonDown="ListResults_MouseRightButtonDown"
                 KeyDown="Spresultsviewer_KeyDown"
                 Visibility="Visible" Margin="15,0,15,0">
- 
+
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition  x:Name="vcol1" Width="*"/>
                     <ColumnDefinition  x:Name="vcol2" Width="100"/>
@@ -1438,7 +1419,7 @@
 
                     <Grid x:Name="innercontainer2">
 
-                     <TextBlock x:Name="operationtype3" 
+                        <TextBlock x:Name="operationtype3" 
                             Height="230" 
                             Width="580" 
                             Background="{StaticResource White3}"
@@ -1487,7 +1468,7 @@
             </Grid>
             <!--#endregion  popup Info for error input-->
 
-            <!--#region  popup Font size selector-->
+            <!--#region  popup Listbox Font size selector-->
             <Grid x:Name="FontSizeChanger" 
                   Height="100" 
                   Width="300" 
@@ -1508,7 +1489,7 @@
                             Background="{StaticResource Red5}"
                             Foreground="{StaticResource White0}"
                             Text="Reset Viewer Font Size"
-                                   TextAlignment="Center"
+                            TextAlignment="Center"
                             Margin="0 0 0 0" 
                             Padding="10 5 10 0"
                             IsHitTestVisible="True"
@@ -1584,7 +1565,7 @@
                             IsHitTestVisible="True"
                             PreviewMouseRightButtonDown="TablesViewer_PreviewMouseRightButtonDown"
                             Visibility="Visible">
- 
+
                         <Grid.RowDefinitions>
                             <RowDefinition x:Name="row20" Height="35"/>
                             <RowDefinition x:Name="row22" Height="220"/>
@@ -1690,9 +1671,9 @@
                 </Border>
             </Grid>
 
- 
-        <!--#endregion Canvas-->
-            
+
+            <!--#endregion Canvas-->
+
             <!--#region infoviewer-->
             <!--<Border x:Name="Executeinfo" 
                     Height="600"
@@ -1762,50 +1743,164 @@
             </Border>-->
             <!--#endregion infoviewer-->
         </Canvas>
-    
-          <!--<ListBox x:Name="ExecuteEdit"
-                        DataContext="Executedata"
-                        Grid.Row="3"
-                        Height="{Binding row10}"
-                        Width="400"
-                        Background="{StaticResource White4}"
-                        Foreground="Black"   
-                        SelectionMode="Single"
-                        FontSize="16"
-                        FontWeight="DemiBold"
-                        IsEnabled="True"
-                        Margin="0,0,0,0"
-                        IsSynchronizedWithCurrentItem="true"
-                        HorizontalContentAlignment="Center"
-                        ScrollViewer.VerticalScrollBarVisibility="Auto"
-                        ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                        IsHitTestVisible="True"
-                        Panel.ZIndex="4"
-                        KeyDown="TextBlock_KeyDown"
-                        MouseRightButtonDown="ExecuteEdit_PreviewMouseRightButtonDown"
-                        Visibility="Collapsed">
-            <ListBoxItem>
-                --><!--<ListBox.ItemTemplate--><!--
-                <DataTemplate x:Name="dtemplate">
-                    <Grid>
-                        <TextBlock  x:Name="TBrow" 
-                            Margin="0 0 0 0"
-                            Text="{Binding Path=Text}"  
-                            IsHitTestVisible="True"
-                            Visibility="Visible"/>
 
-                        <TextBox x:Name="txboxrow" 
-                            Margin="0 0 0 0"
-                            IsHitTestVisible="true"                             
-                            Foreground="Black" 
-                            Width="380"
-                            Height="30"
-                            Text="{Binding Path=Text}"  
-                            Visibility="Collapsed"
-                            Background="{StaticResource White4}"/>
-                    </Grid>
-                </DataTemplate>
-            </ListBoxItem>
-        </ListBox>-->
+        <!--<ToolBarTray DockPanel.Dock="Top" Background="Red" TextElement.Foreground="White"/>-->
+           
+            <StackPanel Orientation="Horizontal"
+               Grid.Row="5"
+                Background="{StaticResource Green6}"
+                Height="20" 
+                Margin="0 0 0 0"
+                Width="{Binding ActualWidth, ElementName=SpResultsViewer,
+                    Converter={StaticResource ReduceByParamValue },ConverterParameter=10}">
+            <TextBlock Text="Current Stored Procedure" 
+                       Foreground="Black" 
+                       Panel.ZIndex="15 " 
+                       FontWeight="DemiBold" 
+                       Height="20" 
+                       FontSize="12" 
+                       Margin="110 0 0 0" Padding="0 2 0 0"/>
+            <TextBlock Text="L/Box font"  
+                       Foreground="Black" 
+                       Height="20" 
+                       FontSize="12"
+                       FontWeight="DemiBold" 
+                       Margin="120 0 0 0" 
+                       Padding="0 2 0 0"/>
+            <TextBlock Text="Viewer Font"  
+                       Foreground="Black" 
+                       Height="20" 
+                       FontSize="12" 
+                       FontWeight="DemiBold" 
+                       Margin="20 0 0 0" 
+                       Padding="0 2 0 0"/>
+            <TextBlock Text="TopMost Status"  
+                       Foreground="Black" 
+                       Height="20" 
+                       FontSize="12" 
+                       FontWeight="DemiBold" 
+                       Margin="25 0 0 0" 
+                       Padding="0 2 0 0"/>
+        </StackPanel>
+
+        <ToolBarTray Grid.Row="6" 
+                Background="{StaticResource Green6}"
+                TextElement.Foreground="White" 
+                VerticalAlignment="Bottom" 
+                Height="26">
+
+            <ToolBar x:Name="toolbar1" 
+                Band="0" BandIndex="1"
+                Background="{StaticResource White2}"
+                Height="28"
+                Width="730"
+                TextElement.Foreground="Black" 
+                HorizontalAlignment="Left"
+                 Margin="12,0,0,1" > 
+                
+                <TextBox x:Name="SPName" 
+                        Background="{StaticResource White2}"                
+                        Foreground="Black"
+                        FontSize="14"
+                        FontWeight="DemiBold"
+                        HorizontalAlignment="Left"
+                       HorizontalContentAlignment="Center"
+                        Padding="5 0 0 0"
+                        Width="300"
+                        Height="26"
+                        Margin="5,2,0,0" 
+                        Grid.RowSpan="2" />            
+  
+                <!--// Listbox font size-->
+                <ComboBox x:Name="TbFonts"
+                        Height="26" 
+                        Width="60" 
+                        IsHitTestVisible="True"
+                        Margin="45 0 0 0" 
+                        Padding="0 0 0 0"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center" 
+                        SelectionChanged="Fonts_SelectionChanged"
+                        MaxDropDownHeight="250"
+                        FontSize="14">
+                 <!--// Listbox font size-->
+                    <ComboBoxItem>
+                            <TextBlock 
+                                        HorizontalAlignment="Left"
+                                        Width="{Binding ActualWidth, ElementName=AllArgs,
+                                            Converter={StaticResource ReduceByParamValue},ConverterParameter=15}"
+                                        Background="{StaticResource Blue0}" 
+                                        Foreground="{StaticResource White3}">
+                            </TextBlock>
+                    </ComboBoxItem>
+                </ComboBox>
+                
+             <!--</ToolBar>
+
+            --><!--// Scrollviewer font size--><!--
+            <ToolBar x:Name="toolbar3"
+                 Band="0" BandIndex="2"
+                 Background="{StaticResource White2}"                
+                 Height="28"
+                 Width="90"
+                 TextElement.Foreground="Black" 
+                 HorizontalAlignment="Left"
+                Margin="0,0,0,1" >-->
+                <Separator/>
+                <!--// Scrollviewer font size-->
+                   <ComboBox x:Name="ScrollFontSize"
+                        Height="26" 
+                        Width="60" 
+                        IsHitTestVisible="True"
+                        Margin="10 0 0 0" 
+                        Padding="0 0 0 0"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center" 
+                        SelectionChanged="Fonts_SelectionChanged"
+                        MaxDropDownHeight="250"
+                        FontSize="14">
+                    <!--// Scrollviewer font size-->
+                    <ComboBoxItem>
+                        <TextBlock 
+                                        HorizontalAlignment="Left"
+                                        Width="{Binding ActualWidth, ElementName=AllArgs,
+                                            Converter={StaticResource ReduceByParamValue},ConverterParameter=15}"
+                                        Background="{StaticResource Blue0}" 
+                                        Foreground="{StaticResource White3}">
+                        </TextBlock>
+                    </ComboBoxItem>
+
+                </ComboBox>
+
+            <!--</ToolBar>
+
+            <ToolBar x:Name="toolbar23"       
+                Band="0" BandIndex="3"
+                Background="{StaticResource White4}"
+                 Height="28"
+                 Width="130"
+                 TextElement.Foreground="Black" 
+                 HorizontalAlignment="Left"
+                 OverflowMode="AsNeeded"
+                 Margin="150,0,0,1" >-->
+ 
+                <Button x:Name="tbarBtn2" 
+                        Click="topmost_Click"
+                    Content="Set as OnTop"
+                    Foreground="White"
+                    Style="{StaticResource ButtonSlant}"
+                    Width="100" 
+                    Height="26" 
+                    Margin="15,-2,0,0"
+                    />
+                
+            </ToolBar>
+            
+        </ToolBarTray>
+        <!--<ToolBarPanel x:Name="toolbar" Grid.Row="4" Background="Yellow" TextElement.Foreground="Black" Margin="374,115,450,0" Grid.RowSpan="2" />-->
+        <Label x:Name="TbsFonts" Visibility="Collapsed"
+                   Content=""/>
+        <Label x:Name="SPFontSize" Visibility="Collapsed"
+                   Content=""/>
     </Grid>
 </Window>

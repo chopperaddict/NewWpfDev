@@ -29,8 +29,9 @@
                 <ResourceDictionary Source="Dicts\ComboBoxStyles.xaml"/>
                 <ResourceDictionary Source="Dicts\Storyboards.xaml"/>
                 <ResourceDictionary Source="Dicts\TreeViewDictionary.xaml"/>
+                <ResourceDictionary Source="Stylesheets\ToolbarStyles.xaml" />
                 <ResourceDictionary Source="DataTemplates\ContextMenuResources.xaml" />
-                <ResourceDictionary Source="Styles\StylesDictonary.xaml"/>
+                <ResourceDictionary Source="Stylesheets\StylesDictonary.xaml"/>
                 <ResourceDictionary Source="DataTemplates\CustomerDataTemplates.xaml"/>
                 <ResourceDictionary Source="DataTemplates\BankDataTemplates.xaml"/>
                 <ResourceDictionary Source="DataTemplates\GenericDataTemplates.xaml"/>
@@ -43,9 +44,8 @@
                 <ResourceDictionary Source="ViewModels\ListBoxViewStyles.xaml"/>
                 <ResourceDictionary Source="ViewModels\MenuStyles.xaml"/>
                  <ResourceDictionary Source=".\Dicts\BankGridStyle.xaml"/>
-                <ResourceDictionary Source="Styles\DarkMode.xaml" />
-                
-              </ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Stylesheets\DarkMode.xaml" />
+            </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary >
     </Application.Resources>
     

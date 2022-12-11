@@ -12,8 +12,6 @@ using System . Linq . Expressions;
 using System . Numerics;
 using System . Security . Cryptography;
 using System . ServiceProcess;
-//using System . Drawing;
-using System . Threading . Tasks;
 using System . Windows;
 using System . Windows . Controls;
 using System . Windows . Controls . Primitives;
@@ -21,9 +19,7 @@ using System . Windows . Documents;
 using System . Windows . Input;
 using System . Windows . Media;
 using System . IO;
-//using IronPython . Compiler . Ast;
-//using IronPython . Runtime . Operations;
-
+//using NewWpfDev. Stylesheets;
 using NewWpfDev;
 
 using UserControls;
@@ -32,9 +28,6 @@ using System . Threading;
 using System . Windows . Threading;
 using Microsoft . Data . SqlClient;
 using System . Net;
-//using static IronPython . Modules . _ast;
-//using Microsoft . VisualBasic;
-//using IronPython . Runtime;
 using Microsoft . Xaml . Behaviors . Media;
 using System . Reflection;
 using NewWpfDev . Expandos;
@@ -42,6 +35,7 @@ using NewWpfDev . StoredProcs;
 
 using UtilityWindows;
 using System . Windows . Media . TextFormatting;
+using System . Threading . Tasks;
 
 namespace Views
 {
@@ -78,15 +72,6 @@ namespace Views
         int Fontsize { set; get; } = 14;
         int SpListFontsize { set; get; } = 14;
         int SpViewerFontsize { set; get; } = 14;
-
-        //public struct ExecutionResults
-        //{
-        //    public int resultInt { get; set; }
-        //    public string resultString { get; set; }
-        //    public List<string> resultStringList { get; set; }
-        //    public double resultDouble { get; set; }
-        //    public ObservableCollection<GenericClass> resultCollection { get; set; }
-        //}
 
         public  const int DEFAULTARGSSIZE = 6;
         public static bool SHOWSIZEARG = false;
@@ -198,14 +183,14 @@ namespace Views
 
             ShowTypesInArgsViewer = ( bool ) MainWindow . GetSystemSetting ( "ShowTypesInSpArgumentsString" );
             CloseArgsViewerOnPaste = ( bool ) MainWindow . GetSystemSetting ( "AutoCloseSpArgumentsViewer" );
-            OntopCheck . IsChecked = ( bool ) MainWindow . GetSystemSetting ( "SpResultsViewerOnTop" );
+            //OntopCheck . IsChecked = ( bool ) MainWindow . GetSystemSetting ( "SpResultsViewerOnTop" );
             if ( ( bool ) MainWindow . GetSystemSetting ( "SpViewerUseDarkMode" ) == true )
             {
                 SpViewerResults . Background = FindResource ( "Black3" ) as SolidColorBrush;
-                ShowingAllSprocs . Foreground = FindResource ( "White0" ) as SolidColorBrush;
+                //ShowingAllSprocs . Foreground = FindResource ( "White0" ) as SolidColorBrush;
                 prompter . Foreground = FindResource ( "White0" ) as SolidColorBrush;
                 BannerGrid . Background = FindResource ( "Orange5" ) as SolidColorBrush;
-                OntopCheck . Foreground = FindResource ( "White0" ) as SolidColorBrush;
+                //OntopCheck . Foreground = FindResource ( "White0" ) as SolidColorBrush;
                 MovingObject = SqlTablesViewer;
             }
             if ( spViewerexpobj == null )
@@ -218,10 +203,21 @@ namespace Views
             selitem = selitem != -1 ? selitem : 0;
             ListResults . SelectedIndex = selitem;
             ListResults . SelectedItem = selitem;
-            this . Focus ( );
             this . BringIntoView ( );
-            return;
+            this . Focus ( );
         }
+
+        private void Spresultsviewer_Loaded ( object sender , RoutedEventArgs e )
+        {
+            if ( ShowingAllSPs == false )
+                ShowingAllSPs = true;
+            IsLoading = false;
+            this . Focus ( );
+//            ScrollFontSize . Content = ListResults . FontSize; ;
+            SPFontSize . Content = SpViewerFontsize;
+            this . Focus ( );
+        }
+
         private void ListResults_SelectionChanged ( object sender , SelectionChangedEventArgs e )
         {
             // Load data into Scrollviewer
@@ -271,6 +267,7 @@ namespace Views
                     optype . SelectedItem = null;    // unselect method listbox
                 }
             }
+            SPName . Text = selname;
         }
 
         private void TextResult_PreviewMouseRightButtonDown ( object sender , MouseButtonEventArgs e )
@@ -367,6 +364,7 @@ namespace Views
             fd = Gengrid . CreateBoldString ( fd , sptext , Genericgrid . SpSearchTerm . ToUpper ( ) );
             fd . Background = FindResource ( "Black3" ) as SolidColorBrush;
             TextResult . Document = fd;
+            return ;
         }
 
         private void closeresultsviewer_Click ( object sender , RoutedEventArgs e )
@@ -379,7 +377,6 @@ namespace Views
         {
 
         }
-
 
         private void ExecuteSp ( )
         {
@@ -970,8 +967,6 @@ namespace Views
             }
             Mouse . OverrideCursor = Cursors . Arrow;
         }
-
-
         public static string [ ] PadArgsArray ( string [ ] content )
         {
             string [ ] tmp = new string [ DEFAULTARGSSIZE ];
@@ -1972,47 +1967,47 @@ namespace Views
         private void Spresultsviewer_Closing ( object sender , System . ComponentModel . CancelEventArgs e )
         {
             Genericgrid . Resultsviewer = null;
-            MainWindow . SaveSystemSetting ( "SpResultsViewerOnTop" , OntopCheck . IsChecked );
+            //MainWindow . SaveSystemSetting ( "SpResultsViewerOnTop" , OntopCheck . IsChecked );
         }
 
-        private void OntopCheck_Click ( object sender , RoutedEventArgs e )
-        {
-            CheckBox cb = sender as CheckBox; ;
-            if ( cb . IsChecked == true )
-            {
-                zOrder = 100;
-                Spresultsviewer . Topmost = true;
-            }
-            else
-            {
-                zOrder = 0;
-                Spresultsviewer . Topmost = false;
-            }
-        }
+        //private void OntopCheck_Click ( object sender , RoutedEventArgs e )
+        //{
+        //    CheckBox cb = sender as CheckBox; ;
+        //    if ( cb . IsChecked == true )
+        //    {
+        //        zOrder = 100;
+        //        Spresultsviewer . Topmost = true;
+        //    }
+        //    else
+        //    {
+        //        zOrder = 0;
+        //        Spresultsviewer . Topmost = false;
+        //    }
+        //}
 
-        private void ShowingAllSps_Checked ( object sender , RoutedEventArgs e )
-        {
-            // Checkbox clicked to change SP's shown
-            // toggle flag and load ALL SP's
+        //private void ShowingAllSps_Checked ( object sender , RoutedEventArgs e )
+        //{
+        //    // Checkbox clicked to change SP's shown
+        //    // toggle flag and load ALL SP's
 
-            CheckBox cb = sender as CheckBox;
-            if ( ShowingAllSPs == false )
-            {
-                ShowingAllSprocs . Content = $"Show ONLY Stored Procedures that contain [{Searchtext}].";
-                ShowingAllSprocs . UpdateLayout ( );
-            }
-            else
-            {
-                ShowingAllSprocs . Content = $"Show ALL Stored Procedures.";
-                ShowingAllSprocs . UpdateLayout ( );
+        //    CheckBox cb = sender as CheckBox;
+        //    if ( ShowingAllSPs == false )
+        //    {
+        //        ShowingAllSprocs . Content = $"Show ONLY Stored Procedures that contain [{Searchtext}].";
+        //        ShowingAllSprocs . UpdateLayout ( );
+        //    }
+        //    else
+        //    {
+        //        ShowingAllSprocs . Content = $"Show ALL Stored Procedures.";
+        //        ShowingAllSprocs . UpdateLayout ( );
 
-                // LOAD ALL (or matching) SP'S depending on flag status
-                // call stup method required because method is private
-                LoadAllSps ( this , ListResults . SelectedIndex );
-            }
-            e . Handled = true;
+        //        // LOAD ALL (or matching) SP'S depending on flag status
+        //        // call stup method required because method is private
+        //        LoadAllSps ( this , ListResults . SelectedIndex );
+        //    }
+        //    e . Handled = true;
 
-        }
+        //}
 
         /// <summary>
         /// Stub to allow Genericgrid to call ShowAllSps (Private Click event handler)
@@ -2046,76 +2041,64 @@ namespace Views
             SpResultsViewer Target = sender as SpResultsViewer;
 
             // We get back here after loading matching SP's ?????????????????????????'
-            if ( ShowingAllSprocs . IsChecked == true )
-            {
-                ShowingAllSprocs . UpdateLayout ( );
-                Mouse . OverrideCursor = Cursors . Wait;
-                // Update cosmetics
-                string [ ] args = new string [ 1 ];
-                args [ 0 ] = Searchtext;
-                SpList = SProcsDataHandling . CallStoredProcedure ( SpList , "spGetAllMatchingSprocs" , args );
-                ListResults . ItemsSource = SpList;
-                if ( ListResults . Items . Count == 0 )
-                {
-                    Debug . WriteLine ( $"Failed  to load SP's" );
-                    NewWpfDev . Utils . PlayErrorBeep ( );
-                    return;
-                }
-                else
-                {
-                    // Update  checkbox prompt
-                    ShowingAllSprocs . Content = $"Click to Show ALL S.Procs .";
-                    ShowingAllSprocs . UpdateLayout ( );
-                    // reset flag as we are now showing matches only
-                    ShowingAllSPs = true;
-                    UsingMatches = true;
-                    // Load SP into ScrollViewer
-                    Bannerline . Text = $"Stored Procedures Helper ({ListResults . Items . Count}) SP's Matching  [{Searchtext}] for Db [{MainWindow . CurrentSqlTableDomain}] are shown)";
-                    Mouse . OverrideCursor = Cursors . Arrow;
-                }
-            }
-            else
-            {
-                ShowingAllSprocs . UpdateLayout ( );
-                // Update cosmetics
+            //if ( ShowingAllSprocs . IsChecked == true )
+            //{
+            //    ShowingAllSprocs . UpdateLayout ( );
+            //    Mouse . OverrideCursor = Cursors . Wait;
+            //    // Update cosmetics
+            //    string [ ] args = new string [ 1 ];
+            //    args [ 0 ] = Searchtext;
+            //    SpList = SProcsDataHandling . CallStoredProcedure ( SpList , "spGetAllMatchingSprocs" , args );
+            //    ListResults . ItemsSource = SpList;
+            //    if ( ListResults . Items . Count == 0 )
+            //    {
+            //        Debug . WriteLine ( $"Failed  to load SP's" );
+            //        NewWpfDev . Utils . PlayErrorBeep ( );
+            //        return;
+            //    }
+            //    else
+            //    {
+            //        // Update  checkbox prompt
+            //        ShowingAllSprocs . Content = $"Click to Show ALL S.Procs .";
+            //        ShowingAllSprocs . UpdateLayout ( );
+            //        // reset flag as we are now showing matches only
+            //        ShowingAllSPs = true;
+            //        UsingMatches = true;
+            //        // Load SP into ScrollViewer
+            //        Bannerline . Text = $"Stored Procedures Helper ({ListResults . Items . Count}) SP's Matching  [{Searchtext}] for Db [{MainWindow . CurrentSqlTableDomain}] are shown)";
+            //        Mouse . OverrideCursor = Cursors . Arrow;
+            //    }
+            //}
+            //else
+            //{
+            //    //ShowingAllSprocs . UpdateLayout ( );
+            //    // Update cosmetics
 
-                //working  correctly
-                SpList = SProcsDataHandling . CallStoredProcedure ( SpList , "spGetStoredProcs" );
-                ListResults . ItemsSource = SpList;
-                if ( ListResults . Items . Count == 0 )
-                {
-                    Debug . WriteLine ( $"Failed  to load SP's" );
-                    NewWpfDev . Utils . PlayErrorBeep ( );
-                    ShowingAllSPs = true;
-                    return;
-                }
-                else
-                {
-                    ShowingAllSprocs . Content = $"Click to Show Matching S.Procs .";
-                    //                    ShowingAllSprocs . Content = $"Show ALL Stored Procedures.";
-                    ShowingAllSprocs . UpdateLayout ( );
-                    // Load SP into ScrollViewer
-                    Bannerline . Text = $"Stored Procedures Helper (ALL {ListResults . Items . Count} SP's for Db [{MainWindow . CurrentSqlTableDomain}] are shown)";
-                    ShowingAllSPs = true;
-                }
-            }
+            //    //working  correctly
+            //    SpList = SProcsDataHandling . CallStoredProcedure ( SpList , "spGetStoredProcs" );
+            //    ListResults . ItemsSource = SpList;
+            //    if ( ListResults . Items . Count == 0 )
+            //    {
+            //        Debug . WriteLine ( $"Failed  to load SP's" );
+            //        NewWpfDev . Utils . PlayErrorBeep ( );
+            //        ShowingAllSPs = true;
+            //        return;
+            //    }
+            //    else
+            //    {
+            //      //ShowingAllSprocs . Content = $"Click to Show Matching S.Procs .";
+            //        //                    ShowingAllSprocs . Content = $"Show ALL Stored Procedures.";
+            //        //ShowingAllSprocs . UpdateLayout ( );
+            //        // Load SP into ScrollViewer
+            //        Bannerline . Text = $"Stored Procedures Helper (ALL {ListResults . Items . Count} SP's for Db [{MainWindow . CurrentSqlTableDomain}] are shown)";
+            //        ShowingAllSPs = true;
+            //    }
+            //}
             // sort out the layout, but pass  a blank search term as we are loading ALL SP's
             Mouse . OverrideCursor = Cursors . Arrow;
         }
 
-        private void Spresultsviewer_Loaded ( object sender , RoutedEventArgs e )
-        {
-            if ( ShowingAllSPs == false )
-                ShowingAllSPs = true;
-            IsLoading = false;
-            this . Focus ( );
-            // only now, get prompt data
-            //string sptext = "";
-            //bool result = Gengrid . LoadShowMatchingSproc ( this , TextResult , ListResults . SelectedItem . ToString ( ) , ref sptext );
-
-            // string Arguments = StoredProcs . SProcsDataHandling . GetSpHeaderBlock ( sptext , spviewer );
-        }
-
+ 
         private void hSplitter_MouseEnter ( object sender , MouseEventArgs e )
         {
             GridSplitter gs = sender as GridSplitter;
@@ -2539,15 +2522,15 @@ namespace Views
             else
             {
                 // ??
-                foreach ( string delitem in delItems )
-                {
-                    foreach ( MenuItem menuitem in menu . Items )
-                    {
-                        //var v = mi . Items;
-                        if ( menuitem . Name == delitem )
-                            menuitem . Visibility = Visibility . Visible;
-                    }
-                }
+                //foreach ( string delitem in delItems )
+                //{
+                //    foreach ( MenuItem menuitem in menu . Items )
+                //    {
+                //        //var v = mi . Items;
+                //        if ( menuitem . Name == delitem )
+                //            menuitem . Visibility = Visibility . Visible;
+                //    }
+                //}
             }
             return menu;
         }
@@ -3043,14 +3026,14 @@ namespace Views
             // Called  by other Methods that effect prompt area
             if ( show )
             {
-                ShowingAllSprocs . Visibility = Visibility . Visible;
-                OntopCheck . Visibility = Visibility . Visible;
+//                ShowingAllSprocs . Visibility = Visibility . Visible;
+                //OntopCheck . Visibility = Visibility . Visible;
                 ShowCheckboxes = true;
             }
             else
             {
-                ShowingAllSprocs . Visibility = Visibility . Collapsed;
-                OntopCheck . Visibility = Visibility . Collapsed;
+                //ShowingAllSprocs . Visibility = Visibility . Collapsed;
+                //OntopCheck . Visibility = Visibility . Collapsed;
                 ShowCheckboxes = false;
             }
         }
@@ -3286,85 +3269,7 @@ namespace Views
             }
         }
 
-
-        private void CloseFont_Click ( object sender , RoutedEventArgs e )
-        {
-            FontSizeChanger . Visibility = Visibility . Collapsed;
-        }
-
-
-        private void FontSizeChanger_Loaded ( object sender , RoutedEventArgs e )
-        {
-            List<string> sizes = new List<string> ( );
-            for ( int x = 11 ; x < 21 ; x++ )
-            {
-                sizes . Add ( $"{x}" );
-            }
-            Fonts . ItemsSource = sizes;
-            Fonts . SelectedIndex = 3;
-
-        }
-
-        private void SetFontsize ( object sender , RoutedEventArgs e )
-        {
-            FontSizeChanger . Visibility = Visibility . Visible;
-            operationtype4 . Text = "Reset S.Proc viewer font size";
-            SelectFontSize ( SpViewerFontsize );
-        }
-        private void SetLbsize ( object sender , RoutedEventArgs e )
-        {
-            FontSizeChanger . Visibility = Visibility . Visible;
-            operationtype4 . Text = "Reset S.Procs Listbox font size";
-            SelectFontSize ( SpListFontsize );
-        }
-        public void SelectFontSize ( int caller )
-        {
-            IsLoading = true;
-            if ( caller == 11 ) Fonts . SelectedIndex = 0;
-            if ( caller == 12 ) Fonts . SelectedIndex = 1;
-            if ( caller == 13 ) Fonts . SelectedIndex = 2;
-            if ( caller == 14 ) Fonts . SelectedIndex = 3;
-            if ( caller == 15 ) Fonts . SelectedIndex = 4;
-            if ( caller == 16 ) Fonts . SelectedIndex = 5;
-            if ( caller == 17 ) Fonts . SelectedIndex = 6;
-            if ( caller == 18 ) Fonts . SelectedIndex = 7;
-            if ( caller == 19 ) Fonts . SelectedIndex = 8;
-            if ( caller == 20 ) Fonts . SelectedIndex = 9;
-            IsLoading = false;
-        }
-        private void Fonts_SelectionChanged ( object sender , SelectionChangedEventArgs e )
-        {
-            if ( IsLoading ) return;
-            FontSizeChanger . Visibility = Visibility . Collapsed;
-            // reset scrolldoc or SP list font sizes 
-            string newsize = "";
-            string infotext = "";
-            ComboBox cb = Fonts;
-            if ( cb != null )
-            {
-                SolidColorBrush newcolor = FindResource ( "Black4" ) as SolidColorBrush;
-                newsize = cb . SelectedItem . ToString ( );
-                Fontsize = Convert . ToInt32 ( newsize );
-                if ( operationtype4 . Text == "Reset S.Procs Listbox font size" )
-                {
-                    SpListFontsize = Fontsize;
-                    ListResults . FontSize = SpListFontsize;
-                    ListResults . UpdateLayout ( );
-                }
-                else if ( operationtype4 . Text == "Reset S.Proc viewer font size" )
-                {
-                    FlowDocument doc = TextResult . Document;
-                    string sptext = "";
-
-                    SpViewerFontsize = Fontsize;
-                    doc . Blocks . Clear ( );
-                    string spname = ListResults . SelectedItem . ToString ( );
-                    bool result = Gengrid . LoadShowMatchingSproc ( this , TextResult , spname , ref sptext , SpViewerFontsize );
-                    TextResult . UpdateLayout ( );
-                }
-                Fontsize = 0;
-            }
-        }
+ 
         public void ProcessSprocExecutionResult ( dynamic dynvar , int count , string ResultString , Type objtype , object obj , string err , Type newtype )
         {
             try
@@ -3849,6 +3754,131 @@ namespace Views
                 ShowDataViewer ( sptext , fontfamily: "Nirmala UI" , fontstyle: "Normal" , fontsize: "14" , fontcolor: "Black0" , IsFixed: false );
 //            }
         }
+
+        private void tbarBtn2_Click ( object sender , RoutedEventArgs e )
+        {
+
+        }
+
+        private void topmost_Click ( object sender , RoutedEventArgs e )
+        {
+            if ( this . Topmost == true )
+            {
+                this . Topmost = false;
+                tbarBtn2 . Content = "Set as OnTop";
+            }
+            else
+            {
+                this . Topmost = true;
+                tbarBtn2 . Content = "Cancel OnTop";
+            }
+        }
+
+        #region Font size handlers
+
+        private void CloseFont_Click ( object sender , RoutedEventArgs e )
+        {
+            FontSizeChanger . Visibility = Visibility . Collapsed;
+        }
+
+        private void FontSizeChanger_Loaded ( object sender , RoutedEventArgs e )
+        {
+            List<string> sizes = new List<string> ( );
+            for ( int x = 11 ; x < 21 ; x++ )
+            {
+                sizes . Add ( $"{x}" );
+            }
+           TbFonts . ItemsSource = null;
+            TbFonts . Items . Clear ( );
+            TbFonts . ItemsSource = sizes;
+            TbFonts . SelectedIndex = 3;
+            ScrollFontSize . ItemsSource = null;
+            ScrollFontSize . Items . Clear ( );
+            ScrollFontSize . ItemsSource = sizes;
+            ScrollFontSize . SelectedIndex = 3;
+
+        }
+
+        private void SetViewerFontsize ( object sender , RoutedEventArgs e )
+        {
+            FontSizeChanger . Visibility = Visibility . Visible;
+            operationtype4 . Text = "Reset S.Proc viewer font size";
+            SelectFontSize ( SpViewerFontsize );
+        }
+        private void SetLbsize ( object sender , RoutedEventArgs e )
+        {
+            FontSizeChanger . Visibility = Visibility . Visible;
+            operationtype4 . Text = "Reset S.Procs Listbox font size";
+            SelectFontSize ( SpListFontsize );
+        }
+        public void SelectFontSize ( int caller )
+        {
+            IsLoading = true;
+            //if ( caller == 11 ) Fonts . SelectedIndex = 0;
+            //if ( caller == 12 ) Fonts . SelectedIndex = 1;
+            //if ( caller == 13 ) Fonts . SelectedIndex = 2;
+            //if ( caller == 14 ) Fonts . SelectedIndex = 3;
+            //if ( caller == 15 ) Fonts . SelectedIndex = 4;
+            //if ( caller == 16 ) Fonts . SelectedIndex = 5;
+            //if ( caller == 17 ) Fonts . SelectedIndex = 6;
+            //if ( caller == 18 ) Fonts . SelectedIndex = 7;
+            //if ( caller == 19 ) Fonts . SelectedIndex = 8;
+            //if ( caller == 20 ) Fonts . SelectedIndex = 9;
+            if ( caller == 11 ) TbFonts . SelectedIndex = 0;
+            if ( caller == 12 ) TbFonts . SelectedIndex = 1;
+            if ( caller == 13 ) TbFonts . SelectedIndex = 2;
+            if ( caller == 14 ) TbFonts . SelectedIndex = 3;
+            if ( caller == 15 ) TbFonts . SelectedIndex = 4;
+            if ( caller == 16 ) TbFonts . SelectedIndex = 5;
+            if ( caller == 17 ) TbFonts . SelectedIndex = 6;
+            if ( caller == 18 ) TbFonts . SelectedIndex = 7;
+            if ( caller == 19 ) TbFonts . SelectedIndex = 8;
+            if ( caller == 20 ) TbFonts . SelectedIndex = 9;
+            IsLoading = false;
+        }
+        private void Fonts_SelectionChanged ( object sender , SelectionChangedEventArgs e )
+        {
+            ComboBox cb = null;
+            if ( IsLoading ) return;
+           // FontSizeChanger . Visibility = Visibility . Collapsed;
+            // reset scrolldoc or SP list font sizes 
+            string newsize = "";
+            string infotext = "";
+            ComboBox cbt = sender as ComboBox;
+            if ( cbt . Name == "TbFonts" )
+                cb = TbFonts;
+            else if ( cbt . Name == "ScrollFontSize" )
+                cb = ScrollFontSize;
+            else
+                return;
+            if ( cb != null )
+            {
+                SolidColorBrush newcolor = FindResource ( "Black4" ) as SolidColorBrush;
+                newsize = cb . SelectedItem . ToString ( );
+                Fontsize = Convert . ToInt32 ( newsize );
+                if ( cbt . Name == "TbFonts" )
+                {
+                    SpListFontsize = Fontsize;
+                    ListResults . FontSize = SpListFontsize;
+                    ListResults . UpdateLayout ( );
+                }
+                else if ( cbt . Name == "ScrollFontSize" )
+                {
+                    FlowDocument doc = TextResult . Document;
+                    string sptext = "";
+
+                    SpViewerFontsize = Fontsize;
+                    doc . Blocks . Clear ( );
+                    string spname = ListResults . SelectedItem . ToString ( );
+                    bool result = Gengrid . LoadShowMatchingSproc ( this , TextResult , spname , ref sptext , SpViewerFontsize );
+                    TextResult . UpdateLayout ( );
+                }
+                Fontsize = 0;
+            }
+         }
+
+        #endregion Fonts size handlers
+
     }
 }
 
