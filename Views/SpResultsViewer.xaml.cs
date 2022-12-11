@@ -36,6 +36,7 @@ using NewWpfDev . StoredProcs;
 using UtilityWindows;
 using System . Windows . Media . TextFormatting;
 using System . Threading . Tasks;
+using System . Security . RightsManagement;
 
 namespace Views
 {
@@ -66,12 +67,15 @@ namespace Views
         public bool ShowOptionsPanel { get; set; } = true;
         public bool ShowCheckboxes { get; set; } = true;
         public bool IsFlashing { get; set; } = false;
+        public static string SpListboxFontSize { get; set; } = "14";
+        public static string ScrollViewerFontSize { get; set; } = "14";
+        public bool IsDirty{ get; set; } = false;
 
         #endregion declarations
 
         int Fontsize { set; get; } = 14;
         int SpListFontsize { set; get; } = 14;
-        int SpViewerFontsize { set; get; } = 14;
+        //int SpViewerFontsize { set; get; } = 14;
 
         public  const int DEFAULTARGSSIZE = 6;
         public static bool SHOWSIZEARG = false;
@@ -214,7 +218,7 @@ namespace Views
             IsLoading = false;
             this . Focus ( );
 //            ScrollFontSize . Content = ListResults . FontSize; ;
-            SPFontSize . Content = SpViewerFontsize;
+            SPFontSize . Content = ScrollViewerFontSize;
             this . Focus ( );
         }
 
@@ -237,7 +241,7 @@ namespace Views
                 // Update cosmetics
                 if ( IsLoading == false )
                 {
-                    bool result = Gengrid . LoadShowMatchingSproc ( this , TextResult , selname , ref sptext , SpViewerFontsize );
+                    bool result = Gengrid . LoadShowMatchingSproc ( this , TextResult , selname , ref sptext , Convert.ToInt32(ScrollViewerFontSize) );
                     ShowParseDetails = true;
                     if ( ShowParseDetails )
                     {
@@ -1967,53 +1971,58 @@ namespace Views
         private void Spresultsviewer_Closing ( object sender , System . ComponentModel . CancelEventArgs e )
         {
             Genericgrid . Resultsviewer = null;
-            //MainWindow . SaveSystemSetting ( "SpResultsViewerOnTop" , OntopCheck . IsChecked );
-        }
+            if(IsDirty)
+            {
+                NewWpfDev . Properties . Settings . Default . SpResultLbFontSize = ListResults . FontSize.ToString();
+                NewWpfDev . Properties . Settings . Default . SpResultScrollviewerFontSize = ScrollViewerFontSize . ToString ( );
+                NewWpfDev . Properties . Settings . Default . Save();
+                //MainWindow . SaveSystemSetting ( "SpResultsViewerOnTop" , OntopCheck . IsChecked );
+            }
 
-        //private void OntopCheck_Click ( object sender , RoutedEventArgs e )
-        //{
-        //    CheckBox cb = sender as CheckBox; ;
-        //    if ( cb . IsChecked == true )
-        //    {
-        //        zOrder = 100;
-        //        Spresultsviewer . Topmost = true;
-        //    }
-        //    else
-        //    {
-        //        zOrder = 0;
-        //        Spresultsviewer . Topmost = false;
-        //    }
-        //}
+            //private void OntopCheck_Click ( object sender , RoutedEventArgs e )
+            //{
+            //    CheckBox cb = sender as CheckBox; ;
+            //    if ( cb . IsChecked == true )
+            //    {
+            //        zOrder = 100;
+            //        Spresultsviewer . Topmost = true;
+            //    }
+            //    else
+            //    {
+            //        zOrder = 0;
+            //        Spresultsviewer . Topmost = false;
+            //    }
+            //}
 
-        //private void ShowingAllSps_Checked ( object sender , RoutedEventArgs e )
-        //{
-        //    // Checkbox clicked to change SP's shown
-        //    // toggle flag and load ALL SP's
+            //private void ShowingAllSps_Checked ( object sender , RoutedEventArgs e )
+            //{
+            //    // Checkbox clicked to change SP's shown
+            //    // toggle flag and load ALL SP's
 
-        //    CheckBox cb = sender as CheckBox;
-        //    if ( ShowingAllSPs == false )
-        //    {
-        //        ShowingAllSprocs . Content = $"Show ONLY Stored Procedures that contain [{Searchtext}].";
-        //        ShowingAllSprocs . UpdateLayout ( );
-        //    }
-        //    else
-        //    {
-        //        ShowingAllSprocs . Content = $"Show ALL Stored Procedures.";
-        //        ShowingAllSprocs . UpdateLayout ( );
+            //    CheckBox cb = sender as CheckBox;
+            //    if ( ShowingAllSPs == false )
+            //    {
+            //        ShowingAllSprocs . Content = $"Show ONLY Stored Procedures that contain [{Searchtext}].";
+            //        ShowingAllSprocs . UpdateLayout ( );
+            //    }
+            //    else
+            //    {
+            //        ShowingAllSprocs . Content = $"Show ALL Stored Procedures.";
+            //        ShowingAllSprocs . UpdateLayout ( );
 
-        //        // LOAD ALL (or matching) SP'S depending on flag status
-        //        // call stup method required because method is private
-        //        LoadAllSps ( this , ListResults . SelectedIndex );
-        //    }
-        //    e . Handled = true;
+            //        // LOAD ALL (or matching) SP'S depending on flag status
+            //        // call stup method required because method is private
+            //        LoadAllSps ( this , ListResults . SelectedIndex );
+            //    }
+            //    e . Handled = true;
 
-        //}
+            }
 
-        /// <summary>
-        /// Stub to allow Genericgrid to call ShowAllSps (Private Click event handler)
-        /// </summary>
-        /// <param name="win"></param>
-        public void LoadAllSps ( Window win , int currindex )
+            /// <summary>
+            /// Stub to allow Genericgrid to call ShowAllSps (Private Click event handler)
+            /// </summary>
+            /// <param name="win"></param>
+            public void LoadAllSps ( Window win , int currindex )
         {
             // stub to load main private method
             Gengrid . RunExecute_Click ( this );
@@ -3745,7 +3754,7 @@ namespace Views
             string sptext = "";
             string HeaderBlock = "";
             string output = "";
-            bool result = Gengrid . LoadShowMatchingSproc ( this , TextResult , ListResults . SelectedItem . ToString ( ) , ref sptext , SpViewerFontsize , false );
+            bool result = Gengrid . LoadShowMatchingSproc ( this , TextResult , ListResults . SelectedItem . ToString ( ) , ref sptext , Convert . ToInt32 ( ScrollViewerFontSize) , false );
             ShowParseDetails = true;
            //output =  SProcsDataHandling . GetBareSProcHeader ( sptext, "", out bool success );
            // if ( success )
@@ -3788,29 +3797,49 @@ namespace Views
             {
                 sizes . Add ( $"{x}" );
             }
+            SpListboxFontSize= NewWpfDev . Properties . Settings . Default . SpResultLbFontSize;
+            ScrollViewerFontSize = NewWpfDev . Properties . Settings . Default . SpResultScrollviewerFontSize;
            TbFonts . ItemsSource = null;
             TbFonts . Items . Clear ( );
             TbFonts . ItemsSource = sizes;
-            TbFonts . SelectedIndex = 3;
+            int index = 0;
+            foreach(string fsize in sizes)
+            {
+                if(fsize== SpListboxFontSize )
+                {
+                    TbFonts . SelectedIndex = index;
+                    break;
+                }
+                index++;
+            }
             ScrollFontSize . ItemsSource = null;
             ScrollFontSize . Items . Clear ( );
             ScrollFontSize . ItemsSource = sizes;
-            ScrollFontSize . SelectedIndex = 3;
+            index = 0; 
+            foreach ( string fsize in sizes )
+            {
+                if ( fsize== ScrollViewerFontSize )
+                {
+                    ScrollFontSize . SelectedIndex = index;
+                    break;
+                }
+                index++;
+            }
 
         }
 
-        private void SetViewerFontsize ( object sender , RoutedEventArgs e )
-        {
-            FontSizeChanger . Visibility = Visibility . Visible;
-            operationtype4 . Text = "Reset S.Proc viewer font size";
-            SelectFontSize ( SpViewerFontsize );
-        }
-        private void SetLbsize ( object sender , RoutedEventArgs e )
-        {
-            FontSizeChanger . Visibility = Visibility . Visible;
-            operationtype4 . Text = "Reset S.Procs Listbox font size";
-            SelectFontSize ( SpListFontsize );
-        }
+        //private void SetViewerFontsize ( object sender , RoutedEventArgs e )
+        //{
+        //    FontSizeChanger . Visibility = Visibility . Visible;
+        //    operationtype4 . Text = "Reset S.Proc viewer font size";
+        //    SelectFontSize ( SpViewerFontsize );
+        //}
+        //private void SetLbsize ( object sender , RoutedEventArgs e )
+        //{
+        //    FontSizeChanger . Visibility = Visibility . Visible;
+        //    operationtype4 . Text = "Reset S.Procs Listbox font size";
+        //    SelectFontSize ( SpListFontsize );
+        //}
         public void SelectFontSize ( int caller )
         {
             IsLoading = true;
@@ -3839,8 +3868,13 @@ namespace Views
         private void Fonts_SelectionChanged ( object sender , SelectionChangedEventArgs e )
         {
             ComboBox cb = null;
-            if ( IsLoading ) return;
-           // FontSizeChanger . Visibility = Visibility . Collapsed;
+            if ( IsLoading )
+            {
+                SpListboxFontSize  = NewWpfDev . Properties . Settings . Default . SpResultLbFontSize ;
+                ScrollViewerFontSize  = NewWpfDev . Properties . Settings . Default . SpResultScrollviewerFontSize;
+
+                return;
+            }// FontSizeChanger . Visibility = Visibility . Collapsed;
             // reset scrolldoc or SP list font sizes 
             string newsize = "";
             string infotext = "";
@@ -3867,13 +3901,15 @@ namespace Views
                     FlowDocument doc = TextResult . Document;
                     string sptext = "";
 
-                    SpViewerFontsize = Fontsize;
+//                    SpViewerFontsize = Fontsize;
+                    ScrollViewerFontSize = Fontsize.ToString();
                     doc . Blocks . Clear ( );
                     string spname = ListResults . SelectedItem . ToString ( );
-                    bool result = Gengrid . LoadShowMatchingSproc ( this , TextResult , spname , ref sptext , SpViewerFontsize );
+                    bool result = Gengrid . LoadShowMatchingSproc ( this , TextResult , spname , ref sptext , Convert . ToInt32 ( ScrollViewerFontSize) );
                     TextResult . UpdateLayout ( );
                 }
                 Fontsize = 0;
+                IsDirty = true;
             }
          }
 

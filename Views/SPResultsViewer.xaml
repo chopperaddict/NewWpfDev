@@ -1024,48 +1024,7 @@
         </Grid>
 
         <!--#endregion Scrolldocument-->
-
-        <!--#region Checkboxes-->
-
-        <!--IsChecked="{Binding  ShowingAllSPs}"-->
-        <!--<CheckBox x:Name="ShowingAllSprocs"
-                Grid.Row="4"
-                Grid.Column="0"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Top"
-                Background="{StaticResource Yellow2}"
-                FontSize="14"
-                Foreground="Black"
-                FontWeight="DemiBold"
-                Content="Show All S.Procedures"                      
-                  
-                IsHitTestVisible="true"      
-                  Panel.ZIndex="300"
-                Click="ShowAllSps"
-                Margin="17,20,0,0"
-                  Width="401" 
-                  Visibility="Collapsed"
-                  Checked="ShowingAllSps_Checked"/>
-
-        <CheckBox x:Name="OntopCheck"
-                          Grid.Row="4"
-                          HorizontalAlignment="Left"
-                          VerticalAlignment="Top"
-                          Background="{StaticResource Green4}"
-                          FontSize="14"
-                          Foreground="Black"
-                          FontWeight="DemiBold"
-                          Content="Keep on Top"                          
-                          IsChecked="true"
-                          IsHitTestVisible="true"
-                          Panel.ZIndex="300"
-                          Click="OntopCheck_Click"
-                          Margin="17,43,0,0"
-                          Visibility="Collapsed"
-                  />-->
-
-        <!--#endregion Checkboxes-->
-
+ 
         <!--#region bottompanel-->
 
         <Border Grid.Row="4" 
@@ -1127,100 +1086,94 @@
                                 Margin="150,0,20,0">
 
                         <!--// prompt line-->
-                            <TextBlock>                            
-                                <Grid x:Name="promptgrid">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="20"/>
-                                        <RowDefinition Height="20"/>
-                                    </Grid.RowDefinitions>
-                                    <TextBlock x:Name="txt1" Grid.Row="0" FontSize="16" Text="Press  F1 for detailed info on completing these arguments. Then enter any"/>
-                                    <TextBlock x:Name="txt2"  Grid.Row="1" FontSize="16" Text="required arguments in the correct format, and choose an Execution Method" />
-                                    </Grid>
-                             </TextBlock>
+                    <TextBlock>                            
+                        <Grid x:Name="promptgrid">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="20"/>
+                                <RowDefinition Height="20"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock x:Name="txt1" Grid.Row="0" FontSize="16" Text="Press  F1 for detailed info on completing these arguments. Then enter any"/>
+                            <TextBlock x:Name="txt2"  Grid.Row="1" FontSize="16" Text="required arguments in the correct format, and choose an Execution Method" />
+                            </Grid>
                         </TextBlock>
+                </TextBlock>
 
-                           <!--<Grid Grid.Row="1" 
-                                 Grid.RowSpan="2"
-                                HorizontalAlignment="Stretch"
-                                 Margin="3,45,0,2" >
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="25"/>
-                                    <RowDefinition Height="30"/>
-                                </Grid.RowDefinitions>-->
-                                <TextBlock x:Name="Parameterstop"
-                                        Grid.Row="0"
-                                        Height="40" 
-                                         Background="{StaticResource Blue3}"
-                                        Foreground="{StaticResource White1}"
-                                        IsHitTestVisible="True"
-                                        KeyDown="Arguments_KeyDown"
-                                        TextAlignment="Center"
-                                         Text="Arguments layout"
-                                          HorizontalAlignment="Stretch"
-                                        FontSize="16"
-                                        Padding="0 4 0 0"
-                                        FontWeight="DemiBold"
-                                         MouseLeftButtonDown="SPArguments_MouseLeftButtonDown"
-                                        GotFocus="SPArguments_GotFocus"
-                                        UseLayoutRounding="True"
-                                        ToolTip="Press F1 for detailed information on how to pass parameters"
-                                        Visibility="Visible" 
-                                         Width="Auto" 
-                                        Margin="3,0,0,2" 
-                                        Grid.RowSpan="1"
-                                        Grid.ColumnSpan="3" />
-                               <TextBox x:Name="SPArguments" 
-                                       Grid.Row="1"
-                                        Grid.RowSpan="2"
-                                        Height="40"                         
-                                        AcceptsReturn="True"
-                                        Text="Argument(s) required ?"
-                                        TextAlignment="Center"
-                                        TextWrapping="Wrap"
-                                        HorizontalContentAlignment="Center"
-                                         HorizontalAlignment="Stretch"
-                                        FontSize="16"
-                                        Padding="0 4 0 0"
-                                         KeyDown="Arguments_KeyDown"
-                                           FontWeight="DemiBold"
-                                           Background="{StaticResource White3}"
-                                        Foreground="{StaticResource Black1}"
-                                        MouseEnter="SPArguments_MouseEnter"
-                                         MouseLeftButtonDown="SPArguments_MouseLeftButtonDown"
-                                        MouseDoubleClick="SPArguments_MouseDoubleClick"
-                                         GotFocus="SPArguments_GotFocus"
-                                        UseLayoutRounding="True"
-                                        ToolTip="Press F1 for detailed information on how to pass parameters"
-                                         Width="Auto" 
-                                        Margin="110,0,0,0" 
-                                        Grid.ColumnSpan="3" 
-                                        Visibility="Visible"/>
-                               <TextBox x:Name="SPArgumentsFull" 
-                                       Grid.Row="0"
-                                        Grid.RowSpan="2"
-                                        Height="110"                         
-                                        Text="Argument(s) required ?"
-                                        AcceptsReturn="True"
-                                        TextAlignment="Center"
-                                        TextWrapping="Wrap"
-                                        HorizontalContentAlignment="Center"
-                                         HorizontalAlignment="Stretch"
-                                        FontSize="16"
-                                        Padding="0 4 0 0"
-                                         KeyDown="Arguments_KeyDown"
-                                           FontWeight="DemiBold"
-                                           Background="{StaticResource White3}"
-                                        Foreground="{StaticResource Black1}"
-                                        MouseEnter="SPArguments_MouseEnter"
-                                         MouseLeftButtonDown="SPArguments_MouseLeftButtonDown"
-                                        MouseDoubleClick="SPArguments_MouseDoubleClick"
-                                         GotFocus="SPArguments_GotFocus"
-                                        UseLayoutRounding="True"
-                                        ToolTip="Press F1 for detailed information on how to pass parameters"
-                                        Visibility="Collapsed" 
-                                         Width="Auto" 
-                                        Margin="110,0,0,0" 
-                                        Grid.ColumnSpan="3" />
+                <TextBlock x:Name="Parameterstop"
+                        Grid.Row="0"
+                        Height="40" 
+                        Background="{StaticResource Blue3}"
+                        Foreground="{StaticResource White1}"
+                        IsHitTestVisible="True"
+                        KeyDown="Arguments_KeyDown"
+                        TextAlignment="Center"
+                        Text="Arguments layout"
+                        HorizontalAlignment="Stretch"
+                        FontSize="16"
+                        Padding="0 4 0 0"
+                        FontWeight="DemiBold"
+                        MouseLeftButtonDown="SPArguments_MouseLeftButtonDown"
+                        GotFocus="SPArguments_GotFocus"
+                        UseLayoutRounding="True"
+                        ToolTip="Press F1 for detailed information on how to pass parameters"
+                        Visibility="Visible" 
+                        Width="Auto" 
+                        Margin="3,0,0,2" 
+                        Grid.RowSpan="1"
+                        Grid.ColumnSpan="3" />
+   
+                    <TextBox x:Name="SPArguments" 
+                            Grid.Row="1"
+                            Grid.RowSpan="2"
+                            Height="40"                         
+                            AcceptsReturn="True"
+                            Text="Argument(s) required ?"
+                            TextAlignment="Center"
+                            TextWrapping="Wrap"
+                            HorizontalContentAlignment="Center"
+                            HorizontalAlignment="Stretch"
+                            FontSize="16"
+                            Padding="0 4 0 0"
+                            KeyDown="Arguments_KeyDown"
+                            FontWeight="DemiBold"
+                            Background="{StaticResource White3}"
+                            Foreground="{StaticResource Black1}"
+                            MouseEnter="SPArguments_MouseEnter"
+                            MouseLeftButtonDown="SPArguments_MouseLeftButtonDown"
+                            MouseDoubleClick="SPArguments_MouseDoubleClick"
+                            GotFocus="SPArguments_GotFocus"
+                            UseLayoutRounding="True"
+                            ToolTip="Press F1 for detailed information on how to pass parameters"
+                            Width="Auto" 
+                            Margin="110,0,0,0" 
+                            Grid.ColumnSpan="3" 
+                            Visibility="Visible"/>
+
+                    <TextBox x:Name="SPArgumentsFull" 
+                            Grid.Row="0"
+                            Grid.RowSpan="2"
+                            Height="110"                         
+                            Text="Argument(s) required ?"
+                            AcceptsReturn="True"
+                            TextAlignment="Center"
+                            TextWrapping="Wrap"
+                            HorizontalContentAlignment="Center"
+                            HorizontalAlignment="Stretch"
+                            FontSize="16"
+                            Padding="0 4 0 0"
+                            KeyDown="Arguments_KeyDown"
+                            FontWeight="DemiBold"
+                            Background="{StaticResource White3}"
+                            Foreground="{StaticResource Black1}"
+                            MouseEnter="SPArguments_MouseEnter"
+                            MouseLeftButtonDown="SPArguments_MouseLeftButtonDown"
+                            MouseDoubleClick="SPArguments_MouseDoubleClick"
+                            GotFocus="SPArguments_GotFocus"
+                            UseLayoutRounding="True"
+                            ToolTip="Press F1 for detailed information on how to pass parameters"
+                            Visibility="Collapsed" 
+                            Width="Auto" 
+                            Margin="110,0,0,0" 
+                            Grid.ColumnSpan="3" />
 
                      <Button Grid.Row="1" 
                             Grid.ColumnSpan="3"
@@ -1235,6 +1188,8 @@
                             Foreground="White"                            
                             Margin="2 0 0 0"/>
                 </Grid>
+
+                <!--#region Buttonpanel-->
 
                 <Grid x:Name="ButtonsGrid"
                     HorizontalAlignment="Right" 
@@ -1272,6 +1227,9 @@
                         Click="closeresultsviewer_Click"
                         Foreground="White" />
                 </Grid>
+                
+                <!--#endregion Buttonpanel-->
+
             </Grid>
         </Border>
 
@@ -1742,11 +1700,14 @@
                 </Grid>
             </Border>-->
             <!--#endregion infoviewer-->
+            
         </Canvas>
-
-        <!--<ToolBarTray DockPanel.Dock="Top" Background="Red" TextElement.Foreground="White"/>-->
-           
-            <StackPanel Orientation="Horizontal"
+          
+        <!--#endregion Cannvas-->
+        
+        <!--region Toolbar Headers-->   
+        
+        <StackPanel Orientation="Horizontal"
                Grid.Row="5"
                 Background="{StaticResource Green6}"
                 Height="20" 
@@ -1782,6 +1743,10 @@
                        Margin="25 0 0 0" 
                        Padding="0 2 0 0"/>
         </StackPanel>
+
+        <!--endregion Toolbar Headers-->
+
+        <!--#region Toolbar-->
 
         <ToolBarTray Grid.Row="6" 
                 Background="{StaticResource Green6}"
@@ -1835,18 +1800,7 @@
                     </ComboBoxItem>
                 </ComboBox>
                 
-             <!--</ToolBar>
-
-            --><!--// Scrollviewer font size--><!--
-            <ToolBar x:Name="toolbar3"
-                 Band="0" BandIndex="2"
-                 Background="{StaticResource White2}"                
-                 Height="28"
-                 Width="90"
-                 TextElement.Foreground="Black" 
-                 HorizontalAlignment="Left"
-                Margin="0,0,0,1" >-->
-                <Separator/>
+                 <Separator/>
                 <!--// Scrollviewer font size-->
                    <ComboBox x:Name="ScrollFontSize"
                         Height="26" 
@@ -1869,35 +1823,23 @@
                                         Foreground="{StaticResource White3}">
                         </TextBlock>
                     </ComboBoxItem>
-
                 </ComboBox>
 
-            <!--</ToolBar>
-
-            <ToolBar x:Name="toolbar23"       
-                Band="0" BandIndex="3"
-                Background="{StaticResource White4}"
-                 Height="28"
-                 Width="130"
-                 TextElement.Foreground="Black" 
-                 HorizontalAlignment="Left"
-                 OverflowMode="AsNeeded"
-                 Margin="150,0,0,1" >-->
- 
-                <Button x:Name="tbarBtn2" 
+              <Button x:Name="tbarBtn2" 
                         Click="topmost_Click"
                     Content="Set as OnTop"
                     Foreground="White"
                     Style="{StaticResource ButtonSlant}"
                     Width="100" 
                     Height="26" 
-                    Margin="15,-2,0,0"
-                    />
+                    Margin="15,-2,0,0"/>
                 
             </ToolBar>
             
         </ToolBarTray>
-        <!--<ToolBarPanel x:Name="toolbar" Grid.Row="4" Background="Yellow" TextElement.Foreground="Black" Margin="374,115,450,0" Grid.RowSpan="2" />-->
+        
+        <!--#endregion Toolbar-->
+
         <Label x:Name="TbsFonts" Visibility="Collapsed"
                    Content=""/>
         <Label x:Name="SPFontSize" Visibility="Collapsed"

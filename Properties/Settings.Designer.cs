@@ -329,5 +329,29 @@ namespace NewWpfDev.Properties {
                 this["DataViewerFontSize2"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("14")]
+        public string SpResultLbFontSize {
+            get {
+                return ((string)(this["SpResultLbFontSize"]));
+            }
+            set {
+                this["SpResultLbFontSize"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("14")]
+        public string SpResultScrollviewerFontSize {
+            get {
+                return ((string)(this["SpResultScrollviewerFontSize"]));
+            }
+            set {
+                this["SpResultScrollviewerFontSize"] = value;
+            }
+        }
     }
 }

@@ -77,5 +77,11 @@
     <Setting Name="DataViewerFontSize2" Type="System.String" Scope="User">
       <Value Profile="(Default)">14</Value>
     </Setting>
+    <Setting Name="SpResultLbFontSize" Type="System.String" Scope="User">
+      <Value Profile="(Default)">14</Value>
+    </Setting>
+    <Setting Name="SpResultScrollviewerFontSize" Type="System.String" Scope="User">
+      <Value Profile="(Default)">14</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
