@@ -4,11 +4,9 @@ using System . Text;
 using System . Windows;
 using System . Windows . Input;
 
-using NewWpfDev . ViewModels;
-
-namespace ViewModels
+namespace NewWpfDev . ViewModels
 {
-    public  class GenericGrdViewModel
+    public class GenericGrdViewModel
     {
         private ICommand _command;
         //public ICommand Command
@@ -24,7 +22,7 @@ namespace ViewModels
 
         //}
 
-        private static void DoStuff (object obj, Func<object, bool> func )
+        private static void DoStuff ( object obj , Func<object , bool> func )
         {
             MessageBox . Show ( "Responding to button click event..." );
         }

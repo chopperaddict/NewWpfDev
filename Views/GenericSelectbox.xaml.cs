@@ -56,11 +56,8 @@ namespace Views
             InitializeComponent ( );
              fdl = fdparent;
             if ( listbox == null )
-            {
-//                fdl. SetHost ( this);
-                listbox . Name = "LbSelector";
-            }
-            // Load list of Windows Fonts
+                  listbox . Name = "LbSelector";
+             // Load list of Windows Fonts
             List<string> fonts = DapperGenericsLib . Utils . GetFontsList ( );
             listbox .ItemsSource = fonts;
             string match = fdl.CurrentFont . Text . Trim ( );
@@ -77,12 +74,9 @@ namespace Views
                 }
                 index++;
             }
-    //        ShowGenListBox += GenericSelectbox_ShowGenListBox;
-
-            Isopen = true;
+             Isopen = true;
             this . Focus ( );
-            // Configure ALL subscriiptions to our popup Event
-        }
+         }
 
         public void Listbox_SetListboxHost ( object sender , ListboxHostArgs e )
         {

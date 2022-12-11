@@ -13,6 +13,7 @@ using System . Windows . Data;
 using System . Windows . Input;
 using System . Windows . Media;
 using System . Xml . Serialization;
+
 using Newtonsoft . Json;
 using Newtonsoft . Json . Linq;
 
@@ -26,7 +27,8 @@ using static NewWpfDev . Views . Tabview;
 
 using Cursors = System . Windows . Input . Cursors;
 
-namespace NewWpfDev . UserControls {
+namespace NewWpfDev . UserControls
+{
 
     public partial class DgUserControl : UserControl, ITabViewer {
         #region NotifyPropertyChanged

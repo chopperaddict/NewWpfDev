@@ -69,6 +69,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Alter dbo.spGetColsCount.sql" />
     <None Remove="Icons\3d green tick base.png" />
     <None Remove="Icons\3d red cross.png" />
     <None Remove="Icons\3d-red-shriek.png" />
@@ -258,8 +259,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="ConfigSettings\" />
     <Folder Include="NewFolder\" />
-    <Folder Include="Properties\AttachedProperties\" />
+    <Folder Include="AttachedProperties\" />
     <Folder Include="Models\" />
     <Folder Include="Dapper\" />
     <Folder Include="Menus\" />

@@ -10,9 +10,9 @@ using System . Windows . Controls;
 using System . Windows . Input;
 using System . Windows . Media;
 
-using ConfigSettings;
+//using ConfigSettings;
 
-using Expandos;
+//using Expandos;
 
 using IronPython . Compiler . Ast;
 using IronPython . Hosting;

@@ -37,6 +37,7 @@ using NewWpfDev . Properties;
 using GenericSqlLib . Models;
 using NewWpfDev . Models;
 using System . Dynamic;
+//using AttachedProperties;
 
 namespace NewWpfDev
 {
@@ -3336,11 +3337,11 @@ namespace NewWpfDev
             catch ( Exception ex ) { }
             return fontfamily.ToString();
         }
-        static public int GetFlowdocFontSize ( )
+        static public int GetDataViewerFontSize ( )
         {
             try
             {
-                string test = ( string ) Properties . Settings . Default [ "FlowDocFontSize" ];
+                string test = ( string ) Properties . Settings . Default [ "DataViewerFontSize" ];
                 return Convert . ToInt32 ( test );
             }
             catch ( Exception ex ) { }

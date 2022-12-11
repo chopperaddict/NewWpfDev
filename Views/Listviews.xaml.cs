@@ -14,6 +14,7 @@ using System . Windows . Media . Animation;
 using NewWpfDev . AttachedProperties;
 using NewWpfDev . Dapper;
 using NewWpfDev . Models;
+//using NewWpfDev . Properties . AttachedProperties;
 using NewWpfDev . Sql;
 using NewWpfDev . SQL;
 using NewWpfDev . UserControls;

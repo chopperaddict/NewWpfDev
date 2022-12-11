@@ -10,7 +10,6 @@ using Dapper;
 
 using NewWpfDev;
 using System . Data . SqlClient;
-using NewWpfDev . Views;
 using System . Collections;
 using System . Linq;
 using System . Windows . Documents;
@@ -20,7 +19,7 @@ using static IronPython . Modules . PythonSocket;
 using System . ComponentModel . Design;
 using System . Linq . Expressions;
 
-namespace Views
+namespace NewWpfDev . Views
 {
     public class StoredprocsProcessing
     {
@@ -29,7 +28,7 @@ namespace Views
         //    throw new NotImplementedException ( );
         //}
 
-        public  dynamic ProcessGenericDapperStoredProcedure (
+        public dynamic ProcessGenericDapperStoredProcedure (
             string spCommand ,
             string [ ] args ,
             string CurrDomain ,
@@ -73,14 +72,14 @@ namespace Views
                         //**************************************************************************************************************************************************//
                         queryresults = sqlCon . Query<string> ( spCommand , parameters , commandType: CommandType . StoredProcedure ) . ToList ( );
                         //**************************************************************************************************************************************************//
-                       Debug . WriteLine ( $"{spCommand} returned  RESULT = {queryresults . Count}" );
+                        Debug . WriteLine ( $"{spCommand} returned  RESULT = {queryresults . Count}" );
                         ResultString = "SUCCESS";
-                        Obj = ( object ) queryresults;
+                        Obj = queryresults;
                         Objtype = typeof ( List<string> );
                         Count = queryresults . Count;
 
                         if ( Objtype == typeof ( List<string> ) )
-                            result = ( dynamic ) queryresults;
+                            result = queryresults;
                         else
                             result = null;
                     }
@@ -90,11 +89,11 @@ namespace Views
                     Debug . WriteLine ( $"{ex . Message}" );
                     result = -1;
                     ResultString = "FAIL";
-                    Obj = ( object ) queryresults;
+                    Obj = queryresults;
                     Objtype = typeof ( List<string> );
                     Count = queryresults . Count;
                     Error = ex . Message;
-                    result = ( dynamic ) null;
+                    result = null;
                 }
                 Mouse . OverrideCursor = Cursors . Arrow;
                 "" . Track ( 1 );
@@ -137,9 +136,9 @@ namespace Views
             if ( DbDomain == "" )
                 DbDomain = MainWindow . CurrentSqlTableDomain;
             Utils . CheckResetDbConnection ( DbDomain , out string constring );
-             Flags . CurrentConnectionString = constring;
+            Flags . CurrentConnectionString = constring;
             MainWindow . SqlCurrentConstring = constring;
-             return constring;
+            return constring;
         }
         /// <summary>
         /// Parse a set of string[] to create paramaters.Add(0 statements
@@ -154,7 +153,7 @@ namespace Views
         /// <param name="parameters"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        static public DynamicParameters ParseNewSqlArgs ( DynamicParameters parameters , List<string [ ]> argsbuffer, out string error )
+        static public DynamicParameters ParseNewSqlArgs ( DynamicParameters parameters , List<string [ ]> argsbuffer , out string error )
         {
             DynamicParameters pms = new DynamicParameters ( );
             error = "";
@@ -185,7 +184,7 @@ namespace Views
                             argindx [ z ] = 0;
                     }
                     // Got 1st 2 only (default direction)
-                    if ( argindx [ 0 ] == 1 && argindx [ 1 ] == 0 && argindx [ 2 ] == 0 && argindx [ 3 ] == 0  )
+                    if ( argindx [ 0 ] == 1 && argindx [ 1 ] == 0 && argindx [ 2 ] == 0 && argindx [ 3 ] == 0 )
                     {
                         pms . Add ( args [ 0 ] );
                         argcount++;

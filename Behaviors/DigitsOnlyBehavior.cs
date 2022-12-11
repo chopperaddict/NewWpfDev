@@ -4,7 +4,7 @@ using System . Windows;
 using System . Windows . Controls;
 using System . Windows . Input;
 
-namespace Behaviors
+namespace NewWpfDev . Behaviors
 {
     public static class DigitsOnlyBehavior
     {
@@ -27,7 +27,7 @@ namespace Behaviors
         {
             // ignoring error checking
             var textBox = ( TextBox ) sender;
-            var isDigitOnly = ( bool ) ( e . NewValue );
+            var isDigitOnly = ( bool ) e . NewValue;
 
             if ( isDigitOnly )
                 textBox . PreviewTextInput += BlockNonDigitCharacters;
@@ -37,7 +37,7 @@ namespace Behaviors
 
         private static void BlockNonDigitCharacters ( object sender , TextCompositionEventArgs e )
         {
-            e . Handled = e . Text . Any ( ch => !Char . IsDigit ( ch ) );
+            e . Handled = e . Text . Any ( ch => !char . IsDigit ( ch ) );
         }
     }
 }

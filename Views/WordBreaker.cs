@@ -1,6 +1,6 @@
 ﻿using System . Windows . Documents;
 
-namespace Views
+namespace NewWpfDev . Views
 {
     public static class WordBreaker
 
@@ -70,7 +70,7 @@ namespace Views
             }
             if ( position . GetPointerContext ( wordBreakDirection ) == TextPointerContext . Text )
             {
-                LogicalDirection oppositeDirection = ( wordBreakDirection == LogicalDirection . Forward ) ?
+                LogicalDirection oppositeDirection = wordBreakDirection == LogicalDirection . Forward ?
                     LogicalDirection . Backward : LogicalDirection . Forward;
                 char [ ] runBuffer = new char [ 1 ];
                 char [ ] oppositeRunBuffer = new char [ 1 ];

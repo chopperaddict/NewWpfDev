@@ -224,97 +224,109 @@ namespace NewWpfDev.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\"13\"")]
-        public string FlowDocFontSize {
+        [global::System.Configuration.DefaultSettingValueAttribute("13")]
+        public string DataViewerFontSize {
             get {
-                return ((string)(this["FlowDocFontSize"]));
+                return ((string)(this["DataViewerFontSize"]));
             }
             set {
-                this["FlowDocFontSize"] = value;
+                this["DataViewerFontSize"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Nirmala UI")]
-        public string FlowDocFontFamily {
+        public string DataViewerFontFamily {
             get {
-                return ((string)(this["FlowDocFontFamily"]));
+                return ((string)(this["DataViewerFontFamily"]));
             }
             set {
-                this["FlowDocFontFamily"] = value;
+                this["DataViewerFontFamily"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Normal")]
-        public string FlowDocFontStyle {
+        public string DataViewerFontStyle {
             get {
-                return ((string)(this["FlowDocFontStyle"]));
+                return ((string)(this["DataViewerFontStyle"]));
             }
             set {
-                this["FlowDocFontStyle"] = value;
+                this["DataViewerFontStyle"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\"14\"")]
-        public string SettingFlowDocFontSize2 {
+        [global::System.Configuration.DefaultSettingValueAttribute("14")]
+        public string SettingDataViewerFontSize2 {
             get {
-                return ((string)(this["SettingFlowDocFontSize2"]));
+                return ((string)(this["SettingDataViewerFontSize2"]));
             }
             set {
-                this["SettingFlowDocFontSize2"] = value;
+                this["SettingDataViewerFontSize2"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Arial")]
-        public string FlowDocFontFamily2 {
+        public string DataViewerFontFamily2 {
             get {
-                return ((string)(this["FlowDocFontFamily2"]));
+                return ((string)(this["DataViewerFontFamily2"]));
             }
             set {
-                this["FlowDocFontFamily2"] = value;
+                this["DataViewerFontFamily2"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Italic")]
-        public string FlowDocFontStyle2 {
+        public string DataViewerFontStyle2 {
             get {
-                return ((string)(this["FlowDocFontStyle2"]));
+                return ((string)(this["DataViewerFontStyle2"]));
             }
             set {
-                this["FlowDocFontStyle2"] = value;
+                this["DataViewerFontStyle2"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Black0")]
-        public string FlowDocFontColor {
+        public string DataViewerFontColor {
             get {
-                return ((string)(this["FlowDocFontColor"]));
+                return ((string)(this["DataViewerFontColor"]));
             }
             set {
-                this["FlowDocFontColor"] = value;
+                this["DataViewerFontColor"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Red3")]
-        public string FlowDocFontColor2 {
+        public string DataViewerFontColor2 {
             get {
-                return ((string)(this["FlowDocFontColor2"]));
+                return ((string)(this["DataViewerFontColor2"]));
             }
             set {
-                this["FlowDocFontColor2"] = value;
+                this["DataViewerFontColor2"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("14")]
+        public string DataViewerFontSize2 {
+            get {
+                return ((string)(this["DataViewerFontSize2"]));
+            }
+            set {
+                this["DataViewerFontSize2"] = value;
             }
         }
     }

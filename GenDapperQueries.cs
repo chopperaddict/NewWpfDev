@@ -16,8 +16,6 @@ using GenericSqlLib . Models;
 
 using NewWpfDev . Views;
 
-using Views;
-
 namespace NewWpfDev
 {
     /* Main file of (3) partial files

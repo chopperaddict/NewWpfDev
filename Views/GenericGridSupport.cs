@@ -18,7 +18,9 @@ using NewWpfDev . ViewModels;
 
 using UserControls;
 
-namespace Views
+using Views;
+
+namespace NewWpfDev . Views
 {
 
     public class GenericGridSupport
@@ -192,9 +194,9 @@ namespace Views
                     else
                         args2 [ row + 1 ] = $"{flddata}, ";
                     if ( args2 [ row + 1 ] . Contains ( ", ," ) ) args2 [ row + 1 ] = args2 [ row + 1 ] . Substring ( 0 , args2 [ row + 1 ] . Length - 4 );
-                    args2 [ row + 1 ] = NewWpfDev . Utils . ReverseString ( args2 [ row + 1 ] . Trim ( ) );
+                    args2 [ row + 1 ] = Utils . ReverseString ( args2 [ row + 1 ] . Trim ( ) );
                     if ( args2 [ row + 1 ] [ 0 ] != ',' ) args2 [ row + 1 ] = $",{args2 [ row + 1 ] . Substring ( 1 )}";
-                    args2 [ row + 1 ] = NewWpfDev . Utils . ReverseString ( args2 [ row + 1 ] );
+                    args2 [ row + 1 ] = Utils . ReverseString ( args2 [ row + 1 ] );
                     if ( row + 1 >= FieldInfo . Count )
                         args2 [ row + 1 ] = args2 [ row + 1 ] . Substring ( 0 , args2 [ row + 1 ] . Length - 1 );
                 }
@@ -235,10 +237,10 @@ namespace Views
                         else
                         {
                             string [ ] outputs2;
-                            string [ ] arg2 = new string[ 0];
+                            string [ ] arg2 = new string [ 0 ];
                             string err2 = "";
                             string [ ] outputs3;
-                            recordcount = dgControl . ExecuteStoredProcedure ( "CreateTableTest" , arg2 ,out  err2);
+                            recordcount = dgControl . ExecuteStoredProcedure ( "CreateTableTest" , arg2 , out err2 );
                             GenericControl . statusbar . Text = $"New table named [{NewDbName . ToUpper ( )}] was created succesfully...."; Debug . WriteLine ( $"{GenericControl . statusbar . Text}" );
                             success = true;
                         }
@@ -578,7 +580,7 @@ namespace Views
                     #endregion Data type checking
 
                     if ( dataflds2 [ 1 ] . Contains ( '/' ) )
-                        dataflds2 [ 1 ] = NewWpfDev . Utils . ConvertInputDate ( dataflds2 [ 1 ] );
+                        dataflds2 [ 1 ] = Utils . ConvertInputDate ( dataflds2 [ 1 ] );
                     if ( cnt >= dataflds . Length )
                         dataflds2 [ 1 ] = dataflds2 [ 1 ] . Substring ( 0 , dataflds2 [ 1 ] . Length - 1 );
                     flds [ cnt ] = dataflds2 [ 1 ];
@@ -639,7 +641,7 @@ namespace Views
             string Tablename = "";
             string [ ] outputs;
             err = "";
-            recordcount = dgControl . ExecuteStoredProcedure ( "spDropTable" , args , out err);
+            recordcount = dgControl . ExecuteStoredProcedure ( "spDropTable" , args , out err );
             if ( err != "" )
             {
                 err = $"Unable to Drop/Create the Table {args [ 0 ]} REASON = {err} ";
@@ -874,7 +876,7 @@ namespace Views
                                 string [ ] splitter = fld . Split ( " " );
                                 if ( splitter [ 0 ] . Contains ( "/" ) )
                                 {
-                                    splitter [ 0 ] = NewWpfDev . Utils . ConvertInputDate ( splitter [ 0 ] );
+                                    splitter [ 0 ] = Utils . ConvertInputDate ( splitter [ 0 ] );
                                     fld = splitter [ 0 ];
                                 }
                             }
@@ -886,7 +888,7 @@ namespace Views
                                 string [ ] splitter = fld . Split ( " " );
                                 if ( splitter [ 0 ] . Contains ( "/" ) )
                                 {
-                                    splitter [ 0 ] = NewWpfDev . Utils . ConvertInputDate ( splitter [ 0 ] );
+                                    splitter [ 0 ] = Utils . ConvertInputDate ( splitter [ 0 ] );
                                     fld = $" {splitter [ 0 ]}" . TrimStart ( ) . TrimEnd ( );
                                 }
                             }
@@ -907,9 +909,9 @@ namespace Views
         {
             if ( processQuery . Trim ( ) . Contains ( " " ) )
             {
-                processQuery = NewWpfDev . Utils . ReverseString ( processQuery );
+                processQuery = Utils . ReverseString ( processQuery );
                 processQuery = processQuery . Substring ( 0 , processQuery . Length - 1 );
-                processQuery = NewWpfDev . Utils . ReverseString ( processQuery );
+                processQuery = Utils . ReverseString ( processQuery );
             }
             return processQuery;
         }
@@ -957,8 +959,8 @@ namespace Views
                     GenericDbUtilities . CheckDbDomain ( "" );
                     ConString = MainWindow . CurrentSqlTableDomain;
                 }
-                
-                string SqlDataString = dgControl . GetFullColumnInfo ( newtable,  CurrentTable , ConString , false );
+
+                string SqlDataString = dgControl . GetFullColumnInfo ( newtable , CurrentTable , ConString , false );
 
                 string [ ] args = new string [ 20 ];
                 string buffer = "";
@@ -977,11 +979,11 @@ namespace Views
                     string [ ] flds = { "" , "" , "" , "" };
                     if ( item != null && item . Trim ( ) != "" )
                     {
-                        string [ ] RawFldNames = item .TrimStart(). Split ( ':' );
+                        string [ ] RawFldNames = item . TrimStart ( ) . Split ( ':' );
                         DapperGenericsLib . GenericClass tem = new DapperGenericsLib . GenericClass ( );
                         //int y = 0;
-                        if( RawFldNames [ 0 ] !=null)
-                        tem . field1 = RawFldNames [ 0 ];
+                        if ( RawFldNames [ 0 ] != null )
+                            tem . field1 = RawFldNames [ 0 ];
                         if ( RawFldNames . Length > 1 )
                         {
                             if ( RawFldNames [ 1 ] != null )
@@ -997,10 +999,10 @@ namespace Views
                             if ( RawFldNames [ 3 ] != null )
                                 tem . field4 = RawFldNames [ 3 ];
                         }
-                        
+
                         collection . Add ( tem );
                     }
-                 }
+                }
                 //ALL WORKING  20/9/2022 - We now have a list of ALL Column names with
                 //column type & size data, so let user choose what to save to a new table!
                 //Genericgrid. SelectedRows . Clear ( );
@@ -1021,16 +1023,16 @@ namespace Views
                 string [ ] args = { $"{GenericControl . SqlTables . SelectedItem . ToString ( )}" , $"{NewDbName}" };
                 int recordcount = 0;
                 string Tablename = "";
-                string[ ] outputs;
-                recordcount = dgControl . ExecuteStoredProcedure ( "spCopyDb" , args , out err);
+                string [ ] outputs;
+                recordcount = dgControl . ExecuteStoredProcedure ( "spCopyDb" , args , out err );
                 if ( recordcount == -9 )
-                     return -9;
+                    return -9;
 
                 // make deep copy of table else it gets cleared elsewhere
                 // Create a completely new instance via seriazable Clone method stored in NewWpfDev.Utils (in ObjectCopier class file)
                 string originalname = $"{GenericControl . SqlTables . SelectedItem . ToString ( )}";
-                ObservableCollection<NewWpfDev . GenericClass> deepcopy = new ObservableCollection<NewWpfDev . GenericClass> ( );
-                deepcopy = NewWpfDev . Utils . CopyCollection ( ( ObservableCollection<NewWpfDev . GenericClass> ) GenericControl . GridData , ( ObservableCollection<NewWpfDev . GenericClass> ) deepcopy );
+                ObservableCollection<GenericClass> deepcopy = new ObservableCollection<GenericClass> ( );
+                deepcopy = Utils . CopyCollection ( GenericControl . GridData , deepcopy );
                 GenericControl . GridData = deepcopy;
                 string [ ] args1 = { $"{NewDbName}" };
                 int colcount = dgControl . datagridControl . Columns . Count;
@@ -1057,7 +1059,7 @@ namespace Views
                 index++;
             }
         }
-        static public int GetTableColumnsCount ( string tname , string [ ] args, string CurrentTableDomain )
+        static public int GetTableColumnsCount ( string tname , string [ ] args , string CurrentTableDomain )
         {
             List<string> SqlQuerylist = new List<string> ( );
             //string err2 = "";
@@ -1068,22 +1070,22 @@ namespace Views
             string spCommand = "drop table if exists zz";
             dgControl . ExecuteDapperScalar ( spCommand , args , out string err );
             string err21 = "";
-              spCommand = $"drop table if exists zzz";
+            spCommand = $"drop table if exists zzz";
             dgControl . ExecuteDapperScalar ( spCommand , args , out string err3 );
             spCommand = $"select column_name,upper(Table_name) as name into zz from information_schema.columns; ";
             dgControl . ExecuteDapperScalar ( spCommand , args , out string err31 );
-             spCommand = $"select column_name, name into zzz from zz where name='{tname}'; ";
+            spCommand = $"select column_name, name into zzz from zz where name='{tname}'; ";
             dgControl . ExecuteDapperScalar ( spCommand , args , out string err4 );
 
             // proven way to get a count value  back from dapper - WORKING 3/11/2022
             spCommand = $"select count(name) as cnt from zzz;";
-            var colcount = dgControl . ExecuteDapperScalar( spCommand , args , out string err33 , 1);
+            var colcount = dgControl . ExecuteDapperScalar ( spCommand , args , out string err33 , 1 );
             Debug . WriteLine ( $"Columns count returned [ {colcount} ]" );
             if ( err21 != "" )
                 Debug . WriteLine ( $"SqlCommand [ {spCommand} ] failed : Reason [ {err21} ]" );
             // result is returned in List<strng with just one row.
             //res3 . Get<int> ( "@arg1" );
-           // int colcount = Convert . ToInt32 ( SqlQuerylist [ 0 ] );
+            // int colcount = Convert . ToInt32 ( SqlQuerylist [ 0 ] );
             return colcount;
         }
 

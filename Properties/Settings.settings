@@ -50,29 +50,32 @@
     <Setting Name="SpResultsViewerOnTop" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="FlowDocFontSize" Type="System.String" Scope="User">
-      <Value Profile="(Default)">"13"</Value>
+    <Setting Name="DataViewerFontSize" Type="System.String" Scope="User">
+      <Value Profile="(Default)">13</Value>
     </Setting>
-    <Setting Name="FlowDocFontFamily" Type="System.String" Scope="User">
+    <Setting Name="DataViewerFontFamily" Type="System.String" Scope="User">
       <Value Profile="(Default)">Nirmala UI</Value>
     </Setting>
-    <Setting Name="FlowDocFontStyle" Type="System.String" Scope="User">
+    <Setting Name="DataViewerFontStyle" Type="System.String" Scope="User">
       <Value Profile="(Default)">Normal</Value>
     </Setting>
-    <Setting Name="SettingFlowDocFontSize2" Type="System.String" Scope="User">
-      <Value Profile="(Default)">"14"</Value>
+    <Setting Name="SettingDataViewerFontSize2" Type="System.String" Scope="User">
+      <Value Profile="(Default)">14</Value>
     </Setting>
-    <Setting Name="FlowDocFontFamily2" Type="System.String" Scope="User">
+    <Setting Name="DataViewerFontFamily2" Type="System.String" Scope="User">
       <Value Profile="(Default)">Arial</Value>
     </Setting>
-    <Setting Name="FlowDocFontStyle2" Type="System.String" Scope="User">
+    <Setting Name="DataViewerFontStyle2" Type="System.String" Scope="User">
       <Value Profile="(Default)">Italic</Value>
     </Setting>
-    <Setting Name="FlowDocFontColor" Type="System.String" Scope="User">
+    <Setting Name="DataViewerFontColor" Type="System.String" Scope="User">
       <Value Profile="(Default)">Black0</Value>
     </Setting>
-    <Setting Name="FlowDocFontColor2" Type="System.String" Scope="User">
+    <Setting Name="DataViewerFontColor2" Type="System.String" Scope="User">
       <Value Profile="(Default)">Red3</Value>
+    </Setting>
+    <Setting Name="DataViewerFontSize2" Type="System.String" Scope="User">
+      <Value Profile="(Default)">14</Value>
     </Setting>
   </Settings>
 </SettingsFile>

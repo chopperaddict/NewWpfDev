@@ -4,7 +4,7 @@ using System . Configuration;
 using System . Diagnostics;
 using System . Text;
 
-namespace ConfigSettings
+namespace NewWpfDev
 {
     public static class AppSettingsHandler
     {
@@ -16,7 +16,7 @@ namespace ConfigSettings
 
                 if ( appSettings . Count == 0 )
                 {
-                    Debug . WriteLine($"AppSettings is empty.");
+                    Debug . WriteLine ( $"AppSettings is empty." );
                 }
                 else
                 {
@@ -61,7 +61,7 @@ namespace ConfigSettings
                 {
                     settings [ key ] . Value = value;
                 }
-                configFile . Save ( ConfigurationSaveMode . Modified );
+                configFile . Save ( ConfigurationSaveMode . Full );
                 ConfigurationManager . RefreshSection ( configFile . AppSettings . SectionInformation . Name );
             }
             catch ( ConfigurationErrorsException )

@@ -2,12 +2,23 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:NewWpfDev"
+             xmlns:themes="clr-namespace:NewWpfDev.Themes"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
         
         <ResourceDictionary >
 
+            <!--// these are ALL the system provided Converters-->
             <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+            <AlternationConverter x:Key="AlternationConverter" />
+            <BorderGapMaskConverter x:Key="BorderGapMaskConverter" />
+            <DataGridLengthConverter x:Key="DataGridLengthConverter" />
+            <MenuScrollingVisibilityConverter x:Key="MenuScrollingVisibilityConverter" />
+            <ZoomPercentageConverter x:Key="ZoomPercentageConverter" />
+            <JournalEntryListConverter x:Key="JournalEntryListConverter" />
+            <!--<themes:ProgressBarBrushConverter x:Key="ProgressBarBrushConverter" />
+            <themes:ProgressBarHighlightConverter x:Key="ProgressBarHighlightConverter" />-->
+            <JournalEntryUnifiedViewConverter x:Key="JournalEntryUnifiedViewConverter" />
 
             <ResourceDictionary.MergedDictionaries>
                   <ResourceDictionary Source="Dicts\ColorsDictionary.xaml" />

@@ -6,9 +6,9 @@ using System . Threading . Tasks;
 using System . Windows;
 using System . Windows . Controls;
 
-namespace NewWpfDev. AttachedProperties
+namespace NewWpfDev . AttachedProperties
 {
-    public  class IsExpanded
+    public class IsExpanded
     {
         public static bool GetIsExpand ( DependencyObject obj )
         {
@@ -22,7 +22,7 @@ namespace NewWpfDev. AttachedProperties
 
         // Using a DependencyProperty as the backing store for IsExpand.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty IsExpandProperty =
-            DependencyProperty . RegisterAttached ( "IsExpand" , typeof ( bool ) , 
+            DependencyProperty . RegisterAttached ( "IsExpand" , typeof ( bool ) ,
                 typeof ( IsExpanded ) , new PropertyMetadata ( false ) );
 
     }

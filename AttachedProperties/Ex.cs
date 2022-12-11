@@ -6,12 +6,12 @@ using System . Threading . Tasks;
 using System . Windows . Media;
 using System . Windows;
 
-namespace NewWpfDev. AttachedProperties
+namespace NewWpfDev . AttachedProperties
 {
 
     public class Ex : DependencyObject
     {
- 
+
     }
     //public class Ex : DependencyObject
     //{

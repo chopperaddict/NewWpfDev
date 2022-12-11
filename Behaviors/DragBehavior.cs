@@ -2,7 +2,7 @@
 using System . Windows . Input;
 using System . Windows . Media;
 
-namespace Behaviors
+namespace NewWpfDev . Behaviors
 {
     public class DragBehavior
     {
@@ -35,7 +35,7 @@ namespace Behaviors
         {
             // ignoring error checking
             var element = ( UIElement ) sender;
-            var isDrag = ( bool ) ( e . NewValue );
+            var isDrag = ( bool ) e . NewValue;
 
             Instance = new DragBehavior ( );
             ( ( UIElement ) sender ) . RenderTransform = Instance . Transform;
@@ -72,7 +72,7 @@ namespace Behaviors
         {
             var parent = Application . Current . MainWindow;
             var mousePos = mouseEventArgs . GetPosition ( parent );
-            var diff = ( mousePos - _mouseStartPosition2 );
+            var diff = mousePos - _mouseStartPosition2;
             if ( !( ( UIElement ) sender ) . IsMouseCaptured ) return;
             Transform . X = _elementStartPosition2 . X + diff . X;
             Transform . Y = _elementStartPosition2 . Y + diff . Y;

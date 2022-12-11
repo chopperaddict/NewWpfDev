@@ -564,6 +564,37 @@
                 </MenuItem.Header>
             </MenuItem>
 
+
+            <MenuItem   x:Name="gm40" Click="DisplayHeaderInfo">
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                    Text="Show Header Block Detailed Information" 
+                                    FontSize="14"
+                                     Height="25"
+                                    Padding="20 0 0 0"
+                                    Margin="0 0 0 0"
+                                     Width="375"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+
+           <MenuItem   >
+                <!--// splitter-->
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                Text="------------------------------------------------------------------------"
+                                FontSize="8"
+                                    Foreground="Red"
+                                     Height="12"
+                                    Padding="20 0 0 0"
+                                    Margin="0 0 0 0"
+                                     Width="375"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+
             <MenuItem   x:Name="gm0" Click="expandprompt">
                 <MenuItem.Header>
                     <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
@@ -571,6 +602,21 @@
                                     Text="Toggle Parameters/Options panels" 
                                     FontSize="14"
                                      Height="25"
+                                    Padding="20 0 0 0"
+                                    Margin="0 0 0 0"
+                                     Width="375"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+
+
+            <MenuItem   x:Name="gm56" Click="SetLbsize">
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                                    Text="Reset S.Procs Listbox font size" 
+                                    FontSize="14"
+                                     Height="20"
                                     Padding="20 0 0 0"
                                     Margin="0 0 0 0"
                                      Width="375"/>
@@ -587,20 +633,6 @@
                                 FontSize="8"
                                     Foreground="Red"
                                      Height="12"
-                                    Padding="20 0 0 0"
-                                    Margin="0 0 0 0"
-                                     Width="375"/>
-                    </StackPanel>
-                </MenuItem.Header>
-            </MenuItem>
-
-            <MenuItem   x:Name="gm56" Click="SetLbsize">
-                <MenuItem.Header>
-                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
-                        <TextBlock 
-                                    Text="Reset S.Procs Listbox font size" 
-                                    FontSize="14"
-                                     Height="20"
                                     Padding="20 0 0 0"
                                     Margin="0 0 0 0"
                                      Width="375"/>
@@ -672,7 +704,7 @@
                 <MenuItem.Header>
                     <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
                         <TextBlock 
-                                    Text="Show SP's matching Search term only" 
+                                    Text="Show only SP's matching Search term" 
                                     FontSize="14"
                                      Height="20"
                                     Padding="20 0 0 0"

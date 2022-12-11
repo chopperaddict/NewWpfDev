@@ -10,7 +10,7 @@ using Microsoft . Xaml . Behaviors;
 //using System . Windows . Interactivity;
 
 
-namespace Behaviors
+namespace NewWpfDev . Behaviors
 {
     class ListDragBlendBehavior : Behavior<ListBox>
     {
@@ -41,9 +41,9 @@ namespace Behaviors
             var currentPosition = e . GetPosition ( null );
             var difference = _dragStart - currentPosition;
 
-            if ( ( MouseButtonState . Pressed == e . LeftButton ) &&
-                ( ( Math . Abs ( difference . X ) > SystemParameters . MinimumHorizontalDragDistance ) ||
-                 ( Math . Abs ( difference . Y ) > SystemParameters . MinimumVerticalDragDistance ) ) )
+            if ( MouseButtonState . Pressed == e . LeftButton &&
+                ( Math . Abs ( difference . X ) > SystemParameters . MinimumHorizontalDragDistance ||
+                  Math . Abs ( difference . Y ) > SystemParameters . MinimumVerticalDragDistance ) )
             {
                 var data = new DataObject ( "Custom" , _dragData );
                 DragDrop . DoDragDrop ( _dragSource , data , DragDropEffects . Copy );

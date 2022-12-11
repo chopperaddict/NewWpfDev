@@ -5,7 +5,7 @@ using System . Text;
 
 using Dapper;
 
-namespace StoredProcs
+namespace NewWpfDev . StoredProcs
 {
     public class SProcsSupport
     {

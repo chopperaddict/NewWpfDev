@@ -3,6 +3,7 @@ using System . Collections . Generic;
 using System . Collections . ObjectModel;
 using System . ComponentModel;
 using System . Diagnostics;
+using System . Diagnostics . Eventing . Reader;
 using System . Linq;
 using System . Linq . Expressions;
 using System . Printing;
@@ -26,7 +27,7 @@ using UserControls;
 
 using Views;
 
-namespace StoredProcs
+namespace NewWpfDev . StoredProcs
 {
     /// <summary>
     /// set of methods  used to support the parsing of S.Procs
@@ -201,8 +202,45 @@ namespace StoredProcs
             catch ( Exception ex )
             {
                 Debug . WriteLine ( $"{ex . Message}" );
-                NewWpfDev . Utils . DoErrorBeep ( );
+                Utils . DoErrorBeep ( );
             }
+            //int bindex = 0;
+            //if ( Output . Contains ( "BEGIN" ) )
+            //{
+            //    bindex = Output . IndexOf ( "BEGIN" );
+            //    if ( Output . Contains ( "AS" ) )
+            //    {
+            //        while ( true )
+            //        {
+            //            string tmpoutput1 = Output . Substring ( bindex - 12 );
+            //            int asindex = Output . IndexOf ( "AS" );
+            //            if ( bindex - asindex < 10 )
+            //                tmpoutput1 = Output . Substring ( asindex + 2 );
+            //            if ( tmpoutput1 . Contains ( "BEGIN" ) )
+            //            {
+            //                bindex = tmpoutput1 . IndexOf ( "BEGIN" );
+            //                if ( bindex - asindex < 10 )
+            //                    Output = Output . Substring ( 0 , Output . IndexOf ( "AS" ) );
+            //                else
+            //                {
+            //                    if ( Output . Substring ( bindex - 10 ) . Contains ( "AS" ) )
+            //                    {
+            //                        asindex = Output . Substring ( 0 , bindex - 10 ) . IndexOf ( "AS" );
+            //                    }
+            //                }
+            //            }
+
+            //        }
+            //        Output = Output . Substring ( 0 , Output . IndexOf ( "AS" ) );
+            //    }
+            //}
+            //else
+            //{
+            //    Output = $"Header Block appears to be  Invalid...\n{Output}";
+            //    success = false;
+            //    return Output;
+            //}
+            success = true;
             return Output;
         }
 
@@ -425,7 +463,7 @@ namespace StoredProcs
             catch ( Exception ex )
             {
                 Debug . WriteLine ( $"{ex . Message}" );
-                NewWpfDev . Utils . DoErrorBeep ( );
+                Utils . DoErrorBeep ( );
             }
             return Output;
         }
@@ -466,8 +504,6 @@ namespace StoredProcs
                 int CreatePosition2 = Arguments . IndexOf ( "PROC" );
 
             }
-
-
             if ( CreatePosition != -1 )
             {
                 try
@@ -558,7 +594,7 @@ namespace StoredProcs
                     }
                     else if ( test [ 0 ] . StartsWith ( "CREATE PROCEDURE" ) && test . Length > 1 )
                     {
-                        test [ 0 ] = "";                        
+                        test [ 0 ] = "";
                     }
 
                     string currentrow = "";
@@ -619,7 +655,7 @@ namespace StoredProcs
                 catch ( Exception ex )
                 {
                     Console . WriteLine ( $"Parsing error {ex . Message}" );
-                    NewWpfDev . Utils . DoErrorBeep ( );
+                    Utils . DoErrorBeep ( );
                     return "";
                 }
 
@@ -1025,7 +1061,7 @@ namespace StoredProcs
             catch ( Exception ex )
             {
                 Debug . WriteLine ( $"{ex . Message}" );
-                NewWpfDev . Utils . DoErrorBeep ( );
+                Utils . DoErrorBeep ( );
             }
             testbuff = "";
             for ( int z = 0 ; z < argument . Length ; z++ )
@@ -1063,7 +1099,7 @@ namespace StoredProcs
             catch ( Exception ex )
             {
                 Debug . WriteLine ( $"Regex failure : {ex . Message}" );
-                NewWpfDev . Utils . DoErrorBeep ( );
+                Utils . DoErrorBeep ( );
             }
             return Output;
         }
@@ -1192,7 +1228,7 @@ namespace StoredProcs
         public static List<string> CallStoredProcedure ( List<string> list , string sqlcommand , string [ ] args = null )
         {
             //            List<string> list = new List<string> ( );
-            list = NewWpfDev . GenDapperQueries . ProcessUniversalQueryStoredProcedure ( sqlcommand , args , MainWindow . CurrentSqlTableDomain , out string err );
+            list = GenDapperQueries . ProcessUniversalQueryStoredProcedure ( sqlcommand , args , MainWindow . CurrentSqlTableDomain , out string err );
             //This call returns us a List<string>
             // This method is NOT a dynamic method
             return list;

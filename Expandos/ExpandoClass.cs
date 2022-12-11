@@ -9,7 +9,7 @@ using Views;
 using static IronPython . Modules . _ast;
 
 
-namespace Expandos
+namespace NewWpfDev . Expandos
 {
     public class ExpandoClass
     {
@@ -23,7 +23,7 @@ namespace Expandos
             expobj = new ExpandoObject ( );
             return expobj;
         }
-       public static ExpandoObject ToExpandoObject ( string key , object value )
+        public static ExpandoObject ToExpandoObject ( string key , object value )
         {
             ExpandoObject expobj = new ExpandoObject ( );
             IDictionary<string , object> dict = new ExpandoObject ( );
@@ -78,7 +78,7 @@ namespace Expandos
                     if ( item . Key . ToString ( ) . ToUpper ( ) == name . ToUpper ( ) )
                     {
                         ExpandoObject obj = new ExpandoObject ( );
-                        AddDictionaryEntry ( dyn , dict , item . Key . ToString ( ) , ( object ) item . Value );
+                        AddDictionaryEntry ( dyn , dict , item . Key . ToString ( ) , item . Value );
                         // return result as an  ExpandoObject containing a single entry (the one found)
                         if ( obj . TryAdd ( name , dict ) == true )
                             return obj;
@@ -108,9 +108,9 @@ namespace Expandos
             //}
             return null;
         }
-        
+
         #endregion Expando support  handlers
-        
+
         private dynamic TestExpando ( )
         {
             // set it to default
@@ -118,32 +118,32 @@ namespace Expandos
             string str2 = "";
             try
             {
-                ExpandoObject dynobj = Genericgrid.Gengridexpobj;
-                if ( Genericgrid .Gengridexpobj == null )
+                ExpandoObject dynobj = Genericgrid . Gengridexpobj;
+                if ( Genericgrid . Gengridexpobj == null )
                 {
-                    Genericgrid .Gengridexpobj = ExpandoClass . GetNewExpandoObject ( );
+                    Genericgrid . Gengridexpobj = GetNewExpandoObject ( );
                     dynobj = Genericgrid . Gengridexpobj;
                 }
                 Debug . WriteLine ( $"dynobj = {dynobj . ToString ( )}" );
                 bool success = false;
-                Genericgrid .Gengridexpobj = ExpandoClass . expobjAdd ( Genericgrid .Gengridexpobj , "Phone" , ( object ) "0757 9062440" , out success );
+                Genericgrid . Gengridexpobj = ExpandoClass . expobjAdd ( Genericgrid . Gengridexpobj , "Phone" , ( object ) "0757 9062440" , out success );
                 if ( success )
                 {
-                    foreach ( var item in Genericgrid .Gengridexpobj )
+                    foreach ( var item in Genericgrid . Gengridexpobj )
                     {
                         str1 = item . Key . ToString ( );
                         str2 = item . Value . ToString ( );
                         Debug . WriteLine ( $"dynobj.Added = {str1}  : {str2}" );
                     }
-                    Genericgrid.Gengridexpobj = ExpandoClass . expobjFind ( Genericgrid .Gengridexpobj , "Phone" );
-                    foreach ( var item in Genericgrid.Gengridexpobj )
+                    Genericgrid . Gengridexpobj = ExpandoClass . expobjFind ( Genericgrid . Gengridexpobj , "Phone" );
+                    foreach ( var item in Genericgrid . Gengridexpobj )
                     {
                         str1 = item . Key . ToString ( );
                         str2 = item . Value . ToString ( );
                         Debug . WriteLine ( $"dynobjFind() returned :  {str1}  : {str2}" );
                     }
 
-                    if ( Genericgrid.Gengridexpobj = ExpandoClass . expobjDel ( Genericgrid.Gengridexpobj , "Phone" , ( object ) "0757 9062440" ) == false )
+                    if ( Genericgrid . Gengridexpobj = ExpandoClass . expobjDel ( Genericgrid . Gengridexpobj , "Phone" , ( object ) "0757 9062440" ) == false )
                         Debug . WriteLine ( $"dynobjDel() returned :  FALSE, deletion of \"Phone\" failed" );
                 }
                 return dynobj;

@@ -13,10 +13,8 @@ using System . Windows . Input;
 using Dapper;
 
 using NewWpfDev . Models;
-
-using StoredProcs;
-
-using Views;
+using NewWpfDev . StoredProcs;
+using NewWpfDev . Views;
 
 using static IronPython . Modules . PythonIterTools;
 

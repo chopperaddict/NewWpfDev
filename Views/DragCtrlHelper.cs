@@ -6,7 +6,7 @@ using System . Windows . Controls;
 using System . Windows . Input;
 using System . Windows;
 
-namespace Views
+namespace NewWpfDev . Views
 {
 
     /// <summary>
@@ -38,7 +38,7 @@ namespace Views
 
     //    public DragCtrlHelper ( )
     //    {
-                
+
     //    }
     //    public object MovingObject = null;
     //    public double currentleft = 0.0;

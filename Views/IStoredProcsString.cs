@@ -2,13 +2,13 @@
 using System . Collections . Generic;
 using System . Text;
 
-namespace Views
+namespace NewWpfDev . Views
 {
     public interface IStoredProcsString
     {
         void SelectSqlPProcessor ( );
 
-        public  dynamic ProcessGenericDapperStoredProcedure (
+        public dynamic ProcessGenericDapperStoredProcedure (
             string spCommand ,
             string [ ] args ,
             string CurrDomain ,

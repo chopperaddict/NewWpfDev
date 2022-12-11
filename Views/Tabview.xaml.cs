@@ -20,11 +20,10 @@ using NewWpfDev . Models;
 using NewWpfDev . UserControls;
 using NewWpfDev . ViewModels;
 
-
-
 using static NewWpfDev . Views . Tabview;
 
-namespace NewWpfDev . Views {
+namespace NewWpfDev . Views
+{
 
     public partial class Tabview : Window {
 

@@ -9,7 +9,7 @@
         mc:Ignorable="d"
        WindowChrome.ResizeGripDirection="BottomRight"
 	    ResizeMode="CanResizeWithGrip"        
-        MinHeight="200" MinWidth="400"
+        MinHeight="200" MinWidth="500"
         KeyDown="Dataviewer_KeyDown"
         Background="{StaticResource White0}"
         Loaded="Grid_Loaded"
@@ -43,6 +43,11 @@
             </Style.Triggers>
         </Style>
 
+        <Style TargetType="Paragraph">
+            <!-- 20.0 is default. It's pixels not characters though -->
+            <Setter Property="TextIndent" Value="5" />
+        </Style>
+
     </Window.Resources>
     <Grid x:Name="dataviewergrid">
         <Grid.RowDefinitions>
@@ -71,7 +76,7 @@
                    Width="130"
                    Padding="0 3 0 0"/>
         </Grid>
-        <!--ContextMenu="{StaticResource OptionsContextmenu}"-->
+
         <FlowDocumentScrollViewer x:Name="fdviewer"
                 Grid.Row="1"
 				Focusable="true"
@@ -83,8 +88,9 @@
                     Converter={StaticResource ReduceByParamValue},ConverterParameter=5}"
 				HorizontalAlignment="Left"
 				IsHitTestVisible="true"
+                                  
 				IsEnabled="true"
-				IsSelectionEnabled="false"
+				IsSelectionEnabled="true"
 				Panel.ZIndex="10"
 				Margin="2,0,0,0"
 				VerticalAlignment="Stretch"
@@ -93,9 +99,7 @@
                 ScrollViewer.HorizontalScrollBarVisibility="Visible"
 				Visibility="Visible"
 				Height="{Binding Path=ActualHeight, ElementName=dataviewergrid, 
-                    Converter={StaticResource ReduceByParamValue},ConverterParameter=90}"
-						 />
-
+                    Converter={StaticResource ReduceByParamValue},ConverterParameter=60}"/>
 
         <!--#region bottom panel-->
   
@@ -110,10 +114,11 @@
                 <Label Content="Set Font size :"
                        Foreground="Black"
                        Padding="210 10 0 0"
-                       FontSize="14"
-                       />
+                       FontSize="14"/>
+            
+            <!--// Font Siizes Combo-->
             <ComboBox x:Name="Fonts" 
-                          Width="60"
+                          Width="50"
                           Height="30"
                           FontSize="14"
                           HorizontalAlignment="Left"
@@ -123,37 +128,44 @@
                           MaxDropDownHeight="250">
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
-                        <TextBlock Width="80"
+                        <TextBlock Width="40"
                                 Text="{Binding}"
                                 Height="20"
-                                Background="{StaticResource Black4}"
-                                Foreground="White"
+                                Background="{StaticResource Black5}"
+                                Foreground="{StaticResource Orange6}"
+                                   FontWeight="Normal"
                                 FontSize="14"/>
                     </DataTemplate>
                 </ComboBox.ItemTemplate>
             </ComboBox>
 
+            <!--// Font Names Combo-->
             <ComboBox x:Name="fontslist" 
                       Grid.Row="2"
+                      Background="{StaticResource Black5}"
                           Width="190"
-                          Height="30"
+                          Height="25"
                           FontSize="14"
                           HorizontalAlignment="Left"
                           Margin="10 0 0 0"
+                      ScrollViewer.HorizontalScrollBarVisibility="Auto"
                           Style="{StaticResource ComboBoxStyle}"
                       SelectionChanged="Fontslist_SelectionChanged"
+                      PreviewKeyDown="fontslist_PreviewKeyDown"
                           MaxDropDownHeight="320">
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
                         <TextBlock Width="180"
                                 Text="{Binding}"
                                 Height="20"
-                                Background="{StaticResource Black4}"
-                                Foreground="White"
+                                Background="{StaticResource Black5}"
+                                Foreground="{StaticResource Cyan0}"
+                                   FontWeight="Normal"
                                 FontSize="14"/>
                     </DataTemplate>
                 </ComboBox.ItemTemplate>
             </ComboBox>
+            
             <Button Content="Close"
                         Click="Close_Click"
                         Width="110"

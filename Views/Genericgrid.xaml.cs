@@ -19,15 +19,15 @@ using System . Windows . Media;
 
 using Dapper;
 
-using Expandos;
+//using Expandos;
 
 using NewWpfDev;
 using NewWpfDev . Dapper;
 using NewWpfDev . Models;
+using NewWpfDev . StoredProcs;
 using NewWpfDev . UserControls;
 using NewWpfDev . ViewModels;
-
-using StoredProcs;
+using NewWpfDev . Views;
 
 //using StoredProcs;
 
@@ -929,7 +929,7 @@ namespace Views
                                 buffer = s;
                                 // We now  have ONE sinlge record, but need to add this  to a GenericClass structure 
                                 int reccount = 1;
-                                Utils.ParseDictIntoGenericClass ( outdict , reccount , ref gc );
+                                Utils . ParseDictIntoGenericClass ( outdict , reccount , ref gc );
 
                                 //foreach ( KeyValuePair<string , string> val in outdict )
                                 //{  //
@@ -1172,17 +1172,32 @@ namespace Views
             GridData = DapperSupport . CreateFullColumnInfo ( CurrentTable , ConString , true );
             string output = GenerateTableStructuretext ( GridData );
             Mouse . OverrideCursor = Cursors . Arrow;
-            DataViewer dv = new DataViewer ( output , "Normal" , "Nirmala UI" , 14 , "Black1");
+            string DefFontFamily = NewWpfDev . Properties . Settings . Default . DataViewerFontFamily;
+            string DefFontSize = NewWpfDev . Properties . Settings . Default . DataViewerFontSize;
+            string DefFontStyle = NewWpfDev . Properties . Settings . Default . DataViewerFontStyle;
+            string DefFontColor = NewWpfDev . Properties . Settings . Default . DataViewerFontColor;
+
+            DataViewer dv = new DataViewer ( output , DefFontStyle , DefFontFamily , DefFontSize , DefFontColor , isFixed : true );
             dv . Show ( );
- //
+            //
             return;
         }
         public static string GenerateTableStructuretext ( ObservableCollection<GenericClass> GridData )
         {
             string output = "";
+            string comma1 = ",";
+            string comma2 = ",";
             foreach ( var item in GridData )
             {
-                output += $"{item . field1 . ToString ( ) . PadRight ( 25 )}{item . field2}, {item . field3}, {item . field4}, {item . field5}\n";
+ //               if ( item . field4  == null || item . field4 . ToString ( ) == "" )
+                    comma1 = "";
+//                if ( item . field5 == null ||  item . field5 . ToString ( ) == "" )
+                    comma2 = "";
+                item . field1 = item. field1 . Trim ( );
+                item . field2 = item. field2 . Trim ( );
+                if(item . field4 != null ) item . field4 = item. field4 . Trim ( );
+                if ( item . field5 != null ) item . field5 = item. field5 . Trim ( );
+                output += $"{item . field1 . ToString ( ) . PadRight ( 15 )}{item . field2.PadRight(12)}{comma1} {item . field4}{comma2} {item . field5}\n";
             }
             return output;
         }
@@ -2167,7 +2182,7 @@ namespace Views
                 RTBox . Visibility = Visibility . Visible;
                 InfoGrid . Visibility = Visibility . Visible;
 
-                 // Load FULL list of ALL SP's that match searchterm 
+                // Load FULL list of ALL SP's that match searchterm 
                 // into left column of  our viewer panel of our Viewergrid
                 if ( Splist . Items . Count == 0 )
                 {
@@ -3251,7 +3266,7 @@ namespace Views
                                         // We now  have ONE sinlge record, but need to add this  to a GenericClass structure 
                                         int reccount = 1;
                                         //GenericClass gc = new GenericClass ( );
-                                        Utils.ParseDictIntoGenericClass (  outdict,  reccount , ref gc );
+                                        Utils . ParseDictIntoGenericClass ( outdict , reccount , ref gc );
                                         //foreach ( KeyValuePair<string , string> val in outdict )
                                         //{  //
                                         //    switch ( reccount )
@@ -4802,10 +4817,11 @@ namespace Views
         /// <param name="spfilename">SP to be loaded</param>
         /// <param name="sptext">Search Text to be highlighted</param>
         /// <returns></returns>
-        public bool LoadShowMatchingSproc ( Window win , FlowDocumentScrollViewer flowdocsv , string spfilename , ref string sptext , int Fontsize = 14 )
+        public bool LoadShowMatchingSproc ( Window win , FlowDocumentScrollViewer flowdocsv , string spfilename , ref string sptext , int Fontsize = 14, bool showresult=true )
         {
             // Read an SP into memory and display it inFlowdocscrollviewer received
             // This reads the SP into memory in sptext  and displays it in the SpResultsViewer Scrollviewer
+            sptext = "";
             this . FetchStoredProcedureCode ( spfilename , ref sptext );
             SplistRightclick = false;
             if ( sptext == "" )
@@ -4815,6 +4831,9 @@ namespace Views
                 return false;
             }
             else spTextBuffer = sptext;     // store full sp text in window Property
+
+            if ( showresult == false )
+                return true;
 
             // This ensures that both widnows are updated independently
             // depending on which list triggers the reload of the SP.
