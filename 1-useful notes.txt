@@ -1772,7 +1772,7 @@ dynamicParameters.Add("TestOutput", 0, Dbtype.Int32, ParameterDirection.Output);
 
 ===============================================================================================================
  * 	How  to call a method  that takes 1 <T> parameter
- * 	publiic  bool <T> GetResult(T arg);
+ * 	public  bool <T> GetResult(T arg);
 ===============================================================================================================
 			//Test Calls to a method that has one generic parameter <T>
 			DapperGeneric<List<string>> . getresult ( lst);
@@ -1797,7 +1797,6 @@ dynamicParameters.Add("TestOutput", 0, Dbtype.Int32, ParameterDirection.Output);
 					Debug . WriteLine ( $"Field1 = [{g . field1}] " );
 					break;
 
-
 ===============================================================================================================
  * 	How  to create multiple args for dapper
  * 	var parameters = new List<DynamicParameters>();
@@ -1813,9 +1812,7 @@ dynamicParameters.Add("TestOutput", 0, Dbtype.Int32, ParameterDirection.Output);
 		parameters.Add(p);
 		
 		// how to use them
-		connection.Execute(sql,
-		parameters,
-		commandType: CommandType.StoredProcedure);
+		connection.Execute(sql, parameters, commandType: CommandType.StoredProcedure);
 	}
 
 ===============================================================================================================
@@ -1911,7 +1908,7 @@ Server=localhost\MSSQLSERVER03;Database=master;Trusted_Connection=True;
 		ELSE IF LEFT(UPPER(TRIM(@Arg2)),3)<>'TOP'
 			set @SQL='Select '+TRIM(@ARG2)			-- selection = fieldname(s)
 	
-		set @SQL += ' from ' + TRIM(@ARG1)			-- add DbName to be thesource of the data
+		set @SQL += ' from ' + TRIM(@ARG1)			-- add DbName to be the source of the data
 
 		IF  @ARG3<>''
 			set @SQL +=' where '+ TRIM(@ARG3)			-- add any conditions
@@ -2008,18 +2005,6 @@ Select * into NEWDB from OLDDB
 // Add it to any window you do not want these messages to show in
 ===============================================================================================================
 System . Diagnostics . PresentationTraceSources . DataBindingSource . Switch . Level = System . Diagnostics . SourceLevels . Critical;
-
-===============================================================================================================
-// How  to use DataGridColumns  from and x:Array in seperate file
-===============================================================================================================
-
-	// Load the selected set of columns, params are (Datagrid name, Array  required)
-	
-	DataGridUtilities . LoadDataGridColumns ( BankGrid , "DGColumns3" );
-
-		// We must also clear our "loaded" columns, or else it stopsworking
-		ObservableCollection<DataGridColumn> dgc = BankGrid.Columns;
-		dgc . Clear ( );
 
 ===============================================================================================================
 // Templates that support  AP color control
@@ -2553,7 +2538,7 @@ ScaleX="{Binding TextWidthScale, RelativeSource={RelativeSource FindAncestor,	An
 				</Style>
 			</Rectangle.Style>
 
-			//You can use this format almost anywhere to change any Dependency Poperty
+			//You can use this format almost anywhere to change any Dependency Property
 //			SetValue ( $$owner$$.BtnTextProperty, "here ya go !" );
 
 /Allows control to Override default properties, & lets DP objects be inherited

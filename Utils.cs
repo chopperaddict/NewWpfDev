@@ -36,7 +36,7 @@ using System . Reflection;
 using System . Dynamic;
 using System . Threading . Tasks;
 using System . Windows . Media . Media3D;
-
+using IronPython . Modules;
 
 namespace NewWpfDev
 {
@@ -597,6 +597,7 @@ namespace NewWpfDev
                 {
                     bd . Style = magnify ? System . Windows . Application . Current . FindResource ( "BorderMagnifyAnimation4" ) as Style : null;
                     continue;
+                    
                 }
                 var cb = list [ i ] as ComboBox;
                 if ( cb != null )
