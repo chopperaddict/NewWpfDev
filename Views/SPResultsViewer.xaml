@@ -744,7 +744,7 @@
             <ListBox x:Name="ListResults" Grid.Row="0" Grid.RowSpan="2" Grid.Column="0"
                     Width="{Binding ActualWidth, ElementName=Listboxesgrid,
                         Converter={StaticResource ReduceByParamValue},ConverterParameter=420}"
-                    Background="{StaticResource Black7}"
+                    Background="Black"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"
                     VerticalContentAlignment="Stretch"

@@ -27,6 +27,8 @@ using UserControls;
 
 using Views;
 
+using static IronPython . Modules . _ast;
+
 namespace NewWpfDev . StoredProcs
 {
     /// <summary>
@@ -477,6 +479,12 @@ namespace NewWpfDev . StoredProcs
             return cleantest;
         }
 
+        /// <summary>
+        /// Parse the   header block when a new SP is selected in ListResults
+        /// </summary>
+        /// <param name="arguments">The full S.Proc script text</param>
+        /// <param name="spviewer">The parent Window</param>
+        /// <returns></returns>
         public static string GetSpHeaderBlock ( string arguments , SpResultsViewer spviewer )
         {
             //Save buffer  for reuse if debugging
@@ -490,7 +498,8 @@ namespace NewWpfDev . StoredProcs
             Arguments = temp . ToUpper ( );
             int CreatePosition = 0;
             string output = "";
-
+            if ( arguments . StartsWith( "\r\n" ))
+                arguments  = arguments . Substring ( 2 );
             // retrieve header block
             if ( Arguments . Contains ( "CREATE PROCEDURE" ) )
                 CreatePosition = Arguments . IndexOf ( "CREATE PROCEDURE" );
@@ -523,19 +532,11 @@ namespace NewWpfDev . StoredProcs
                                 Arguments = tmp [ 1 ];
                         }
                     }
-                    //else if ( CreatePosition == 0 )
-                    //{
-                    //    // Strip out any preamble before the Create Proc line
-                    //    int offset3 = Arguments . IndexOf ( "\r\n" );
-                    //    Arguments = Arguments . Substring ( offset3 + 2 );
-                    //}
-                    else if ( CreatePosition > 0 )
+                     else if ( CreatePosition > 0 )
                     {
                         // Strip out any preamble before the Create Proc line
                         Arguments = Arguments . Substring ( CreatePosition );
-                        //int offset3 = Arguments . IndexOf ( "\r\n" );
-                        //Arguments = Arguments . Substring ( offset3 );
-                    }
+                     }
                     // we should ave now removed the Create Proc line
                     // split the remaining script down to individual lines
                     string [ ] test = Arguments . Split ( "\r\n" );
@@ -592,11 +593,20 @@ namespace NewWpfDev . StoredProcs
                         output = "No arguments are required, so select Execute Option and proceed.";
                         return output;
                     }
+                    else if ( test [ 0 ] . StartsWith ( "CREATE  PROCEDURE" ) && test . Length == 1 )
+                    {
+                        spviewer . Parameterstop . Text = $"[No Parameters/Arguments required]";
+                        output = "No arguments are required, so select Execute Option and proceed.";
+                        return output;
+                    }
                     else if ( test [ 0 ] . StartsWith ( "CREATE PROCEDURE" ) && test . Length > 1 )
                     {
                         test [ 0 ] = "";
                     }
-
+                    else if ( test [ 0 ] . StartsWith ( "CREATE  PROCEDURE" ) && test . Length > 1 )
+                    {
+                        test [ 0 ] = "";
+                    }
                     string currentrow = "";
                     // Sanity check , only CREATE line in header with no args
                     for ( int rows = 0 ; rows < test . Length ; rows++ )
@@ -636,7 +646,11 @@ namespace NewWpfDev . StoredProcs
                         }
                         if ( testbuff . Contains ( "=''" ) || testbuff . Contains ( "= '" ) )
                         {
-                            string [ ] tmp = testbuff . Split ( "= ' " );
+                            string [ ] tmp = null;
+                            if(testbuff . Contains ( "= '" ) )
+                                tmp = testbuff . Split ( "= '" );
+                            else
+                                tmp = testbuff . Split ( "= " );
                             for ( int x = 0 ; x < tmp . Length ; x++ )
                             {
                                 if ( tmp [ x ] == "MAX" || tmp [ x ] == "SYSNAME" )
@@ -644,8 +658,11 @@ namespace NewWpfDev . StoredProcs
                             }
                             if ( tmp . Length > 3 )
                                 testbuff = $"{tmp [ 0 ]} {tmp [ 1 ]}{tmp [ 2 ]} {tmp [ 3 ]}";
-                            else
+                            else if ( tmp . Length > 2 )
                                 testbuff = $"{tmp [ 0 ]} {tmp [ 1 ]}{tmp [ 2 ]}";
+                            else
+                                testbuff = $"{tmp [ 0 ]} '{tmp [ 1 ]}";
+
                         }
                         if ( output . Length > 0 )
                             output += " : ";

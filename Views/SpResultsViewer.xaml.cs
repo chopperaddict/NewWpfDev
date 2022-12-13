@@ -244,6 +244,7 @@ namespace Views
                     ShowParseDetails = true;
                     if ( ShowParseDetails )
                     {
+                        // Process SP script to retrieve Header Block and process it to create prompt lines info etc
                         string Arguments = SProcsDataHandling . GetSpHeaderBlock ( sptext , spviewer );
                         if ( Arguments . Length == 0 || Arguments . Contains ( "No valid Arguments were found" ) == true
                             || Arguments . Contains ( "Either the \"AS\" or \"BEGIN \" statements are missing" )
