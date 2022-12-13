@@ -42,10 +42,11 @@ namespace NewWpfDev . Converts
                 paramvalue = System . Convert . ToDouble ( parameter );
                 if ( currentvalue - paramvalue < 0 )
                     return 0;
-                //Type t = targetType;
-                //			Debug. WriteLine ( $"value = {value}, Parameter = {parameter}, TargetType={targetType}" );
                 d = ( double ) currentvalue;
-                currentvalue = d - paramvalue;
+                if(paramvalue < 0)
+                    currentvalue = d + (paramvalue * -1);
+                else
+                    currentvalue = d - paramvalue;
                 $"Reduced = {currentvalue} by parameter value {parameter} to {currentvalue}" . cwinfo ( 0 );
  //               Debug . WriteLine ( $"ReduceByParamValue : value={value} + Parameter = {parameter}, result = {currentvalue}" );
                 return currentvalue;

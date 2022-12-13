@@ -385,6 +385,9 @@ namespace NewWpfDev
             int dictcount = 0;
             int fldcount = 0;
             int colcount = 0;
+            reccount = 0;
+            genericlist . Clear (  );
+            if ( data == null ) return collection;
             try
             {
                 foreach ( var item in data )

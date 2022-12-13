@@ -18,10 +18,10 @@
 	    ResizeMode="CanResizeWithGrip"
         Title="Stored Procedures Results Viewer" 
         Height="670" Width="1000"
-        MinHeight="500" 
-        MinWidth="925">
+        MinHeight="600" 
+        MinWidth="975">
     <!--MouseUp="ContextMenu_Closed"-->
-        <!--xmlns:tbarstyles="clr-namespace:NewWpfDev.Stylesheets"-->        
+    <!--xmlns:tbarstyles="clr-namespace:NewWpfDev.Stylesheets"-->
 
     <Window.Resources>
         <conv:IncreaseByParamValue x:Key="IncreaseByParamValue" />
@@ -72,117 +72,6 @@
             <Setter Property="Margin" Value="0" />
         </Style>
 
-        <Style x:Key="ButtonSlant" TargetType="Button">
-            <!--Default layout-->
-            <Setter Property="OverridesDefaultStyle" Value="True" />
-            <!--These defaults can be overriden by the Button Code in the design-->
-            <Setter Property="Height" Value="50" />
-            <Setter Property="Width" Value="150" />
-            <Setter Property="BorderBrush" Value="Black" />
-            <Setter Property="Foreground" Value="White" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="FontSize" Value="16" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Background">
-                <Setter.Value>
-                    <LinearGradientBrush 
-                                    StartPoint="0.2, 0" EndPoint="0, 1">
-                        <GradientStop Offset="0" Color="#DF000000" />
-                        <GradientStop Offset="4" Color="#69000000" />
-                        <GradientStop Offset="0.5" Color="#69EB5E00" />
-                        <GradientStop Offset="6" Color="#69000000" />
-                        <GradientStop Offset="1" Color="#DF000000" />
-                    </LinearGradientBrush>
-                </Setter.Value>
-            </Setter>
-            <!--Lets change the Border as well but use the colors
-			defined in the Buttons declaration in the xaml code-->
-
-            <Setter Property="Control.Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Button}">
-                        <Border  x:Name="border"
-						Background="{TemplateBinding Background}"
-						BorderBrush="{TemplateBinding BorderBrush}"
-						BorderThickness="{TemplateBinding BorderThickness}"
-						CornerRadius="0,0,0,0">
-                            <ContentPresenter
-							Margin="2"
-							HorizontalAlignment="Center"
-							VerticalAlignment="Center"
-							RecognizesAccessKey="True" />
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-
-            <!--Now to handle those pesky Triggers-->
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="false">
-                    <Setter Property="TextElement.Foreground"  Value="{StaticResource Green6}"/>
-                    <Setter Property="BorderBrush"  Value="{StaticResource Black2}"/>
-                    <Setter Property="BorderThickness"  Value="1"/>
-                    <Setter Property="FontSize"  Value="14"/>
-                    <Setter Property="Background" >
-                        <Setter.Value>
-                            <LinearGradientBrush 
-                                    StartPoint="0, 1" EndPoint="0.2, 0">
-                                <GradientStop Offset="0" Color="#DF000000" />
-                                <GradientStop Offset="4" Color="#69000000" />
-                                <GradientStop Offset="0.5" Color="#69EB5E00" />
-                                <GradientStop Offset="6" Color="#69000000" />
-                                <GradientStop Offset="1" Color="#DF000000" />
-                            </LinearGradientBrush>
-                        </Setter.Value>
-                    </Setter>
-                </Trigger>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="TextElement.Foreground"  Value="{StaticResource Green6}"/>
-                    <Setter Property="BorderBrush"  Value="{StaticResource White2}"/>
-                    <Setter Property="BorderThickness"  Value="3"/>
-                    <Setter Property="FontSize"  Value="14"/>
-                    <Setter Property="Background" >
-                        <Setter.Value>
-                            <LinearGradientBrush 
-                                    StartPoint="0, 1" EndPoint="0.2, 0">
-                                <GradientStop Offset="0" Color="#DF000000" />
-                                <GradientStop Offset="4" Color="#69000000" />
-                                <GradientStop Offset="0.5" Color="#69EB5E00" />
-                                <GradientStop Offset="6" Color="#69000000" />
-                                <GradientStop Offset="1" Color="#DF000000" />
-                            </LinearGradientBrush>
-                        </Setter.Value>
-                    </Setter>
-                </Trigger>
-                <Trigger Property="IsPressed" Value="True">
-                    <Setter Property="Background">
-                        <Setter.Value>
-                            <!--Makes gradient fill work horizontally-->
-                            <RadialGradientBrush Center="0.5, 1.0">
-                                <GradientStop Offset="0" Color="Beige" />
-                                <GradientStop Offset="1" Color="Green" />
-                            </RadialGradientBrush>
-                        </Setter.Value>
-                    </Setter>
-                    <Setter Property="Foreground" Value="Black"/>
-                </Trigger>
-                <MultiTrigger>
-                    <MultiTrigger.Conditions>
-                        <Condition Property="IsEnabled" Value="False"/>
-                    </MultiTrigger.Conditions>
-                    <MultiTrigger.Setters>
-                        <Setter Property="Background">
-                            <Setter.Value>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                    <GradientStop Color="LightGray" Offset="0.35" />
-                                    <GradientStop Color="DarkGray" Offset="1" />
-                                </LinearGradientBrush>
-                            </Setter.Value>
-                        </Setter>
-                    </MultiTrigger.Setters>
-                </MultiTrigger>
-            </Style.Triggers>
-        </Style>
 
         <Style x:Key="BtnDefault" TargetType="Button">
             <!--Default layout-->
@@ -505,7 +394,6 @@
             </Style.Triggers>
         </Style>
 
-        <!--<ContextMenu.Style>-->
         <!--// template that removes  that annoying image panel at left of context menus-->
         <Style TargetType="{x:Type ContextMenu}">
             <Setter Property="ItemsPanel" Value="{StaticResource NoImageMenu}"/>
@@ -540,11 +428,12 @@
         </ContextMenu>
 
         <!--#region SpResultsViewer ContextMenu-->
+
         <!--// Results viewer context menu-->
         <ContextMenu  x:Key="ResultsViewerContextMenu"  Width="300" 
             HasDropShadow="True"
             ContextMenuService.Placement="Center"
-            ContextMenuService.VerticalOffset="80"
+            ContextMenuService.VerticalOffset="-10"
             ContextMenuService.HorizontalOffset="-80"
             Closed="ContextMenu_Closed"
             Opened="ContextMenu_Opened"
@@ -614,10 +503,10 @@
             </MenuItem>
 
             <MenuItem   x:Name="gm41" Click="expandargsentry">
-                    <MenuItem.Header>
-                        <!--// Reset Scroller font  size-->
-                        <StackPanel x:Name="sp41" Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
-                            <TextBlock x:Name="gm41Text"
+                <MenuItem.Header>
+                    <!--// Reset Scroller font  size-->
+                    <StackPanel x:Name="sp41" Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock x:Name="gm41Text"
                                     Text="{Binding gm41Text}" 
                                     FontSize="14"
                             FontWeight="DemiBold"
@@ -625,42 +514,12 @@
                                     Padding="20 0 0 0"
                                     Margin="0 0 0 0"
                                      Width="375"/>
-                        </StackPanel>
-                    </MenuItem.Header>
-                </MenuItem>
- 
-  
-            <!--<MenuItem   x:Name="gm56" Click="SetLbsize">
-                <MenuItem.Header>
-                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
-                        <TextBlock 
-                                    Text="Reset S.Procs Listbox font size" 
-                                    FontSize="14"
-                            FontWeight="DemiBold"
-                                     Height="20"
-                                    Padding="20 0 0 0"
-                                    Margin="0 0 0 0"
-                                     Width="375"/>
                     </StackPanel>
                 </MenuItem.Header>
-            </MenuItem>                  
- 
-            <MenuItem   x:Name="gm55" Click="SetViewerFontsize">
-                <MenuItem.Header>
-                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
-                        <TextBlock 
-                                    Text="Reset S.Proc Script Viewer font size" 
-                                    FontSize="14"
-                            FontWeight="DemiBold"
-                                     Height="20"
-                                    Padding="20 0 0 0"
-                                    Margin="0 0 0 0"
-                                     Width="375"/>
-                    </StackPanel>
-                </MenuItem.Header>
-            </MenuItem>-->-->
+            </MenuItem>
 
-              <MenuItem   >         <!--// splitter-->
+            <MenuItem   >
+                <!--// splitter-->
                 <MenuItem.Header>
                     <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
                         <TextBlock 
@@ -707,7 +566,8 @@
             </MenuItem>
 
             <!--//Splitter-->
-            <MenuItem   x:Name="gm3" >       <!--// splitter-->
+            <MenuItem   x:Name="gm3" >
+                <!--// splitter-->
                 <MenuItem.Header>
                     <StackPanel Orientation="Horizontal" Width="375" Style="{StaticResource StackPanelStyle1}">
                         <TextBlock 
@@ -755,7 +615,8 @@
             </MenuItem>
 
 
-            <MenuItem   x:Name="gm6" >     <!--// Spitter-->
+            <MenuItem   x:Name="gm6" >
+                <!--// Spitter-->
                 <MenuItem.Header>
                     <StackPanel Orientation="Horizontal" Width="375" Style="{StaticResource StackPanelStyle1}">
                         <TextBlock 
@@ -793,7 +654,7 @@
     </Window.Resources>
 
     <!--==============================================================================-->
-    
+
     <Grid x:Name="SpViewerResults" 
             KeyDown="SpStrings_KeyDown"                    
               Width="{Binding ActualWidth, ElementName=Spresultsviewer,
@@ -812,7 +673,7 @@
             <RowDefinition  x:Name="vrow2"  Height="*"/>
             <RowDefinition  x:Name="vrow3" Height="115"/>
             <RowDefinition  x:Name="promptbar" Height="20"/>
-            <RowDefinition  x:Name="tbar" Height="25"/>
+            <RowDefinition  x:Name="tbar" Height="30"/>
         </Grid.RowDefinitions>
 
         <!--// hidden field-->
@@ -821,7 +682,7 @@
         <!--#region banner-->
 
         <Grid x:Name="BannerGrid" Grid.Row="0" VerticalAlignment="Top" 
-            Height="35"
+            Height="30"
             IsHitTestVisible="True"
             KeyDown="Spresultsviewer_KeyDown"
             HorizontalAlignment="Center" 
@@ -842,7 +703,7 @@
                 Margin="0,0,0,0"
                 Background="{StaticResource Orange5}"
                 Foreground="Black" 
-                FontSize="18"
+                FontSize="16"
                 FontWeight="DemiBold"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
@@ -860,7 +721,7 @@
                 Margin="0,0,0,0"
                 Background="{StaticResource Orange5}"
                 Foreground="Black" 
-                FontSize="18"
+                FontSize="16"
                 FontWeight="DemiBold"
                 VerticalAlignment="Top"
                 UseLayoutRounding="True" />
@@ -890,11 +751,12 @@
                     SelectionMode="Single"
                     FontSize="16"
                     FontWeight="DemiBold"
-                    Margin="8,3,0,5"
+                    Margin="8,3,0,0"
                     IsHitTestVisible="True"
                      MouseDoubleClick="ListResults_MouseDoubleClick"
                      KeyDown="Spresultsviewer_KeyDown"
                     PreviewMouseRightButtonDown="ListResults_MouseRightButtonDown"
+                     PreviewMouseRightButtonUp="ListResults_MouseRightButtonUp"
                     SelectionChanged="ListResults_SelectionChanged"
                      ScrollViewer.CanContentScroll="True"
                     ScrollViewer.HorizontalScrollBarVisibility="Auto"
@@ -931,19 +793,10 @@
                     HorizontalContentAlignment="Left" 
                      PreviewMouseRightButtonDown="ListResults_MouseRightButtonDown"
                     MouseDoubleClick="optype_MouseDoubleClick"
-                     ScrollViewer.VerticalScrollBarVisibility="Hidden"
-                    
+                     ScrollViewer.VerticalScrollBarVisibility="Auto"
+                    SelectionChanged="optype_SelectionChanged"
                     FontSize="16">
                 <ListBoxItem  Style="{StaticResource SpStringsStyle}"/>
-                <!--SelectionChanged="optype_Select"-->
-                <!--MouseLeave="optype_MouseMove"-->
-                <!--ToolTipService.ShowDuration="5000"
-                    ToolTip="{Binding TooltipText}"-->
-                <!--ToolTipService.BetweenShowDelay="1"
-                     ToolTipService.InitialShowDelay="1"-->
-                <!--MouseDown="optype_Selection"
-                     MouseMove="optype_Selectmove"-->
-                <!--<ListBoxItem MouseLeave="optype_MouseMove"/>-->
             </ListBox>
 
         </Grid>
@@ -961,15 +814,14 @@
                 MouseEnter="hSplitter_MouseEnter" 
                 MouseLeave="hSplitter_MouseLeave"
                 MouseMove="Hsplitter_MouseMove"
-                Background ="{StaticResource HorizontalGraduated}"
+                Background="Coral"
                 ResizeBehavior="PreviousAndNext"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch"
                 Panel.ZIndex="5">
             <GridSplitter.Template>
                 <ControlTemplate>
-                    <Grid 
-						   Background ="{StaticResource HorizontalGraduated}">
+                    <Grid Background="{StaticResource Orange7}" Height="20">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="20" />
                         </Grid.RowDefinitions>
@@ -978,16 +830,16 @@
                                 HorizontalAlignment="Center" 
                                Background ="Transparent"
                                 Grid.Row="0"  >
-                            <TextBlock Text="Drag Up/Down here to change panel sizes" 
+                            <TextBlock Text="Drag Up/Down here to adjust panel size split" 
                                         Height="30" 
-                                        Padding="0 6 4 0" 
+                                        Padding="0 0 4 0" 
                                         FontSize="12"                                           
                                         Foreground="Black"
                                         FontWeight="DemiBold"
                                         Background ="Transparent"
                                         HorizontalAlignment="Left" 
                                        Margin="30,0,0,0"/>
-                            <Image x:Name="ImgUp"  Source="\icons\updown arrow red copy.png"  Margin="30 4 0 0"
+                            <Image x:Name="ImgUp"  Source="\icons\updown arrow red copy.png"  Margin="30 0 0 0"
 										               Height="25" Width="20" HorizontalAlignment="Right"/>
                         </StackPanel>
                     </Grid>
@@ -1024,7 +876,7 @@
         </Grid>
 
         <!--#endregion Scrolldocument-->
- 
+
         <!--#region bottompanel-->
 
         <Border Grid.Row="4" 
@@ -1038,7 +890,7 @@
                 Grid.Row="4" 
                 VerticalAlignment="Bottom"
                 Width="{Binding ActualWidth, ElementName=SpViewerResults,
-                    Converter={StaticResource ReduceByParamValue},ConverterParameter=30}"
+                    Converter={StaticResource ReduceByParamValue},ConverterParameter=40}"
                 Height="99"
                 IsHitTestVisible="True"
                 PreviewMouseRightButtonDown="ListResults_MouseRightButtonDown"
@@ -1107,7 +959,7 @@
                         KeyDown="Arguments_KeyDown"
                         TextAlignment="Center"
                         Text="Arguments layout"
-                        HorizontalAlignment="Stretch"
+                        HorizontalAlignment="Left"
                         FontSize="16"
                         Padding="0 4 0 0"
                         FontWeight="DemiBold"
@@ -1116,8 +968,8 @@
                         UseLayoutRounding="True"
                         ToolTip="Press F1 for detailed information on how to pass parameters"
                         Visibility="Visible" 
-                        Width="Auto" 
-                        Margin="3,0,0,2" 
+                        Width="897" 
+                        Margin="3,4,0,6" 
                         Grid.RowSpan="1"
                         Grid.ColumnSpan="3" />
    
@@ -1195,39 +1047,45 @@
                     HorizontalAlignment="Right" 
                       VerticalAlignment="Bottom" 
                       Grid.Column="2"
-                      Margin="0 0 -10 0">
+                      Height="80"
+                      Margin="0 0 -10 4">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="35"/>
+                        <RowDefinition Height="40"/>
                         <RowDefinition Height="40"/>
                     </Grid.RowDefinitions>
 
-                    <Button x:Name="ExecuteBtn"
-                        Grid.Row="1"
-                        Height="38"
-                        Width="100" 
-                        HorizontalAlignment="Right"                                     
-                        Margin="8,-1,0,7"
-                        VerticalAlignment="Stretch"
-                        FontSize="14"
-                        Style="{StaticResource ButtonSlant}"
-                        Content="&lt;-- Execute"
-                        Click="DoExecute_Click"
-                        Foreground="White" />
 
                     <Button x:Name="closebtn"  Grid.Column="2"
                         Grid.Row="0"
+                        BorderBrush="Red"
+                        BorderThickness="1"
                         Height="38"
                         Width="100" 
                         HorizontalAlignment="Right"                                     
-                        Margin="8 -25 0 0"
+                        Margin="8 -12 0 0"
                         VerticalAlignment="Stretch"
                         FontSize="14"
                         Style="{StaticResource ButtonSlant}"
                         Content="Close Viewer"
                         Click="closeresultsviewer_Click"
                         Foreground="White" />
+
+                    <Button x:Name="ExecuteBtn"
+                        Grid.Row="1"
+                        Height="40"
+                        Width="100" 
+                        HorizontalAlignment="Right"     
+                        BorderBrush="Green"
+                        BorderThickness="1"
+                        Margin="8,0,0,0"
+                        VerticalAlignment="Stretch"
+                        FontSize="14"
+                        Style="{StaticResource ButtonSlant}"
+                        Content="&lt;-- Execute"
+                        Click="DoExecute_Click"
+                        Foreground="White" />
                 </Grid>
-                
+
                 <!--#endregion Buttonpanel-->
 
             </Grid>
@@ -1344,9 +1202,9 @@
 
                         <Button x:Name="TablesviewerBtn"                                 
                                     Grid.Row="2"
-                                    Width="151" Height="30" 
+                                    Width="151" Height="25" 
                                     HorizontalAlignment="Right"                                     
-                                    Margin="0,0,10, 13"
+                                    Margin="0,0,5, 15"
                                     VerticalAlignment="Bottom"
                                     FontSize="14"
                                     Style="{StaticResource ButtonSlant}"
@@ -1700,22 +1558,22 @@
                 </Grid>
             </Border>-->
             <!--#endregion infoviewer-->
-            
+
         </Canvas>
-          
+
         <!--#endregion Cannvas-->
-        
-        <!--region Toolbar Headers-->   
-        
+
+        <!--region Toolbar Headers-->
+
         <StackPanel Orientation="Horizontal"
                Grid.Row="5"
                 Background="{StaticResource Green6}"
                 Height="20" 
                 Margin="0 0 0 0"
-                Width="{Binding ActualWidth, ElementName=SpResultsViewer,
+                Width="{Binding ActualWidth, ElementName=Spresultsviewer,
                     Converter={StaticResource ReduceByParamValue },ConverterParameter=10}">
             <TextBlock Text="Current Stored Procedure" 
-                       Foreground="Black" 
+                       Foreground="Blue" 
                        Panel.ZIndex="15 " 
                        FontWeight="DemiBold" 
                        Height="20" 
@@ -1726,22 +1584,36 @@
                        Height="20" 
                        FontSize="12"
                        FontWeight="DemiBold" 
-                       Margin="120 0 0 0" 
+                       Margin="90 0 0 0" 
                        Padding="0 2 0 0"/>
+            <Image x:Name="ImgUp"  Source="\icons\updown arrow red copy.png"  Margin="3 0 0 0"
+										               Height="25" Width="20" HorizontalAlignment="Right"/>
+
             <TextBlock Text="Viewer Font"  
                        Foreground="Black" 
                        Height="20" 
                        FontSize="12" 
                        FontWeight="DemiBold" 
-                       Margin="20 0 0 0" 
+                       Margin="10 0 0 0" 
                        Padding="0 2 0 0"/>
+            <Image x:Name="ImgUp2"  Source="\icons\updown arrow red copy.png"  Margin="3 0 0 0"
+										               Height="25" Width="20" HorizontalAlignment="Right"/>
             <TextBlock Text="TopMost Status"  
                        Foreground="Black" 
                        Height="20" 
                        FontSize="12" 
                        FontWeight="DemiBold" 
-                       Margin="25 0 0 0" 
+                       Margin="5 0 0 0" 
                        Padding="0 2 0 0"/>
+
+            <TextBlock Text="Current Execution Method"  
+                       Foreground="Red" 
+                       Height="20" 
+                       FontSize="12" 
+                       FontWeight="DemiBold" 
+                       Margin="115 0 0 0" 
+                       Padding="0 2 0 0"/>
+
         </StackPanel>
 
         <!--endregion Toolbar Headers-->
@@ -1749,20 +1621,24 @@
         <!--#region Toolbar-->
 
         <ToolBarTray Grid.Row="6" 
-                Background="{StaticResource Green6}"
+                Background="{StaticResource Green6}"                     
                 TextElement.Foreground="White" 
                 VerticalAlignment="Bottom" 
-                Height="26">
+                Width="{Binding Width, ElementName=Spresultsviewer}"                    
+                Margin="0 0 0 0"
+              Height="29">
 
             <ToolBar x:Name="toolbar1" 
                 Band="0" BandIndex="1"
+                BorderBrush="Red"
+                BorderThickness="1"
                 Background="{StaticResource White2}"
-                Height="28"
-                Width="730"
+                Height="30"
+                Width="{Binding ActualWidth, ElementName=Spresultsviewer,Converter={StaticResource ReduceByParamValue}, ConverterParameter=5}"
                 TextElement.Foreground="Black" 
                 HorizontalAlignment="Left"
-                 Margin="12,0,0,1" > 
-                
+                Margin="5,0,0,1" >
+
                 <TextBox x:Name="SPName" 
                         Background="{StaticResource White2}"                
                         Foreground="Black"
@@ -1774,41 +1650,49 @@
                         Width="300"
                         Height="26"
                         Margin="5,2,0,0" 
-                        Grid.RowSpan="2" />            
-  
+                        Grid.RowSpan="2" />
+
+                <Separator BorderBrush="Red" BorderThickness="3"/>
+
                 <!--// Listbox font size-->
                 <ComboBox x:Name="TbFonts"
                         Height="26" 
-                        Width="60" 
+                        Width="80" 
                         IsHitTestVisible="True"
-                        Margin="45 0 0 0" 
+                        Margin="3 0 0 0" 
                         Padding="0 0 0 0"
-                        HorizontalAlignment="Left"
+                        FontWeight="DemiBold"
+                        HorizontalAlignment="Center"
+                        HorizontalContentAlignment="Center"
                         VerticalAlignment="Center" 
                         SelectionChanged="Fonts_SelectionChanged"
                         MaxDropDownHeight="250"
                         FontSize="14">
-                 <!--// Listbox font size-->
+                    <!--// Listbox font size-->
                     <ComboBoxItem>
-                            <TextBlock 
-                                        HorizontalAlignment="Left"
-                                        Width="{Binding ActualWidth, ElementName=AllArgs,
-                                            Converter={StaticResource ReduceByParamValue},ConverterParameter=15}"
-                                        Background="{StaticResource Blue0}" 
-                                        Foreground="{StaticResource White3}">
-                            </TextBlock>
+                        <TextBlock 
+                            Text="{Binding}"
+                            HorizontalAlignment="Center"
+                            Width="{Binding ActualWidth, ElementName=TbFonts,
+                            Converter={StaticResource ReduceByParamValue},ConverterParameter=15}"
+                            Background="{StaticResource Blue0}" 
+                            Foreground="{StaticResource White3}">
+                        </TextBlock>
                     </ComboBoxItem>
                 </ComboBox>
-                
-                 <Separator/>
+
+                <Separator BorderBrush="Red" BorderThickness="3"/>
+
                 <!--// Scrollviewer font size-->
-                   <ComboBox x:Name="ScrollFontSize"
+                <ComboBox x:Name="ScrollFontSize"
                         Height="26" 
-                        Width="60" 
+                        Width="80" 
                         IsHitTestVisible="True"
-                        Margin="10 0 0 0" 
+                        Margin="3 0 0 0" 
                         Padding="0 0 0 0"
-                        HorizontalAlignment="Left"
+                        FontWeight="DemiBold"
+                        HorizontalAlignment="Center"
+                        HorizontalContentAlignment="Center"
                         VerticalAlignment="Center" 
                         SelectionChanged="Fonts_SelectionChanged"
                         MaxDropDownHeight="250"
@@ -1816,8 +1700,8 @@
                     <!--// Scrollviewer font size-->
                     <ComboBoxItem>
                         <TextBlock 
-                                        HorizontalAlignment="Left"
-                                        Width="{Binding ActualWidth, ElementName=AllArgs,
+                                        HorizontalAlignment="Center"
+                                        Width="{Binding ActualWidth, ElementName=ScrollFontSize,
                                             Converter={StaticResource ReduceByParamValue},ConverterParameter=15}"
                                         Background="{StaticResource Blue0}" 
                                         Foreground="{StaticResource White3}">
@@ -1825,19 +1709,51 @@
                     </ComboBoxItem>
                 </ComboBox>
 
-              <Button x:Name="tbarBtn2" 
+                <Separator BorderBrush="Red" BorderThickness="3"/>
+
+                <Button x:Name="tbarBtn2" 
                         Click="topmost_Click"
-                    Content="Set as OnTop"
+                    Content="Set as TopMost"
                     Foreground="White"
                     Style="{StaticResource ButtonSlant}"
-                    Width="100" 
+                    Width="120" 
                     Height="26" 
-                    Margin="15,-2,0,0"/>
-                
+                    Margin="3,-2,3,0"/>
+
+                <Separator BorderBrush="Red" BorderThickness="3"/>
+
+                <TextBox x:Name="ExName" 
+                        Background="{StaticResource White6}"
+                        Foreground="White"
+                        FontSize="14"
+                        FontWeight="DemiBold"
+                        HorizontalAlignment="Left"
+                       HorizontalContentAlignment="Center"
+                        Padding="5 0 0 3"
+                        Width="300"
+                        Height="26"
+                        Margin="5,2,0,0" 
+                        Grid.RowSpan="2" />
+
+                <Separator BorderBrush="Red" BorderThickness="3"/>
+
+                <TextBox x:Name="blank" 
+                        Background="{StaticResource Green2}"                
+                        Foreground="Black"
+                        FontSize="14"
+                        FontWeight="DemiBold"
+                        HorizontalAlignment="Left"
+                       HorizontalContentAlignment="Center"
+                        Padding="15 0 0 0"
+                        Width="170"
+                        Height="26"
+                        Margin="5,2,0,0" 
+                        Grid.RowSpan="2" />
+
             </ToolBar>
-            
+
         </ToolBarTray>
-        
+
         <!--#endregion Toolbar-->
 
         <Label x:Name="TbsFonts" Visibility="Collapsed"

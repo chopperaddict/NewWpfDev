@@ -12,12 +12,12 @@
         WindowStyle="SingleBorderWindow"
   	    WindowChrome.ResizeGripDirection="BottomRight"
 	    ResizeMode="CanResizeWithGrip"
+        PreviewMouseRightButtonDown="ShowContextMenu"
         Loaded="ExecuteResults_Loaded"
         KeyDown="ExecuteResults_KeyDown"
         Height="580" Width="840"
         MinHeight="280" MinWidth="725">
-    <!--MaxHeight="580" MaxWidth="725"-->
-
+ 
     <Window.Resources>
         <conv:IncreaseByParamValue x:Key="IncreaseByParamValue" />
         <conv:ReduceByParamValue x:Key="ReduceByParamValue"/>
@@ -140,9 +140,108 @@
             </Setter>
         </Style>
 
+        <ItemsPanelTemplate x:Key="NoImageMenu">
+            <StackPanel Margin="-40,0,0,0" Background="{StaticResource Cyan1}" />
+        </ItemsPanelTemplate>
 
+        <!--// template that removes  that annoying image panel at left of context menus-->
+        <Style TargetType="{x:Type ContextMenu}">
+            <Setter Property="ItemsPanel" Value="{StaticResource NoImageMenu}"/>
+        </Style>
+
+        <Style x:Key="StackPanelStyle1" TargetType="{x:Type StackPanel}">
+            <Setter Property="Width" Value="425"/>
+
+            <Style.Triggers>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="false"/>
+                    </MultiTrigger.Conditions>
+                    <MultiTrigger.Setters>
+                        <Setter Property="Background" Value="{StaticResource White3}"/>
+                        <Setter Property="TextElement.Foreground"  Value="{StaticResource Black0}"/>
+                        <Setter Property="Height" Value="25"/>
+                    </MultiTrigger.Setters>
+                </MultiTrigger>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="True"/>
+                    </MultiTrigger.Conditions>
+                    <MultiTrigger.Setters>
+                        <Setter Property="Background" Value="{StaticResource Red1}"/>
+                        <Setter Property="TextElement.FontWeight" Value="DemiBold"/>
+                        <Setter Property="TextElement.FontStyle" Value="Italic"/>
+                        <Setter Property="TextElement.Foreground"  Value="{StaticResource White0}"/>
+                        <Setter Property="Height" Value="25"/>
+                    </MultiTrigger.Setters>
+                </MultiTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <ContextMenu x:Key="ExecutionMenu" 
+            HasDropShadow="True"
+            ContextMenuService.Placement="Center"
+            ContextMenuService.VerticalOffset="-10"
+            ContextMenuService.HorizontalOffset="0"
+            Closed="ContextMenu_Closed"
+            Opened="ContextMenu_Opened"
+            Width="350"
+            Background="Orange">
+
+            <!--// Show SP's matching Search term only-->
+            <MenuItem   x:Name="ExTips1" Click="ShowTableSchemaFromDatagrid">
+                <MenuItem.Header>
+                                <!--Style="{StaticResource StackPanelStyle1}">-->
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                            Text="Show Full Schema details of returned table " 
+                            FontWeight="DemiBold"
+                            FontSize="15"
+                            Height="25"
+                            Padding="20 0 0 0"
+                            Margin="0 0 0 0"
+                            Width="350"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <MenuItem   x:Name="ExTips2" Click="ShowSpHeader">
+                <MenuItem.Header>
+                    <!--Style="{StaticResource StackPanelStyle1}">-->
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                            Text="Show Header Block of returned S.Procedure" 
+                            FontWeight="DemiBold"
+                            FontSize="15"
+                            Height="25"
+                            Padding="20 0 0 0"
+                            Margin="0 0 0 0"
+                            Width="350"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+
+            <MenuItem   x:Name="ExTips3" Click="ShowTableRowAsList">
+                <MenuItem.Header>
+                    <!--Style="{StaticResource StackPanelStyle1}">-->
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource StackPanelStyle1}">
+                        <TextBlock 
+                            Text="Show Data Row as List" 
+                            FontWeight="DemiBold"
+                            FontSize="15"
+                            Height="25"
+                            Padding="20 0 0 0"
+                            Margin="0 0 0 0"
+                            Width="350"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+        </ContextMenu>
     </Window.Resources>
 
+    <!--=====================================-->
+    <!--// Window to display SP processing results of ALL types-->
+    <!--=====================================-->
     <Grid x:Name="OperationResults" 
           Margin="-12,0,80,7" >
 
@@ -186,10 +285,7 @@
                     TextOptions.TextRenderingMode="ClearType"
                     VerticalContentAlignment="Stretch"
                     Visibility="Collapsed"/>
-
-                <!--Height="{Binding ActualHeight, ElementName=rw2,
-                            Converter={StaticResource ReduceByParamValue},ConverterParameter=10}"-->
-                
+                 
                 <!--/// lower scrollviewer to display long text values-->
                 <FlowDocumentScrollViewer x:Name="TextResultsDocument" Grid.Row="1"
                     BorderBrush="{StaticResource Orange1}"
@@ -209,6 +305,7 @@
                     VerticalContentAlignment="Top"
                     Visibility="Collapsed"/>
 
+                <!--// DataGrid  to display table based data-->
                 <DataGrid x:Name="CollectionGridresults" Grid.Row="1"
                         Panel.ZIndex="20"
                         Margin="10 10 10 5" 
@@ -216,19 +313,21 @@
                         RowHeight="24"
                         Foreground="Black"
                         HorizontalContentAlignment="Center" 
+                        ContextMenu="{StaticResource ExecutionMenu}"
                         FontSize="14"
                         FontWeight="DemiBold"
                         ItemContainerStyle="{StaticResource drwstyle}"
+                          PreviewMouseRightButtonDown="CollectionGridresults_PreviewMouseRightButtonDown"
+                          
                         Visibility="Collapsed">
-                        <!--Height="{Binding ActualHeight, ElementName=rw2, 
-                            Converter={StaticResource ReduceByParamValue}, ConverterParameter=5}"-->
-                </DataGrid>
+                 </DataGrid>
 
                   <ListBox x:Name="CollectionListboxresults" Grid.Row="1"
                         Panel.ZIndex="20"
                         Margin="10 10 10 0" 
                         VerticalAlignment="Stretch" 
                         HorizontalContentAlignment="left" 
+                        ContextMenu="{StaticResource ExecutionMenu}"
                         Padding="0 0 0 0"
                         FontSize="16"
                         FontWeight="DemiBold"
@@ -239,7 +338,7 @@
                                    Padding="10 0 0 0"
                                    Background="{StaticResource Black4}"
                                    Foreground="White"
-                                   />
+                                   ContextMenu="{StaticResource ExecutionMenu}"/>
                     </ListBoxItem>
                 </ListBox>
 
@@ -282,10 +381,10 @@
                         Click="showExecuteresults_Click"
                         Height="50" 
                         Width="100" 
-                        Background="{StaticResource Green4}"
                         FontSize="18"
                         FontWeight="Bold"
-                            Style="{StaticResource BtnStyle1}"
+                        Foreground="White"
+                        Style="{StaticResource ButtonSlant}"
                         Content="Close" 
                         VerticalAlignment="Top" 
                         HorizontalAlignment="Right" 

@@ -5868,10 +5868,7 @@ namespace Views
             foreach ( GenericClass item in list )
                 Debug . WriteLine ( $"{item . field1} = {item . field3}" );
 
-            //    redisClient . SetAdd<string> ( "Qualification:" + setName , list . Select ( x => x . ProductID ) . ToString ( ) );
-            /////          }
-            //list = from GridData where  field1 != "25"select
-            // Using query expression syntax.  
+                 // Using query expression syntax.  
             Debug . WriteLine ( $"\n" );
             // WORKS
             IEnumerable<GenericClass> data = from x in GridData
@@ -5880,29 +5877,6 @@ namespace Views
             foreach ( GenericClass item in data )
                 Debug . WriteLine ( $"{item . field1} = {item . field3}" );
             return;
-        }
-
-        private void Magnifier_PreviewMouseLeftButtonDown ( object sender , MouseButtonEventArgs e )
-        {
-            //if ( InfoGrid . Visibility == Visibility . Visible )
-            //{
-            //    // Hide complete info viewer container
-            //    InfoGrid . Visibility = Visibility . Visible;
-            //    RTBox . Visibility = Visibility . Visible;
-            //    // Show main datagrid
-            //    InfoGrid . Visibility = Visibility . Collapsed;
-            //    maingrid . RowDefinitions [ 0 ] . Height = new GridLength ( InfoGrid . ActualHeight + 10 , GridUnitType . Pixel );
-            //}
-            //else
-            //{
-            //    // Show info viewer panel
-            //    DisplayInformationViewer ( reload: false );
-            //    InfoGrid . Visibility = Visibility . Visible;
-            //    //GridLength gl = new GridLength ( );
-            //    //gl = ViewerGrid . ColumnDefinitions [ 0 ] . Width;
-            //    //if ( gl . Value <= 4 )
-            //    maingrid . RowDefinitions [ 0 ] . Height = new GridLength ( InfoGrid . Height , GridUnitType . Pixel );
-            //}
         }
 
         private void GenGridCtrl_PreviewMouseRightButtonDown ( object sender , MouseButtonEventArgs e )

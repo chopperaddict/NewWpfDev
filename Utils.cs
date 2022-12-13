@@ -23,21 +23,20 @@ using Microsoft . Win32;
 
 using NewWpfDev . UserControls;
 using NewWpfDev . ViewModels;
-
-
 using NewWpfDev . Views;
-
+using NewWpfDev . AttachedProperties;
+using NewWpfDev . Properties;
+using GenericSqlLib . Models;
+using NewWpfDev . Models;
 using static NewWpfDev . Views . DragDropClient;
 
 using Brush = System . Windows . Media . Brush;
 using System . Runtime . Serialization . Formatters . Binary;
 using System . Reflection;
-using NewWpfDev . AttachedProperties;
-using NewWpfDev . Properties;
-using GenericSqlLib . Models;
-using NewWpfDev . Models;
 using System . Dynamic;
-//using AttachedProperties;
+using System . Threading . Tasks;
+using System . Windows . Media . Media3D;
+
 
 namespace NewWpfDev
 {
@@ -182,102 +181,55 @@ namespace NewWpfDev
                     Console . Beep ( ( int ) n . NoteTone , ( int ) n . NoteDuration );
             }
         }
-        // Define a note as a frequency (tone) and the amount of
-        //// time (duration) the note plays.
-        //public static Task DoBeep ( int freq = 180, int count = 300, bool swap = false )
-        //{
-        //	int tone = freq;
-        //	int duration = count;
-        //	int x = 0;
-        //	Task t = new Task ( ( ) => x = 1 );
-        //	if ( Flags . UseBeeps )
-        //	{
-        //		if ( swap )
-        //		{
-        //			tone = ( tone / 4 ) * 3;
-        //			duration = ( count * 5 ) / 2;
-        //			t = Task . Factory . StartNew ( ( ) => Console . Beep ( freq, count ) )
-        //				. ContinueWith ( Action => Console . Beep ( tone, duration ) );
-        //			Thread . Sleep ( 500 );
-        //		}
-        //		else
-        //		{
-        //			tone = ( tone / 4 ) * 3;
-        //			duration = ( count * 5 ) / 2;
-        //			t = Task . Factory . StartNew ( ( ) => Console . Beep ( tone, duration ) )
-        //				. ContinueWith ( Action => Console . Beep ( freq, count ) );
-        //			Thread . Sleep ( 500 );
-        //		}
-        //	}
-        //	else
-        //	{
-        //		Task task = Task . Factory . StartNew ( ( ) => Debug. WriteLine ( ) );
-        //		t = task ,TaskScheduler . FromCurrentSynchronizationContext ( );
-        //			}
 
-        //	TaskScheduler . FromCurrentSynchronizationContext ( ));
-        //	return t;
-        //}
+        #endregion play tunes 
+
+        #region play beeps
+
         public static void DoSingleBeep ( int freq = 280 , int count = 300 , int repeat = 1 )
         {
-            //			int x = 0;
-            //			int i = 0;
-            //Lambda test
-            //			Task t = new Task ( ( ) => x = 1 );
             if ( Flags . UseBeeps )
             {
                 for ( int i = 0 ; i < repeat ; i++ )
                 {
                     Console . Beep ( freq , count );
-                    //Thread . Sleep ( 200 );
                 }
-                //else
-                //	t = Task . Factory . StartNew ( ( ) => Debug. WriteLine ( ) );
-                //			return t;
             }
         }
         public static void DoErrorBeep ( int freq = 280 , int count = 100 , int repeat = 1 )
         {
-            //			int x = 0;
-            //			Task t = new Task ( ( ) => x = 1 );
-            if ( Flags . UseBeeps )
-            {
-                for ( int i = 0 ; i < repeat ; i++ )
-                {
-                    Console . Beep ( 280 , 100 );
-                    Console . Beep ( 200 , 500 );
-                }
-                //    Thread . Sleep ( 100 );
-            }
+            List<Task<bool>> list = new List<Task<bool>> ( );
+            list . Add ( Utils . Dobeep ( 280 , 100 ) );
+            list . Add ( Utils . Dobeep ( 200 , 500 ) );
             return;
         }
         public static void DoSuccessBeep ( int repeat = 1 )
         {
             if ( Flags . UseBeeps )
             {
-                //for ( int i = 0 ; i < repeat ; i++ )
-                //{
-                Console . Beep ( 340 , 150 );
-                Console . Beep ( 410 , 120 );
-                Console . Beep ( 340 , 150 );
-                Console . Beep ( 430 , 350 );
-                //Console . Beep ( 300 , 800 );
-                //
+                // Need to do it this way to avoid delays bewtween beeps
+                List<Task<bool>> list = new List<Task<bool>> ( );
+                list . Add ( Utils . Dobeep ( 340 , 150 ) );
+                list . Add ( Utils . Dobeep ( 430 , 150 ) );
+                list . Add ( Utils . Dobeep ( 340 , 150 ) );
+                list . Add ( Utils . Dobeep ( 440 , 550 ) );
             }
             return;
         }
         public static void PlayErrorBeep ( int freq = 280 , int count = 100 , int repeat = 1 )
         {
-            //for ( int i = 0 ; i < repeat ; i++ )
-            //{
-            Console . Beep ( 320 , 300 );
-            Console . Beep ( 260 , 800 );
-            //}
-            //Thread . Sleep ( 100 );
+            List<Task<bool>> list = new List<Task<bool>> ( );
+            list . Add ( Utils . Dobeep ( 320 , 300 ) );
+            list . Add ( Utils . Dobeep ( 260 , 800 ) );
             return;
         }
-
-        #endregion play tunes / sounds
+        public async static Task<bool> Dobeep ( int freq , int duration )
+        {
+            Console . Beep ( freq , duration );
+            return true;
+        }
+        
+        #endregion play beeps
 
         #region Dictionary Handlers
         public static string GetDictionaryEntry ( Dictionary<string , string> dict , string key , out string dictvalue )
@@ -528,7 +480,6 @@ namespace NewWpfDev
                         }
                         else
                         {
-                            //outp = output . Substring ( 0 , output . Length - trimlen );// += "\n";
                             output += entry + "\n";
                             indx = 3;
                         }
@@ -545,60 +496,7 @@ namespace NewWpfDev
             }
             return output;
         }
-        // Record the names of the method that called this one in an iterative tree.
-        //TODO
-        //public static void Mbox ( Window win , string string1 = "" , string string2 = "" , string caption = "" , string iconstring = "" , int Btn1 = 1 , int Btn2 = 0 , int Btn3 = 0 , int Btn4 = 0 , int defButton = 1 , bool minsize = false , bool modal = false ) {
-        //    // We NEED to remove any \r as part of \r\n as textboxes ONLY accept \n on its own for Cr/Lf
-        //    string1 = ParseforCR ( string1 );
-        //    //TODO            Msgboxs m = new Msgboxs ( string1: string1 , string2: string2 , caption: caption , Btn1: Btn1 , Btn2: Btn2 , Btn3: Btn3 , Btn4: Btn4 , defButton: defButton , iconstring: iconstring , MinSize: minsize , modal: modal );
-        //    //			m . Owner = win;
 
-        //    if ( modal == false )
-        //        m . Show ( );
-        //    else
-        //        m . ShowDialog ( );
-        //}
-        //public static void Mssg (
-        //                string caption = "" ,
-        //                string string1 = "" ,
-        //                string string2 = "" ,
-        //                string string3 = "" ,
-        //                string title = "" ,
-        //                string iconstring = "" ,
-        //                int defButton = 1 ,
-        //                int Btn1 = 1 ,
-        //                int Btn2 = 2 ,
-        //                int Btn3 = 3 ,
-        //                int Btn4 = 4 ,
-        //                string btn1Text = "" ,
-        //                string btn2Text = "" ,
-        //                string btn3Text = "" ,
-        //                string btn4Text = "" ,
-        //                bool usedialog = true
-        //) {
-        //    Msgbox msg = new Msgbox (
-        //        caption: caption ,
-        //        string1: string1 ,
-        //        string2: string2 ,
-        //        string3: string3 ,
-        //        title: title ,
-        //        Btn1: Btn1 ,
-        //        Btn2: Btn2 ,
-        //        Btn3: Btn3 ,
-        //        Btn4: Btn4 ,
-        //        defButton: defButton ,
-        //        iconstring: iconstring ,
-        //        btn1Text: btn1Text ,
-        //        btn2Text: btn2Text ,
-        //        btn3Text: btn3Text ,
-        //        btn4Text: btn4Text );
-        //    //msg . Owner = win;
-        //    if ( usedialog )
-        //        msg . ShowDialog ( );
-        //    else
-        //        msg . Show ( );
-        //}
-        //Working well 4/8/21
         public static bool CompareDbRecords ( object obj1 , object obj2 )
         {
             bool result = false;
@@ -639,73 +537,7 @@ namespace NewWpfDev
             result = false;
             return result;
         }
-        //TODO
-        //public static BankDragviewModel CreateBankGridRecordFromString ( string input )
-        //        {
-        //            int index = 1;
-        //            string type = "";
-        //            //			BankAccountViewModel bvm = new BankAccountViewModel ( );
-        //            BankDragviewModel bvm = new BankDragviewModel ( );
-        //            CustomerDragviewModel cvm = new CustomerDragviewModel ( );
-
-        //            char [ ] s = { ',' };
-        //            string [ ] data = input . Split ( s );
-        //            string donor = data [ 0 ];
-        //            try
-        //            {
-        //                DateTime dt;
-        //                type = data [ 0 ];
-        //                if ( type == "BANKACCOUNT" || type == "BANK" || type == "DETAILS" )
-        //                {
-        //                    // This WORKS CORRECTLY 12/6/21 when called from n SQLDbViewer DETAILS grid entry && BANK grid entry					
-        //                    // this test confirms the data layout by finding the Odate field correctly
-        //                    // else it drops thru to the Catch branch
-        //                    dt = Convert . ToDateTime ( data [ 7 ] );
-        //                    //We can have any type of record in the string recvd
-        //                    index = 1;  // jump the data type string
-        //                    bvm . RecordType = type;
-        //                    bvm . Id = int . Parse ( data [ index++ ] );
-        //                    bvm . CustNo = data [ index++ ];
-        //                    bvm . BankNo = data [ index++ ];
-        //                    bvm . AcType = int . Parse ( data [ index++ ] );
-        //                    bvm . IntRate = decimal . Parse ( data [ index++ ] );
-        //                    bvm . Balance = decimal . Parse ( data [ index++ ] );
-        //                    bvm . ODate = Convert . ToDateTime ( data [ index++ ] );
-        //                    bvm . CDate = Convert . ToDateTime ( data [ index ] );
-        //                    return bvm;
-        //                }
-        //            }
-        //            catch
-        //            {
-        //                //Check to see if the data includes the data type in it
-        //                //As we have to parse it diffrently if not - see index....
-        //                index = 0;
-        //#pragma warning disable CS0168 // The variable 'ex' is declared but never used
-        //                try
-        //                {
-        //                    int x = int . Parse ( donor );
-        //                    // if we get here, it IS a NUMERIC VALUE
-        //                    index = 0;
-        //                }
-        //                catch ( Exception ex )
-        //                {
-        //                    //its probably the Data Type string, so ignore it for our Data creation processing
-        //                    index = 1;
-        //                }
-        //#pragma warning restore CS0168 // The variable 'ex' is declared but never used
-        //                //We have a CUSTOMER record
-        //                bvm . RecordType = type;
-        //                bvm . Id = int . Parse ( data [ index++ ] );
-        //                bvm . CustNo = data [ index++ ];
-        //                bvm . BankNo = data [ index++ ];
-        //                bvm . AcType = int . Parse ( data [ index++ ] );
-        //                bvm . ODate = Convert . ToDateTime ( data [ index++ ] );
-        //                bvm . CDate = Convert . ToDateTime ( data [ index ] );
-        //                return bvm;
-        //            }
-        //            return bvm;
-        //        }
-        public static RenderTargetBitmap CreateControlImage ( FrameworkElement control , string filename = "" , bool savetodisk = false , GrabImageArgs ga = null )
+        public static RenderTargetBitmap CreateControlImage ( FrameworkElement control , string filename = "" , bool savetodisk = false  )
         {
             if ( control == null )
                 return null;
@@ -798,6 +630,10 @@ namespace NewWpfDev
                 }
             }
         }
+        //****************************//
+        #region Find Child/Parent etc 
+        //****************************//
+
         public static DependencyObject FindChild ( DependencyObject o , Type childType )
         {
             DependencyObject foundChild = null;
@@ -820,23 +656,7 @@ namespace NewWpfDev
             }
             return foundChild;
         }
-        //TODO
-        //public static string CreateDragDataFromRecord ( BankDragviewModel bvm ) {
-        //    if ( bvm == null )
-        //        return "";
-        //    string datastring = "";
-        //    datastring = bvm . RecordType + ",";
-        //    datastring += bvm . Id + ",";
-        //    datastring += bvm . CustNo + ",";
-        //    datastring += bvm . BankNo + ",";
-        //    datastring += bvm . AcType . ToString ( ) + ",";
-        //    datastring += bvm . IntRate . ToString ( ) + ",";
-        //    datastring += bvm . Balance . ToString ( ) + ",";
-        //    datastring += "'" + bvm . CDate . ToString ( ) + "',";
-        //    datastring += "'" + bvm . ODate . ToString ( ) + "',";
-        //    return datastring;
-        //}
-        public static T FindChild<T> ( DependencyObject parent , string childName )
+           public static T FindChild<T> ( DependencyObject parent , string childName )
               where T : DependencyObject
         {
             // Confirm parent and childName are valid. 
@@ -973,6 +793,9 @@ namespace NewWpfDev
             objectarray = array;
             return parent as parentItem;
         }
+
+        #endregion Find Child/Parent etc 
+
         public static string GetDataSortOrder ( string commandline )
         {
             if ( Flags . SortOrderRequested == ( int ) Flags . SortOrderEnum . DEFAULT )
@@ -1057,6 +880,9 @@ namespace NewWpfDev
                 //    WpfLib1 . Utils .Mbox ( null , string1: "The image could not be saved for the following reason " , string2: $"{ex . Message}" , caption: "" , iconstring: "\\icons\\Information.png" , Btn1: MB . OK , Btn2: MB . NNULL , defButton: MB . OK );
             }
         }
+        //******************************************//
+        #region Scroll Controls toselected Record
+        //******************************************//
         public static void ScrollLBRecordIntoView ( ListBox lbox , int CurrentRecord )
         {
             // Works well 26/5/21
@@ -1114,10 +940,7 @@ namespace NewWpfDev
             Dgrid . UpdateLayout ( );
             Dgrid . ScrollIntoView ( row ?? Dgrid . SelectedItem );
             Dgrid . UpdateLayout ( );
-            //Dgrid . BringIntoView ( );
-            // Dgrid . ScrollIntoView ( Dgrid . SelectedItem );
-            //Dgrid . UpdateLayout ( );
-        }
+         }
         public static void ScrollCBRecordIntoView ( ComboBox lbox , int CurrentRecord )
         {
             // Works well 26/5/21
@@ -1126,11 +949,12 @@ namespace NewWpfDev
             lbox . UpdateLayout ( );
         }
 
+        #endregion Scroll Controls toselected Record
+
         //Generic form of Selection forcing code below
         public static void SetupWindowDrag ( Window inst )
         {
-#pragma warning disable CS0168 // The variable 'ex' is declared but never used
-            try
+           try
             {
                 //Handle the button NOT being the left mouse button
                 // which will crash the DragMove Fn.....
@@ -1140,7 +964,6 @@ namespace NewWpfDev
                 inst . MouseDown += delegate
                 {
                     {
-#pragma warning disable CS0168 // The variable 'ex' is declared but never used
                         try
                         {
                             inst?.DragMove ( );
@@ -1149,7 +972,6 @@ namespace NewWpfDev
                         {
                             return;
                         }
-#pragma warning restore CS0168 // The variable 'ex' is declared but never used
                     }
                 };
             }
@@ -1157,11 +979,12 @@ namespace NewWpfDev
             {
                 return;
             }
-#pragma warning restore CS0168 // The variable 'ex' is declared but never used
         }
+
+        #region Sql connections support
+
         public static bool CheckResetDbConnection ( string currdb , out string constring )
         {
-            //string constring = "";
             currdb?.ToUpper ( );
             // This resets the current database connection to the one we re working with (currdb - in UPPER Case!)- should be used anywhere that We switch between databases in Sql Server
             // It also sets the Flags.CurrentConnectionString - Current Connectionstring  and local variable
@@ -1216,6 +1039,9 @@ namespace NewWpfDev
             }
             return Con;
         }
+
+        #endregion Sql connections support
+
         /// <summary>
         /// A Generic data reader for any ObservableCollection&lt;T&gt; type
         /// </summary>
@@ -1322,10 +1148,6 @@ namespace NewWpfDev
 
 
         #endregion Nullable handlers
-
-        //public static string? CompareNullable ( string? a , string? b ) { return Nullable . Compare ( a , b ); }
-        //public static BankAccountViewModel? CompareNullable ( BankAccountViewModel? a , BankAccountViewModel? b ) {
-        //    return Nullable . Compare<BankAccountViewModel> ( a,  b ); }
 
         #region file read/Write methods
 
@@ -3017,6 +2839,7 @@ namespace NewWpfDev
         //}
 
         #endregion Dynamic Handlers
+
         public static List<string> GetAllDgStyles ( )
         {
             List<string> validpaths = new List<string> ( );
@@ -3033,10 +2856,9 @@ namespace NewWpfDev
             bool isfullkey = false, HasEntry = false; ;
             Dictionary<string , string> StyleKeys = new Dictionary<string , string> ( );
             string path = "";
-            int index = 0, indexer = 1, pathcount = 0, offset = 0, chkoffset = 0;
+            int index = 0, indexer = 1, offset = 0, chkoffset = 0;
             Application app = Application . Current;
             Uri uri = app . StartupUri;
-            //string[] rootpath = uri.ToString() . Split ( @"\" );
             string rootpath = "";
             string root = @"C:\Users\ianch\source\repos\NewWpfDev\";
             string [ ] dirs = Directory . GetDirectories ( root );
@@ -3085,9 +2907,7 @@ namespace NewWpfDev
                 buffer = File . ReadAllLines ( entry );
                 while ( index < buffer . Length )
                 {
-                    //FullBuffer [ index ] = FullBuffer [ index ] . ToUpper ( );
-                    //buffer [ index ] = buffer [ index ] . ToUpper ( );
-                    if ( FullBuffer [ index ] . ToUpper ( ) . Contains ( $"TARGETTYPE=\"DATAGRID}}\"" ) == true
+                     if ( FullBuffer [ index ] . ToUpper ( ) . Contains ( $"TARGETTYPE=\"DATAGRID}}\"" ) == true
                            || FullBuffer [ index ] . ToUpper ( ) . Contains ( $"TARGETTYPE = \"DATAGRID}}\"" ) == true
                            || FullBuffer [ index ] . ToUpper ( ) . Contains ( $"TARGETTYPE=\"DATAGRIDCELL}}\"" ) == true
                            || FullBuffer [ index ] . ToUpper ( ) . Contains ( $"TARGETTYPE=\"DATAGRIDCELL\"" ) == true
@@ -3128,8 +2948,7 @@ namespace NewWpfDev
                 }   // END WHILE index < max
             }
             int counter = 0;
-            //            Debug . WriteLine ( $"*****************************************************]" );
-            foreach ( var item in Styles )
+             foreach ( var item in Styles )
             {
                 if ( item == "Dark Mode" )
                     fullvalidstyles . Add ( "Dark Mode" );
@@ -3140,8 +2959,7 @@ namespace NewWpfDev
                 }
                 counter++;
             }
-            //            Debug . WriteLine ( $"*****************************************************]" );
-            Debug . WriteLine ( $"Identified {counter} valid DataGrid styles in {fullvalidpaths . Count} Style source files in {dirs . Length} valid folders" );
+              Debug . WriteLine ( $"Identified {counter} valid DataGrid styles in {fullvalidpaths . Count} Style source files in {dirs . Length} valid folders" );
             return fullvalidstyles;
         }   // METHOD END
 
@@ -3207,43 +3025,11 @@ namespace NewWpfDev
                     offset = buffer . ToUpper ( ) . IndexOf ( $"\"" );
                     buffer = buffer . Substring ( 0 , offset );
                 }
-                //else if ( chkoffset < offset )
-                //{   // X:KEY is 1st
-                //    buffer = FullBuffer . Substring ( offset );
-                //    offset = buffer . IndexOf ( $"X:KEY" );
-                //}
-                //Currentbuffer = buffer;
-                //testbuffer = buffer;
-                //if ( testbuffer . Contains ( $"X:KEY" ) == true )
-                //{
-                //    offset = testbuffer . IndexOf ( $"X:KEY" );
-                //    string tmp = testbuffer . Substring ( offset );
-                //    if ( tmp . Length >= 200 )
-                //        testbuffer = tmp . Substring ( 0 , 200 );
-                //    // now point at start of key name
-                //    buffer = testbuffer . Substring ( 7 );
-                //    offset = buffer . IndexOf ( $"\"" );
-                //    buffer = buffer . Substring ( 0 , offset );
-
                 Paths . Add ( file );
                 styles . Add ( buffer );
-
-                // FullBuffer = Currentbuffer . Substring ( buffer . Length + 40 );
-                //FullBuffer = testbuffer;
-                //}
-                //else
-                //    FullBuffer = testbuffer;
-                // else break;
             }   // END WHILE
             fullBuffer = "";
-            //            fullBuffer = FullBuffer . Substring ( FullBuffer . Length >= 200 ? 200 : FullBuffer . Length );
-            //return Matchbuffs;
-        }
-
-        private void textSearcher ( string buffer )
-        {
-            //var matches = buffer select ( xBrowserUCViewModel => )
-        }
+         }
         public static void ClearAttachedProperties ( UIElement ctrl )
         {
             return;
@@ -3277,11 +3063,17 @@ namespace NewWpfDev
                 output += input [ x ];
             return output;
         }
+
+        #region Safe Object Copiers
+
         public static T CopyCollection<T> ( T input , T output )
         {
             output = ObjectCopier . Clone<T> ( input );
             return output; ;
         }
+        
+        #endregion Safe Object Copiers
+        
         public static int GetCollectionColumnCount ( GenericClass gc )
         {
             int count = 0;
@@ -3306,6 +3098,8 @@ namespace NewWpfDev
             if ( gc . field19 == null || gc . field19 == "" ) { count = 18; return count; }
             return count;
         }
+
+
         static public FontFamily ResetFont ( string fontname )
         {
             FontFamily fontfamily = null;
@@ -3318,7 +3112,8 @@ namespace NewWpfDev
             catch ( Exception ex ) { }
             return fontfamily;
         }
-        static public string  GetFlowdocFont ( string font = "" )
+
+        static public string GetFlowdocFont ( string font = "" )
         {
             FontFamily fontfamily = new FontFamily ( "Arial" );
             try
@@ -3335,7 +3130,7 @@ namespace NewWpfDev
                 }
             }
             catch ( Exception ex ) { }
-            return fontfamily.ToString();
+            return fontfamily . ToString ( );
         }
         static public int GetDataViewerFontSize ( )
         {
@@ -3347,6 +3142,9 @@ namespace NewWpfDev
             catch ( Exception ex ) { }
             return 13;
         }
+
+        #region IENUMERABLE processing
+
         static public int GetIntFromEnumerable ( IEnumerable value )
         {
             // process an IEnumerable returned by Dapper Query's and return an int value
@@ -3365,13 +3163,17 @@ namespace NewWpfDev
             }
             return recordcount;
         }
+
+        #endregion IENUMERABLE processing
+
         static public ReadOnlySpan<char> SpanTrim ( string str , int start , int len )
         {
-            // string output = "";
+            //Faster Replacement for Substring
             ReadOnlySpan<char> span = str;
             span = span . Slice ( start , len );
             return span;
         }
+
         public static void ParseDictIntoGenericClass ( Dictionary<string , string> outdict , int reccount , ref GenericClass gc )
         {
             foreach ( KeyValuePair<string , string> val in outdict )
@@ -3441,9 +3243,11 @@ namespace NewWpfDev
                 }
                 reccount += 1;
             }
-            //return gc;
         }
-        public static void SetDefaultFontSizes ( ComboBox cb , int start , int total , int defindex )
+
+        #region create font size range  for any control
+
+        public static void SetComboDefaultFontSizes ( ComboBox cb , int start , int total , int defindex )
         {
             int indx = 0;
             List<string> sizes = new List<string> ( );
@@ -3456,5 +3260,20 @@ namespace NewWpfDev
             cb . ItemsSource = sizes;
             cb . SelectedIndex = indx;
         }
+        public static void SetListboxDefaultFontSizes ( ListBox lb , int start , int total , int defindex )
+        {
+            int indx = 0;
+            List<string> sizes = new List<string> ( );
+            for ( int x = start ; x < start + total ; x++ )
+            {
+                sizes . Add ( $"{x}" );
+                if ( x == defindex )
+                    indx = x - start;
+            }
+            lb . ItemsSource = sizes;
+            lb . SelectedIndex = indx;
+        }
+        
+        #endregion create font size range  for any control
     }
 }

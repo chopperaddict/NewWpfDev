@@ -91,7 +91,7 @@ namespace UtilityWindows
             if ( SetupCompleted == false )
                 Setup ( );
             // setup font size combo
-            Utils . SetDefaultFontSizes ( Fonts , 11 , 15 , Convert . ToInt32 ( fontsize1 ) );
+            Utils . SetComboDefaultFontSizes ( Fonts , 11 , 15 , Convert . ToInt32 ( fontsize1 ) );
 
             if ( fontfamily1 == "" )
                 fontfamily1 = DefFontFamily;
@@ -102,7 +102,7 @@ namespace UtilityWindows
         }
 
         public void ShowDataViewer ( string textline1 , string fontstyle1 = "" , string fontfamily1 = "" , string fontsize1 = "" , string fontcolor1 = "" ,
-                                        string textline2 = "" , string fontstyle2 = "Normal" , string fontfamily2 = "Lucida Console" , string fontsize2 = "14" , string fontcolor2 = "Black1" , bool isFixed = false )
+                                        string textline2 = "" , string fontstyle2 = "Normal" , string fontfamily2 = "Lucida Console" , string fontsize2 = "14" , string fontcolor2 = "Black1" , bool isFixed = false , bool IsExecutionHelp =true)
         {
             Mouse . OverrideCursor = Cursors . Wait;
 
@@ -156,7 +156,7 @@ namespace UtilityWindows
             if ( Fonts . Items . Count <= 0 )
             {
                 // setup font size combo
-                Utils . SetDefaultFontSizes ( Fonts , 11 , 15 , Convert . ToInt32 ( fontsize1 ) );
+                Utils . SetComboDefaultFontSizes ( Fonts , 11 , 15 , Convert . ToInt32 ( fontsize1 ) );
             }
             SelectCurrentFont ( fontfamily1 );
 
@@ -169,13 +169,13 @@ namespace UtilityWindows
                 SelectCurrentFontSize ( fontsize1 );
             }
 
-            //          RefreshDataViewerDisplay ( );
-
-            textline1 = ReturnHeaderOutputString ( textline1 );
-            textline1 = CleanHeader ( textline1 );
-            // OK to here
-            textline1 = ParseHeaderToAddInfo ( textline1 );
-
+            if ( IsExecutionHelp )
+            {
+                textline1 = ReturnHeaderOutputString ( textline1 );
+                textline1 = CleanHeader ( textline1 );
+                // OK to here
+                textline1 = ParseHeaderToAddInfo ( textline1 );
+            }
             LoadData ( textline1 , fontstyle1 ,
             fontsize1 , fontfamily1 , fontcolor1 ,
             textline2 , fontstyle2 == "" ? DefFontStyle2 : fontstyle2 ,
@@ -915,7 +915,7 @@ namespace UtilityWindows
                     heightfiddle = 2.4;
                     break;
             }
-            int heightconvert = Convert . ToInt32 ( fheight * heightfiddle );
+            int heightconvert = Convert . ToInt32 ( fheight *( heightfiddle  / 1.4));
             if ( maxlines > 0 )
             {
                 int newheight = Convert . ToInt32 ( heightconvert  );
