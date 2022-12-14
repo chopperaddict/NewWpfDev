@@ -858,7 +858,7 @@
 
             <FlowDocumentScrollViewer x:Name="TextResult" 
                   Width="{Binding ActualWidth, ElementName=Flowdocgrid,
-                    Converter={StaticResource ReduceByParamValue},ConverterParameter=20}"
+                    Converter={StaticResource ReduceByParamValue},ConverterParameter=15}"
                     BorderBrush="Red"
                      KeyDown="Spresultsviewer_KeyDown"
                     HorizontalAlignment="Left"
@@ -1737,7 +1737,7 @@
 
                 <Separator BorderBrush="Red" BorderThickness="3"/>
 
-                <TextBox x:Name="blank" 
+                <TextBox x:Name="WasSuccess" 
                         Background="{StaticResource Green2}"                
                         Foreground="Black"
                         FontSize="14"

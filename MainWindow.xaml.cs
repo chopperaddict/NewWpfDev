@@ -262,11 +262,7 @@ namespace NewWpfDev
         //public static dynamic InterFaceDynamic;
 
         #endregion Dynamic variables
-
-        //public static ExplorerClass Txplorer;
-
-      // public static AppSettingsHandler AppSettings { get; set; } = null;
-        
+      
         public MainWindow ( )
         {
             InitializeComponent ( );
@@ -277,6 +273,7 @@ namespace NewWpfDev
            // AppSettings = new AppSettingsHandler ( );
             Mouse . SetCursor ( Cursors . Wait );
             Flags . CurrentConnectionString = ( string ) Properties . Settings . Default [ "BankSysConnectionString" ];
+            SqlCurrentConstring = Flags . CurrentConnectionString;
             Flags . FlowdocCrMultplier = 3.0;
             Flags . UseFlowdoc = Properties . Settings . Default . UseFlowDoc . ToUpper ( ) == "TRUE" ? true : false;
             Properties . Settings . Default . Save ( );

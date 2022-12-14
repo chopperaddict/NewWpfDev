@@ -3,20 +3,20 @@ using System . Collections . Generic;
 using System . Collections . ObjectModel;
 using System . Text;
 
-namespace SProcsProcessing
+namespace NewWpfDev . SProcsProcessing
 {
-    public  class SpProcessingSupport
+    public class SpProcessingSupport
     {
         //---------------------------------------------------------------------------------------//
         // ceate output string of schema columns info for display from a Generic Collection
         //---------------------------------------------------------------------------------------//
-        static public string CreateSchemaReportText ( ObservableCollection<NewWpfDev . GenericClass> gengrid )
+        static public string CreateSchemaReportText ( ObservableCollection<GenericClass> gengrid )
         {
             string output = "";
             int paddingsize = 30;
             string underline = $"=========================================";
             bool Finished = false;
-            foreach ( NewWpfDev.GenericClass gen in gengrid )
+            foreach ( GenericClass gen in gengrid )
             {
                 while ( Finished == false )
                 {
@@ -34,7 +34,7 @@ namespace SProcsProcessing
                     if ( gen . field4 != null && gen . field4 != "0" )
                         output += $", {gen . field4 . ToString ( )} ";
                     else break;
-                      if ( gen . field6 != null && gen . field6 != "0" )
+                    if ( gen . field6 != null && gen . field6 != "0" )
                         output += $", {gen . field6 . ToString ( )} ";
                     else break;
                     if ( gen . field7 != null )
@@ -78,7 +78,7 @@ namespace SProcsProcessing
                     else break;
                 }
                 output += "\n";
-             }
+            }
             return output;
         }
     }

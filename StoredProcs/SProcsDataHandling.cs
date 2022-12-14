@@ -899,6 +899,7 @@ namespace NewWpfDev . StoredProcs
                     newcount++;
                 }
             }
+            if(Arguments.EndsWith("'") == false)
             Arguments = Arguments . Substring ( 0 , Arguments . Length - 1 );
 
             string [ ] head2 = Arguments . Split ( ":" );
@@ -1324,7 +1325,100 @@ namespace NewWpfDev . StoredProcs
             return newlist;
         }
 
- 
+        public static string [ ] PadArgsArray ( string [ ] content )
+        {
+            string [ ] tmp = new string [ SpResultsViewer . DEFAULTARGSSIZE ];
+            for ( int x = 0 ; x < SpResultsViewer.DEFAULTARGSSIZE ; x++ )
+            {
+                if ( content . Length - 1 >= x )
+                {
+                    if ( content [ x ] != null )
+                        tmp [ x ] = content [ x ];
+                    else
+                        tmp [ x ] = "";
+                }
+                else
+                    tmp [ x ] = "";
+            }
+            return tmp;
+        }
+        static public bool CheckForArgType ( string type )
+        {
+            if ( type == "" ) return false;
+            if ( type == "STR"
+           || type == "INT"
+           || type == "FLOAT"
+           || type == "VARCHAR"
+           || type == "VARBIN"
+           || type == "TEXT"
+           || type == "BIT"
+           || type == "BOOL"
+           || type == "SMALLINT"
+           || type == "BIGINT"
+           || type == "DOUBLE"
+           || type == "DEC"
+           || type == "CURR"
+           || type == "DATETIME"
+           || type == "DATE"
+           || type == "TIMESTAMP"
+           || type . Contains ( "TIME" ) )
+                return true;
+            else
+                return false;
+        }
+
+        static public string GetArgSize ( string args )
+        {
+            int size = 0;
+            bool success = true;
+            string ch = "";
+            string validnumbs = "()0123456789";
+            for ( int x = 0 ; x < args . Length ; x++ )
+            {
+                ch = args . Substring ( x , 1 );
+                if ( validnumbs . Contains ( ch ) == false )
+                {
+                    success = false;
+                    break;
+                }
+                if ( success )
+                    return args;
+                else
+                    return "";
+            }
+            if ( success )
+            {
+                if ( args != "" && args != "MAX" && args != "SYSNAME" )
+                {
+                    //return size of any not text variable type
+                    size = Convert . ToInt32 ( args );
+                    Size sz = Size . Parse ( size . ToString ( ) );
+                    return sz . ToString ( );
+                }
+                else if ( args == "MAX" || args == "SYSNAME" )
+                {
+                    if ( SpResultsViewer . SHOWSIZEARG )
+                        return "32000";
+                    else
+                        return "";
+                }
+                else
+                    return args;
+            }
+            else
+                return "";
+        }
+
+        public static int CheckForParameterArgCount ( string [ ] args )
+        {
+            int count = 0;
+            for ( int x = 0 ; x < args . Length ; x++ )
+            {
+                if ( args [ x ] != "" ) count++;
+            }
+            return count; ;
+        }
+
     }
 }
 

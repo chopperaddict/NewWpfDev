@@ -166,7 +166,6 @@ namespace NewWpfDev . UserControls
             set { minSplitterHit = value; }
         }
         private DependencyPropertyDescriptor HeightDescriptor;
-
         public DependencyPropertyDescriptor heightDescriptor
         {
             get { return HeightDescriptor; }
@@ -224,7 +223,8 @@ namespace NewWpfDev . UserControls
             // This fails
             DapperLibSupport . CheckDbDomain ( "IAN1" );
             // This works in GenericDbUtilities
-            ConString = DapperGenLib . CurrentConnectionString;
+            ConString = constring  ;
+//            ConString = DapperGenLib . CurrentConnectionString;
 
             // Set Horizontal Splitter FULLY DOWN at startup
             double Offset1 = SplitterGrid . RowDefinitions [ 0 ] . ActualHeight;
@@ -233,8 +233,7 @@ namespace NewWpfDev . UserControls
             //Maximize hook  +/- statements - dont forget to remove them (Unsubscribe on closing)
             Flowdoc . ExecuteFlowDocMaxmizeMethod += new EventHandler ( MaximizeFlowDoc );
             FlowDoc . FlowDocClosed += Flowdoc_FlowDocClosed;
-            //            GenericSelectBoxControl . ListSelection += GenericSelectBoxControl_ListSelection1;
-
+ 
             if ( GenericGridControl . SetListboxHost != null )
             {
                 ListboxHostArgs args = new ListboxHostArgs ( );
@@ -276,11 +275,8 @@ namespace NewWpfDev . UserControls
             this . Refresh ( );
         }
         private void PopupListBox_StyleSizeChanged ( object sender , SizeChangedArgs e )
-        {    //return;
+        {  
             Debug . WriteLine ( $"{e . NewHeight}" );
-            //StylesList . Height = ( double ) e . NewHeight;
-            //StylesList . UpdateLayout ( );
-            //StylesList . Refresh ( );
         }
         private void GenericGridControl_Stylechanged ( object sender , StyleArgs e )
         {
@@ -686,6 +682,8 @@ namespace NewWpfDev . UserControls
         // Toggle columhn header content
         private void Button2_Click ( object sender , RoutedEventArgs e )
         {
+            ObservableCollection<DapperGenericsLib . GenericClass> tmp = new ObservableCollection<DapperGenericsLib . GenericClass> ( );
+
             if ( maskcols . Content . ToString ( ) == "Mask Columns" )
             {
                 // Hiide generic column names
@@ -705,9 +703,50 @@ namespace NewWpfDev . UserControls
                 ShowColumnNames = false;
                 DataGrid tmpgrid = new DataGrid ( );
                 tmpgrid = datagrid1;
+                if ( datagrid2.Items.Count > 0)
+                {
+                    //int index = 0;
+                    foreach ( object  item in datagrid2 . Items )
+                    {
+                        string str = item . ToString ( );
+                        string [ ] flds = str . Split ( ", " );
+                        DapperGenericsLib . GenericClass  gc = new DapperGenericsLib . GenericClass ( );
+                        for(int x = 0 ; x < flds.Length ;x++)
+                        {
+                            string[] data = flds [ x ] . Split ( "= " );
+                            if ( x == 0 ) gc . field1 = data [ 1 ];
+                            else if( x== 1 ) gc . field2 = data [ 1 ];
+                           else if ( x == 2 ) gc . field3 = data [ 1 ];
+                           else if ( x == 3 ) gc . field4 = data [ 1 ];
+                           else if ( x == 4 ) gc . field5 = data [ 1 ];
+                           else if ( x == 5 ) gc . field6 = data [ 1 ];
+                           else if ( x == 6 ) gc . field7 = data [ 1 ];
+                           else if ( x == 7 ) gc . field8 = data [ 1 ];
+                           else if ( x == 8 ) gc . field9 = data [ 1 ];
+                           else if ( x == 9 ) gc . field10 = data [ 1 ];
+                           else if ( x == 10 ) gc . field11 = data [ 1 ];
+                           else if ( x == 11 ) gc . field12= data [ 1 ];
+                           else if ( x == 12 ) gc . field13 = data [ 1 ];
+                           else if ( x == 13 ) gc . field14 = data [ 1 ];
+                           else if ( x == 14 ) gc . field15 = data [ 1 ];
+                           else if ( x == 15 ) gc . field16 = data [ 1 ];
+                           else if ( x == 16 ) gc . field17 = data [ 1 ];
+                           else if ( x == 17 ) gc . field18 = data [ 1 ];
+                           else if ( x == 18 ) gc . field19 = data [ 1 ];
+                        else if ( x == 19 ) gc . field20 = data [ 1 ];
+
+                        }
+                        tmp . Add ( gc );
+                       //gc. field1 = item . field1;
+                        //Gencollection2 . Add ( item as DapperGenericsLib . GenericClass);
+                    }
+                }
                 if ( GenericTitle1 != null )
                 {
-                    colcount = DapperLibSupport . GetGenericColumnCount ( Gencollection1 );
+                    colcount = DapperLibSupport . GetGenericColumnCount ( tmp );
+                    //DataLoad . GetColumnsCount ( List < DapperGenericsLib . GenericClass > list );
+                    Dictionary<string , string> dict = new Dictionary<string, string>();
+                    dict = DapperGenLib . GetColumnNames (tmp, CurrentTable1 , out colcount , MainWindow . CurrentSqlTableDomain );
                     DapperLibSupport . ReplaceDataGridFldNames ( CurrentTable1 , ref tmpgrid , ref dglayoutlist1 , colcount );
                     datagrid1 . UpdateLayout ( );
                 }
@@ -715,12 +754,15 @@ namespace NewWpfDev . UserControls
                 if ( GenericTitle2 != null )
                 {
                     colcount = DapperLibSupport . GetGenericColumnCount ( Gencollection2 );
+                    Dictionary<string , string> dict = new Dictionary<string , string> ( );
+                    dict = DapperGenLib . GetColumnNames (  tmp ,  CurrentTable2 , out colcount , MainWindow . CurrentSqlTableDomain );
                     DapperLibSupport . ReplaceDataGridFldNames ( CurrentTable2 , ref tmpgrid , ref dglayoutlist2 , colcount );
                     datagrid2 . UpdateLayout ( );
                 }
                 maskcols . Content = "Mask Columns";
             }
         }
+ 
         public void SetDefColumnHeaderText ( DataGrid grid , bool IsCollapsed )
         {
             int indexer = 1;
@@ -2057,7 +2099,7 @@ namespace NewWpfDev . UserControls
                     ConString = MainWindow . SqlCurrentConstring;                
                 }
 
-                dt = ProcessSqlCommand ( "spGetTableColumnWithSizes" + spName , ConString );
+                dt = ProcessSqlCommand ( "spGetTableColumnWithSizes " + spName , ConString );
                 if ( dt . Rows . Count == 0 )
                     columncount = 0;
                 foreach ( var item in dt . Rows )

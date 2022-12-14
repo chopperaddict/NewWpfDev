@@ -64,7 +64,7 @@ namespace NewWpfDev
             // clear reference sturcture first off
             dglayoutlist . Clear ( );
 
-            dict = DapperGenLib . GetDbTableColumns ( ref GenClass , ref ColumnTypesList , ref list , CurrentType , Domain , ref dglayoutlist );
+            GenClass = DapperGenLib . GetDbTableColumns ( ref GenClass , ref ColumnTypesList , ref list , CurrentType , Domain , ref dglayoutlist );
             // dglayoutlist is now fully populated        
             int index = 0;
             // Add data  for field size

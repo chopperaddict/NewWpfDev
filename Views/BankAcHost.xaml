@@ -20,10 +20,7 @@
         Foreground="White"
         Height="730" Width="1000"
         >
-    <!--Style="{StaticResource local2:ResourceKey=CustomToolWindowStyle}"-->
-
-
-    <!--xmlns:theme="clr-namespace:NewWpfDev.Themes"-->
+     <!--xmlns:theme="clr-namespace:NewWpfDev.Themes"-->
     <!--Style="{Binding themes:deepdark}"-->
 
     <Window.DataContext>
@@ -35,9 +32,7 @@
         <conv:AdjustIntSize x:Key="ReduceWidth"/>
         <conv:AddTwoValuesConverter x:Key="AddTwoValuesConverter"/>
 
-        <!--<ResourceDictionary Source="\Themes\Darktheme.xaml" x:Key="Darkmode"/>-->
-        <!--<ResourceDictionary Source="\Themes\LightTheme.xaml" x:Key="Ligtmode"/>-->
-
+   
         <!--DarkMode Menu Text  mouseover color (Orange => White)-->
         <LinearGradientBrush x:Key="DarkModeTextOrangeWhite" StartPoint="0,1" EndPoint="1,0">
             <GradientStop Color="Orange" Offset="1" />
@@ -121,7 +116,7 @@
         </Style>
 
         <!--#region ListBox styling - Works very well July 2022-->
-        <!--allows us to switch  etween datatemplates to change view of each row-->
+        <!--allows us to switch  between datatemplates to change view of each row-->
         <DataTemplate x:Key="Notselected">
             <TextBlock Text="{Binding}" Foreground="White" Background="{StaticResource Blue1}" Width="{Binding Width, ElementName=Stylesgrid}" />
         </DataTemplate>
@@ -454,8 +449,6 @@
                 </WrapPanel>
                 
              </WrapPanel>
-
-
 
         </Grid>
         
