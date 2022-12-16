@@ -20,7 +20,10 @@
         Foreground="White"
         Height="730" Width="1000"
         >
-     <!--xmlns:theme="clr-namespace:NewWpfDev.Themes"-->
+    <!--Style="{StaticResource local2:ResourceKey=CustomToolWindowStyle}"-->
+
+
+    <!--xmlns:theme="clr-namespace:NewWpfDev.Themes"-->
     <!--Style="{Binding themes:deepdark}"-->
 
     <Window.DataContext>
@@ -32,7 +35,9 @@
         <conv:AdjustIntSize x:Key="ReduceWidth"/>
         <conv:AddTwoValuesConverter x:Key="AddTwoValuesConverter"/>
 
-   
+        <!--<ResourceDictionary Source="\Themes\Darktheme.xaml" x:Key="Darkmode"/>-->
+        <!--<ResourceDictionary Source="\Themes\LightTheme.xaml" x:Key="Ligtmode"/>-->
+
         <!--DarkMode Menu Text  mouseover color (Orange => White)-->
         <LinearGradientBrush x:Key="DarkModeTextOrangeWhite" StartPoint="0,1" EndPoint="1,0">
             <GradientStop Color="Orange" Offset="1" />
@@ -116,7 +121,7 @@
         </Style>
 
         <!--#region ListBox styling - Works very well July 2022-->
-        <!--allows us to switch  between datatemplates to change view of each row-->
+        <!--allows us to switch  etween datatemplates to change view of each row-->
         <DataTemplate x:Key="Notselected">
             <TextBlock Text="{Binding}" Foreground="White" Background="{StaticResource Blue1}" Width="{Binding Width, ElementName=Stylesgrid}" />
         </DataTemplate>
@@ -285,11 +290,7 @@
             VerticalContentAlignment="Top"
             Background="Yellow"
             Margin="0 0 0 35"
-			Width="{Binding Path=ActualWidth, ElementName=HostWin}">
-
-        </ContentControl>
-            <!--Height="{Binding Path=ActualHeight, ElementName=row1 
-        	    ,Converter={StaticResource ReduceWidth}, ConverterParameter=0}"-->
+			Width="{Binding Path=ActualWidth, ElementName=HostWin}"/>
         <!--======================================================================-->
 
         <Grid x:Name="ButtonPanel"
@@ -420,7 +421,8 @@
 
                 <!--#endregion-->
 
-
+            <!--#region bottom right buttons-->
+                
                 <WrapPanel x:Name="ExitBtns" Orientation="Horizontal"                   
                    VerticalAlignment="Top"
                    HorizontalAlignment="Left"
@@ -447,8 +449,9 @@
                                 Command="{Binding ExitFullSystem}"/>
             
                 </WrapPanel>
-                
-             </WrapPanel>
+                <!--#endregion bottom right buttons-->
+
+            </WrapPanel>
 
         </Grid>
         

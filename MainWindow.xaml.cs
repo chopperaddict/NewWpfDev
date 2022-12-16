@@ -10,15 +10,6 @@ using System . Windows . Controls;
 using System . Windows . Input;
 using System . Windows . Media;
 
-//using ConfigSettings;
-
-//using Expandos;
-
-using IronPython . Compiler . Ast;
-using IronPython . Hosting;
-
-using Microsoft . Scripting . Hosting;
-
 using NewWpfDev . UserControls;
 using NewWpfDev . ViewModels;
 using NewWpfDev . Views;
@@ -240,7 +231,6 @@ namespace NewWpfDev
         public static CustomerViewModel cvm = null;
         public static DetailsViewModel dvm = null;
         public static GenericSelectBoxControl glb = new GenericSelectBoxControl ( null , null );
-        public static ScriptEngine pyEngine = Python . CreateEngine ( );
         public static ExpandoObject expobj = null;
 
         // SQL data - Default domain, current Table, current conn string for this domain
@@ -311,38 +301,38 @@ namespace NewWpfDev
             expobj . AddDictionaryEntry ( "Phone" , "0757 9062440" );
             expobj . AddDictionaryEntry ( "fname" , "Ian" );
             expobj . AddDictionaryEntry ( "lname" , "Turner" );
-            try
-            {
+            //try
+            //{
                 // TESTING ; create Python environment and call method that returns a string
                 // Working 15/11/22
-                PatchParameter ( "SayHello" , 1 );
+  //              PatchParameter ( "SayHello" , 1 );
 
 
 
-                 run_cmd ( "SayHello" , "" );
-                var paths = pyEngine . GetSearchPaths ( );
-                paths . Add ( @"C:\Users\ianch\source\repos\NewWpfDev" );
-                pyEngine . SetSearchPaths ( paths );
-                var ipy = Python . CreateRuntime ( );
-                if(ipy != null)
-                    Debug . WriteLine ($"Python ScriptRuntime loaded successfully...");
-                dynamic py2 = ipy . UseFile ( @"C:\Users\ianch\source\repos\MyPython\PythonHello.py" );
-                Debug . WriteLine ( $"Python UseFile pythontest.py loaded successfully..." );
-                dynamic py3 = ipy . UseFile ( @"C:\Users\ianch\source\repos\NewWpfDev\Python\pythonhello.py" );
-                dynamic py = ipy . UseFile ( @"C:\Users\ianch\source\repos\PythonMETHODS\PythonMETHODS.py" );
-                Debug . WriteLine ( $"Python UseFile PythonMETHODS.PY loaded successfully..." );
-                // Call Python method that returns a dynamic value
-                var res = py . Find_DividerInBuffer ( "this is a test of the Python string finder.." , " p" );
-                int v = py . SayHello ( 12 , 127 );
-                string str = v . ToString ( );
-                Debug . WriteLine ( $"Data returned from PYTHON is {str}" );
+                // run_cmd ( "SayHello" , "" );
+                //var paths = pyEngine . GetSearchPaths ( );
+                //paths . Add ( @"C:\Users\ianch\source\repos\NewWpfDev" );
+                //pyEngine . SetSearchPaths ( paths );
+                //var ipy = Python . CreateRuntime ( );
+                //if(ipy != null)
+                //    Debug . WriteLine ($"Python ScriptRuntime loaded successfully...");
+                //dynamic py2 = ipy . UseFile ( @"C:\Users\ianch\source\repos\MyPython\PythonHello.py" );
+                //Debug . WriteLine ( $"Python UseFile pythontest.py loaded successfully..." );
+                //dynamic py3 = ipy . UseFile ( @"C:\Users\ianch\source\repos\NewWpfDev\Python\pythonhello.py" );
+                //dynamic py = ipy . UseFile ( @"C:\Users\ianch\source\repos\PythonMETHODS\PythonMETHODS.py" );
+                //Debug . WriteLine ( $"Python UseFile PythonMETHODS.PY loaded successfully..." );
+                //// Call Python method that returns a dynamic value
+                //var res = py . Find_DividerInBuffer ( "this is a test of the Python string finder.." , " p" );
+                //int v = py . SayHello ( 12 , 127 );
+                //string str = v . ToString ( );
+                //Debug . WriteLine ( $"Data returned from PYTHON is {str}" );
                 
-            }
-            catch ( Exception ex )
-            {
-                Debug . WriteLine ( $"Python failed to load script PythonMethods : [{ex . Message}]" );
-                //NewWpfDev . Utils . DoErrorBeep ( repeat: 1 );
-            }
+            //}
+            //catch ( Exception ex )
+            //{
+            //    Debug . WriteLine ( $"Python failed to load script PythonMethods : [{ex . Message}]" );
+            //    //NewWpfDev . Utils . DoErrorBeep ( repeat: 1 );
+            //}
 
             //Button16_Click ( null, null );
             //Mouse . SetCursor ( Cursors . Arrow );
@@ -367,22 +357,22 @@ namespace NewWpfDev
                 }
             }
         }
-        public string PatchParameter ( string parameter , int serviceid )
-        {
-            var engine = Python . CreateEngine ( ); // Extract Python language engine from their grasp
-            var scope = engine . CreateScope ( ); // Introduce Python namespace (scope)
-            var d = new Dictionary<string , object>
-            {
-                { "serviceid", serviceid},
-                { "parameter", parameter}
-            }; // Add some sample parameters. Notice that there is no need in specifically setting the object type, interpreter will do that part for us in the script properly with high probability
+        //public string PatchParameter ( string parameter , int serviceid )
+        //{
+        //    var engine = Python . CreateEngine ( ); // Extract Python language engine from their grasp
+        //    var scope = engine . CreateScope ( ); // Introduce Python namespace (scope)
+        //    var d = new Dictionary<string , object>
+        //    {
+        //        { "serviceid", serviceid},
+        //        { "parameter", parameter}
+        //    }; // Add some sample parameters. Notice that there is no need in specifically setting the object type, interpreter will do that part for us in the script properly with high probability
 
-            scope . SetVariable ( "params" , d ); // This will be the name of the dictionary in python script, initialized with previously created .NET Dictionary
-            ScriptSource source = engine . CreateScriptSourceFromFile ( @"C:\Users\ianch\source\repos\MyPython\PythonHello.py" ); // Load the script
-            object result = source . Execute ( scope );
-            parameter = scope . GetVariable<string> ( "parameter" ); // To get the finally set variable 'parameter' from the python script
-            return parameter;
-        }
+        //    scope . SetVariable ( "params" , d ); // This will be the name of the dictionary in python script, initialized with previously created .NET Dictionary
+        //    ScriptSource source = engine . CreateScriptSourceFromFile ( @"C:\Users\ianch\source\repos\MyPython\PythonHello.py" ); // Load the script
+        //    object result = source . Execute ( scope );
+        //    parameter = scope . GetVariable<string> ( "parameter" ); // To get the finally set variable 'parameter' from the python script
+        //    return parameter;
+        //}
 
         public static void SaveSystemSetting ( string name , object value , Type type = null )
         {

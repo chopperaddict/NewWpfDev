@@ -87,5 +87,35 @@ namespace NewWpfDev
                 }
             }
         }
+        public static DataTable GetSqlDataAsDataTable( string SqlCommand , string ConnectionString )
+        {
+            SqlConnection con;
+            DataTable dt = new DataTable ( );
+            string filterline = "";
+            string ConString = Flags . CurrentConnectionString;
+             con = new SqlConnection ( ConString );
+            try
+            {
+                Debug . WriteLine ( $"Using new SQL connection in PROCESSSQLCOMMAND" );
+                using ( con )
+                {
+                    SqlCommand cmd = new SqlCommand ( SqlCommand , con );
+                    SqlDataAdapter sda = new SqlDataAdapter ( cmd );
+                    sda . Fill ( dt );
+                }
+            }
+            catch ( Exception ex )
+            {
+                Debug . WriteLine ( $"ERROR in PROCESSSQLCOMMAND(): Failed to load Datatable :\n {ex . Message}, {ex . Data}" );
+                MessageBox . Show ( $"ERROR in PROCESSSQLCOMMAND(): Failed to load datatable\n{ex . Message}" );
+            }
+            finally
+            {
+                Debug . WriteLine ( $" SQL data loaded from SQLCommand [{SqlCommand . ToUpper ( )}]" );
+                con . Close ( );
+            }
+            return dt;
+        }
+
     }
 }

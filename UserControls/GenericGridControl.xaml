@@ -299,19 +299,7 @@
                       Width="{Binding Path=Width, ElementName=GenGridControl, Converter={StaticResource ReduceWidth}, ConverterParameter=-10}"
                            GotFocus="datagrid1_GotFocus" 
                            IsTabStop="True">
-                    <!--<DataGrid.ItemTemplate>
-                        <DataTemplate>
-                            
-                            <TextBox Text="{Binding Path=Field1}"/>
-                        </DataTemplate>
-                    </DataGrid.ItemTemplate>-->
-                    <!--<DataGrid.Columns>
-                        <DataGridTemplateColumn Header="Field2" CellTemplate="{StaticResource DisplayColumnTemplate2}"/>
-                        <DataGridTemplateColumn Header="Field3" CellTemplate="{StaticResource DisplayColumnTemplate3}"/>
-                        <DataGridTemplateColumn Header="Field4" CellTemplate="{StaticResource DisplayColumnTemplate4}"/>
-
-                    </DataGrid.Columns>-->
-                    
+                     
                 </DataGrid>
 
             </StackPanel>
@@ -356,9 +344,7 @@
                       VerticalScrollBarVisibility="{Binding vscrollBar}"         
                       Visibility="Visible" 
                       Width="{Binding Path=Width, ElementName=GenGridControl, Converter={StaticResource ReduceWidth}, ConverterParameter=-10}" GotFocus="datagrid2_GotFocus">
-                    <!--MouseEnter="datagrid2_MouseEnter"
-                      MouseLeave="datagrid2_MouseLeave"-->
-                </DataGrid>
+                 </DataGrid>
 
             </StackPanel>
 
@@ -387,12 +373,7 @@
                                     <RowDefinition  Height="{Binding ActualHeight, ElementName=maingrid}"/>
                                     <RowDefinition Height="{Binding ActualHeight, ElementName=maingrid}"/>
                                 </Grid.RowDefinitions>
-                                <!--<TextBlock Text="Drag ^v to resize grids..." Height="20" HorizontalAlignment="Center" 
-                                           Background="Green" Foreground="Black" 
-                                           FontWeight="DemiBold" 
-                                           Margin="0 0 0 0"
-                                           Padding="0 0 0 0"/>-->
-                            </Grid>
+                                </Grid>
                         </Border>
                     </ControlTemplate>
                 </GridSplitter.Template>

@@ -15,9 +15,6 @@ using Dapper;
 using NewWpfDev . Models;
 using NewWpfDev . StoredProcs;
 using NewWpfDev . Views;
-
-using static IronPython . Modules . PythonIterTools;
-
 namespace NewWpfDev
 {
     // Dynamic QUERY methods for main class GenDapperQueries

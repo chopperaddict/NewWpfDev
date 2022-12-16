@@ -245,6 +245,7 @@
     <None Remove="Icons\xml.ico" />
     <None Remove="Icons\XSLTFile.ico" />
     <None Remove="Icons\yellow-shriek-icon.png" />
+    <None Remove="pythontest.py" />
     <None Remove="SQLQuery1.sql" />
     <None Remove="SqlQuery_1.sql" />
   </ItemGroup>
@@ -273,7 +274,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="IronPython" Version="2.7.12" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="4.1.0">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>

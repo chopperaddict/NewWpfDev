@@ -7,6 +7,8 @@ using System . Windows;
 
 using Dapper;
 
+using DapperGenericsLib;
+
 using GenericSqlLib;
 
 using Microsoft . VisualBasic;
@@ -448,5 +450,31 @@ namespace NewWpfDev
             reccount = collection.Count;
             return collection;
         }
+        public static Dictionary<string , string> GetColumnNamesAsDictionary ( string tablename , out int count , string domain = "IAN1" )
+        {
+            int indx = 0;
+            List<string> list = new List<string> ( );
+            // local Collection only
+            ObservableCollection<DapperGenericsLib . GenericClass> GenericClass = new ObservableCollection<DapperGenericsLib . GenericClass> ( );
+            Dictionary<string , string> dict = new Dictionary<string , string> ( );
+            List<Dictionary<string , string>> ColumntypesList = new List<Dictionary<string , string>> ( );
+            // This returns a Dictionary<sting,string> PLUS a collection  and a List<string> passed by ref....
+            Dictionary<string , string> Columntypes = new Dictionary<string , string> ( );
+            List<DapperGenericsLib . DataGridLayout> dglayoutlist = new List<DapperGenericsLib . DataGridLayout> ( );
+            GenericClass = DapperGenLib . GetDbTableColumns ( ref GenericClass , ref ColumntypesList , ref list , tablename , domain , ref dglayoutlist );
+
+            indx = 0;
+            if ( dglayoutlist . Count > 0 )
+            {
+                foreach ( var item in GenericClass )
+                {
+                    item . field3 = dglayoutlist [ indx++ ] . Fieldlength . ToString ( );
+                }
+            }
+            count = indx - 1;
+            return dict;
+        }
+
+
     }
 }

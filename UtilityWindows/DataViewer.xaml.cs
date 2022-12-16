@@ -14,10 +14,6 @@ using System . Windows . Input;
 using System . Windows . Media;
 using System . Windows . Media . TextFormatting;
 
-using IronPython . Runtime . Operations;
-
-using Microsoft . VisualBasic . FileIO;
-
 using NewWpfDev;
 //using NewWpfDev . ConfigSettings;
 

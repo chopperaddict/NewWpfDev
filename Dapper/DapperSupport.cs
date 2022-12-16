@@ -3616,7 +3616,7 @@ namespace NewWpfDev . Dapper
                 }
                 string [ ] args = new string [ 1 ];
                 args [ 0 ] = spName;
-                dt = DatagridControl . ProcessSqlCommand ( "spGetTableColumnWithSizes" , ConString , args );
+                dt = DatagridControl . ProcessSqlCommand ( "spGetTableColumnsWithSizes" , ConString , args );
             }
             catch ( Exception ex )
             {

@@ -36,7 +36,6 @@ using System . Reflection;
 using System . Dynamic;
 using System . Threading . Tasks;
 using System . Windows . Media . Media3D;
-using IronPython . Modules;
 
 namespace NewWpfDev
 {

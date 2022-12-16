@@ -6,9 +6,6 @@ using System . Text;
 
 using Views;
 
-using static IronPython . Modules . _ast;
-
-
 namespace NewWpfDev . Expandos
 {
     public class ExpandoClass

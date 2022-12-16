@@ -4,12 +4,13 @@ using System . Collections . Generic;
 using System . Collections . ObjectModel;
 using System . ComponentModel;
 using System . Diagnostics;
-using System . DirectoryServices . ActiveDirectory;
+
 using System . Runtime . InteropServices;
 using System . Threading . Tasks;
 using System . Windows;
 using System . Windows . Controls;
 using System . Windows . Input;
+
 using System . Windows . Media;
 
 using DapperGenericsLib;
@@ -139,11 +140,13 @@ namespace NewWpfDev . Views
             Mouse . SetCursor ( Cursors . Wait );
             InitializeComponent ( );
             bool bRet = ShouldSystemUseDarkMode ( );
-            this . Title = "BankAcHost()";
+            this . Title = "sdfafd";
             //this proves that only BooltoVisibilityConverter is in these resources
             var res = Application . Current . Resources;
             var style = res . Values;
-             BankAcctVm = BankAcctVm . Instances;
+            //Gencollection1 = BankAccountVM . Gencollection1;
+            //Gencllection2 = BankAccountVM . Gencollection2;
+            BankAcctVm = BankAcctVm . Instances;
             var viewmodel = new BankAccountVM ( );
             BankVm = viewmodel;
             viewmodel . GetHost ( );
@@ -169,18 +172,21 @@ namespace NewWpfDev . Views
             BankAcctVm . DoClosePanel += BankAcctVm_DoClosePanel;
             custgrid = BankAccountGrid . datagrid;
 
-             LoadDbTables ( );
+            //GenClass = new GenericClass ( );
+            LoadDbTables ( );
             //loads the data using existing ICommand in BankAccountVM.CS
             //         viewmodel . SelectGrid . Execute ( "BANKACCOUNT" );
             // or use this  Extension method if you want to pass up to 3 args (as objects)
             object [ ] args = new object [ 3 ];
             args [ 0 ] = "GENERICGRID";
- 
+            //  viewmodel . SelectGrid . ExecuteCommand ( args );
+
             // loads the data from SQL for Generic  grid
             //     GenericGrid . LoadGenericTable ( "Bankaccount" , "datagrid1" );
             SetActivePanel ( "GENERICGRID" );
             //SetVisibility ( "GENERICGRID" , "GRID1" );
- 
+            //    MessageBox . Show ( "Failed to find VM collection" , "SQL data error" );
+
             // Trigger ViewModel to load al pinters to other controls
             BankAccountVM . TriggerGetControlsPointers ( );
 
@@ -211,12 +217,21 @@ namespace NewWpfDev . Views
 
         private async Task LoadDbTables ( )
         {//dummy caller for task to load list of Db Tables
+         //            await DoLoadDbTablesAsync ( );
             TablesList = GenericGridControl . GetDbTablesList ( "IAN1" );
             combo . ItemsList = TablesList;
             comboPlus . Visibility = Visibility . Visible;
             return;
         }
-         private void ComboboxPlus_ComboboxChanged ( object sender , ComboChangedArgs e )
+        //private async Task DoLoadDbTablesAsync ( )
+        //{   //  load list of Db Tables asynchronously
+        //    //List<string> TablesList = Task . Run ( ( ) => GenericGridControl . GetDbTablesList ( "IAN1" ) );
+        //    GenericGridControl . GetDbTablesList ( "IAN1" );
+        //    combo . ItemsList = TablesList;
+        //    comboPlus . Visibility = Visibility . Visible;
+        //    return;
+        //}
+        private async void ComboboxPlus_ComboboxChanged ( object sender , ComboChangedArgs e )
         {
             // called when combobox selection changes
             int DbCount = 0, index = 0;
@@ -236,7 +251,7 @@ namespace NewWpfDev . Views
                     if ( cbp . ReloadDb == true )
                     {
                         GenericGridControl . dglayoutlist1 . Clear ( );
-                        Task . Run ( ( ) =>
+                        await Task . Run ( ( ) =>
                         {
                             DapperGenLib . LoadTableGeneric ( $"Select * from {tablename}" , ref Gencollection1 );
                             Application . Current . Dispatcher . Invoke ( ( ) =>
@@ -246,6 +261,7 @@ namespace NewWpfDev . Views
 
                                 GenericGridControl . CurrentTable1 = tablename;
                                 GenericGridControl . Title1 = tablename;
+                                //st<DapperGenericsLib . DataGridLayout> dglayoutlist = new List<DapperGenericsLib . DataGridLayout> ( );
                                 if ( GenericGrid . maskcols . Content . ToString ( ) == "Mask Columns" )
                                     DapperLibSupport . ReplaceDataGridFldNames ( tablename , ref GenericGrid . datagrid1 , ref GenericGridControl. dglayoutlist1 , colcount );
                                 else
@@ -269,7 +285,8 @@ namespace NewWpfDev . Views
                     if ( cbp . ReloadDb == true )
                     {
                         GenericGridControl . dglayoutlist2 . Clear ( );
-                        Task . Run ( ( ) =>
+                        Mouse . OverrideCursor = Cursors . Wait;
+                        await Task . Run ( ( ) =>
                         {
                             DapperGenLib . LoadTableGeneric ( $"Select * from {tablename}" , ref Gencollection2 );
                             Application . Current . Dispatcher . Invoke ( ( ) =>
@@ -279,7 +296,8 @@ namespace NewWpfDev . Views
 
                                 GenericGridControl . CurrentTable2 = tablename;
                                 GenericGridControl . Title2 = tablename;
-                               if ( GenericGrid . maskcols . Content . ToString ( ) == "Mask Columns" )
+                                //st<DapperGenericsLib . DataGridLayout> dglayoutlist = new List<DapperGenericsLib . DataGridLayout> ( );
+                                if ( GenericGrid . maskcols . Content . ToString ( ) == "Mask Columns" )
                                     DapperLibSupport . ReplaceDataGridFldNames ( tablename , ref GenericGrid . datagrid2 , ref GenericGridControl. dglayoutlist2 , colcount );
                                 else
                                     GenericGrid . SetDefColumnHeaderText ( GenericGrid . datagrid2 , false );
@@ -287,7 +305,7 @@ namespace NewWpfDev . Views
                                 GenericGrid . GenericTitle2 . Text = $"{tablename . ToUpper ( )}";
                                 GenericGridControl . CurrentTable2 = tablename;
                                 GenericGridControl . Title2 = tablename;
-                                Debug . WriteLine ( $"[{tablename}] Data  for datagrid1 Loaded in Task and Datagrid fully updated" );
+                                Debug . WriteLine ( $"[{tablename}] Data for datagrid1 Loaded in Task and Datagrid fully updated" );
                                 GenericGrid . datagrid1 . SelectedIndex = 0;
                                 GenericGrid . datagrid1 . Refresh ( );
                                 GenericGridControl . SelectCorrectTable ( tablename );
@@ -298,11 +316,19 @@ namespace NewWpfDev . Views
                     // Reset flag so it will load data unless something else toggles it off !!
                 }
                 cbp . ReloadDb = true;
+                Mouse . OverrideCursor = Cursors . Arrow;
+
             }
         }
         private void ResetStyleSelection ( int index )
         {
-          }
+            //if ( index == 1 )
+            //    GenericGrid . StylesList . SelectedItem = GenericGridControl . Style1;
+            //else
+            //    GenericGrid . StylesList . SelectedItem = GenericGridControl . Style2;
+            //GenericGrid . StylesList . Refresh ( );
+
+        }
         public static GenericClass ConvertLibToGeneric ( GenericClass gcc , DapperGenericsLib . GenericClass DapperGen )
         {
             gcc . field1 = DapperGen . field1;
@@ -345,12 +371,14 @@ namespace NewWpfDev . Views
             Thickness th = new Thickness ( );
             double paddingtop = 130.0;
             double paddingleft = 10;
-             double panelheight = ThisWin . ActualHeight - 130;
+            // th = grid . Margin;
+            double panelheight = ThisWin . ActualHeight - 130;
             double panelwidth = ThisWin . ActualWidth - 260;
             double gridheight = grid . ActualHeight;
             double gridwidth = grid . ActualWidth;
             Debug . WriteLine ( $"Entry margin {th . ToString ( )}" );
             Debug . WriteLine ( $"area {ThisWin . ActualHeight} / {ThisWin . ActualWidth}" );
+            //            if ( gridheight < panelheight ) {
             if ( gridheight > panelheight )
             {
                 // Grid HIGHER than panel height
@@ -381,31 +409,6 @@ namespace NewWpfDev . Views
             }
         }
 
-        public static Dictionary<string , string> GetColumnNames ( string tablename , out int count , string domain = "IAN1" )
-        {
-            int indx = 0;
-            List<string> list = new List<string> ( );
-            // local Collection only
-            ObservableCollection<DapperGenericsLib.GenericClass> GenericClass = new ObservableCollection<DapperGenericsLib . GenericClass> ( );
-            Dictionary<string , string> dict = new Dictionary<string , string> ( );
-            List<Dictionary<string , string>> ColumntypesList = new List<Dictionary<string , string>> ( );
-            // This returns a Dictionary<sting,string> PLUS a collection  and a List<string> passed by ref....
-            Dictionary<string , string> Columntypes = new Dictionary<string , string> ( );
-            List<DapperGenericsLib . DataGridLayout> dglayoutlist = new List<DapperGenericsLib . DataGridLayout> ( );
-            GenericClass = DapperGenLib . GetDbTableColumns ( ref GenericClass , ref ColumntypesList , ref list , tablename , domain , ref dglayoutlist );
-//            dict = DapperGenLib . GetDbTableColumns ( ref GenericClass , ref ColumntypesList , ref list , tablename , domain , ref dglayoutlist );
-
-            indx = 0;
-            if ( dglayoutlist . Count > 0 )
-            {
-                foreach ( var item in GenericClass )
-                {
-                    item . field3 = dglayoutlist [ indx++ ] . Fieldlength . ToString ( );
-                }
-            }
-            count = indx - 1;
-            return dict;
-        }
         public static BankAcHost GetHost ( )
         {
             return ThisWin;
@@ -417,6 +420,7 @@ namespace NewWpfDev . Views
             BlankScreenUC . SetHost ( this );
             BankAcctGrid . IsHost ( true );
             Task . Run ( ( ) => BankAcDetails . LoadCustomer ( ) );
+            // SetActivePanel ( "GENERICGRID" );
             CurrentPanel = "GENERICGRID";
         }
 
@@ -458,7 +462,8 @@ namespace NewWpfDev . Views
             else if ( newpanel == "GENERICGRID" )
             {
                 GenericGrid . Visibility = Visibility . Visible;
-              this . Title = "GENERIC GRID VIEWER";
+                //GenericGrid . Refresh ( );
+                this . Title = "GENERIC GRID VIEWER";
                 CurrentPanel = "GENERICGRID";
                 if ( IsStartup )
                     SetActivePanel ( "GENERICGRID" );
@@ -466,7 +471,7 @@ namespace NewWpfDev . Views
                 {
                     if ( Gencollection1 == null || Gencollection1 . Count == 0 )
                     {
-                        if ( Gencollection1 == null ) return false;
+                        if ( Gencollection1 == null ) return false;//GenCollection1 = new ObservableCollection<GenericClass> ( );
 
                         if ( Gencollection1 . Count == 0 )
                         {
@@ -484,6 +489,25 @@ namespace NewWpfDev . Views
                         combo . ComboSelection2 = "BANKACCOUNT";
                         combo . currentComboSelection = combo . ComboSelection2;
                         combo . gridtablenames [ 1 ] = "BANKACCOUNT";
+                        // preload data if needed (runs as a task & loads & formats Grid)
+                        // Intial startup of system
+                        //List<Dictionary<string , string>> ColumntypesList = new List<Dictionary<string , string>> ( );
+                        //List<DapperGenericsLib . DataGridLayout> dglayoutlist = new List<DapperGenericsLib . DataGridLayout> ( );
+                        //if ( GenericGrid . datagrid2 . Items . Count == 0 )
+                        //    Gencollection2 = DapperGenLib . LoadDbAsGenericData (
+                        //        "Select * from BankAccount" ,
+                        //       Gencollection2 ,
+                        //        ref ColumntypesList ,
+                        //        "" ,
+                        //        "IAN1" ,
+                        //        ref dglayoutlist );
+                        //if ( GenericGrid . datagrid2 . Items . Count == 0 )
+                        //    Gencollection2 = Gencollection1;
+                        //int colcount = DapperLibSupport . GetGenericColumnCount ( Gencollection2 );
+                        //DapperLibSupport . LoadActiveRowsOnlyInGrid ( GenericGrid . datagrid1 , Gencollection2 , colcount );
+                        //colcount = DapperLibSupport . GetGenericColumnCount ( Gencollection2 );
+                        //DapperLibSupport . LoadActiveRowsOnlyInGrid ( GenericGrid . datagrid2 , Gencollection2 , colcount );
+                        //GenericGridControl . SelectCorrectTable ( "BANKACCOUNT" );
                         // preload data if needed by calling method in GenericGridControl itself
                         if ( GenericGrid . datagrid1 . Items . Count == 0 )
                             GenericGrid . LoadGenericTable ( "BANKACCOUNT" , "datagrid1" );
@@ -496,7 +520,18 @@ namespace NewWpfDev . Views
                     combo . Opacity = 1.0;
                     GenericBtn . IsEnabled = true;
                     BankVm . InfoText = "Use Combo at right to select any Db Table you want to view... ";
-                     GenericGrid . UpdateLayout ( );
+                    //Default to Grid 1
+                    //if ( ( string ) GenericGrid . Togglegrid . Content == "< Grid 1" )
+                    //{
+                    //    GenericGrid . datagrid2 . Visibility = Visibility . Collapsed;
+                    //    GenericGrid . datagrid1 . Visibility = Visibility . Visible;
+                    //}
+                    //else
+                    //{
+                    //    GenericGrid . datagrid1 . Visibility = Visibility . Collapsed;
+                    //    GenericGrid . datagrid2 . Visibility = Visibility . Visible;
+                    //}
+                    GenericGrid . UpdateLayout ( );
                 }
             }
             else if ( newpanel == "BLANKSCREEN" )
@@ -509,6 +544,7 @@ namespace NewWpfDev . Views
             this . BankContent . Refresh ( );
             string name = newpanel == null ? "BlankPanel" : newpanel;
             return true;
+            //                Debug . WriteLine ( $"{name} set as Visible panel" );
         }
 
         #region ComboBoxPlus support
@@ -625,7 +661,7 @@ namespace NewWpfDev . Views
                             grids [ 0 ] = GenericGrid . datagrid1;
                             grids [ 1 ] = GenericGrid . datagrid2;
                             // let it get on with loading data and populating grids while we carry on loading the window
-                            Task . Run (async ( ) => await DataLoad . LoadGenericTable ( "BankAccount" ,
+                            Task . Run ( ( ) => DataLoad . LoadGenericTable ( "BankAccount" ,
                                 grids ,
                                 Gencollection1 ,
                                 GenericGrid . GenericTitle1 ,
@@ -633,12 +669,19 @@ namespace NewWpfDev . Views
                         }
                         else
                         {
-                             // using my Data Extensions library class in DataExtensions.cs
-                            dict = GetColumnNames ( "BankAccount" , out int count , "IAN1" );
+                            // Gencollection2 = Gencollection2 . LoadGenData ( "BANKACCOUNT" , GenericGrid . datagrid2 );
+                            //DapperGenLib . LoadTableGeneric ( $"Select * from BANKACCOUNT" , ref Gencollection1 );
+                            //Gencollection1 = Gencollection1 . LoadGenData ( "BANKACCOUNT" , GenericGrid . datagrid1 );
+                            // Testing extension method
+                            // using my Data Extensions library class in DataExtensions.cs
+                            dict = GenDapperQueries . GetColumnNamesAsDictionary ( "BankAccount" , out int count , "IAN1" );
                         }
+                        //                        await Task . Run ( ( ) => GenericGrid . LoadGenericTable ( "BankAccount" , "datagrid1" ));
                     }
                 }
-                  comboPlus . Promptlabel . Opacity = 1.0;
+                //GenericGrid . Refresh ( );
+                //this . BankContent . Refresh ( );
+                comboPlus . Promptlabel . Opacity = 1.0;
                 // Setup the banner title string
                 SetGenGridTitleBar ( );
                 combo . IsEnabled = true;
@@ -647,7 +690,8 @@ namespace NewWpfDev . Views
                 GenericGridControl . SelectCorrectTable ( "BANKACCOUNT" );
 
                 GenericGrid . UpdateLayout ( );
-             }
+                //GenericGrid . Refresh ( );
+            }
             else if ( newpanel == "BLANKSCREEN" )
             {
                 this . BankContent . Content = BlankScreen;
@@ -872,6 +916,7 @@ namespace NewWpfDev . Views
 
         private void StylesCombo_SelectionChanged ( object sender , SelectionChangedEventArgs e )
         {
+            //return;
             try
             {
                 string str = e . AddedItems [ 0 ] . ToString ( );
@@ -898,5 +943,14 @@ namespace NewWpfDev . Views
             }
         }
 
+        private void StylesCombo_MouseEnter ( object sender , MouseEventArgs e )
+        {
+
+        }
+
+        private void StylesCombo_MouseLeave ( object sender , MouseEventArgs e )
+        {
+
+        }
     }
 }

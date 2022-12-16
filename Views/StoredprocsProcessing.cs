@@ -15,7 +15,7 @@ using System . Linq;
 using System . Windows . Documents;
 using System . Reflection;
 using System . Reflection . Metadata;
-using static IronPython . Modules . PythonSocket;
+
 using System . ComponentModel . Design;
 using System . Linq . Expressions;
 
