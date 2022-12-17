@@ -8,7 +8,8 @@
              xmlns:local="clr-namespace:NewWpfDev"
              xmlns:user="clr-namespace:NewWpfDev.UserControls"
              xmlns:view="clr-namespace:NewWpfDev.Views"
-              xmlns:att="clr-namespace:NewWpfDev.AttachedProperties" 
+             xmlns:behaviors="clr-namespace:NewWpfDev.Behaviors"
+             xmlns:att="clr-namespace:NewWpfDev.AttachedProperties" 
              xmlns:view1="clr-namespace:NewWpfDev.Views"
              mc:Ignorable="d" 
              Loaded="GenGridControl_Loaded"             
@@ -19,6 +20,7 @@
              d:DesignHeight="550" d:DesignWidth="960"
              Foreground="White"
              >
+            <!--xmlns:e="clr-namespace:System.Windows.Interactivity"-->
     <!--xmlns:theme="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2">-->
     <!--xmlns:classic="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Classic"-->
     <!--xmlns:aero="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2"-->
@@ -453,5 +455,24 @@
             <!--Margin="65 35 0 0"-->
         </Canvas>
         <!--</local:DragCanvas>-->
+
+        <TextBox x:Name="clrtb" Grid.Row="2"  
+                 
+                 Text=" This is a test"
+                 xmlns:TextChangeBehavior="true" HorizontalAlignment="Right" Width="200"
+                 TextAlignment="Center"
+                 FontSize="28"
+                 Padding="0 4 0 0">
+            <!--<Behaviors>-->
+            <!--<local:TextChangeBehavior/>-->
+                <!--</Behaviors>-->
+
+                    <!--<Interaction.Behaviors>-->
+
+
+        </TextBox>
+        <!--<Border Grid.Row="2" Background="LightGreen" HorizontalAlignment="Right"  Margin="300 0 0 0">-->
+         <!--</Border>-->
+
     </Grid>
 </UserControl>

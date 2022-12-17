@@ -19,6 +19,7 @@ using System . Windows . Input;
 using System . Windows . Media;
 
 using DapperGenericsLib;
+
 using GenericSqlLib . Models;
 
 using NewWpfDev . Models;
@@ -176,21 +177,50 @@ namespace NewWpfDev . UserControls
 
         #endregion Full Properties
 
+        public static readonly DependencyProperty TextChangedProperty =
+          DependencyProperty . RegisterAttached ( "TextChanged" ,
+          typeof ( bool ) , typeof ( GenericGridControl) ,
+          new PropertyMetadata ( false ) );
+
+        private static TextChangedEventHandler  OnTextChanged ( DependencyObject d , DependencyPropertyChangedEventArgs e )
+        {
+            TextBox  fe = d as TextBox;
+            if ( fe != null )
+            {
+                if ( fe . Background == Application . Current . FindResource ( "Red5" ) as SolidColorBrush)
+                fe . Background = Application.Current.FindResource ( "Green5" ) as SolidColorBrush;
+             }
+            return Fe_textChanged;
+        }
+        private static void Fe_textChanged ( object sender , RoutedEventArgs e )
+        {
+            TextBox fe = sender as TextBox;
+            fe . Background = Application . Current . FindResource ( "Red5" ) as SolidColorBrush;
+        }
+        //private static void Fe_LostFocus ( object sender , RoutedEventArgs e )
+        //{
+        //    TextBox fe = sender as TextBox;
+        //    fe . Background = Application . Current . FindResource ( "Green5" ) as SolidColorBrush;
+        //}
+
         #region Constructor
         //Datacontext is set in XAML (to BankAccountVM), NOT in here
         public GenericGridControl ( BankAcHost host )
         {
             InitializeComponent ( );
             Utils . ClearAttachedProperties ( this );
-            Mouse . OverrideCursor =  Cursors . Wait ;
+            Mouse . OverrideCursor = Cursors . Wait;
             this . UpdateLayout ( );
             ThisWin = this;
             fdl = new FlowdocLib ( Flowdoc , canvas );
             if ( host != null ) Host = host;
-
+            DependencyPropertyChangedEventArgs dargs = new DependencyPropertyChangedEventArgs ( );
+            //dargs . NewValue = FindResource ( "Red1" );
+                        clrtb . TextChanged += OnTextChanged(clrtb,dargs);
             splithandler = new ExtendSplitter ( this );
+            //OnAttached
             //          this . DataContext = this;  // DO NOT SET CONTEXT HERE !!!!!!  Do it in XAML code !
-//            Mouse . SetCursor ( Cursors . Arrow );
+            //            Mouse . SetCursor ( Cursors . Arrow );
         }
 
         private void GenGridControl_Loaded ( object sender , RoutedEventArgs e )
@@ -2070,8 +2100,8 @@ namespace NewWpfDev . UserControls
             DataGrid source = e . Source as DataGrid;
             int selindex = source . SelectedIndex;
             Type type = source . GetType ( );
-            var  dr = dgrid.CurrentItem as DataGridRow;
-            string  cellname = dgrid . CurrentCell . Column.Header.ToString();
+            var dr = dgrid . CurrentItem as DataGridRow;
+            string cellname = dgrid . CurrentCell . Column . Header . ToString ( );
             var currvalue = dgrid . CurrentCell . Column . GetValue ( ContentProperty );
             datagrid2 . BeginEdit ( );
         }
@@ -2122,7 +2152,7 @@ namespace NewWpfDev . UserControls
                     ConString = MainWindow . SqlCurrentConstring;
                 }
                 // call our generic support lib to get SQL data as DataTable
-                dt = GenDapperQueries.GetSqlDataAsDataTable ( "spGetTableColumnWithSizes " + spName , ConString );
+                dt = GenDapperQueries . GetSqlDataAsDataTable ( "spGetTableColumnWithSizes " + spName , ConString );
                 if ( dt . Rows . Count == 0 )
                     columncount = 0;
                 foreach ( var item in dt . Rows )

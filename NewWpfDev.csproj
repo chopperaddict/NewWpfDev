@@ -12,6 +12,7 @@
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
     <PlatformTarget>x64</PlatformTarget>
     <AnalysisLevel>6.0-recommended</AnalysisLevel>
+    <IsPublishable>False</IsPublishable>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -40,18 +41,26 @@
 
   <ItemGroup>
     <Compile Remove="Configurations\**" />
+    <Compile Remove="Extensions\**" />
+    <Compile Remove="NewFolder\**" />
     <Compile Remove="oldThemes\**" />
     <Compile Remove="Python\**" />
     <Compile Remove="UserControls\saved older versions\**" />
     <EmbeddedResource Remove="Configurations\**" />
+    <EmbeddedResource Remove="Extensions\**" />
+    <EmbeddedResource Remove="NewFolder\**" />
     <EmbeddedResource Remove="oldThemes\**" />
     <EmbeddedResource Remove="Python\**" />
     <EmbeddedResource Remove="UserControls\saved older versions\**" />
     <None Remove="Configurations\**" />
+    <None Remove="Extensions\**" />
+    <None Remove="NewFolder\**" />
     <None Remove="oldThemes\**" />
     <None Remove="Python\**" />
     <None Remove="UserControls\saved older versions\**" />
     <Page Remove="Configurations\**" />
+    <Page Remove="Extensions\**" />
+    <Page Remove="NewFolder\**" />
     <Page Remove="oldThemes\**" />
     <Page Remove="Python\**" />
     <Page Remove="UserControls\saved older versions\**" />
@@ -262,14 +271,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ConfigSettings\" />
-    <Folder Include="NewFolder\" />
     <Folder Include="AttachedProperties\" />
     <Folder Include="Models\" />
     <Folder Include="Dapper\" />
     <Folder Include="Menus\" />
-    <Folder Include="Behaviors\" />
-    <Folder Include="Extensions\" />
     <Folder Include="Sql\" />
   </ItemGroup>
 
@@ -286,6 +291,7 @@
     <PackageReference Include="System.Data.SqlClient" Version="4.8.3">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
+    <PackageReference Include="System.Interactive" Version="6.0.1" />
   </ItemGroup>
 
   <ItemGroup>
