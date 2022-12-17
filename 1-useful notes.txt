@@ -1,4 +1,19 @@
-﻿ =============================================================================================================
+﻿/******************************************************************************/*
+/* How to access Configuration Manager system
+/******************************************************************************/*
+          // How to access Config Mgr strings
+            // not very useful really as it is NOT dynamic....
+            //var dbString = ConfigurationManager . ConnectionStrings [ "Ian1Db" ] . ConnectionString;
+            //var AppPath = ConfigurationManager . AppSettings[ "NewWpfDev=C" ];
+
+/******************************************************************************/*
+/* How to add an attached Property to any Window/Control class to have 
+automatic handing by using Behavior system.
+/******************************************************************************/*
+
+See text file Code blocks.txt in codeblocks folder of the app for full code example (pasteable)
+
+ =============================================================================================================
  // How to set tab width (Fiddle) in any scroll style control
  =============================================================================================================
 <Style TargetType="Paragraph">

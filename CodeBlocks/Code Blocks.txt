@@ -1,0 +1,78 @@
+﻿/******************************************************************************/*
+/* How to add an attached Property to any Window/Control class to have 
+automatic handing by using Behavior system.
+/******************************************************************************/*
+        #region Behaviors
+
+        // The usual parameters for an attached property
+        public static readonly DependencyProperty TextChangedProperty =
+          DependencyProperty . RegisterAttached ( "TextChanged" ,
+          typeof ( bool ) , typeof ( GenericGridControl ) ,
+          new PropertyMetadata ( false ) );
+
+          // This link is usually placed in Constructor of the calling Control, and hooks the attached pproperty to its Handler
+          // You cannoot  assign Arguments as DependencyPropertyChangedEventArgs  is Read Only !!!!!
+          // so the Handler has to access the control to choose /decide what you want to happen in the Handler, 
+          such as  change the background color in this example.
+
+          controlname. TextChanged += OnTextChanged ( controlname, new DependencyPropertyChangedEventArgs () );
+
+        // IMPORTANT : THIS is  the handler that you add in the caller control that is using the Attached property above
+        
+        private static TextChangedEventHandler OnTextChanged ( DependencyObject d , DependencyPropertyChangedEventArgs e )
+        {
+        // Checks to ensure control is valid, and then returns the actual Method to be called
+        // This requires the line shown above in the Control's Constructor or Loaded Event handler
+            // Identify the sender control....
+            TextBox tb = d as TextBox;
+            // santy  check
+            if ( tb != null && tb . GetType ( ) == typeof ( TextBox ) == true )
+            {
+            // returns the name oof the ACTUAL  handler, usually in the callers code
+                return CtrlTextChanged ;
+            }
+            else 
+            // no can do, return null
+            return null;
+        }
+
+        // THis is an example oof a handler in the caller code
+        // thiis  changes the textbox background dependent on whether it contains any text or not
+        private static void CtrlTextChanged ( object sender , RoutedEventArgs e )
+        {
+            TextBox? tb = sender as TextBox;
+            if ( tb == null || tb . GetType ( ) != typeof ( TextBox ) )
+                return;
+            if ( tb . Text . Length > 0 )
+            {
+                if ( tb . Background == Application . Current . FindResource ( "Red1" ) as SolidColorBrush )
+                {
+                    tb . Background = Application . Current . FindResource ( "Green5" ) as SolidColorBrush;
+                    tb . CaretBrush = Application . Current . FindResource ( "Black0" ) as SolidColorBrush;
+                }
+            }
+            else
+            {
+                if ( tb . Background == Application . Current . FindResource ( "Green5" ) as SolidColorBrush ) ;
+                {
+                    tb . Background = Application . Current . FindResource ( "Red1" ) as SolidColorBrush;
+                    tb . CaretBrush = Application . Current . FindResource ( "White0" ) as SolidColorBrush;
+                }
+            }
+        }
+        
+        // hat is all there is to it.... except to uise it in XAML :=
+
+        //the behavior line needs to pass "true" so that the callback is returned, using false will disable it
+        // This is  the line that triggers the behavior
+        
+        <TextBox x:Name="clrtb" Grid.Row="2"                   
+                 Text=" This is a test"
+                 xmlns:TextChangeBehavior="true" 
+                 HorizontalAlignment="Right" Width="200"
+                 TextAlignment="Center"
+                 FontSize="28"
+                 Padding="0 4 0 0"/>
+
+        
+        #endregion  Behaviors

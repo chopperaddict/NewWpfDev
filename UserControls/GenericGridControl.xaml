@@ -257,6 +257,7 @@
                         Background="{StaticResource Red5}" FontSize="18" 
                          Padding="0 0 0 0" 
                         PreviewKeyDown="genkeydown" Height="25"
+                           
                         Width="{Binding Path=ActualWidth, ElementName=GenGridControl}" 
                         Style="{DynamicResource DarkmodeTBlock}" 
                         Margin="10,0,10,0"/>
@@ -456,21 +457,20 @@
         </Canvas>
         <!--</local:DragCanvas>-->
 
-        <TextBox x:Name="clrtb" Grid.Row="2"  
-                 
-                 Text=" This is a test"
-                 xmlns:TextChangeBehavior="true" HorizontalAlignment="Right" Width="200"
+        <!--// uses Behavior to change Background based on bing emopty or having text content-->
+        <!--//TextChangeBehavior control whether the callback is called or not-->
+        <TextBox x:Name="clrtb" Grid.Row="2"       
+                 Background ="{StaticResource Red0}"
+                 Text=""
+                 xmlns:TextChangeBehavior="false" 
+                 HorizontalAlignment="Right" Width="200"
                  TextAlignment="Center"
-                 FontSize="28"
-                 Padding="0 4 0 0">
-            <!--<Behaviors>-->
-            <!--<local:TextChangeBehavior/>-->
-                <!--</Behaviors>-->
+                 GotKeyboardFocus="clrtb_GotKeyboardFocus"
+                 LostKeyboardFocus="clrtb_LostKeyboardFocus"
+                 FontSize="22"
+                 Height="30"
+                 Padding="0 0 0 0"/>
 
-                    <!--<Interaction.Behaviors>-->
-
-
-        </TextBox>
         <!--<Border Grid.Row="2" Background="LightGreen" HorizontalAlignment="Right"  Margin="300 0 0 0">-->
          <!--</Border>-->
 

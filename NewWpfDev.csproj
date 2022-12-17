@@ -42,25 +42,21 @@
   <ItemGroup>
     <Compile Remove="Configurations\**" />
     <Compile Remove="Extensions\**" />
-    <Compile Remove="NewFolder\**" />
     <Compile Remove="oldThemes\**" />
     <Compile Remove="Python\**" />
     <Compile Remove="UserControls\saved older versions\**" />
     <EmbeddedResource Remove="Configurations\**" />
     <EmbeddedResource Remove="Extensions\**" />
-    <EmbeddedResource Remove="NewFolder\**" />
     <EmbeddedResource Remove="oldThemes\**" />
     <EmbeddedResource Remove="Python\**" />
     <EmbeddedResource Remove="UserControls\saved older versions\**" />
     <None Remove="Configurations\**" />
     <None Remove="Extensions\**" />
-    <None Remove="NewFolder\**" />
     <None Remove="oldThemes\**" />
     <None Remove="Python\**" />
     <None Remove="UserControls\saved older versions\**" />
     <Page Remove="Configurations\**" />
     <Page Remove="Extensions\**" />
-    <Page Remove="NewFolder\**" />
     <Page Remove="oldThemes\**" />
     <Page Remove="Python\**" />
     <Page Remove="UserControls\saved older versions\**" />

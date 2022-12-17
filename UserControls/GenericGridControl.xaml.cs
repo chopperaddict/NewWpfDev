@@ -177,31 +177,92 @@ namespace NewWpfDev . UserControls
 
         #endregion Full Properties
 
-        public static readonly DependencyProperty TextChangedProperty =
-          DependencyProperty . RegisterAttached ( "TextChanged" ,
-          typeof ( bool ) , typeof ( GenericGridControl) ,
-          new PropertyMetadata ( false ) );
+        #region Behaviors
 
-        private static TextChangedEventHandler  OnTextChanged ( DependencyObject d , DependencyPropertyChangedEventArgs e )
+        // NOT in use
+        public static DependencyProperty CreateAttachedProperty ( Type ctrl = null , string ApName = "" , Type ArgType = null , string namesuffix = "" , object DefValue = null )
         {
-            TextBox  fe = d as TextBox;
-            if ( fe != null )
+            //    if ( ctrl == null || ApName == "" )
+            //        return null;
+            //    if ( namesuffix == "" )
+            //    {
+            //        DependencyProperty DefProperty0 =
+            //              DependencyProperty . RegisterAttached (
+            //                  ApName ,
+            //                ArgType ,
+            //                ctrl as Type ,
+            //                new PropertyMetadata ( DefValue ) );
+            //        return DefProperty0;
+            //    }
+            return ( DependencyProperty ) null;
+        }
+
+        public static readonly DependencyProperty TextChangedProperty =
+          DependencyProperty . Register ( "TextChanged" ,
+          typeof ( bool ) , 
+          typeof ( GenericGridControl ) ,
+            typeMetadata: new FrameworkPropertyMetadata (
+                defaultValue:(bool) true, 
+                flags: FrameworkPropertyMetadataOptions .None) ,
+            new ValidateValueCallback ( GetTextChanged ) );
+
+        //public static readonly DependencyProperty TextChangedProperty =
+        //  DependencyProperty . RegisterAttached ( "TextChanged" ,
+        //  typeof ( bool ) , typeof ( GenericGridControl ) ,
+        //  new PropertyMetadata ( true ) , new ValidateValueCallback ( GetTextChanged ) );
+
+        private static TextChangedEventHandler OnTextChanged ( DependencyObject d , DependencyPropertyChangedEventArgs e )
+        {
+            return CtrlTextChanged;
+        }
+        private static void CtrlTextChanged ( object sender , RoutedEventArgs e )
+        {
+            // Set Background to Off whiite when empty, else light green
+            // and toggle the caret color as well from Black to Red
+           TextBox? tb = sender as TextBox;
+            if ( tb == null || tb . GetType ( ) != typeof ( TextBox ) )
+                return;
+            if ( tb . Text . Length != 0 )
             {
-                if ( fe . Background == Application . Current . FindResource ( "Red5" ) as SolidColorBrush)
-                fe . Background = Application.Current.FindResource ( "Green5" ) as SolidColorBrush;
-             }
-            return Fe_textChanged;
+                if ( tb . Background == Application . Current . FindResource ( "White5" ) as SolidColorBrush )
+                {
+                    tb . Background = Application . Current . FindResource ( "Green5" ) as SolidColorBrush;
+                    tb . CaretBrush = Application . Current . FindResource ( "Black0" ) as SolidColorBrush;
+                }
+            }
+            else
+            {
+                if ( tb . Background == Application . Current . FindResource ( "Green5" ) as SolidColorBrush ) ;
+                {
+                    tb . Background = Application . Current . FindResource ( "White5" ) as SolidColorBrush;
+                    tb . CaretBrush = Application . Current . FindResource ( "Red0" ) as SolidColorBrush;
+                }
+            }
         }
-        private static void Fe_textChanged ( object sender , RoutedEventArgs e )
+
+        public bool TextChanged
         {
-            TextBox fe = sender as TextBox;
-            fe . Background = Application . Current . FindResource ( "Red5" ) as SolidColorBrush;
+            get => ( bool ) GetValue ( TextChangedProperty );
+            set => SetValue ( TextChangedProperty , value );
         }
-        //private static void Fe_LostFocus ( object sender , RoutedEventArgs e )
-        //{
-        //    TextBox fe = sender as TextBox;
-        //    fe . Background = Application . Current . FindResource ( "Green5" ) as SolidColorBrush;
-        //}
+        private static bool GetTextChanged ( object value )
+        {
+            bool val = ( bool ) value;
+            if ( val )
+                return true;
+
+            return false;
+        }
+        private static bool SetTextChanged ( object value )
+        {
+            bool val = ( bool ) value;
+            if ( val == true )
+                return true;
+
+            return false;
+        }
+
+        #endregion  Behaviors
 
         #region Constructor
         //Datacontext is set in XAML (to BankAccountVM), NOT in here
@@ -214,13 +275,11 @@ namespace NewWpfDev . UserControls
             ThisWin = this;
             fdl = new FlowdocLib ( Flowdoc , canvas );
             if ( host != null ) Host = host;
-            DependencyPropertyChangedEventArgs dargs = new DependencyPropertyChangedEventArgs ( );
+            //DependencyPropertyChangedEventArgs dargs = new DependencyPropertyChangedEventArgs ( );
             //dargs . NewValue = FindResource ( "Red1" );
-                        clrtb . TextChanged += OnTextChanged(clrtb,dargs);
             splithandler = new ExtendSplitter ( this );
-            //OnAttached
-            //          this . DataContext = this;  // DO NOT SET CONTEXT HERE !!!!!!  Do it in XAML code !
-            //            Mouse . SetCursor ( Cursors . Arrow );
+            // setup handler for textbox background color change on being Empty or having content
+            clrtb . TextChanged += OnTextChanged ( clrtb , new DependencyPropertyChangedEventArgs ( ) );
         }
 
         private void GenGridControl_Loaded ( object sender , RoutedEventArgs e )
@@ -253,7 +312,7 @@ namespace NewWpfDev . UserControls
                 GenGrid2Size . Height = Host . BankContent . Height;
                 GenGrid2Size . Width = Host . BankContent . Width;
             }
-            Splitter . SizeChanged += Splitter_SizeChanged;
+            //           Splitter . SizeChanged += Splitter_SizeChanged;
             string ConString = "";
             if ( DapperLibSupport . CheckResetDbConnection ( "IAN1" , out string constring ) == true )
                 Debug . WriteLine ( $"Db IAN1 is set and Connectionstring is loaded successfully" );
@@ -271,7 +330,6 @@ namespace NewWpfDev . UserControls
             //Maximize hook  +/- statements - dont forget to remove them (Unsubscribe on closing)
             Flowdoc . ExecuteFlowDocMaxmizeMethod += new EventHandler ( MaximizeFlowDoc );
             FlowDoc . FlowDocClosed += Flowdoc_FlowDocClosed;
-            //            GenericSelectBoxControl . ListSelection += GenericSelectBoxControl_ListSelection1;
 
             if ( GenericGridControl . SetListboxHost != null )
             {
@@ -290,17 +348,12 @@ namespace NewWpfDev . UserControls
             SplitterGrid . UpdateLayout ( );
             Mouse . OverrideCursor = Cursors . Arrow;
         }
-        //private void GenericSelectBoxControl_ListSelection1 ( object sender , SelectionArgs e )
-        //    {
-        //        //SelectionListbox . listbox . ItemsSource = DapperGenericsLib . Utils . GetFontsList ( );
-        //        FontFamily FontFamily = new FontFamily ( e . selection );
-        //        Flowdoc . fontFamily = FontFamily;
-        //    }
 
-        private void Splitter_SizeChanged ( object sender , SizeChangedEventArgs e )
-        {
-            //throw new NotImplementedException ( );
-        }
+        //private void Splitter_SizeChanged ( object sender , SizeChangedEventArgs e )
+        //{
+        //    //throw new NotImplementedException ( );
+        //}
+
         #endregion Constructor
         public static void CheckDbDomain ( string DbDomain )
         {
@@ -321,11 +374,8 @@ namespace NewWpfDev . UserControls
             this . Refresh ( );
         }
         private void PopupListBox_StyleSizeChanged ( object sender , SizeChangedArgs e )
-        {    //return;
-            Debug . WriteLine ( $"{e . NewHeight}" );
-            //StylesList . Height = ( double ) e . NewHeight;
-            //StylesList . UpdateLayout ( );
-            //StylesList . Refresh ( );
+        {
+            Debug . WriteLine ( $"Popup listbox height changed to {e . NewHeight}" );
         }
         private void GenericGridControl_Stylechanged ( object sender , StyleArgs e )
         {
@@ -341,7 +391,6 @@ namespace NewWpfDev . UserControls
                     datagrid1 . Foreground = Brushes . White;
                     args . dgrid = datagrid1;
                     Style1 = str;
-                    //                   datagrid1 . CellStyle = Application . Current . FindResource ( Style1 ) as Style;
                 }
                 else
                 {
@@ -352,8 +401,6 @@ namespace NewWpfDev . UserControls
                 }
                 args . style = str;
                 args . sender = this;
-                // Notify control itself
-                //TriggerStyleSwitch ( this , args );
                 return;
             }
             else
@@ -374,8 +421,6 @@ namespace NewWpfDev . UserControls
                 }
                 args . style = str;
                 args . sender = this;
-                // Notify control itself
-                //               TriggerStyleSwitch ( this , args );
                 return;
             }
         }
@@ -393,7 +438,6 @@ namespace NewWpfDev . UserControls
                 datagrid2 . Foreground = Brushes . White;
                 Style2 = str;
             }
-
         }
         public void CreateGridColumnHeaders ( int colcount , DataGrid grid )
         {
@@ -434,6 +478,7 @@ namespace NewWpfDev . UserControls
             int colcount = 0;
             bool success = true;
             // How to access Config Mgr strings
+            // not very useful really as it is NOT dynamic....
             //var dbString = ConfigurationManager . ConnectionStrings [ "Ian1Db" ] . ConnectionString;
             //var AppPath = ConfigurationManager . AppSettings[ "NewWpfDev=C" ];
             DapperLibSupport . LoadConnectionStrings ( );
@@ -2373,6 +2418,17 @@ namespace NewWpfDev . UserControls
             //Debug . WriteLine ("HostCanvas move hit.....");
             Point pt = new Point ( );
             GetNewCanvasOffset ( sender , pt );
+        }
+
+        private void clrtb_GotKeyboardFocus ( object sender , KeyboardFocusChangedEventArgs e )
+        {
+            Background = FindResource ( "White0" ) as SolidColorBrush;
+        }
+
+        private void clrtb_LostKeyboardFocus ( object sender , KeyboardFocusChangedEventArgs e )
+        {
+            Background = FindResource ( "White5" ) as SolidColorBrush;
+
         }
     }
 }
