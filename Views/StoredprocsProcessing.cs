@@ -122,7 +122,7 @@ namespace NewWpfDev . Views
             {
                 if ( item . Contains ( "Catalog" ) )
                 {
-                    Debug . WriteLine ( $"Sql Domain of {item} confirmed..." );
+  //                  Debug . WriteLine ( $"Sql Domain of {item} confirmed..." );
                     break;
                 }
                 offset++;

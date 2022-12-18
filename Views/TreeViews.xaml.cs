@@ -428,6 +428,8 @@ namespace NewWpfDev. Views
             //tvitems = TvItemClass . tvcollectionitems;
             // Cannot use  this with FlowDoc cos of dragging/Resizing
             //Utils . SetupWindowDrag ( this );
+            // setup handler for textbox background color change on being Empty or having content
+              Searchtext . TextChanged += TextChangeBehavior . OnTextChanged ( Searchtext , new DependencyPropertyChangedEventArgs ( ) );
             ActiveTree = TestTree;
             OptionsPanel . Visibility = Visibility . Hidden;
             treeViews = this;
@@ -645,6 +647,7 @@ namespace NewWpfDev. Views
             List<string> dirs = new List<string> ( );
             List<string> files = new List<string> ( );
             string selecteddrive = DrivesCombo . SelectedItem . ToString ( );
+ 
             LoadDrives ( ActiveTree , selecteddrive );
         }
 
@@ -4931,6 +4934,77 @@ namespace NewWpfDev. Views
         {
             var v = e . OriginalSource;
         }
+
+        //#region Behaviors
+
+        //public static readonly DependencyProperty TextChangedProperty =
+        //  DependencyProperty . Register ( "TextChanged" ,
+        //  typeof ( bool ) ,
+        //  typeof ( TreeView ) ,
+        //    typeMetadata: new FrameworkPropertyMetadata (
+        //        defaultValue: ( bool ) true ,
+        //        flags: FrameworkPropertyMetadataOptions . None ) ,
+        //    new ValidateValueCallback ( GetTextChanged ) );
+
+        ////public static readonly DependencyProperty TextChangedProperty =
+        ////  DependencyProperty . RegisterAttached ( "TextChanged" ,
+        ////  typeof ( bool ) , typeof ( GenericGridControl ) ,
+        ////  new PropertyMetadata ( true ) , new ValidateValueCallback ( GetTextChanged ) );
+
+        //private static TextChangedEventHandler OnTextChanged ( DependencyObject d , DependencyPropertyChangedEventArgs e )
+        //{
+        //    return CtrlTextChanged;
+        //}
+        //private static void CtrlTextChanged ( object sender , RoutedEventArgs e )
+        //{
+        //    // Set Background to Off whiite when empty, else light green
+        //    // and toggle the caret color as well from Black to Red
+        //   TextBox? tb = sender as TextBox;
+        //    if ( tb == null || tb . GetType ( ) != typeof ( TextBox ) )
+        //        return;
+        //    if ( tb . Text . Length != 0 )
+        //    {
+        //        if ( tb . Background == Application . Current . FindResource ( "White5" ) as SolidColorBrush )
+        //        {
+        //            tb . Background = Application . Current . FindResource ( "Green5" ) as SolidColorBrush;
+        //            tb . CaretBrush = Application . Current . FindResource ( "Black0" ) as SolidColorBrush;
+        //            tb.Foreground = Application . Current . FindResource ( "Black0" ) as SolidColorBrush;
+        //        }
+        //    }
+        //    else
+        //    {
+        //        if ( tb . Background == Application . Current . FindResource ( "Green5" ) as SolidColorBrush ) ;
+        //        {
+        //            tb . Background = Application . Current . FindResource ( "White5" ) as SolidColorBrush;
+        //            tb . CaretBrush = Application . Current . FindResource ( "Red0" ) as SolidColorBrush;
+        //        }
+        //    }
+        //}
+
+        //public bool TextChanged
+        //{
+        //    get => ( bool ) GetValue ( TextChangedProperty );
+        //    set => SetValue ( TextChangedProperty , value );
+        //}
+        //private static bool GetTextChanged ( object value )
+        //{
+        //    bool val = ( bool ) value;
+        //    if ( val )
+        //        return true;
+
+        //    return false;
+        //}
+        //private static bool SetTextChanged ( object value )
+        //{
+        //    bool val = ( bool ) value;
+        //    if ( val == true )
+        //        return true;
+
+        //    return false;
+        //}
+
+        //#endregion  Behaviors
+
     }
 }
 // End of CLASS TreeViews

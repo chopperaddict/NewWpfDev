@@ -30,54 +30,24 @@ namespace NewWpfDev . Behaviors
             {
                 case "UP":
                     return ( RelayCommand ) new RelayCommand ( ExecuteMouseUpCommand , CanExecuteMouseUpCommand );
-#pragma warning disable CS0162 // Unreachable code detected
-                    break;
-#pragma warning restore CS0162 // Unreachable code detected
                 case "DOWN":
                     return ( RelayCommand ) new RelayCommand ( ExecuteMouseDownCommand , CanExecuteMouseDownCommand );
-#pragma warning disable CS0162 // Unreachable code detected
-                    break;
-#pragma warning restore CS0162 // Unreachable code detected
                 case "ENTER":
                     return ( RelayCommand ) new RelayCommand ( ExecuteMouseEnterCommand , CanExecuteMouseEnterCommand );
-#pragma warning disable CS0162 // Unreachable code detected
-                    break;
-#pragma warning restore CS0162 // Unreachable code detected
-                case "LEAVE":
+              case "LEAVE":
                     return ( RelayCommand ) new RelayCommand ( ExecuteMouseLeave , CanExecuteMouseLeaveCommand );
-#pragma warning disable CS0162 // Unreachable code detected
-                    break;
-#pragma warning restore CS0162 // Unreachable code detected
                 case "LEFTUP":
                     return ( RelayCommand ) new RelayCommand ( ExecuteMouseLeftButtonUpCommand , CanExcuteMouseLeftButtonUpCommand );
-#pragma warning disable CS0162 // Unreachable code detected
-                    break;
-#pragma warning restore CS0162 // Unreachable code detected
                 case "LEFTDOWN":
                     return ( RelayCommand ) new RelayCommand ( ExecuteMouseLeftButtonDownCommand , CanExecuteMouseLeftButtonDownCommand );
-#pragma warning disable CS0162 // Unreachable code detected
-                    break;
-#pragma warning restore CS0162 // Unreachable code detected
                 case "RIGHTUP":
                     return ( RelayCommand ) new RelayCommand ( ExecuteMouseRightButtonUpCommand , CanMouseRightButtonUpCommand );
-#pragma warning disable CS0162 // Unreachable code detected
-                    break;
-#pragma warning restore CS0162 // Unreachable code detected
                 case "RIGHTDOWN":
                     return ( RelayCommand ) new RelayCommand ( ExecuteMouseRightButtonDownCommand , CanMouseRightButtonDownCommand );
-#pragma warning disable CS0162 // Unreachable code detected
-                    break;
-#pragma warning restore CS0162 // Unreachable code detected
                 case "MOVE":
                     return ( RelayCommand ) new RelayCommand ( ExecuteMouseMoveCommand , CanExecuteMouseMoveCommand );
-#pragma warning disable CS0162 // Unreachable code detected
-                    break;
-#pragma warning restore CS0162 // Unreachable code detected
                 case "WHEEL":
                     return ( RelayCommand ) new RelayCommand ( ExecuteMouseWheelCommand , CanExecuteMouseWheelCommand );
-#pragma warning disable CS0162 // Unreachable code detected
-                    break;
-#pragma warning restore CS0162 // Unreachable code detected
             }
             return null;
         }

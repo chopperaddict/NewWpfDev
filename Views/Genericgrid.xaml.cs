@@ -351,7 +351,12 @@ namespace Views
             Searchtext = "@Arg";
 
             // Finally we load the tables info into the datagrid
-            LoadInfo ( );
+  
+        //    LoadInfo ( );
+            
+            
+            
+            
             //LoadInitialData ( );
             //test ExpandoObject  
             //ExpandoObject expobj2 = new ExpandoObject ( );
@@ -564,7 +569,7 @@ namespace Views
             int itemscount = 0;
             if ( SqlTables . Items . Count == 0 )
                 return;
-            "" . Track ( );
+            "Entering SqlTables_SelectionChanged" . Track ( );
             Mouse . OverrideCursor = Cursors . Wait;
 
             string previousSelection = LastActiveTable;
@@ -722,7 +727,7 @@ namespace Views
                     {
                         SetStatusbarText ( $"The data for {selection . ToUpper ( )} was loaded successfully and is shown in the viewer above..." );
                         GenGridCtrl . AlternateBackground = FindResource ( "Cyan0" ) as SolidColorBrush;
-                        GenGridCtrl . Refresh ( );
+                        //GenGridCtrl . Refresh ( );
                     }
                     LastActiveTable = selection;
                     CurrentTable = selection;
@@ -752,7 +757,7 @@ namespace Views
             Mouse . OverrideCursor = Cursors . Arrow;
             if ( e != null ) e . Handled = true;
             "" . Track ( 1 );
-            this . Refresh ( );
+            //this . Refresh ( );
         }
 
         public int CheckTableExists ( string name , string domain = "IAN1" )
@@ -1088,6 +1093,7 @@ namespace Views
             GetValidDomain ( );
             SqlCommand = $"{DBprefix}spGetTablesList";
 
+            // loads  the table
             TablesList = SProcsDataHandling . CallStoredProcedure ( list , SqlCommand );
             if ( CurrentTableDomain . ToUpper ( ) == "ADVENTUREWORKS2019" )
                 TablesList = ConvertTableNames ( TablesList );

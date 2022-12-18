@@ -1570,6 +1570,7 @@ namespace UserControls
                     {
                         if ( Grid1 . Columns . Count > 0 )
                         {
+                            "Replacing column names" . Track ( 0 );
                             //Actually Change the column headers
                             index = 0;
                             foreach ( var item in Grid1 . Columns )
@@ -1582,15 +1583,13 @@ namespace UserControls
                                 index++;
                             }
                         }
+                    "Finished replacing column names" . Track ( 1 );
                     }
                     catch ( ArgumentOutOfRangeException ex ) { Debug . WriteLine ( $"TODO - BAD Columns - 300 GenericDbHandlers.cs" ); }
                 }
                 // Grid now has valid column names
             }
-            "" . Track ( 1 );
-            //sw . Stop ( );
-            //Debug . WriteLine ( $"{sw . ElapsedMilliseconds} for ReplaceDataGridFldFullNames()" );
-            return;
+             return;
         }
         public static Dictionary<string , string> GetDbTableColumns ( ref ObservableCollection<GenericClass> Gencollection , ref List<Dictionary<string , string>> ColumntypesList ,
              ref List<string> list , string dbName , string DbDomain , ref List<DapperGenericsLib . DataGridLayout> dglayoutlist )
@@ -2203,6 +2202,7 @@ namespace UserControls
             DataTable dt = new DataTable ( );
             string filterline = "";
             string ConString = connstring;
+            "" . Track ( 0 );
             if ( connstring == "" )
                 ConString = "Data Source=DINO-PC;Initial Catalog=\"IAN1\";Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
 
@@ -2225,8 +2225,10 @@ namespace UserControls
             }
             finally
             {
-                Debug . WriteLine ( $" SQL data loaded from SQLCommand [{SqlCommand . ToUpper ( )}]" );
+                $" SQL data loaded from SQLCommand [{SqlCommand . ToUpper ( )}]" . cwinfo ( );
+//                Debug . WriteLine ( $" SQL data loaded from SQLCommand [{SqlCommand . ToUpper ( )}]" );
                 con . Close ( );
+                "" . Track ( 1 );
             }
             return dt;
         }

@@ -2,14 +2,16 @@
 using System . Collections . Generic;
 using System . Configuration;
 using System . Diagnostics;
+using System . Security . Cryptography . Xml;
 using System . Text;
 
 namespace NewWpfDev
 {
     public static class AppSettingsHandler
     {
-        public static void ReadAllSettings ( )
+        public static List<string> ReadAllSettings ( )
         {
+            List<string> list = new List<string> ( );
             try
             {
                 var appSettings = ConfigurationManager . AppSettings;
@@ -23,6 +25,8 @@ namespace NewWpfDev
                     foreach ( var key in appSettings . AllKeys )
                     {
                         Debug . WriteLine ( "Key: {0} Value: {1}" , key , appSettings [ key ] );
+                        string str = $"{key}, { appSettings [ key ]}";
+                        list . Add ( str);
                     }
                 }
             }
@@ -30,6 +34,7 @@ namespace NewWpfDev
             {
                 Debug . WriteLine ( "Error reading app settings" );
             }
+            return list;
         }
 
         public static string ReadSetting ( string key )

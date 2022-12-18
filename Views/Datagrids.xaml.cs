@@ -13,6 +13,8 @@ using System . Data;
 using System . Data . SqlClient;
 using System . Diagnostics;
 using System . Linq;
+using System . Runtime . InteropServices;
+using System . Text;
 using System . Windows;
 using System . Windows . Controls;
 using System . Windows . Data;
@@ -182,9 +184,10 @@ namespace NewWpfDev. Views
             canvas . Visibility = Visibility . Visible;
             MovingObject = null;
             UseTrueColNames . IsChecked = true;
+            Debug . WriteLine (  NewWpfDev.Utils.GetThemeName ( ));
         }
 
-        private void Window_Loaded ( object sender , RoutedEventArgs e )
+          private void Window_Loaded ( object sender , RoutedEventArgs e )
         {
             // Set up notification from "Normal" Db Loading system
             EventControl . BankDataLoaded += EventControl_BankDataLoaded;

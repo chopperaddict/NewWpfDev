@@ -38,6 +38,7 @@ using UtilityWindows;
 using System . Windows . Media . TextFormatting;
 using System . Threading . Tasks;
 using System . Security . RightsManagement;
+using System . Runtime . CompilerServices;
 
 namespace Views
 {
@@ -47,7 +48,7 @@ namespace Views
     public partial class SpResultsViewer : Window
     {
         #region declarations
-        public SpResultsViewer spviewer;
+        public static SpResultsViewer spviewer;
         public ObservableCollection<string> Executedata = new ObservableCollection<string> ( );
         Genericgrid Gengrid { get; set; }
         public string Searchtext { get; set; }
@@ -76,7 +77,7 @@ namespace Views
 
         int Fontsize { set; get; } = 14;
         int SpListFontsize { set; get; } = 14;
- 
+
         public const int DEFAULTARGSSIZE = 6;
         public static bool SHOWSIZEARG = false;
 
@@ -163,6 +164,11 @@ namespace Views
 
         #endregion Dependecy properties
 
+        //public SpResultsViewer ( )
+        //{
+        //    InitializeComponent ( );
+
+        //}
         public SpResultsViewer ( Genericgrid genControl , string sproc , string searchterm )
         {
             InitializeComponent ( );
@@ -187,15 +193,15 @@ namespace Views
 
             ShowTypesInArgsViewer = ( bool ) MainWindow . GetSystemSetting ( "ShowTypesInSpArgumentsString" );
             CloseArgsViewerOnPaste = ( bool ) MainWindow . GetSystemSetting ( "AutoCloseSpArgumentsViewer" );
-             if ( ( bool ) MainWindow . GetSystemSetting ( "SpViewerUseDarkMode" ) == true )
+            if ( ( bool ) MainWindow . GetSystemSetting ( "SpViewerUseDarkMode" ) == true )
             {
                 SpViewerResults . Background = FindResource ( "Black3" ) as SolidColorBrush;
-             prompter . Foreground = FindResource ( "White0" ) as SolidColorBrush;
+                prompter . Foreground = FindResource ( "White0" ) as SolidColorBrush;
                 BannerGrid . Background = FindResource ( "Orange5" ) as SolidColorBrush;
                 MovingObject = SqlTablesViewer;
             }
-            if ( spViewerexpobj == null )
-                spViewerexpobj = ExpandoClass . GetNewExpandoObject ( );
+            //if ( spViewerexpobj == null )
+            //    spViewerexpobj = ExpandoClass . GetNewExpandoObject ( );
 
             var t = new Dictionary<string , object> ( );
             t . Add ( "asdda" , 4456 );
@@ -204,6 +210,10 @@ namespace Views
             selitem = selitem != -1 ? selitem : 0;
             ListResults . SelectedIndex = selitem;
             ListResults . SelectedItem = selitem;
+            // setup handler for all textbox background color changes that are set to call TextChangeBehavior="false" on being Empty or having content
+            Parameterstop . TextChanged += TextChangeBehavior . OnTextChanged ( Parameterstop , new DependencyPropertyChangedEventArgs ( ) );
+            SPName . TextChanged += TextChangeBehavior . OnTextChanged ( SPName , new DependencyPropertyChangedEventArgs ( ) );
+            ExName . TextChanged += TextChangeBehavior . OnTextChanged ( ExName , new DependencyPropertyChangedEventArgs ( ) );
             this . BringIntoView ( );
             this . Focus ( );
         }
@@ -220,7 +230,16 @@ namespace Views
             ExName . Text = optype . SelectedItem . ToString ( );
             this . Focus ( );
         }
-
+        public static SpResultsViewer GetViewerPointer()
+        {
+            return spviewer;
+        }
+        public  void UpdateExecuteBackground ( TextBox tb, Brush backgrnd , Brush foregrnd )
+        {    if ( tb == null )
+                return;
+            tb. Background = backgrnd as SolidColorBrush;
+            tb. Foreground = foregrnd as SolidColorBrush;
+        }
         private void ListResults_SelectionChanged ( object sender , SelectionChangedEventArgs e )
         {
             // Load data into Scrollviewer
@@ -274,7 +293,7 @@ namespace Views
             SPName . Text = selname;
         }
 
-         //. NOT IN USE
+        //. NOT IN USE
         private async void Execsp_Click ( object sender , RoutedEventArgs e )
         {
             string spname = Gengrid . SpName . Text;
@@ -1287,7 +1306,7 @@ namespace Views
             }
             return data;
         }
-   
+
         public void createoptypes ( )
         {
             optype . Items . Add ( $"SP Execute command or returning an INT value" );
@@ -1403,11 +1422,11 @@ namespace Views
             Point pt = e . GetPosition ( sender as UIElement );
             // Hide relevant entries
             List<string> hideitems = new List<string> ( );
-             //hideitems . Add ( "gm3" );
+            //hideitems . Add ( "gm3" );
             //hideitems . Add ( "gm4" );
             // Hide close tables viewer as it is not open
             hideitems . Add ( "gm5" );
-   
+
             ContextMenu menu = RemoveMenuItems ( "ResultsViewerContextMenu" , "" , hideitems );
             //forces menu to show immeduiately to right and below mouse pointer
             menu . PlacementTarget = sender as FrameworkElement;
@@ -1458,7 +1477,7 @@ namespace Views
                 curritem = ListResults . Items [ 0 ] . ToString ( );
             SpResultsViewer Target = sender as SpResultsViewer;
 
-              Mouse . OverrideCursor = Cursors . Arrow;
+            Mouse . OverrideCursor = Cursors . Arrow;
         }
         private void hSplitter_MouseEnter ( object sender , MouseEventArgs e )
         {
@@ -1760,7 +1779,7 @@ namespace Views
         {
             SqlTablesViewer . Visibility = Visibility . Collapsed;
         }
-          public ContextMenu RemoveMenuItems ( string menuname , string singleton = "" , List<string> delItems = null )
+        public ContextMenu RemoveMenuItems ( string menuname , string singleton = "" , List<string> delItems = null )
         {
             // Collapse visibility on one or more context menu items
             int listcount = 0;
@@ -2191,7 +2210,7 @@ namespace Views
             //if ( e . Key == Key . F9 )
             //    ExecuteEdit . Visibility = Visibility . Collapsed;
         }
-  
+
         private void expandargsentry ( object sender , RoutedEventArgs e )
         {
             if ( SPArguments . Height == 40 )
@@ -2307,7 +2326,7 @@ namespace Views
             }
             else
             {
-                  ShowCheckboxes = false;
+                ShowCheckboxes = false;
             }
         }
 
@@ -2371,7 +2390,7 @@ namespace Views
             }
             e . Handled = true;
         }
-  
+
         private void ClearPrompt ( object sender , RoutedEventArgs e )
         {
             //TextBox tb = SpArguments as TextBox;
@@ -2399,7 +2418,7 @@ namespace Views
             //Executeinfo . Visibility = Visibility . Visible;
 
         }
- 
+
         private void AllTables_MouseDoubleClick ( object sender , MouseButtonEventArgs e )
         {
             string selection = "";
@@ -2574,8 +2593,8 @@ namespace Views
                         {
                             int colcount = 0;
                             string result = "";
-                           List<List<string>> varlist = null;
-                              Dictionary<string , object> dict = new Dictionary<string , object> ( );
+                            List<List<string>> varlist = null;
+                            Dictionary<string , object> dict = new Dictionary<string , object> ( );
                             Dictionary<string , string> outdict = new Dictionary<string , string> ( );
 
                             foreach ( var item in dynvar )
@@ -2619,7 +2638,7 @@ namespace Views
                                     // We now  have ONE single record, but need to add this  to a GenericClass structure 
                                     int reccount = 1;
                                     NewWpfDev . Utils . ParseDictIntoGenericClass ( outdict , reccount , ref gc );
-                                     gengrid . Add ( gc );
+                                    gengrid . Add ( gc );
                                 }
                                 catch ( Exception ex )
                                 {
@@ -2833,7 +2852,7 @@ namespace Views
             bool result = Gengrid . LoadShowMatchingSproc ( this , TextResult , ListResults . SelectedItem . ToString ( ) , ref sptext , Convert . ToInt32 ( ScrollViewerFontSize ) , false );
             ShowParseDetails = true;
             ShowDataViewer ( sptext , fontfamily: "Nirmala UI" , fontstyle: "Normal" , fontsize: "14" , fontcolor: "Black0" , IsFixed: false );
-          }
+        }
 
         private void tbarBtn2_Click ( object sender , RoutedEventArgs e )
         {
@@ -2899,7 +2918,7 @@ namespace Views
 
         }
 
-          private void Fonts_SelectionChanged ( object sender , SelectionChangedEventArgs e )
+        private void Fonts_SelectionChanged ( object sender , SelectionChangedEventArgs e )
         {
             ComboBox cb = null;
             if ( IsLoading )
@@ -2909,7 +2928,7 @@ namespace Views
 
                 return;
             }
-          string newsize = "";
+            string newsize = "";
             string infotext = "";
             ComboBox cbt = sender as ComboBox;
             if ( cbt . Name == "TbFonts" )
@@ -2934,7 +2953,7 @@ namespace Views
                     FlowDocument doc = TextResult . Document;
                     string sptext = "";
 
-                     ScrollViewerFontSize = Fontsize . ToString ( );
+                    ScrollViewerFontSize = Fontsize . ToString ( );
                     doc . Blocks . Clear ( );
                     string spname = ListResults . SelectedItem . ToString ( );
                     bool result = Gengrid . LoadShowMatchingSproc ( this , TextResult , spname , ref sptext , Convert . ToInt32 ( ScrollViewerFontSize ) );
@@ -2954,7 +2973,7 @@ namespace Views
 
         private void optype_SelectionChanged ( object sender , SelectionChangedEventArgs e )
         {
-                        ExName . Text = optype . SelectedItem . ToString ( );
+            ExName . Text = optype . SelectedItem . ToString ( );
 
         }
     }

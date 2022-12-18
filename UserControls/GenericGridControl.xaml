@@ -11,6 +11,7 @@
              xmlns:behaviors="clr-namespace:NewWpfDev.Behaviors"
              xmlns:att="clr-namespace:NewWpfDev.AttachedProperties" 
              xmlns:view1="clr-namespace:NewWpfDev.Views"
+            xmlns:classic="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Classic"
              mc:Ignorable="d" 
              Loaded="GenGridControl_Loaded"             
              PreviewKeyDown="genkeydown"
@@ -22,7 +23,6 @@
              >
             <!--xmlns:e="clr-namespace:System.Windows.Interactivity"-->
     <!--xmlns:theme="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2">-->
-    <!--xmlns:classic="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Classic"-->
     <!--xmlns:aero="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2"-->
 
     <UserControl.Resources>
@@ -395,18 +395,18 @@
                     FontWeight="Bold" Content="Clear Grid"
                     Style="{StaticResource DarkmodeButton}" Margin="0 0 5 0" />-->
             <Button  x:Name="viewSchema" HorizontalAlignment="Left" Height="35" Width="80" Click="viewschema"
-                    Style="{StaticResource DarkmodeButton}" Margin="0 0 5 0" Content="Schema ?"/>
+                    Style="{StaticResource DarkmodeButton}" Margin="4 0 5 0" Content="Schema ?"/>
             <Button  x:Name="addnewrow" HorizontalAlignment="Left" Height="35" Width="80" Click="AddNew"
-                    Style="{StaticResource DarkmodeButton}" Margin="0 0 5 0" Content="Add New"/>
+                    Style="{StaticResource DarkmodeButton}" Margin="4 0 5 0" Content="Add New"/>
             <Button  x:Name="updaterow" HorizontalAlignment="Left" Height="35" Width="70" Click="UpdateRecord"
-                    Style="{StaticResource DarkmodeButton}" Foreground="White" Margin="0 0 5 0" Content="Update"/>
+                    Style="{StaticResource DarkmodeButton}" Foreground="White" Margin="4 0 5 0" Content="Update"/>
             <Button  x:Name="deleterow" HorizontalAlignment="Left" Height="35" Width="70"  Click="DeleteRecord"
-                    Style="{StaticResource DarkmodeButton}" Foreground="White" Margin="0 0 20 0" Content="Delete"/>
+                    Style="{StaticResource DarkmodeButton}" Foreground="White" Margin="4 0 5 0" Content="Delete"/>
 
 
             <!--ItemContainerStyle="{StaticResource CBitemContainerStyle}"-->
             <Button  x:Name="Togglegrid" HorizontalAlignment="Left" Height="35" Width="70" Click="Togglegrid_Click"
-                    Style="{StaticResource DarkmodeButton}" Foreground="White" Margin="5 0 20 0" Content=" Grid 1"/>
+                    Style="{StaticResource DarkmodeButton}" Foreground="White" Margin="4 0 5 0" Content=" Grid 1"/>
 
         </StackPanel>
         <!--#endregion bottom button bar-->
@@ -415,7 +415,7 @@
 		// You need to wrap the entire window area in a Canvas (I suggest it is named ""canvas"")
 		// but it can be placed anywhere inside the main Grid or whatever is used  to wrap the entire window
 		// Ensure it is set as Visibility="COLLAPSED"
-		// It s recommended to always name if just "canvas" for contiinuty across all controls using Flowdoc-->
+		// It s recommended to always name if just "canvas" for continuity across all controls using Flowdoc-->
 
         <!--<local:DragCanvas x:Name="canvas" Grid.Row="0"-->
         <Canvas x:Name="canvas" Grid.Row="0"
@@ -447,32 +447,23 @@
 				Visibility="Collapsed"
 				Width="520" />
 
-            <!--<view1:GenericSelectBoxControl  x:Name="SelectionListbox" 
-				Panel.ZIndex="5"
-                Visibility="Collapsed"
-               Canvas.Top="{Binding CtrlTop}"
-               Height="350" Width="400"/>-->
-
-            <!--Margin="65 35 0 0"-->
         </Canvas>
-        <!--</local:DragCanvas>-->
-
-        <!--// uses Behavior to change Background based on bing emopty or having text content-->
-        <!--//TextChangeBehavior control whether the callback is called or not-->
+ 
+        <!--// uses Behavior to change Background and caret color based on being empty or having text content-->
+        <!--//TextChangeBehavior controls the callback -->
         <TextBox x:Name="clrtb" Grid.Row="2"       
-                 Background ="{StaticResource Red0}"
+                 Background ="{StaticResource White5}"
                  Text=""
                  xmlns:TextChangeBehavior="false" 
-                 HorizontalAlignment="Right" Width="200"
+                 HorizontalAlignment="Right" Width="240"
                  TextAlignment="Center"
                  GotKeyboardFocus="clrtb_GotKeyboardFocus"
                  LostKeyboardFocus="clrtb_LostKeyboardFocus"
+                 CaretBrush="{StaticResource Red5}"
                  FontSize="22"
                  Height="30"
                  Padding="0 0 0 0"/>
 
-        <!--<Border Grid.Row="2" Background="LightGreen" HorizontalAlignment="Right"  Margin="300 0 0 0">-->
-         <!--</Border>-->
-
+    
     </Grid>
 </UserControl>

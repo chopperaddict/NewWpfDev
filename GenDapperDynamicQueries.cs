@@ -70,6 +70,7 @@ namespace NewWpfDev
 
             if ( argsbuffer . Count == 1 )
             {
+                "" . Track ( 0 );
                 string [ ] args = argsbuffer [ 0 ];
                 if ( args [ 0 ] == "CMD" )
                 {
@@ -95,6 +96,7 @@ namespace NewWpfDev
                 Con = MainWindow . CurrentSqlTableDomain;
                 MessageBox . Show ( $"It was not possible to Identify a valid Sql Connection string for \nthe Database [ {MainWindow . CurrentSqlTableDomain . ToUpper ( )} ]\n\n Please report  this error to DB Technical Support" , "Connection Error" );
                 error = $"Could not get correct SQL initialization string for domain {MainWindow . CurrentSqlTableDomain}";
+                "" . Track ( 1 );
                 return null;
             }
             try
@@ -140,6 +142,7 @@ namespace NewWpfDev
                         obj = ( object ) table;
                         resultstring = "SUCCESS";
                         // return IEnumerable<dynamic>
+                        "" . Track ( 1 );
                         return obj;
 
 
@@ -168,6 +171,7 @@ namespace NewWpfDev
                         obj = ( object ) IEintval;
                         count = 1;
                         resultstring = "SUCCESS";
+                        "" . Track ( 1 );
                         return obj;
                     }
 
@@ -210,8 +214,7 @@ namespace NewWpfDev
                             count = -1;
                             resultstring = "FAIL";
                         }
-                        //if ( strresult . ToList ( ) . Count == 0 )
-                        //    return null;
+                        "" . Track ( 1 );
                         return obj;
                         //}
                     }
@@ -248,6 +251,7 @@ namespace NewWpfDev
                         obj = ( object ) IEList;
                         count = IEList . Count ( );
                         resultstring = "SUCCESS";
+                        "" . Track ( 1 );
                         return IEList;
                     }
 
@@ -277,6 +281,7 @@ namespace NewWpfDev
                         obj = ( object ) reslt;
                         count = 1;
                         resultstring = "SUCCESS";
+                        "" . Track ( 1 );
                         return obj;
                     }
 
@@ -308,6 +313,7 @@ namespace NewWpfDev
                         obj = ( object ) queryresults;
                         count = queryresults . Count();
                         resultstring = "SUCCESS";
+                        "" . Track ( 1 );
                         return obj;
                     }
                     //**************************************************************************************************************************************************//
@@ -341,6 +347,7 @@ namespace NewWpfDev
                         obj = ( object ) reslt;
                         count = result;
                         resultstring = "SUCCESS";
+                        "" . Track ( 1 );
                         return obj;
                     }
                 }
@@ -352,6 +359,7 @@ namespace NewWpfDev
                 $"{ex . Message} [ {ex . Data} ]" . err ( );
                 Utils . DoErrorBeep ( );
             }
+            "" . Track ( 1 );
             return null;
         }
 
@@ -376,6 +384,7 @@ namespace NewWpfDev
             genericlist = new List<string> ( );
             string arg1 = "", arg2 = "", arg3 = "", arg4 = "";
             Dictionary<string , object> dict = new Dictionary<string , object> ( );
+            "" . Track ( 0 );
 
             string Con = GetCheckCurrentConnectionString ( MainWindow . CurrentSqlTableDomain );
             using ( IDbConnection db = new SqlConnection ( Con ) )
@@ -512,6 +521,7 @@ namespace NewWpfDev
                             if ( reslt == null )
                             {
                                 errormsg = "DT";
+                                "" . Track ( 1 );
                                 return 0;
                             }
                             else
@@ -578,6 +588,7 @@ namespace NewWpfDev
                                 }
                                 if ( errormsg == "" )
                                     errormsg = $"DYNAMIC:{fldcount}";
+                                "" . Track ( 1 );
                                 return collection . Count;
                             }
                         }
@@ -673,6 +684,7 @@ namespace NewWpfDev
                                         $"SQL PARSE ERROR - [{ex . Message}]" . err ( );
                                         Utils . DoErrorBeep ( );
                                         errormsg = $"{result}";
+                                        "" . Track ( 1 );
                                         return 0;
                                     }
                                     else
@@ -683,6 +695,7 @@ namespace NewWpfDev
                                             result = $"ERROR : [{SqlCommand}] returned ZERO records... ";
                                             $"ERROR : [{SqlCommand}] returned ZERO records... " . err ( );
                                             errormsg = $"DYNAMIC:0";
+                                            "" . Track ( 1 );
                                             return 0;
                                         }
                                         else
@@ -690,6 +703,7 @@ namespace NewWpfDev
                                             result = ex . Message;
                                             errormsg = $"UNKNOWN :{ex . Message}";
                                         }
+                                        "" . Track ( 1 );
                                         return 0;
                                     }
                                 }
@@ -701,10 +715,13 @@ namespace NewWpfDev
                                 Debug . WriteLine ( errormsg );
                             }
                             else
+                            {
                                 return fldcount;
+                                "" . Track ( 1 );
+                            }
                             //return 0;
+                            }
                         }
-                    }
                     catch ( Exception ex )
                     {
                         Debug . WriteLine ( $"STORED PROCEDURE ERROR : {ex . Message}" );
@@ -724,6 +741,7 @@ namespace NewWpfDev
             }
             $"{SqlCommand} Loaded {dict . Count} records" . DapperTrace ( );
 
+            "" . Track ( 1 );
             return dict . Count;
         }
         private static void GetReturnString ( int newcount , out int count , out string resultstring )
@@ -742,10 +760,11 @@ namespace NewWpfDev
         }
         public static List<string> CallStoredProcedure ( List<string> list , string sqlcommand , string [ ] args = null )
         {
-            //            List<string> list = new List<string> ( );
+            "" . Track ( 0 );
             list = GenDapperQueries . ProcessUniversalQueryStoredProcedure ( sqlcommand , args , MainWindow . CurrentSqlTableDomain , out string err );
             //This call returns us a List<string>
             // This method is NOT a dynamic method
+            "" . Track ( 1 );
             return list;
         }
 
@@ -776,7 +795,7 @@ namespace NewWpfDev
             SqlConnection sqlCon = new SqlConnection ( );
             List<string> queryresults = new List<string> ( );
 
-            //"" . Track ( );
+            "" . Track (0 );
             Mouse . OverrideCursor = Cursors . Wait;
             Debug . WriteLine ( $"Running Stored Procedure {spCommand}" );
             using ( sqlCon = new SqlConnection ( Con ) )
@@ -796,8 +815,8 @@ namespace NewWpfDev
                     // returns a list<string>
                     queryresults = sqlCon . Query<string> ( spCommand , parameters , commandType: CommandType . StoredProcedure ) . ToList ( );
                     //***********************************************************************************************************************************************//
-
-                      Debug . WriteLine ( $"S.Proc {spCommand} returned  RESULT = {queryresults . Count} records" );
+                     
+                    $"S.Proc {spCommand} returned  RESULT = {queryresults . Count} records" .cwinfo();
                 }
                 catch ( Exception ex )
                 {
@@ -807,7 +826,7 @@ namespace NewWpfDev
                     err = ex . Message;
                 }
                 Mouse . OverrideCursor = Cursors . Arrow;
-                //"" . Track ( 1 );
+                "" . Track ( 1 );
                 return queryresults;
             }
         }

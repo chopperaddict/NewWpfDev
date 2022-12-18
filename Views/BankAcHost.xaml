@@ -13,7 +13,7 @@
         SizeChanged="Window_SizeChanged"
         Loaded="HostLoaded"
         Closed="Window_Closed"
-        FontWeight="Normal"
+        FontWeight="Bold"
        MinHeight="530" MinWidth="970"
         Background="Black"
         x:Name="HostWin"

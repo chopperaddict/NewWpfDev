@@ -1,4 +1,5 @@
 ﻿using System;
+using System . Diagnostics . Eventing . Reader;
 using System . Linq;
 using System . Windows;
 using System . Windows . Controls;
@@ -7,11 +8,17 @@ using System . Windows . Media;
 
 using Microsoft . Xaml . Behaviors;
 
+using Views;
+
 namespace NewWpfDev
 {
 
     public class TextChangeBehavior : Behavior<TextBox>
     {
+
+        public static Brush backgrnd = null;
+        public static Brush foregrnd = null;
+
         protected override void OnAttached ( )
         {
             base . OnAttached ( );
@@ -25,8 +32,90 @@ namespace NewWpfDev
             {
                 txtBox . Background = new SolidColorBrush ( Colors . Red );
             }
-
         }
+
+        public static TextChangedEventHandler OnTextChanged ( DependencyObject d , DependencyPropertyChangedEventArgs e )
+        {
+            return CtrlTextChanged;
+        }
+        private  static void CtrlTextChanged ( object sender , RoutedEventArgs e )
+        {
+            // handles various different TextBoxes, based on their name.
+            // Set Background to Off whiite when empty, else light green
+            // and toggle the caret color as well from Black to Red
+            TextBox? tb = sender as TextBox;
+            if ( tb == null || tb . GetType ( ) != typeof ( TextBox ) )
+                return;
+            
+            if ( tb . Name == "ExName" )
+            {
+                if ( backgrnd != null )
+                    tb . Background = backgrnd as SolidColorBrush;
+                if ( foregrnd != null )
+                    tb . Foreground = foregrnd as SolidColorBrush;
+                tb . UpdateLayout ( );
+            }
+            if ( tb . Name == "SPName" )
+            {
+                if ( backgrnd != null )
+                    tb . Background = backgrnd as SolidColorBrush;
+                if ( foregrnd != null )
+                    tb . Foreground = foregrnd as SolidColorBrush;
+                tb . UpdateLayout ( );
+            }
+            if ( tb . Name == "Parameterstop" )
+            {
+               if ( tb . Text == "[No Parameters/Arguments required]"
+                    || tb . Text == "[No parameters required (or allowed)]" )
+                {
+                    tb . Background = Application . Current . FindResource ( "Green5" ) as SolidColorBrush;
+                    tb . Foreground = Application . Current . FindResource ( "Red3" ) as SolidColorBrush;
+                }
+                else if ( tb . Text . Contains ( " or multiple inputs]" ) )
+                {
+                    tb . Background = Application . Current . FindResource ( "Purple2" ) as SolidColorBrush;
+                    tb . Foreground = Application . Current . FindResource ( "White0" ) as SolidColorBrush;
+                }
+                else if ( tb . Text . Contains ( " Output " ) )
+                {
+                    tb . Background = Application . Current . FindResource ( "Red2" ) as SolidColorBrush;
+                    tb . Foreground = Application . Current . FindResource ( "White0" ) as SolidColorBrush;
+                }
+                else
+                {
+                    tb . Background = Application . Current . FindResource ( "Cyan2" ) as SolidColorBrush;
+                    tb . Foreground = Application . Current . FindResource ( "Black0" ) as SolidColorBrush;
+                }
+                backgrnd = tb . Background;
+                foregrnd = tb . Foreground;
+                SpResultsViewer spv = SpResultsViewer . GetViewerPointer ( );
+                TextBox tbx = new TextBox( );
+                tbx = spv . ExName;
+                spv . UpdateExecuteBackground (tbx,  backgrnd , foregrnd );
+            }
+            else if ( tb . Name . Contains ( "Nobehavior" ) == false )
+            {
+                if ( tb . Text . Length != 0 )
+                {
+                    if ( tb . Background == Application . Current . FindResource ( "White5" ) as SolidColorBrush )
+                    {
+                        tb . Background = Application . Current . FindResource ( "Green5" ) as SolidColorBrush;
+                        tb . CaretBrush = Application . Current . FindResource ( "Black0" ) as SolidColorBrush;
+                        tb . Foreground = Application . Current . FindResource ( "Black0" ) as SolidColorBrush;
+                    }
+                }
+                else
+                {
+                    if ( tb . Background == Application . Current . FindResource ( "Green5" ) as SolidColorBrush ) ;
+                    {
+                        tb . Background = Application . Current . FindResource ( "White5" ) as SolidColorBrush;
+                        tb . CaretBrush = Application . Current . FindResource ( "Red0" ) as SolidColorBrush;
+                    }
+                }
+            }
+        }
+
+
         void txt_TextChanged ( object sender , TextChangedEventArgs e )
         {
             TextBox txtBox = AssociatedObject as TextBox;

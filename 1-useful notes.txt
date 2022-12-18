@@ -8,7 +8,7 @@
 
 /******************************************************************************/*
 /* How to add an attached Property to any Window/Control class to have 
-automatic handing by using Behavior system.
+automatic handing by using BEHAVIOR system.
 /******************************************************************************/*
 
 See text file Code blocks.txt in codeblocks folder of the app for full code example (pasteable)

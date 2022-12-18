@@ -111,7 +111,7 @@ namespace NewWpfDev
             }
             finally
             {
-                Debug . WriteLine ( $" SQL data loaded from SQLCommand [{SqlCommand . ToUpper ( )}]" );
+                $" SQL dataTable loaded from SQLCommand [{SqlCommand . ToUpper ( )}]" . cwinfo ( );
                 con . Close ( );
             }
             return dt;

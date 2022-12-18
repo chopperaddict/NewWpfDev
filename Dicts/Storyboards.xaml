@@ -192,6 +192,14 @@
     <!--ncrease fontsize by  4 points-->
     <Style TargetType="DataGrid" x:Key="DatagridMagnifyAnimation4">
         <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="false">
+                <Setter Property="TextElement.Foreground" Value="Black"/>
+                <Setter Property="ComboBoxItem.Background" Value="Cyan"/>
+            </Trigger>
+            <Trigger Property="IsMouseOver" Value="true">
+                <Setter Property="TextElement.Foreground" Value="Red"/>
+                <Setter Property="ComboBoxItem.Background" Value="Yellow"/>
+            </Trigger>
             <EventTrigger RoutedEvent="DataGrid.MouseEnter">
                 <BeginStoryboard>
                     <Storyboard>
@@ -646,6 +654,14 @@
 
     <Style TargetType="ComboBox" x:Key="ComboBoxMagnifyAnimation4">
         <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="false">
+                <Setter Property="Foreground" Value="Black"/>
+                <Setter Property="Background" Value="Cyan"/>
+            </Trigger>
+            <Trigger Property="IsMouseOver" Value="true">
+                <Setter Property="Foreground" Value="Green"/>
+                <Setter Property="Background" Value="Yellow"/>
+            </Trigger>
             <EventTrigger RoutedEvent="ComboBox.MouseEnter">
                 <BeginStoryboard>
                     <Storyboard>
@@ -668,6 +684,8 @@
             </EventTrigger>
         </Style.Triggers>
     </Style>
+ 
+    
     <Style TargetType="ComboBox" x:Key="ComboBoxMagnifyAnimation3">
         <Style.Triggers>
             <EventTrigger RoutedEvent="ComboBox.MouseEnter">
@@ -1134,7 +1152,40 @@
                                     FillBehavior="Stop"
                                     AutoReverse="false"  />
     </Storyboard>
-    
+
+
+    <Style TargetType="ComboBoxItem" x:Key="ComboBoxItemMagnifyAnimation4">
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="false">
+                <Setter Property="TextElement.Foreground" Value="Black"/>
+                <Setter Property="ComboBoxItem.Background" Value="Cyan"/>
+            </Trigger>
+            <Trigger Property="IsMouseOver" Value="true">
+                <Setter Property="TextElement.Foreground" Value="Red"/>
+                <Setter Property="ComboBoxItem.Background" Value="Yellow"/>
+            </Trigger>
+            <EventTrigger RoutedEvent="ComboBox.MouseEnter">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <DoubleAnimation
+                                        Storyboard.TargetProperty="FontSize"
+                                        From="12" To="16" Duration="0:0:0.1" 
+                                        AutoReverse="false"  />
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+            <EventTrigger RoutedEvent="ComboBox.MouseLeave">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <DoubleAnimation
+                                        Storyboard.TargetProperty="FontSize"
+                                        From="16" To="12" Duration="0:0:0.1" 
+                                        AutoReverse="false"  />
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+        </Style.Triggers>
+    </Style>
 
 </ResourceDictionary>
 

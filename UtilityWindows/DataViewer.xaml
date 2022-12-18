@@ -87,8 +87,7 @@
 				Width="{Binding Path=ActualWidth, ElementName=dataviewergrid, 
                     Converter={StaticResource ReduceByParamValue},ConverterParameter=5}"
 				HorizontalAlignment="Left"
-				IsHitTestVisible="true"
-                                  
+				IsHitTestVisible="true"                                  
 				IsEnabled="true"
 				IsSelectionEnabled="true"
 				Panel.ZIndex="10"

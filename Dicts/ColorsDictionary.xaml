@@ -40,7 +40,15 @@
 	<Color x:Key="ClrOrange6">#FFFEBA07</Color>
 	<Color x:Key="ClrOrange7">#FFFEC807</Color>
 
-	<Color x:Key="ClrCyan0">#FD00FFFF</Color>
+    <Color x:Key="ClrPurple0">#FF360028</Color>
+    <Color x:Key="ClrPurple1">#FF4B0045</Color>
+    <Color x:Key="ClrPurple2">#FF580045</Color>
+    <Color x:Key="ClrPurple3">#FF6A0069</Color>
+    <Color x:Key="ClrPurple4">#FF8A0069</Color>
+    <Color x:Key="ClrPurple5">#FFFF007D</Color>
+    <Color x:Key="ClrPurple6">#FFFF00FF</Color>
+    
+    <Color x:Key="ClrCyan0">#FD00FFFF</Color>
 	<Color x:Key="ClrCyan1">#D000FFFF</Color>
 	<Color x:Key="ClrCyan2">#D000FFFF</Color>
 	<Color x:Key="ClrCyan3">#8900FFFF</Color>
@@ -227,7 +235,15 @@
 	<SolidColorBrush x:Key="Magenta7" Color="#FFFFAFFF" />
 	<SolidColorBrush x:Key="Magenta8" Color="#FFFFCCFF" />
 
-	<SolidColorBrush x:Key="Item.MouseOver.Background" Color="#FF5A0FFF"/>
+    <SolidColorBrush  x:Key="Purple0">#FF360028</SolidColorBrush >
+    <SolidColorBrush  x:Key="Purple1">#FF4B0045</SolidColorBrush >
+    <SolidColorBrush  x:Key="Purple2">#FF580045</SolidColorBrush >
+    <SolidColorBrush  x:Key="Purple3">#FF6A0069</SolidColorBrush >
+    <SolidColorBrush  x:Key="Purple4">#FF8A0069</SolidColorBrush >
+    <SolidColorBrush  x:Key="Purple5">#FFFF007D</SolidColorBrush >
+    <SolidColorBrush  x:Key="Purple6">#FFFF00FF</SolidColorBrush >
+																					   
+    <SolidColorBrush x:Key="Item.MouseOver.Background" Color="#FF5A0FFF"/>
 	<SolidColorBrush x:Key="Item.MouseOver.Border" Color="#FF1C26DA"/>
 	<SolidColorBrush x:Key="Item.SelectedInactive.Background" Color="#FFFD2600"/>
 	<SolidColorBrush x:Key="Item.SelectedInactive.Border" Color="#FF8E0300"/>

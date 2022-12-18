@@ -341,7 +341,7 @@ namespace NewWpfDev . Models
             {
                 if ( item . Contains ( "Catalog" ) )
                 {
-                    Debug . WriteLine ( $"Sql Domain of {item} confirmed..." );
+    //               Debug . WriteLine ( $"Sql Domain of {item} confirmed..." );
                     break;
                 }
                 offset++;
@@ -377,7 +377,7 @@ namespace NewWpfDev . Models
             }
             finally
             {
-                Debug . WriteLine ( $" SQL data loaded from SQLCommand [{SqlCommand . ToUpper ( )}]" );
+                $" SQL data loaded from SQLCommand [{SqlCommand . ToUpper ( )}]" . cwinfo ( );
                 con . Close ( );
             }
             return dt;

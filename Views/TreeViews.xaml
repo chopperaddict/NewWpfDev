@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NewWpfDev.Views"
+        xmlns:Behaviors="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"
         xmlns:att="clr-namespace:NewWpfDev.AttachedProperties"
         xmlns:userctrl="clr-namespace:NewWpfDev.UserControls"
@@ -2678,12 +2679,15 @@
                      HorizontalContentAlignment="Center"
                      HorizontalAlignment="Left"
                     VerticalAlignment="Bottom"
-                     Background="Red" Foreground="White" 
+                     Background="{StaticResource ResourceKey=White5}"
+                    Foreground="Black"
                      PreviewMouseDown="Searchtext_PreviewMouseDown"
+                     xmlns:TextChangeBehavior ="true"
                      FontSize="16"   Text="Search for....">
-                    <!--<e:Interaction.Behaviors>
-                        <TxtBoxbhavor:TextChangeBehavior/>
-                    </e:Interaction.Behaviors>-->
+
+                    <!--<Behaviors:Interaction.Behaviors>
+                        <xmlns:TextChangeBehavior/>
+                        </Behaviors:Interaction.Behaviors>-->
                 </TextBox>
 
                 <Button x:Name="StopExpand" 

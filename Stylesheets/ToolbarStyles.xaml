@@ -3,13 +3,14 @@
   
         <!--Styles for controls in a toolbar.-->
         <Style x:Key="{x:Static ToolBar.SeparatorStyleKey}" TargetType="Separator">
-            <Setter Property="Background" Value="DarkBlue"/>
+            <Setter Property="Background" Value="Red"/>
             <Setter Property="Width" Value="2"/>
         </Style>
 
         <Style x:Key="{x:Static ToolBar.ButtonStyleKey}" TargetType="Button">
-            <Setter Property="Foreground" Value="Blue"/>
-            <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Background" Value="Green"/>
+        <Setter Property="Foreground" Value="Black"/>
+        <Setter Property="FontSize" Value="14"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
@@ -35,7 +36,7 @@
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
 
-        <Style x:Key="{x:Static ToolBar.TextBoxStyleKey}" TargetType="TextBox">
+        <!--<Style x:Key="{x:Static ToolBar.TextBoxStyleKey}" TargetType="TextBox">
             <Setter Property="Background" Value="DarkBlue"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontSize" Value="14"/>
@@ -43,11 +44,12 @@
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="Width" Value="75"/>
-        </Style>
+        </Style>-->
 
         <Style x:Key="{x:Static ToolBar.ComboBoxStyleKey}" TargetType="ComboBox">
-            <Setter Property="Background" Value="LightSteelBlue"/>
-            <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Background" Value="LightSteelBlue"/>
+        <Setter Property="Foreground" Value="Black"/>
+        <Setter Property="FontSize" Value="14"/>
             <Setter Property="MinWidth" Value="60"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>

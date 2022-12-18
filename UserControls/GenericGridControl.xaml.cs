@@ -177,93 +177,6 @@ namespace NewWpfDev . UserControls
 
         #endregion Full Properties
 
-        #region Behaviors
-
-        // NOT in use
-        public static DependencyProperty CreateAttachedProperty ( Type ctrl = null , string ApName = "" , Type ArgType = null , string namesuffix = "" , object DefValue = null )
-        {
-            //    if ( ctrl == null || ApName == "" )
-            //        return null;
-            //    if ( namesuffix == "" )
-            //    {
-            //        DependencyProperty DefProperty0 =
-            //              DependencyProperty . RegisterAttached (
-            //                  ApName ,
-            //                ArgType ,
-            //                ctrl as Type ,
-            //                new PropertyMetadata ( DefValue ) );
-            //        return DefProperty0;
-            //    }
-            return ( DependencyProperty ) null;
-        }
-
-        public static readonly DependencyProperty TextChangedProperty =
-          DependencyProperty . Register ( "TextChanged" ,
-          typeof ( bool ) , 
-          typeof ( GenericGridControl ) ,
-            typeMetadata: new FrameworkPropertyMetadata (
-                defaultValue:(bool) true, 
-                flags: FrameworkPropertyMetadataOptions .None) ,
-            new ValidateValueCallback ( GetTextChanged ) );
-
-        //public static readonly DependencyProperty TextChangedProperty =
-        //  DependencyProperty . RegisterAttached ( "TextChanged" ,
-        //  typeof ( bool ) , typeof ( GenericGridControl ) ,
-        //  new PropertyMetadata ( true ) , new ValidateValueCallback ( GetTextChanged ) );
-
-        private static TextChangedEventHandler OnTextChanged ( DependencyObject d , DependencyPropertyChangedEventArgs e )
-        {
-            return CtrlTextChanged;
-        }
-        private static void CtrlTextChanged ( object sender , RoutedEventArgs e )
-        {
-            // Set Background to Off whiite when empty, else light green
-            // and toggle the caret color as well from Black to Red
-           TextBox? tb = sender as TextBox;
-            if ( tb == null || tb . GetType ( ) != typeof ( TextBox ) )
-                return;
-            if ( tb . Text . Length != 0 )
-            {
-                if ( tb . Background == Application . Current . FindResource ( "White5" ) as SolidColorBrush )
-                {
-                    tb . Background = Application . Current . FindResource ( "Green5" ) as SolidColorBrush;
-                    tb . CaretBrush = Application . Current . FindResource ( "Black0" ) as SolidColorBrush;
-                }
-            }
-            else
-            {
-                if ( tb . Background == Application . Current . FindResource ( "Green5" ) as SolidColorBrush ) ;
-                {
-                    tb . Background = Application . Current . FindResource ( "White5" ) as SolidColorBrush;
-                    tb . CaretBrush = Application . Current . FindResource ( "Red0" ) as SolidColorBrush;
-                }
-            }
-        }
-
-        public bool TextChanged
-        {
-            get => ( bool ) GetValue ( TextChangedProperty );
-            set => SetValue ( TextChangedProperty , value );
-        }
-        private static bool GetTextChanged ( object value )
-        {
-            bool val = ( bool ) value;
-            if ( val )
-                return true;
-
-            return false;
-        }
-        private static bool SetTextChanged ( object value )
-        {
-            bool val = ( bool ) value;
-            if ( val == true )
-                return true;
-
-            return false;
-        }
-
-        #endregion  Behaviors
-
         #region Constructor
         //Datacontext is set in XAML (to BankAccountVM), NOT in here
         public GenericGridControl ( BankAcHost host )
@@ -274,12 +187,12 @@ namespace NewWpfDev . UserControls
             this . UpdateLayout ( );
             ThisWin = this;
             fdl = new FlowdocLib ( Flowdoc , canvas );
-            if ( host != null ) Host = host;
-            //DependencyPropertyChangedEventArgs dargs = new DependencyPropertyChangedEventArgs ( );
-            //dargs . NewValue = FindResource ( "Red1" );
+            if ( host != null ) Host = host;            
             splithandler = new ExtendSplitter ( this );
+ 
             // setup handler for textbox background color change on being Empty or having content
-            clrtb . TextChanged += OnTextChanged ( clrtb , new DependencyPropertyChangedEventArgs ( ) );
+            clrtb. TextChanged += TextChangeBehavior . OnTextChanged ( clrtb, new DependencyPropertyChangedEventArgs ( ) );
+            Debug . WriteLine ( NewWpfDev . Utils . GetThemeName ( ) );
         }
 
         private void GenGridControl_Loaded ( object sender , RoutedEventArgs e )
@@ -2422,13 +2335,24 @@ namespace NewWpfDev . UserControls
 
         private void clrtb_GotKeyboardFocus ( object sender , KeyboardFocusChangedEventArgs e )
         {
-            Background = FindResource ( "White0" ) as SolidColorBrush;
+            //TextBox tb = sender as TextBox;
+            //tb.Background = FindResource ( "White0" ) as SolidColorBrush;
+            //tb . BorderBrush = FindResource ( "White0" ) as SolidColorBrush;
+            //Thickness th = new Thickness ( );
+            //th.Top= 0;
+            //th . Bottom = 25;
+            //tb . BorderThickness = th;
         }
 
         private void clrtb_LostKeyboardFocus ( object sender , KeyboardFocusChangedEventArgs e )
         {
-            Background = FindResource ( "White5" ) as SolidColorBrush;
-
+            //TextBox tb = sender as TextBox;
+            //tb . Background = FindResource ( "White5" ) as SolidColorBrush;
+            //tb . BorderBrush = FindResource ( "Green0" ) as SolidColorBrush;
+            //Thickness th = new Thickness ( );
+            //th . Top = 0;
+            //th . Bottom = 25;
+            //tb . BorderThickness = th;
         }
     }
 }

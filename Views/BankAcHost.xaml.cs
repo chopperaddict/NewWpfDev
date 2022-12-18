@@ -4,7 +4,7 @@ using System . Collections . Generic;
 using System . Collections . ObjectModel;
 using System . ComponentModel;
 using System . Diagnostics;
-
+using System . Reflection;
 using System . Runtime . InteropServices;
 using System . Threading . Tasks;
 using System . Windows;
@@ -12,7 +12,7 @@ using System . Windows . Controls;
 using System . Windows . Input;
 
 using System . Windows . Media;
-
+using System . Reflection;
 using DapperGenericsLib;
 
 using NewWpfDev . Models;
@@ -140,7 +140,8 @@ namespace NewWpfDev . Views
             Mouse . SetCursor ( Cursors . Wait );
             InitializeComponent ( );
             bool bRet = ShouldSystemUseDarkMode ( );
-            this . Title = "sdfafd";
+            this . Title = "BankAcHost Window containing GenericgridControl UserControl in ContentPresenter";
+
             //this proves that only BooltoVisibilityConverter is in these resources
             var res = Application . Current . Resources;
             var style = res . Values;
@@ -200,7 +201,15 @@ namespace NewWpfDev . Views
 
             StylesList . SetHost ( this );
             Mouse . SetCursor ( Cursors . Arrow );
+            List<string> list = new List<string> ( );
+            list = AppSettingsHandler . ReadAllSettings ( );
+            //foreach ( Assembly a in Application .Current.  LoadedAssemblies )
+            //{
+            //    if ( a . Name . StartsWith ( "PresentationFramework." ) )
+            //        Debug. WriteLine ( a . FullName );                
+            //}
         }
+
         public void ResetSize ( )
         {
             this . Height += 1;

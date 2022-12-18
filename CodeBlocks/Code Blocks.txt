@@ -1,21 +1,49 @@
 ﻿/******************************************************************************/*
 /* How to add an attached Property to any Window/Control class to have 
 automatic handing by using Behavior system.
+this one handles the background color of any TextBox based on the text content (Length >= 0)
 /******************************************************************************/*
-        #region Behaviors
 
-        // The usual parameters for an attached property
-        public static readonly DependencyProperty TextChangedProperty =
-          DependencyProperty . RegisterAttached ( "TextChanged" ,
-          typeof ( bool ) , typeof ( GenericGridControl ) ,
-          new PropertyMetadata ( false ) );
+    // This link is placed in Constructor of the calling Control, and hooks the attached pproperty to its Handler
+    // You cannot  assign Arguments as DependencyPropertyChangedEventArgs  is Read Only !!!!!
+    // so the Handler has to access the control to choose /decide what you want to happen in the Handler, 
+    such as  change the background color in this example.
 
-          // This link is usually placed in Constructor of the calling Control, and hooks the attached pproperty to its Handler
-          // You cannoot  assign Arguments as DependencyPropertyChangedEventArgs  is Read Only !!!!!
-          // so the Handler has to access the control to choose /decide what you want to happen in the Handler, 
-          such as  change the background color in this example.
+    // point it to static class TextChangeBehavior
+    controlname. TextChanged += TextChangeBehavior . OnTextChanged ( controlname, new DependencyPropertyChangedEventArgs () );
 
-          controlname. TextChanged += OnTextChanged ( controlname, new DependencyPropertyChangedEventArgs () );
+
+    //This is a seperate STATIC Class file (TextChangeBehavior) that contains all of the following methods :-
+
+    #region Behaviors
+
+    //***********************//
+     // START of Behavior class
+     //***********************//
+
+    public class TextChangeBehavior : Behavior<TextBox>
+    { 
+        // handles the attachment 
+       protected override void OnAttached ( )
+        {
+            base . OnAttached ( );
+            TextBox txtBox = AssociatedObject as TextBox;
+            txtBox . TextChanged += txt_TextChanged;
+            if ( string . IsNullOrEmpty ( txtBox . Text ) )
+            {
+                txtBox . Background = new SolidColorBrush ( Colors . Green );
+            }
+            else
+            {
+                txtBox . Background = new SolidColorBrush ( Colors . Red );
+            }
+        }
+
+        // points object to this functionality
+        public static TextChangedEventHandler OnTextChanged ( DependencyObject d , DependencyPropertyChangedEventArgs e )
+        {
+            return CtrlTextChanged;
+        }
 
         // IMPORTANT : THIS is  the handler that you add in the caller control that is using the Attached property above
         
@@ -36,7 +64,7 @@ automatic handing by using Behavior system.
             return null;
         }
 
-        // THis is an example oof a handler in the caller code
+        // THis is an example of a handler in the caller code
         // thiis  changes the textbox background dependent on whether it contains any text or not
         private static void CtrlTextChanged ( object sender , RoutedEventArgs e )
         {
@@ -60,8 +88,12 @@ automatic handing by using Behavior system.
                 }
             }
         }
-        
-        // hat is all there is to it.... except to uise it in XAML :=
+     }
+     //***********************//
+     // EOF Behavior class
+     //***********************//
+
+        // That is all there is to it.... except to use it in XAML :=
 
         //the behavior line needs to pass "true" so that the callback is returned, using false will disable it
         // This is  the line that triggers the behavior
@@ -74,5 +106,11 @@ automatic handing by using Behavior system.
                  FontSize="28"
                  Padding="0 4 0 0"/>
 
-        
+        // NOT NEEDED ANY MORE ??
+         // The usual parameters for an attached property
+        public static readonly DependencyProperty TextChangedProperty =
+          DependencyProperty . RegisterAttached ( "TextChanged" ,
+          typeof ( bool ) , typeof ( GenericGridControl ) ,
+          new PropertyMetadata ( false ) );
+
         #endregion  Behaviors

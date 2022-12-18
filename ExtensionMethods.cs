@@ -45,9 +45,9 @@ namespace NewWpfDev
 
             }
             if ( direction == 0 )
-                Debug . WriteLine ( $"** TRACK - IN ** : [{DateTime . Now . Second}:{DateTime . Now . Millisecond}] : {line} :  {filedetails} : {name . ToUpper ( )}\t : {message}" );
+                Debug . WriteLine ( $"** TRACK - IN ** : [{DateTime . Now . Minute}:{DateTime . Now . Second}:{DateTime . Now . Millisecond}] : {line} :  {filedetails} : {name . ToUpper ( )}\t : {message}" );
             else
-                Debug . WriteLine ( $"** TRACK - OUT ** : [{DateTime . Now . Second}:{DateTime . Now . Millisecond}] : {line} :  {filedetails} : {name . ToUpper ( )}\t : {message}" );
+                Debug . WriteLine ( $"** TRACK - OUT ** : [{DateTime . Now . Minute}:{DateTime . Now . Second}:{DateTime . Now . Millisecond}] : {line} :  {filedetails} : {name . ToUpper ( )}\t : {message}" );
 #endif
         }
         public static void log (
@@ -137,7 +137,7 @@ namespace NewWpfDev
             if ( level == 0 ) return;
             string [ ] tmp = path . Split ( '\\' );
             string namestr = $"{name + " ()" . PadRight ( 25 )}";
-            Debug . WriteLine ( $"INFO : {line . ToString ( ) . PadRight ( 6 )} : {namestr} ::** {message . PadRight ( 20 )}  : : File= {tmp [ 5 ] + "\\" + tmp [ 6 ]}" );
+            Debug. WriteLine ($"INFO : [{DateTime . Now . Minute}:{DateTime . Now . Second}:{DateTime . Now . Millisecond}] : {line . ToString ( ) . PadRight ( 6 )} : {namestr.Trim()} ::** {message . PadRight ( 20 )}  : : File= {tmp [ 5 ] + "\\" + tmp [ 6 ]}" );
         }
         //-------------------------------------------------------------------------------------------------------//
 

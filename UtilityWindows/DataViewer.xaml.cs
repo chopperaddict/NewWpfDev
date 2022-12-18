@@ -302,6 +302,7 @@ namespace UtilityWindows
 
         private void Fonts_SelectionChanged ( object sender , SelectionChangedEventArgs e )
         {
+            // handle switching of font size in the window's scrollviewer
             string newsize = "";
             string infotext = "";
             ComboBox cb = sender as ComboBox;
@@ -321,6 +322,8 @@ namespace UtilityWindows
                 // save new size to user defaults
                 NewWpfDev . Properties . Settings . Default . DataViewerFontSize = newsize;
                 NewWpfDev . Properties . Settings . Default . Save ( );
+                AppSettingsHandler . AddUpdateAppSettings ( "DataViewerFontSize" , newsize );
+
                 IsDirty = true;
             }
             SelectCurrentFontSize ( newsize );
@@ -336,7 +339,7 @@ namespace UtilityWindows
         }
         private void Fontslist_SelectionChanged ( object sender , SelectionChangedEventArgs e )
         {
-            // Select font family
+            // Select font family in Windoe's ScrollViewer
             AppSettingsHandler . AddUpdateAppSettings ( "DataViewerFontFamily" , fontslist . SelectedItem . ToString ( ) );
             string selfont = "";
             if ( SelectedFont != -1 )
@@ -358,7 +361,12 @@ namespace UtilityWindows
 
         private void Dataviewer_KeyDown ( object sender , KeyEventArgs e )
         {
-            if ( e . Key == Key . F8 )
+           if ( e . Key == Key . Escape )
+            {
+                // close window if Escape hit
+                this . Close ( );
+            }
+            else if ( e . Key == Key . F8 )
             {
                 AppSettingsHandler . AddUpdateAppSettings ( "DataViewerFontFamily" , "Nirmala UI Bold" );
                 AppSettingsHandler . AddUpdateAppSettings ( "DataViewerFontStyle" , "Normal" );
@@ -637,12 +645,17 @@ namespace UtilityWindows
             if ( Output . Contains ( "BEGIN" ) )
             {
                 bindex = Output . IndexOf ( "BEGIN" );
+                if ( bindex == 0 )
+                    return "BEGIN not found....";
                 if ( Output . Contains ( "AS" ) )
                 {
                     while ( true )
                     {
-                        string tmpoutput1 = Output . Substring ( bindex - 12 );
+                        string tmpoutput1 = "";
+                        tmpoutput1 = Output . Substring ( bindex - 12 );
                         int asindex = Output . IndexOf ( "AS" );
+                        if ( tmpoutput1 == null )
+                            break;
                         if ( asindex == -1 )
                             break;
                         if ( bindex - asindex < 12 )

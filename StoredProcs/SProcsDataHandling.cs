@@ -1239,7 +1239,7 @@ namespace NewWpfDev . StoredProcs
         }
         public static List<string> CallStoredProcedure ( List<string> list , string sqlcommand , string [ ] args = null )
         {
-            //            List<string> list = new List<string> ( );
+            // loads various stuff but list of SProcs is one of them. list of tables is another
             list = GenDapperQueries . ProcessUniversalQueryStoredProcedure ( sqlcommand , args , MainWindow . CurrentSqlTableDomain , out string err );
             //This call returns us a List<string>
             // This method is NOT a dynamic method

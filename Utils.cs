@@ -36,6 +36,7 @@ using System . Reflection;
 using System . Dynamic;
 using System . Threading . Tasks;
 using System . Windows . Media . Media3D;
+using System . Runtime . InteropServices;
 
 namespace NewWpfDev
 {
@@ -227,7 +228,7 @@ namespace NewWpfDev
             Console . Beep ( freq , duration );
             return true;
         }
-        
+
         #endregion play beeps
 
         #region Dictionary Handlers
@@ -536,7 +537,7 @@ namespace NewWpfDev
             result = false;
             return result;
         }
-        public static RenderTargetBitmap CreateControlImage ( FrameworkElement control , string filename = "" , bool savetodisk = false  )
+        public static RenderTargetBitmap CreateControlImage ( FrameworkElement control , string filename = "" , bool savetodisk = false )
         {
             if ( control == null )
                 return null;
@@ -596,7 +597,7 @@ namespace NewWpfDev
                 {
                     bd . Style = magnify ? System . Windows . Application . Current . FindResource ( "BorderMagnifyAnimation4" ) as Style : null;
                     continue;
-                    
+
                 }
                 var cb = list [ i ] as ComboBox;
                 if ( cb != null )
@@ -656,8 +657,8 @@ namespace NewWpfDev
             }
             return foundChild;
         }
-           public static T FindChild<T> ( DependencyObject parent , string childName )
-              where T : DependencyObject
+        public static T FindChild<T> ( DependencyObject parent , string childName )
+           where T : DependencyObject
         {
             // Confirm parent and childName are valid. 
             if ( parent == null )
@@ -940,7 +941,7 @@ namespace NewWpfDev
             Dgrid . UpdateLayout ( );
             Dgrid . ScrollIntoView ( row ?? Dgrid . SelectedItem );
             Dgrid . UpdateLayout ( );
-         }
+        }
         public static void ScrollCBRecordIntoView ( ComboBox lbox , int CurrentRecord )
         {
             // Works well 26/5/21
@@ -954,7 +955,7 @@ namespace NewWpfDev
         //Generic form of Selection forcing code below
         public static void SetupWindowDrag ( Window inst )
         {
-           try
+            try
             {
                 //Handle the button NOT being the left mouse button
                 // which will crash the DragMove Fn.....
@@ -2907,11 +2908,11 @@ namespace NewWpfDev
                 buffer = File . ReadAllLines ( entry );
                 while ( index < buffer . Length )
                 {
-                     if ( FullBuffer [ index ] . ToUpper ( ) . Contains ( $"TARGETTYPE=\"DATAGRID}}\"" ) == true
-                           || FullBuffer [ index ] . ToUpper ( ) . Contains ( $"TARGETTYPE = \"DATAGRID}}\"" ) == true
-                           || FullBuffer [ index ] . ToUpper ( ) . Contains ( $"TARGETTYPE=\"DATAGRIDCELL}}\"" ) == true
-                           || FullBuffer [ index ] . ToUpper ( ) . Contains ( $"TARGETTYPE=\"DATAGRIDCELL\"" ) == true
-                           || FullBuffer [ index ] . ToUpper ( ) . Contains ( $"TARGETTYPE = \"DATAGRIDCELL\"" ) == true )
+                    if ( FullBuffer [ index ] . ToUpper ( ) . Contains ( $"TARGETTYPE=\"DATAGRID}}\"" ) == true
+                          || FullBuffer [ index ] . ToUpper ( ) . Contains ( $"TARGETTYPE = \"DATAGRID}}\"" ) == true
+                          || FullBuffer [ index ] . ToUpper ( ) . Contains ( $"TARGETTYPE=\"DATAGRIDCELL}}\"" ) == true
+                          || FullBuffer [ index ] . ToUpper ( ) . Contains ( $"TARGETTYPE=\"DATAGRIDCELL\"" ) == true
+                          || FullBuffer [ index ] . ToUpper ( ) . Contains ( $"TARGETTYPE = \"DATAGRIDCELL\"" ) == true )
                     {
                         offset = FullBuffer [ index ] . ToUpper ( ) . IndexOf ( $"TARGETTYPE=\"DATAGRID" );
                         if ( offset == -1 )
@@ -2948,7 +2949,7 @@ namespace NewWpfDev
                 }   // END WHILE index < max
             }
             int counter = 0;
-             foreach ( var item in Styles )
+            foreach ( var item in Styles )
             {
                 if ( item == "Dark Mode" )
                     fullvalidstyles . Add ( "Dark Mode" );
@@ -2959,7 +2960,7 @@ namespace NewWpfDev
                 }
                 counter++;
             }
-              Debug . WriteLine ( $"Identified {counter} valid DataGrid styles in {fullvalidpaths . Count} Style source files in {dirs . Length} valid folders" );
+            Debug . WriteLine ( $"Identified {counter} valid DataGrid styles in {fullvalidpaths . Count} Style source files in {dirs . Length} valid folders" );
             return fullvalidstyles;
         }   // METHOD END
 
@@ -3029,7 +3030,7 @@ namespace NewWpfDev
                 styles . Add ( buffer );
             }   // END WHILE
             fullBuffer = "";
-         }
+        }
         public static void ClearAttachedProperties ( UIElement ctrl )
         {
             return;
@@ -3071,9 +3072,9 @@ namespace NewWpfDev
             output = ObjectCopier . Clone<T> ( input );
             return output; ;
         }
-        
+
         #endregion Safe Object Copiers
-        
+
         public static int GetCollectionColumnCount ( GenericClass gc )
         {
             int count = 0;
@@ -3244,6 +3245,15 @@ namespace NewWpfDev
                 reccount += 1;
             }
         }
+        public static string GetThemeName ( )
+        {
+            StringBuilder themeNameBuffer = new StringBuilder ( 260 );
+            var error = GetCurrentThemeName ( themeNameBuffer , themeNameBuffer . Capacity , null , 0 , null , 0 );
+            if ( error != 0 ) Marshal . ThrowExceptionForHR ( error );
+            return themeNameBuffer . ToString ( );
+        }
+        [DllImport ( "uxtheme.dll" , CharSet = CharSet . Auto )]
+        public static extern int GetCurrentThemeName ( StringBuilder pszThemeFileName , int dwMaxNameChars , StringBuilder pszColorBuff , int dwMaxColorChars , StringBuilder pszSizeBuff , int cchMaxSizeChars );
 
         #region create font size range  for any control
 
@@ -3273,7 +3283,7 @@ namespace NewWpfDev
             lb . ItemsSource = sizes;
             lb . SelectedIndex = indx;
         }
-        
+
         #endregion create font size range  for any control
     }
 }
